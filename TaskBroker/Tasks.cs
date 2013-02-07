@@ -19,16 +19,13 @@ namespace TaskBroker
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public TaskScheduler.PlanItem Plan { get; set; }
-        public ExecutionType ExecAs { get; set; }
-
         public string MessageType { get; set; }
-
+        
         public TaskQueue.TQItemSelector consumerSelector { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
+        public ModMod Module { get; set; }
 
-        public ProducerEntryPoint Producer { get; set; }
-        public ConsumerEntryPoint Consumer { get; set; }
+        public TaskScheduler.PlanItem Plan { get; set; }
 
         public DateTime NextExecution
         {

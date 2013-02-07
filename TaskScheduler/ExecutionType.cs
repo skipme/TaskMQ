@@ -5,7 +5,5 @@ using System.Text;
 
 namespace TaskScheduler
 {
-
-
-    public delegate void ProducerEntryPoint(PlanItem pi);
+    public delegate void PlanItemEntryPoint(PlanItem pi);
 }

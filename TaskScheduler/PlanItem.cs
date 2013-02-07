@@ -15,7 +15,7 @@ namespace TaskScheduler
 
         public string ModuleName { get; set; }
 
-        public ProducerEntryPoint planEntry;
+        public PlanItemEntryPoint planEntry;
 
         public DateTime LastExecutionTime { get; set; }
         public bool ExucutingNow { get; set; }

@@ -13,36 +13,44 @@ namespace TaskBroker
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
             Queues = new QueueClassificator();
+            Modules = new ModHolder();
         }
         public List<QueueConnectionParameters> Connections;
         public List<TaskQueue.QueueItemModel> MessageModels;
         public List<MessageType> MessageSchemas;
         public List<QueueTask> Tasks;
 
+        public ModHolder Modules { get; set; }
         public QueueClassificator Queues { get; set; }
         public TaskScheduler.ThreadPool Scheduler { get; set; }
 
-        public void RegistrateProducer(System.Reflection.Assembly module, string UniqueName,
-            TaskScheduler.IntervalType it,
-            long intervalValue, ProducerEntryPoint entry)
+        public void RegistrateModule(ModMod mod)
         {
+            Modules.AddMod(mod);
+        }
+        public void RegistrateTask(string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
+        {
+            ModMod module = Modules.GetByName(modName);
             QueueTask t = new QueueTask()
             {
-                Name = UniqueName,
-                ExecAs = ExecutionType.Producer,
-                Producer = entry
+                Name = module.UniqueName,
+                Module = module
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
                 CustomObject = t,
-                NameAndDescription = UniqueName,
+                NameAndDescription = NameAndDesc,
                 intervalType = it,
                 intervalValue = intervalValue,
-                ModuleName = module.FullName,
+                ModuleName = module.UniqueName,
                 planEntry = (TaskScheduler.PlanItem pi) =>
                     {
                         QueueTask task = pi.CustomObject as QueueTask;
-                        task.Producer(null);
+                        if (task.Plan.intervalType == TaskScheduler.IntervalType.isolatedThread)
+                        {
+                            task.Module.Producer(task.Parameters);
+                        }
+                        
                     }
             };
             t.Plan = p;

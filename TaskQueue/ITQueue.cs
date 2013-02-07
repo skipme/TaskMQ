@@ -12,7 +12,7 @@ namespace TaskQueue
         ITItem GetItem(TQItemSelector selector);
 
 
-        void InitialiseFromModel(QueueItemModel model);
+        void InitialiseFromModel(QueueItemModel model, string collection, string connectionString);
         string QueueType { get; }
         string QueueDescription { get; }
     }

@@ -8,24 +8,26 @@ namespace TaskQueue.Providers
     public class MemQueue : ITQueue
     {
         public static Dictionary<string, Queue<ITItem>> collections = new Dictionary<string, Queue<ITItem>>();
-       
-        QueueItemModel m;
+
+        QueueItemModel m { get; set; }
+        string CollectionName { get; set; }
+
         Queue<ITItem> baseQueue
         {
             get
             {
-                if (collections.ContainsKey(m.CollectionName))
-                    return collections[m.CollectionName];
-                collections.Add(m.CollectionName, new Queue<ITItem>());
-                return collections[m.CollectionName];
+                if (collections.ContainsKey(CollectionName))
+                    return collections[CollectionName];
+                collections.Add(CollectionName, new Queue<ITItem>());
+                return collections[CollectionName];
             }
         }
         public MemQueue()
         {
         }
-        public MemQueue(QueueItemModel model)
+        public MemQueue(QueueItemModel model, string collection, string connectionString)
         {
-            this.InitialiseFromModel(model);
+            this.InitialiseFromModel(model, collection, connectionString);
         }
 
         public void Push(ITItem item)
@@ -43,7 +45,7 @@ namespace TaskQueue.Providers
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(QueueItemModel model)
+        public void InitialiseFromModel(QueueItemModel model, string collection, string connectionString)
         {
             this.m = model;
         }

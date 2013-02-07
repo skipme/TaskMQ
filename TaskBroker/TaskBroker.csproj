@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Broker.cs" />
     <Compile Include="MessageType.cs" />
+    <Compile Include="ModHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueClassificator.cs" />
     <Compile Include="Tasks.cs" />
