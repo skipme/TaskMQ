@@ -45,6 +45,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MSSQLQueue\MSSQLQueue.csproj">
+      <Project>{dab980a3-a5e0-4ffb-b591-99cc4da68fa5}</Project>
+      <Name>MSSQLQueue</Name>
+    </ProjectReference>
     <ProjectReference Include="..\QueueService\QueueService.csproj">
       <Project>{9ca84f01-7a31-4037-8c46-c9a9e958ab6a}</Project>
       <Name>QueueService</Name>

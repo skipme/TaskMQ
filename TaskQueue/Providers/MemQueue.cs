@@ -48,6 +48,7 @@ namespace TaskQueue.Providers
         public void InitialiseFromModel(QueueItemModel model, string collection, string connectionString)
         {
             this.m = model;
+            CollectionName = collection;
         }
 
         public string QueueType

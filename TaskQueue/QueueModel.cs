@@ -39,12 +39,19 @@ namespace TaskQueue
             foreach (PropertyInfo prop in props)
             {
                 if (prop.CanRead && prop.CanWrite)
-                    schema.Add(prop.Name, GetRType(prop.PropertyType));
+                {
+                    bool isnull;
+                    TItemValue_Type itv = GetRType(prop.PropertyType, out isnull);
+                    schema.Add(prop.Name, itv);
+                }
             }
         }
 
-        public static TItemValue_Type GetRType(Type t)
+        public static TItemValue_Type GetRType(Type t, out bool nullable)
         {
+            nullable = Nullable.GetUnderlyingType(t) != null;
+            if (nullable)
+                t = Nullable.GetUnderlyingType(t);
             if (t == typeof(int))
             {
                 return TItemValue_Type.num_int;

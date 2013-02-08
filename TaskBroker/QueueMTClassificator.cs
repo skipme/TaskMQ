@@ -11,6 +11,10 @@ namespace TaskBroker
         {
             MessageModels = new List<MessageType>();
         }
+        public void Add(MessageType mt)
+        {
+            MessageModels.Add(mt);
+        }
         public MessageType GetByName(string mtName)
         {
             MessageType mt = (from mm in MessageModels

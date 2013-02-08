@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TApp", "TApp\TApp.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueueService", "QueueService\QueueService.csproj", "{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSSQLQueue", "MSSQLQueue\MSSQLQueue.csproj", "{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -12,6 +12,6 @@ namespace TaskQueue
 
         bool Processed { get; set; }
         DateTime AddedTime { get; set; }
-        DateTime ProcessedTime { get; set; }
+        DateTime? ProcessedTime { get; set; }
     }
 }

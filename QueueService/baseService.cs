@@ -23,6 +23,8 @@ namespace QueueService
     public class MessageType : IReturn<MessageTypeResponse>
     {
         public string Name { get; set; }
+        public string Collection { get; set; }
+        public string QueueName { get; set; }
     }
     public class MessageTypeResponse
     {
@@ -42,7 +44,7 @@ namespace QueueService
     [Route("/messages")]
     public class Message : IReturn<MessageResponse>
     {
-        public string Type { get; set; }
+        //public TaskQueue.Providers.TaskMessage Body { get; set; }
         public Dictionary<string, TaskQueue.TItemValue> Body { get; set; }
     }
     public class MessageResponse
@@ -76,7 +78,9 @@ namespace QueueService
             {
                 r.Result.Add(new MessageType()
                 {
-                    Name = s.UniqueName
+                    Name = s.UniqueName,
+                    Collection = s.Collection,
+                    QueueName = s.QueueName
                 });
             }
             return r;
@@ -99,6 +103,14 @@ namespace QueueService
         public MessageResponse Post(Message request)
         {
             TaskBroker.Broker b = ModProducer.broker;
+
+            return new MessageResponse() { Result = "OK", ResultMessage = new Message() { Body = request.Body } };
+        }
+        public MessageResponse Put(Message request)
+        {
+            TaskBroker.Broker b = ModProducer.broker;
+            TaskQueue.Providers.TaskMessage msg = new TaskQueue.Providers.TaskMessage(request.Body);
+            b.PushMessage(msg);
 
             return new MessageResponse() { Result = "OK", ResultMessage = new Message() { Body = request.Body } };
         }

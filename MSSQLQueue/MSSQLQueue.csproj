@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{68AFD08F-6CEC-463C-83AD-737F30C2F40B}</ProjectGuid>
+    <ProjectGuid>{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TaskBroker</RootNamespace>
-    <AssemblyName>TaskBroker</AssemblyName>
+    <RootNamespace>MSSQLQueue</RootNamespace>
+    <AssemblyName>MSSQLQueue</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,12 +23,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -39,30 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Broker.cs" />
-    <Compile Include="MessageType.cs" />
-    <Compile Include="ModHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueueClassificator.cs" />
-    <Compile Include="QueueMTClassificator.cs" />
-    <Compile Include="Tasks.cs" />
+    <Compile Include="SqlQuery.cs" />
+    <Compile Include="SqlQueue.cs" />
+    <Compile Include="SqlScript.cs" />
+    <Compile Include="SqlTable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MSSQLQueue\MSSQLQueue.csproj">
-      <Project>{dab980a3-a5e0-4ffb-b591-99cc4da68fa5}</Project>
-      <Name>MSSQLQueue</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
       <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TaskScheduler\TaskScheduler.csproj">
-      <Project>{71d36b0a-382d-4fcf-95af-67cfea21887d}</Project>
-      <Name>TaskScheduler</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Configuration\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

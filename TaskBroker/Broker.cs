@@ -36,6 +36,10 @@ namespace TaskBroker
             Modules.AddMod(mod);
         }
 
+        public void RegistarateChannel(MessageType mt)
+        {
+            MessageChannels.Add(mt);
+        }
         public void RegistrateTask(string uniqueName, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
         {
             ModMod module = Modules.GetByName(modName);
@@ -97,7 +101,7 @@ namespace TaskBroker
             ModMod mod = task.Module;
 
             // Pop item from queue
-            MessageType mt = MessageChannels.GetByName(task.MessageType);
+            MessageType mt = MessageChannels.GetByName(task.ChannelName);
             TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
             queue.InitialiseFromModel(mt.Model, mt.Collection, mt.ConnectionString);
             TaskQueue.ITItem item = queue.GetItem(task.consumerSelector);
@@ -113,6 +117,21 @@ namespace TaskBroker
         private void ProducerEntry(TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;
+        }
+        public void PushMessage(TaskQueue.Providers.TaskMessage msg)
+        {
+            MessageType mt = MessageChannels.GetByName(msg.MType);
+            if (mt == null)
+            {
+                Console.WriteLine("unknown message type: {0}", msg.MType);
+                return;
+            }
+
+            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
+            queue.InitialiseFromModel(mt.Model, mt.Collection, mt.ConnectionString);
+
+            msg.AddedTime = DateTime.UtcNow;
+            queue.Push(msg);
         }
     }
 }
