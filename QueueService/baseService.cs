@@ -23,7 +23,7 @@ namespace QueueService
     public class MessageType : IReturn<MessageTypeResponse>
     {
         public string Name { get; set; }
-        public string Collection { get; set; }
+        public string Connection { get; set; }
         public string QueueName { get; set; }
     }
     public class MessageTypeResponse
@@ -79,7 +79,7 @@ namespace QueueService
                 r.Result.Add(new MessageType()
                 {
                     Name = s.UniqueName,
-                    Collection = s.Collection,
+                    Connection = s.ConnectionParameters,
                     QueueName = s.QueueName
                 });
             }

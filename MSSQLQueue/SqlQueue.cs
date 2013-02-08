@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskQueue;
+using TaskQueue.Providers;
 
 namespace MSSQLQueue
 {
@@ -28,7 +29,7 @@ namespace MSSQLQueue
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(QueueItemModel model, string collection, string connectionString)
+        public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
         {
             throw new NotImplementedException();
         }

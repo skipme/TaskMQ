@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QueueService", "QueueServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSSQLQueue", "MSSQLQueue\MSSQLQueue.csproj", "{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoQueue", "MongoQueue\MongoQueue.csproj", "{C250A799-20AF-494D-BA51-32AD41A376BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C250A799-20AF-494D-BA51-32AD41A376BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C250A799-20AF-494D-BA51-32AD41A376BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C250A799-20AF-494D-BA51-32AD41A376BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C250A799-20AF-494D-BA51-32AD41A376BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

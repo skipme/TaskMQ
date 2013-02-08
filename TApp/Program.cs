@@ -37,10 +37,18 @@ namespace TApp
             TaskBroker.Broker b = new TaskBroker.Broker();
 
             //
+            b.Connections.Add(new TaskQueue.Providers.QueueConnectionParameters()
+                {
+                    Collection = "TaskMQ",
+                    ConnectionString = "mongodb://user:1234@localhost:27017/?safe=true",//db.addUser('user','1234')
+                    Database = "Messages",
+                    Name = "Q_Z"
+                });
+            //
             b.RegistarateChannel(new TaskBroker.MessageType()
                 {
-                    QueueName = "InMemoryQueue",
-                    Collection = "Z",
+                    QueueName = "MongoDBQ",
+                    ConnectionParameters = "Q_Z",
                     UniqueName = "z",
                     Model = new TaskQueue.QueueItemModel(typeof(zModel))
                 });

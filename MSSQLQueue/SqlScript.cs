@@ -8,7 +8,7 @@ namespace MSSQLQueue
     public class SqlScript
     {
         const string TemplateCreateTable = @"
-CREATE TABLE dbo.Q_{0}
+CREATE TABLE dbo.{0}
 (
     {1}
 ) ON [PRIMARY] 

@@ -25,9 +25,9 @@ namespace TaskQueue.Providers
         public MemQueue()
         {
         }
-        public MemQueue(QueueItemModel model, string collection, string connectionString)
+        public MemQueue(QueueItemModel model, QueueConnectionParameters connection)
         {
-            this.InitialiseFromModel(model, collection, connectionString);
+            this.InitialiseFromModel(model, connection);
         }
 
         public void Push(ITItem item)
@@ -45,10 +45,10 @@ namespace TaskQueue.Providers
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(QueueItemModel model, string collection, string connectionString)
+        public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
         {
             this.m = model;
-            CollectionName = collection;
+            CollectionName = connection.Collection;
         }
 
         public string QueueType

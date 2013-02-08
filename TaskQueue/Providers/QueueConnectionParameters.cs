@@ -12,6 +12,8 @@ namespace TaskQueue.Providers
         /// table name
         /// </summary>
 
+        public string Collection { get; set; }
+        public string Database { get; set; }
         public string ConnectionString { get; set; }
     }
 }

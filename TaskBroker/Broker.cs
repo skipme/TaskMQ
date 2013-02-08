@@ -15,11 +15,11 @@ namespace TaskBroker
             Queues = new QueueClassificator();
             Modules = new ModHolder();
             MessageChannels = new QueueMTClassificator();
-            Connections = new List<QueueConnectionParameters>();
+            Connections = new QueueConParams();
 
             Scheduler.Allocate();
         }
-        public List<QueueConnectionParameters> Connections;
+        public QueueConParams Connections;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
         public ModHolder Modules;
@@ -103,7 +103,9 @@ namespace TaskBroker
             // Pop item from queue
             MessageType mt = MessageChannels.GetByName(task.ChannelName);
             TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-            queue.InitialiseFromModel(mt.Model, mt.Collection, mt.ConnectionString);
+
+            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+            queue.InitialiseFromModel(mt.Model, qparams);
             TaskQueue.ITItem item = queue.GetItem(task.consumerSelector);
 
             if (item == null)
@@ -128,7 +130,8 @@ namespace TaskBroker
             }
 
             TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-            queue.InitialiseFromModel(mt.Model, mt.Collection, mt.ConnectionString);
+            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+            queue.InitialiseFromModel(mt.Model, qparams);
 
             msg.AddedTime = DateTime.UtcNow;
             queue.Push(msg);

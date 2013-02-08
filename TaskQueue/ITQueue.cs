@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskQueue.Providers;
 
 namespace TaskQueue
 {
@@ -12,7 +13,7 @@ namespace TaskQueue
         ITItem GetItem(TQItemSelector selector);
         void UpdateItem(ITItem item);
 
-        void InitialiseFromModel(QueueItemModel model, string collection, string connectionString);
+        void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection);
         string QueueType { get; }
         string QueueDescription { get; }
     }

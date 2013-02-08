@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -90,6 +91,36 @@ namespace TaskQueue.Providers
         {
             SetProps();
             return Holder.ALL();
+        }
+
+        public dynamic ToExpando()
+        {
+            var result = new ExpandoObject();
+            var d = result as IDictionary<string, object>; //work with the Expando as a Dictionary
+            for (int i = 0; i < Holder.val1.Count; i++)
+            {
+                d.Add(Holder.val1[i], Holder.val2[i].Value);
+            }
+            return result;
+        }
+        public Dictionary<string, object> ToDictionary()
+        {
+            Dictionary<string, object> d = new Dictionary<string, object>();
+            for (int i = 0; i < Holder.val1.Count; i++)
+            {
+                d.Add(Holder.val1[i], Holder.val2[i].Value);
+            }
+            Type t = this.GetType();
+            QueueItemModel model = new QueueItemModel(t);
+            foreach (string k in model.schema.val1)
+            {
+                PropertyInfo pi = t.GetProperty(k);
+                object val = pi.GetValue(this, null);
+                if (!d.ContainsKey(k))
+                    d.Add(k, val);
+                else d[k] = val;
+            }
+            return d;
         }
     }
 }

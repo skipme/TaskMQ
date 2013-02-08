@@ -11,7 +11,8 @@ namespace TaskBroker
         public string UniqueName { get; set; }
         public TaskQueue.QueueItemModel Model { get; set; }
         public string QueueName { get; set; }
-        public string Collection { get; set; }
-        public string ConnectionString { get; set; }
+
+        public string ConnectionParameters { get; set; }
+
     }
 }
