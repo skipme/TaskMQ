@@ -16,8 +16,11 @@ namespace TaskBroker
 
         public Assembly ModAssembly { get; set; }
         public TaskBroker.ExecutionType InvokeAs { get; set; }
+
         public TaskBroker.ConsumerEntryPoint Consumer { get; set; }
         public TaskBroker.ProducerEntryPoint Producer { get; set; }
+        public ModInitEntryPoint InitialiseEntry { get; set; }
+        public StubEntryPoint ExitEntry { get; set; }
     }
 
     public class ModHolder
@@ -25,7 +28,7 @@ namespace TaskBroker
         public List<ModMod> Modules { get; set; }
         public ModHolder() { Modules = new List<ModMod>(); }
 
-        public void AddMod(Assembly assembly)
+        public void AddMod(Assembly assembly, Broker b = null, bool initialise = false)
         {
 
         }
@@ -36,10 +39,19 @@ namespace TaskBroker
         public ModMod GetByName(string name)
         {
             ModMod m = (from mod in Modules
-                        where string.Compare(mod.UniqueName, name, StringComparison.OrdinalIgnoreCase) == 0
+                        where string.Equals(mod.UniqueName, name, StringComparison.OrdinalIgnoreCase)
                         select mod).FirstOrDefault();
             return m;
-
+        }
+        public void InitialiseMod(string name, Broker b)
+        {
+            ModMod m = GetByName(name);
+            m.InitialiseEntry(b, m);
+        }
+        public void ExitMod(string name)
+        {
+            ModMod m = GetByName(name);
+            m.ExitEntry();
         }
     }
 }

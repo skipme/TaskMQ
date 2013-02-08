@@ -17,6 +17,11 @@ namespace TaskBroker
             QueueList.Add(q.QueueType, q);
         }
 
+        public TaskQueue.ITQueue GetQueue(string name)
+        {
+            return QueueList[name];
+        }
+
         public Dictionary<string, TaskQueue.ITQueue> QueueList = new Dictionary<string, TaskQueue.ITQueue>();
     }
 }

@@ -8,9 +8,9 @@ namespace TaskBroker
 {
     public class MessageType
     {
-        public string Name { get; set; }
+        public string UniqueName { get; set; }
         public TaskQueue.QueueItemModel Model { get; set; }
-        public TaskQueue.ITQueue Queue { get; set; }
+        public string QueueName { get; set; }
         public string Collection { get; set; }
         public string ConnectionString { get; set; }
     }

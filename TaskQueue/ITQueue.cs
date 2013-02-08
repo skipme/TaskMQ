@@ -10,7 +10,7 @@ namespace TaskQueue
         void Push(ITItem item);
         ITItem GetItemFifo();
         ITItem GetItem(TQItemSelector selector);
-
+        void UpdateItem(ITItem item);
 
         void InitialiseFromModel(QueueItemModel model, string collection, string connectionString);
         string QueueType { get; }

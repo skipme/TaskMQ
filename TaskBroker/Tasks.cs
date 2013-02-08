@@ -7,6 +7,8 @@ namespace TaskBroker
 {
     public delegate void ProducerEntryPoint(Dictionary<string, object> parameters);
     public delegate bool ConsumerEntryPoint(Dictionary<string, object> parameters, ref TaskQueue.ITItem q_parameter);
+    public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
+    public delegate void StubEntryPoint();
 
     public enum ExecutionType
     {
@@ -26,6 +28,7 @@ namespace TaskBroker
         public ModMod Module { get; set; }
 
         public TaskScheduler.PlanItem Plan { get; set; }
+        public bool ProducedByMod { get; set; }
 
         public DateTime NextExecution
         {

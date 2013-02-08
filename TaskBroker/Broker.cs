@@ -14,27 +14,36 @@ namespace TaskBroker
             Scheduler = new TaskScheduler.ThreadPool();
             Queues = new QueueClassificator();
             Modules = new ModHolder();
+            MessageChannels = new QueueMTClassificator();
+            Connections = new List<QueueConnectionParameters>();
+
+            Scheduler.Allocate();
         }
         public List<QueueConnectionParameters> Connections;
-        public List<TaskQueue.QueueItemModel> MessageModels;
-        public List<MessageType> MessageSchemas;
+        public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
-
-        public ModHolder Modules { get; set; }
-        public QueueClassificator Queues { get; set; }
-        public TaskScheduler.ThreadPool Scheduler { get; set; }
+        public ModHolder Modules;
+        public QueueClassificator Queues;
+        public TaskScheduler.ThreadPool Scheduler;
 
         public void RegistrateModule(ModMod mod)
         {
             Modules.AddMod(mod);
+            Modules.InitialiseMod(mod.UniqueName, this);
         }
-        public void RegistrateTask(string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
+        public void RegistrateModule(System.Reflection.Assembly mod)
+        {
+            Modules.AddMod(mod);
+        }
+
+        public void RegistrateTask(string uniqueName, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
         {
             ModMod module = Modules.GetByName(modName);
             QueueTask t = new QueueTask()
             {
-                Name = module.UniqueName,
-                Module = module
+                Name = uniqueName,
+                Module = module,
+                Description = NameAndDesc
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
@@ -43,15 +52,7 @@ namespace TaskBroker
                 intervalType = it,
                 intervalValue = intervalValue,
                 ModuleName = module.UniqueName,
-                planEntry = (TaskScheduler.PlanItem pi) =>
-                    {
-                        QueueTask task = pi.CustomObject as QueueTask;
-                        if (task.Plan.intervalType == TaskScheduler.IntervalType.isolatedThread)
-                        {
-                            task.Module.Producer(task.Parameters);
-                        }
-                        
-                    }
+                planEntry = TaskEntry
             };
             t.Plan = p;
 
@@ -67,6 +68,51 @@ namespace TaskBroker
             {
                 plan.Add(t.Plan);
             }
+        }
+
+        private void TaskEntry(TaskScheduler.PlanItem pi)
+        {
+            QueueTask task = pi.CustomObject as QueueTask;
+            if (task.Plan.intervalType == TaskScheduler.IntervalType.isolatedThread)
+            {
+                task.Module.Producer(task.Parameters);
+            }
+            else
+            {
+                switch (task.Module.InvokeAs)
+                {
+                    case ExecutionType.Consumer:
+                        ConsumerEntry(pi);
+                        break;
+                    case ExecutionType.Producer:
+                        ProducerEntry(pi);
+                        break;
+                }
+            }
+        }
+
+        private void ConsumerEntry(TaskScheduler.PlanItem pi)
+        {
+            QueueTask task = pi.CustomObject as QueueTask;
+            ModMod mod = task.Module;
+
+            // Pop item from queue
+            MessageType mt = MessageChannels.GetByName(task.MessageType);
+            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
+            queue.InitialiseFromModel(mt.Model, mt.Collection, mt.ConnectionString);
+            TaskQueue.ITItem item = queue.GetItem(task.consumerSelector);
+
+            if (item == null)
+                return;
+            if (mod.Consumer(task.Parameters, ref item))
+            {
+                queue.UpdateItem(item);
+            }
+        }
+
+        private void ProducerEntry(TaskScheduler.PlanItem pi)
+        {
+            QueueTask task = pi.CustomObject as QueueTask;
         }
     }
 }

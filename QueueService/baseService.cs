@@ -18,6 +18,7 @@ namespace QueueService
     {
         public List<Queue> Result { get; set; }
     }
+
     [Route("/messages")]
     public class MessageType : IReturn<MessageTypeResponse>
     {
@@ -27,6 +28,18 @@ namespace QueueService
     {
         public List<MessageType> Result { get; set; }
     }
+
+    [Route("/tasks")]
+    public class BrokerTasks : IReturn<BrokerTasksResponse>
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
+    public class BrokerTasksResponse
+    {
+        public List<BrokerTasks> Result { get; set; }
+    }
+
     public class qService : IService
     {
         public QueueResponse Get(Queue request)
@@ -49,11 +62,26 @@ namespace QueueService
             TaskBroker.Broker b = ModProducer.broker;
             MessageTypeResponse r = new MessageTypeResponse();
             r.Result = new List<MessageType>();
-            foreach (var s in b.MessageSchemas)
+            foreach (var s in b.MessageChannels.MessageModels)
             {
                 r.Result.Add(new MessageType()
                 {
-                    Name = s.Name
+                    Name = s.UniqueName
+                });
+            }
+            return r;
+        }
+        public BrokerTasksResponse Get(BrokerTasks request)
+        {
+            TaskBroker.Broker b = ModProducer.broker;
+            BrokerTasksResponse r = new BrokerTasksResponse();
+            r.Result = new List<BrokerTasks>();
+            foreach (var s in b.Tasks)
+            {
+                r.Result.Add(new BrokerTasks()
+                {
+                    Name = s.Name,
+                    Description = s.Description
                 });
             }
             return r;

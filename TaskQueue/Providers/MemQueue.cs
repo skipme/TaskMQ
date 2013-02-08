@@ -60,5 +60,11 @@ namespace TaskQueue.Providers
         {
             get { return "Simple dynamic in-memory queue"; }
         }
+
+
+        public void UpdateItem(ITItem item)
+        {
+            //throw new NotImplementedException();
+        }
     }
 }
