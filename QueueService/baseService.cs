@@ -19,7 +19,7 @@ namespace QueueService
         public List<Queue> Result { get; set; }
     }
 
-    [Route("/messages")]
+    [Route("/channels")]
     public class MessageType : IReturn<MessageTypeResponse>
     {
         public string Name { get; set; }
@@ -39,7 +39,17 @@ namespace QueueService
     {
         public List<BrokerTasks> Result { get; set; }
     }
-
+    [Route("/messages")]
+    public class Message : IReturn<MessageResponse>
+    {
+        public string Type { get; set; }
+        public Dictionary<string, TaskQueue.TItemValue> Body { get; set; }
+    }
+    public class MessageResponse
+    {
+        public string Result { get; set; }
+        public Message ResultMessage { get; set; }
+    }
     public class qService : IService
     {
         public QueueResponse Get(Queue request)
@@ -85,6 +95,12 @@ namespace QueueService
                 });
             }
             return r;
+        }
+        public MessageResponse Post(Message request)
+        {
+            TaskBroker.Broker b = ModProducer.broker;
+
+            return new MessageResponse() { Result = "OK", ResultMessage = new Message() { Body = request.Body } };
         }
     }
     public class baseService : AppHostHttpListenerBase
