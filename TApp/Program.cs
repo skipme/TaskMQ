@@ -21,6 +21,15 @@ namespace TApp
             public zModel() : base("z") { }
             public string SomeProperty { get; set; }
         }
+        class zConsumer
+        {
+            public static bool Entry(
+                Dictionary<string, object> parameters, ref TaskQueue.ITItem q_parameter)
+            {
+                Console.WriteLine("zMessage: {0} - {1} {2}", q_parameter.GetHolder()["MType"], q_parameter.AddedTime, q_parameter.GetHolder()["_id"]);
+                return true;
+            }
+        }
         static void Main(string[] args)
         {
             var prefix = QueueService.ModProducer.ListeningOn;
@@ -53,6 +62,7 @@ namespace TApp
                     Model = new TaskQueue.QueueItemModel(typeof(zModel))
                 });
             //
+            // web service
             TaskBroker.ModMod m = new TaskBroker.ModMod()
             {
                 InitialiseEntry = QueueService.ModProducer.Initialise,
@@ -60,7 +70,25 @@ namespace TApp
                 ModAssembly = typeof(QueueService.ModProducer).Assembly,
             };
             b.RegistrateModule(m);
+            //
+            // z channel consumer ...
+            TaskBroker.ModMod mcZ = new TaskBroker.ModMod()
+            {
+                InitialiseEntry = (TaskBroker.Broker bb, TaskBroker.ModMod mm) => { },
+                ExitEntry = () => { },
+                ModAssembly = typeof(zConsumer).Assembly,
+                Consumer = zConsumer.Entry,
+                AcceptedModel = new TaskQueue.QueueItemModel(typeof(zModel)),
+                InvokeAs = TaskBroker.ExecutionType.Consumer,
+                UniqueName = "zConsumer",
+                 
+            };
+            b.RegistrateModule(mcZ);
+            //
+            b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
+                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
 
+            //
             Console.Read();
             b.Scheduler.SuspendAll();
         }

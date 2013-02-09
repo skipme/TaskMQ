@@ -20,6 +20,14 @@ namespace TaskScheduler
         public PlanItem ExecutionContext { get; set; }
         public ExecutionPlan rootPlan { get; set; }
     }
+
+    //public class JobItem
+    //{
+    //    public bool HasJob { get; set; }
+    //    public bool JobComplete { get; set; }
+    //    //public PlanItem ExecutionContext { get; set; }
+    //}
+
     public class ThreadPool
     {
         const int maxThreads = 4;
@@ -101,6 +109,7 @@ namespace TaskScheduler
             lock (ti.rootPlan)
             {
                 if (ti.HasJob && ti.JobComplete)
+                //if (ti.ExecutionContext != null)
                 {
                     ti.ExecutionContext.ExucutingNow = false;
                 }
@@ -110,7 +119,7 @@ namespace TaskScheduler
                 {
                     ti.ExecutionContext.ExucutingNow = true;
                 }
-                ti.JobComplete = !ti.HasJob;
+                ti.JobComplete = false;
             }
             //Console.WriteLine("Intermediate {0} {1}", ti.ManagedID, ti.hThread.IsThreadPoolThread);
         }
@@ -123,6 +132,7 @@ namespace TaskScheduler
         {
             ThreadItem ti = o as ThreadItem;
             ti.ManagedID = ti.hThread.ManagedThreadId;
+            //JobItem ji = new JobItem();
             while (!ti.StopThread)
             {
                 if (ti.HasJob)
@@ -132,7 +142,6 @@ namespace TaskScheduler
                     pi.planEntry(ti, pi);
 
                     pi.LastExecutionTime = DateTime.Now;
-                    //Console.WriteLine("JOB {0}", ti.ManagedID);
 
                     ti.JobComplete = true;
                     Thread.Sleep(0000);

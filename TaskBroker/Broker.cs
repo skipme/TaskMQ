@@ -57,7 +57,8 @@ namespace TaskBroker
                 Name = uniqueName,
                 Module = module,
                 Description = NameAndDesc,
-                ChannelName = Channel
+                ChannelName = Channel,
+                consumerSelector = TaskQueue.TQItemSelector.DefaultFifoSelector
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
@@ -82,6 +83,7 @@ namespace TaskBroker
             {
                 plan.Add(t.Plan);
             }
+            Scheduler.SetPlan(plan);
         }
 
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
@@ -108,7 +110,7 @@ namespace TaskBroker
         {
             QueueTask task = pi.CustomObject as QueueTask;
             task.Module.Producer(task.Parameters);
-            while(!ti.StopThread)
+            while (!ti.StopThread)
             {
                 Thread.Sleep(100);
             }

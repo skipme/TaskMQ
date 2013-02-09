@@ -12,20 +12,20 @@ namespace TaskScheduler
         public int QueueCursor { get; set; }
         public PlanItem Next()
         {
-            if (CurrentPlanQueue == null)
+            if (CurrentPlanQueue == null || CurrentPlanQueue.Count == 0)
             {
                 Create();
             }
             PlanItem pi = null;
-            if (CurrentPlanQueue.Count == 0)
-            {
-                Create();
-                pi = SubNext();
-                if (pi == null)
-                {
-                    return null;
-                }
-            }
+            //if (CurrentPlanQueue.Count == 0)
+            //{
+            //    Create();
+            //    pi = SubNext();
+            //    if (pi == null)
+            //    {
+            //        return null;
+            //    }
+            //}
 
             pi = SubNext();
             if (pi == null)
@@ -43,8 +43,9 @@ namespace TaskScheduler
             {
                 if (!CurrentPlanQueue[i].ExucutingNow)
                 {
-                    QueueCursor = i;
+                    QueueCursor = i + 1;
                     pi = CurrentPlanQueue[i];
+                    break;
                 }
             }
             return pi;
