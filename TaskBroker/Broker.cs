@@ -110,8 +110,11 @@ namespace TaskBroker
 
             if (item == null)
                 return;
+
             if (mod.Consumer(task.Parameters, ref item))
             {
+                item.Processed = true;
+                item.ProcessedTime = DateTime.UtcNow;
                 queue.UpdateItem(item);
             }
         }
@@ -123,7 +126,12 @@ namespace TaskBroker
             TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
             queue.InitialiseFromModel(mt.Model, qparams);
             TaskQueue.ITItem item = queue.GetItemFifo();
+            
+            if (item == null)
+                return null;
+
             item.Processed = true;
+            item.ProcessedTime = DateTime.UtcNow;
             queue.UpdateItem(item);
 
             return item;

@@ -21,7 +21,6 @@ namespace TaskQueue
         //        pi.SetValue(destination, sk.Value2.Value, null);
         //    }
         //}
-
         public QueueItemModel(Type classWithProps)
         {
             PropertyInfo[] props = classWithProps.GetProperties();

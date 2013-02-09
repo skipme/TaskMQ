@@ -43,5 +43,11 @@ namespace MSSQLQueue
         {
             get { return "Mssql server simple queue, CollectionName is tableName, schema table generated automatically"; }
         }
+
+
+        public void OptimiseForSelector(TQItemSelector selector)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

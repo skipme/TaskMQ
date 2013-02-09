@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="MongoDbQueue.cs" />
     <Compile Include="MongoMessage.cs" />
+    <Compile Include="MongoSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

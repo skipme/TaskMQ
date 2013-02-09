@@ -26,7 +26,8 @@ namespace MongoQueue
 
         public ITItem GetItemFifo()
         {
-            var cursor = Collection.Find(Query.EQ("Processed", false)).SetSortOrder(SortBy.Ascending("AddedTime"));
+            TaskQueue.TQItemSelector selector = TaskQueue.TQItemSelector.DefaultFifoSelector;
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
             cursor.Limit = 1;
             MongoMessage mms = cursor.FirstOrDefault();
             if (mms == null)//empty
@@ -38,7 +39,14 @@ namespace MongoQueue
 
         public ITItem GetItem(TQItemSelector selector)
         {
-            throw new NotImplementedException();
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
+            cursor.Limit = 1;
+            MongoMessage mms = cursor.FirstOrDefault();
+            if (mms == null)//empty
+                return null;
+            TaskMessage msg = new TaskMessage(mms.ExtraElements);
+            msg.Holder.Add("_id", mms.id.Value);
+            return msg;
         }
 
         public void UpdateItem(ITItem item)
@@ -55,6 +63,7 @@ namespace MongoQueue
             }
             else
             {
+                holder.Remove("_id");
                 doc.ExtraElements = holder;
                 var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
                 if (!result.Ok)
@@ -78,6 +87,12 @@ namespace MongoQueue
         public string QueueDescription
         {
             get { return "MongoDB queue"; }
+        }
+
+
+        public void OptimiseForSelector(TQItemSelector selector)
+        {
+            Collection.EnsureIndex(MongoSelector.GetIndex(selector));
         }
     }
 }

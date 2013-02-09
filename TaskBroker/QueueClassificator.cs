@@ -16,6 +16,7 @@ namespace TaskBroker
         // queues
         void addQueue(TaskQueue.ITQueue q)
         {
+            q.OptimiseForSelector(TaskQueue.TQItemSelector.DefaultFifoSelector);
             QueueList.Add(q.QueueType, q);
         }
 

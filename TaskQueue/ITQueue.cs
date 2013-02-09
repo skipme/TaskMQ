@@ -16,5 +16,7 @@ namespace TaskQueue
         void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection);
         string QueueType { get; }
         string QueueDescription { get; }
+
+        void OptimiseForSelector(TQItemSelector selector);
     }
 }

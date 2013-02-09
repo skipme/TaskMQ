@@ -67,5 +67,11 @@ namespace TaskQueue.Providers
         {
             //throw new NotImplementedException();
         }
+
+
+        public void OptimiseForSelector(TQItemSelector selector)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
