@@ -20,7 +20,7 @@ namespace MongoQueue
             {
                 WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
                 if (!result.Ok)
-                    throw new Exception("error in push to queue: " + result.ToJson());
+                    throw new Exception("error in push to mongo queue: " + result.ToJson());
             }
         }
 
@@ -56,7 +56,9 @@ namespace MongoQueue
             else
             {
                 doc.ExtraElements = holder;
-                var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } }); ;
+                var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+                if (!result.Ok)
+                    throw new Exception("error in update to mongo queue: " + result.ToJson());
             }
         }
 
