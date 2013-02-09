@@ -18,7 +18,9 @@ namespace MongoQueue
         {
             if (item is TaskMessage)
             {
-                Collection.Insert(new BsonDocument(item.GetHolder()));
+                WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+                if (!result.Ok)
+                    throw new Exception("error in push to queue: " + result.ToJson());
             }
         }
 
