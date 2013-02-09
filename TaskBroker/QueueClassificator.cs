@@ -16,13 +16,13 @@ namespace TaskBroker
         // queues
         void addQueue(TaskQueue.ITQueue q)
         {
-            q.OptimiseForSelector(TaskQueue.TQItemSelector.DefaultFifoSelector);
             QueueList.Add(q.QueueType, q);
         }
 
         public TaskQueue.ITQueue GetQueue(string name)
         {
-            return QueueList[name];
+            TaskQueue.ITQueue q = (TaskQueue.ITQueue)Activator.CreateInstance(QueueList[name].GetType());
+            return q;
         }
 
         public Dictionary<string, TaskQueue.ITQueue> QueueList = new Dictionary<string, TaskQueue.ITQueue>();

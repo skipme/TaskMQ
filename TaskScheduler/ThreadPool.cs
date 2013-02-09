@@ -129,7 +129,7 @@ namespace TaskScheduler
                 {
                     PlanItem pi = ti.ExecutionContext;
 
-                    pi.planEntry(pi);
+                    pi.planEntry(ti, pi);
 
                     pi.LastExecutionTime = DateTime.Now;
                     //Console.WriteLine("JOB {0}", ti.ManagedID);
@@ -150,7 +150,7 @@ namespace TaskScheduler
             ThreadItem ti = o as ThreadItem;
             ti.ManagedID = ti.hThread.ManagedThreadId;
             PlanItem pi = ti.ExecutionContext;
-            pi.planEntry(pi);
+            pi.planEntry(ti, pi);
             ExitThread(ti);
         }
     }

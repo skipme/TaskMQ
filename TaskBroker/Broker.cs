@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using TaskQueue.Providers;
 
 namespace TaskBroker
@@ -40,14 +41,23 @@ namespace TaskBroker
         {
             MessageChannels.Add(mt);
         }
-        public void RegistrateTask(string uniqueName, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
+        public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
         {
             ModMod module = Modules.GetByName(modName);
+            if (module.InvokeAs == ExecutionType.Consumer)
+            {
+                MessageType mt = MessageChannels.GetByName(Channel);
+                TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
+                TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+                queue.InitialiseFromModel(mt.Model, qparams);
+                queue.OptimiseForSelector(TaskQueue.TQItemSelector.DefaultFifoSelector);
+            }
             QueueTask t = new QueueTask()
             {
                 Name = uniqueName,
                 Module = module,
-                Description = NameAndDesc
+                Description = NameAndDesc,
+                ChannelName = Channel
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
@@ -74,7 +84,7 @@ namespace TaskBroker
             }
         }
 
-        private void TaskEntry(TaskScheduler.PlanItem pi)
+        private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;
             if (task.Plan.intervalType == TaskScheduler.IntervalType.isolatedThread)
@@ -92,6 +102,15 @@ namespace TaskBroker
                         ProducerEntry(pi);
                         break;
                 }
+            }
+        }
+        private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
+        {
+            QueueTask task = pi.CustomObject as QueueTask;
+            task.Module.Producer(task.Parameters);
+            while(!ti.StopThread)
+            {
+                Thread.Sleep(100);
             }
         }
 
@@ -126,7 +145,7 @@ namespace TaskBroker
             TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
             queue.InitialiseFromModel(mt.Model, qparams);
             TaskQueue.ITItem item = queue.GetItemFifo();
-            
+
             if (item == null)
                 return null;
 

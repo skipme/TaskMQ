@@ -62,6 +62,7 @@ namespace TApp
             b.RegistrateModule(m);
 
             Console.Read();
+            b.Scheduler.SuspendAll();
         }
     }
 }
