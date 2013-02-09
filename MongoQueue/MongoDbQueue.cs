@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,23 +16,22 @@ namespace MongoQueue
 
         public void Push(ITItem item)
         {
-            BsonObjectId objid = BsonObjectId.GenerateNewId();
-            MongoQueue.MongoMessage msg = null;
             if (item is TaskMessage)
             {
-                msg = new MongoMessage()
-                {
-                    id = objid,
-                    Body = (item as TaskMessage).ToDictionary()
-                };
+                Collection.Insert(new BsonDocument(item.GetHolder()));
             }
-
-            Collection.Insert(msg);
         }
 
         public ITItem GetItemFifo()
         {
-            throw new NotImplementedException();
+            var cursor = Collection.Find(Query.EQ("Processed", false)).SetSortOrder(SortBy.Ascending("AddedTime"));
+            cursor.Limit = 1;
+            MongoMessage mms = cursor.FirstOrDefault();
+            if (mms == null)//empty
+                return null;
+            TaskMessage msg = new TaskMessage(mms.ExtraElements);
+            msg.Holder.Add("_id", mms.id.Value);
+            return msg;
         }
 
         public ITItem GetItem(TQItemSelector selector)
@@ -41,7 +41,21 @@ namespace MongoQueue
 
         public void UpdateItem(ITItem item)
         {
-            throw new NotImplementedException();
+            Dictionary<string, object> holder = item.GetHolder();
+            object id = holder["_id"];
+            if (id == null || !(id is ObjectId))
+                throw new Exception("_id of queue element is missing");
+            BsonObjectId objid = new BsonObjectId((ObjectId)id);
+            var doc = Collection.FindOne(Query.EQ("_id", objid));
+            if (doc == null)
+            {
+                return;
+            }
+            else
+            {
+                doc.ExtraElements = holder;
+                var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } }); ;
+            }
         }
 
         public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)

@@ -115,7 +115,19 @@ namespace TaskBroker
                 queue.UpdateItem(item);
             }
         }
+        public TaskQueue.ITItem Pop(string channel)
+        {
+            MessageType mt = MessageChannels.GetByName(channel);
+            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
 
+            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+            queue.InitialiseFromModel(mt.Model, qparams);
+            TaskQueue.ITItem item = queue.GetItemFifo();
+            item.Processed = true;
+            queue.UpdateItem(item);
+
+            return item;
+        }
         private void ProducerEntry(TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;

@@ -45,7 +45,7 @@ namespace QueueService
     public class Message : IReturn<MessageResponse>
     {
         //public TaskQueue.Providers.TaskMessage Body { get; set; }
-        public Dictionary<string, TaskQueue.TItemValue> Body { get; set; }
+        public Dictionary<string, object> Body { get; set; }
     }
     public class MessageResponse
     {
@@ -103,8 +103,9 @@ namespace QueueService
         public MessageResponse Post(Message request)
         {
             TaskBroker.Broker b = ModProducer.broker;
-
-            return new MessageResponse() { Result = "OK", ResultMessage = new Message() { Body = request.Body } };
+            TaskQueue.Providers.TaskMessage m = new TaskQueue.Providers.TaskMessage(request.Body);
+            TaskQueue.ITItem mp = b.Pop(m.MType);
+            return new MessageResponse() { Result = mp == null ? "Empty" : "OK", ResultMessage = new Message() { Body = mp == null ? null : mp.GetHolder() } };
         }
         public MessageResponse Put(Message request)
         {

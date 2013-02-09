@@ -23,8 +23,8 @@ GO
                 string type = "";
                 switch (table.Columns[i].DataType)
                 {
-                    case SqlTable.SqlColumnDataType.varchar:
-                        type = "varchar(MAX)";
+                    case SqlTable.SqlColumnDataType.nvarchar:
+                        type = "nvarchar(MAX)";
                         break;
                     case SqlTable.SqlColumnDataType.n_integer:
                         type = "integer";

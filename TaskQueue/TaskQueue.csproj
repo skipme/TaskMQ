@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Hashmap.cs" />
     <Compile Include="ITItem.cs" />
+    <Compile Include="Providers\Message - Dict.cs" />
     <Compile Include="Providers\Message.cs" />
     <Compile Include="Providers\MemQueue.cs" />
     <Compile Include="Providers\QueueConnectionParameters.cs" />

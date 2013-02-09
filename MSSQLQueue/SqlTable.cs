@@ -9,7 +9,7 @@ namespace MSSQLQueue
     {
         public enum SqlColumnDataType
         {
-            varchar = 0x11,
+            nvarchar = 0x11,
             n_integer,
             n_decimal,
             bit,
@@ -26,7 +26,7 @@ namespace MSSQLQueue
                 switch (vt)
                 {
                     case TaskQueue.TItemValue_Type.text:
-                        DataType = SqlColumnDataType.varchar;
+                        DataType = SqlColumnDataType.nvarchar;
                         break;
                     case TaskQueue.TItemValue_Type.num_int:
                         DataType = SqlColumnDataType.n_integer;
