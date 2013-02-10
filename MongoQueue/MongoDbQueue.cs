@@ -12,6 +12,7 @@ namespace MongoQueue
 {
     public class MongoDbQueue : ITQueue
     {
+        const int TupleSize = 16;
         MongoCollection<MongoQueue.MongoMessage> Collection { get; set; }
 
         public void Push(ITItem item)
@@ -93,6 +94,22 @@ namespace MongoQueue
         public void OptimiseForSelector(TQItemSelector selector)
         {
             Collection.EnsureIndex(MongoSelector.GetIndex(selector));
+        }
+
+
+        public ITItem[] GetItemTuple(TQItemSelector selector)
+        {
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector)).SetBatchSize(TupleSize);
+            cursor.Limit = TupleSize;
+            List<TaskMessage> tma = new List<TaskMessage>();
+            foreach (var mms in cursor)
+            {
+                TaskMessage msg = new TaskMessage(mms.ExtraElements);
+                msg.Holder.Add("_id", mms.id.Value);
+                tma.Add(msg);
+            }
+
+            return tma.ToArray();
         }
     }
 }

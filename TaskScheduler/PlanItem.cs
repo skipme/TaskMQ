@@ -13,8 +13,6 @@ namespace TaskScheduler
         public long intervalValue { get; set; }
         public DateTime intervalTime { get; set; }
 
-        public string ModuleName { get; set; }
-
         public PlanItemEntryPoint planEntry;
 
         public DateTime LastExecutionTime { get; set; }

@@ -20,6 +20,7 @@ namespace TaskBroker
 
             Scheduler.Allocate();
         }
+
         public QueueConParams Connections;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
@@ -40,25 +41,21 @@ namespace TaskBroker
         public void RegistarateChannel(MessageType mt)
         {
             MessageChannels.Add(mt);
+
+            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
+            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+            queue.InitialiseFromModel(mt.Model, qparams);
+            queue.OptimiseForSelector(mt.consumerSelector);
         }
         public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
         {
             ModMod module = Modules.GetByName(modName);
-            if (module.InvokeAs == ExecutionType.Consumer)
-            {
-                MessageType mt = MessageChannels.GetByName(Channel);
-                TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-                TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-                queue.InitialiseFromModel(mt.Model, qparams);
-                queue.OptimiseForSelector(TaskQueue.TQItemSelector.DefaultFifoSelector);
-            }
             QueueTask t = new QueueTask()
             {
                 Name = uniqueName,
                 Module = module,
                 Description = NameAndDesc,
-                ChannelName = Channel,
-                consumerSelector = TaskQueue.TQItemSelector.DefaultFifoSelector
+                ChannelName = Channel
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
@@ -66,7 +63,6 @@ namespace TaskBroker
                 NameAndDescription = NameAndDesc,
                 intervalType = it,
                 intervalValue = intervalValue,
-                ModuleName = module.UniqueName,
                 planEntry = TaskEntry
             };
             t.Plan = p;
@@ -89,7 +85,7 @@ namespace TaskBroker
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;
-            if (task.Plan.intervalType == TaskScheduler.IntervalType.isolatedThread)
+            if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
             {
                 task.Module.Producer(task.Parameters);
             }
@@ -127,7 +123,7 @@ namespace TaskBroker
 
             TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
             queue.InitialiseFromModel(mt.Model, qparams);
-            TaskQueue.ITItem item = queue.GetItem(task.consumerSelector);
+            TaskQueue.ITItem item = queue.GetItem(mt.consumerSelector);
 
             if (item == null)
                 return;

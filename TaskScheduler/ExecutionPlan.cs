@@ -10,6 +10,7 @@ namespace TaskScheduler
         public List<PlanItem> PlanComponents = new List<PlanItem>();
         public List<PlanItem> CurrentPlanQueue = null;
         public int QueueCursor { get; set; }
+ 
         public PlanItem Next()
         {
             if (CurrentPlanQueue == null || CurrentPlanQueue.Count == 0)
@@ -50,7 +51,6 @@ namespace TaskScheduler
             }
             return pi;
         }
-
         public List<PlanItem> Create()
         {
             var p = from i in PlanComponents

@@ -49,5 +49,11 @@ namespace MSSQLQueue
         {
             throw new NotImplementedException();
         }
+
+
+        public ITItem[] GetItemTuple(TQItemSelector selector)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

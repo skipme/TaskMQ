@@ -22,8 +22,6 @@ namespace TaskBroker
         public string Description { get; set; }
 
         public string ChannelName { get; set; }
-        
-        public TaskQueue.TQItemSelector consumerSelector { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
         public ModMod Module { get; set; }
 
