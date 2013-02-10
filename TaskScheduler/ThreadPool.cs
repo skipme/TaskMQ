@@ -21,13 +21,6 @@ namespace TaskScheduler
         public ExecutionPlan rootPlan { get; set; }
     }
 
-    //public class JobItem
-    //{
-    //    public bool HasJob { get; set; }
-    //    public bool JobComplete { get; set; }
-    //    //public PlanItem ExecutionContext { get; set; }
-    //}
-
     public class ThreadPool
     {
         const int maxThreads = 4;
@@ -132,7 +125,6 @@ namespace TaskScheduler
         {
             ThreadItem ti = o as ThreadItem;
             ti.ManagedID = ti.hThread.ManagedThreadId;
-            //JobItem ji = new JobItem();
             while (!ti.StopThread)
             {
                 if (ti.HasJob)
@@ -142,13 +134,12 @@ namespace TaskScheduler
                     pi.planEntry(ti, pi);
 
                     pi.LastExecutionTime = DateTime.Now;
-
                     ti.JobComplete = true;
                     Thread.Sleep(0000);
                 }
                 else
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(10);
                 }
                 IntermediateThread(ti);
             }
