@@ -46,7 +46,7 @@ namespace TApp
             TaskBroker.Broker b = new TaskBroker.Broker();
 
             //
-            b.Connections.Add(new TaskQueue.Providers.QueueConnectionParameters()
+            b.AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
                 {
                     Collection = "TaskMQ",
                     ConnectionString = "mongodb://user:1234@localhost:27017/?safe=true",//db.addUser('user','1234')
@@ -85,8 +85,8 @@ namespace TApp
             };
             b.RegistrateModule(mcZ);
             //
-            b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
-                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
+            //b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
+            //    TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
 
             //
             Console.Read();

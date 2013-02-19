@@ -13,19 +13,19 @@ namespace TaskBroker
         {
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
-            Queues = new QueueClassificator();
+            //Queues = new QueueClassificator();
             Modules = new ModHolder();
             MessageChannels = new QueueMTClassificator();
-            Connections = new QueueConParams();
+            //Connections = new QueueConParams();
 
             Scheduler.Allocate();
         }
 
-        public QueueConParams Connections;
+        //public QueueConParams Connections;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
         public ModHolder Modules;
-        public QueueClassificator Queues;
+        //public QueueClassificator Queues;
         public TaskScheduler.ThreadPool Scheduler;
 
         public void RegistrateModule(ModMod mod)
@@ -41,11 +41,6 @@ namespace TaskBroker
         public void RegistarateChannel(MessageType mt)
         {
             MessageChannels.Add(mt);
-
-            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-            queue.InitialiseFromModel(mt.Model, qparams);
-            queue.OptimiseForSelector(mt.consumerSelector);
         }
         public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
         {
@@ -71,6 +66,10 @@ namespace TaskBroker
             UpdatePlan();
             if (p.intervalType == TaskScheduler.IntervalType.isolatedThread)
                 Scheduler.CreateIsolatedThreadForPlan(p);
+        }
+        public void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp)
+        {
+            MessageChannels.Connections.Add(qcp);
         }
         private void UpdatePlan()
         {
@@ -118,12 +117,8 @@ namespace TaskBroker
             ModMod mod = task.Module;
 
             // Pop item from queue
-            MessageType mt = MessageChannels.GetByName(task.ChannelName);
-            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-
-            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-            queue.InitialiseFromModel(mt.Model, qparams);
-            TaskQueue.ITItem item = queue.GetItem(mt.consumerSelector);
+            ChannelAnteroom ch = MessageChannels.GetByName(task.ChannelName);
+            TaskQueue.ITItem item = ch.Next();
 
             if (item == null)
                 return;
@@ -132,46 +127,39 @@ namespace TaskBroker
             {
                 item.Processed = true;
                 item.ProcessedTime = DateTime.UtcNow;
-                queue.UpdateItem(item);
+                ch.Update(item);
             }
         }
+
         public TaskQueue.ITItem Pop(string channel)
         {
-            MessageType mt = MessageChannels.GetByName(channel);
-            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-
-            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-            queue.InitialiseFromModel(mt.Model, qparams);
-            TaskQueue.ITItem item = queue.GetItemFifo();
+            ChannelAnteroom ch = MessageChannels.GetByName(channel);
+            TaskQueue.ITItem item = ch.Next();
 
             if (item == null)
                 return null;
 
             item.Processed = true;
             item.ProcessedTime = DateTime.UtcNow;
-            queue.UpdateItem(item);
+            ch.Update(item);
 
             return item;
         }
+
         private void ProducerEntry(TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;
         }
         public void PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
-            MessageType mt = MessageChannels.GetByName(msg.MType);
-            if (mt == null)
+            ChannelAnteroom ch = MessageChannels.GetByName(msg.MType);
+            if (ch == null)
             {
                 Console.WriteLine("unknown message type: {0}", msg.MType);
                 return;
             }
-
-            TaskQueue.ITQueue queue = Queues.GetQueue(mt.QueueName);
-            TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-            queue.InitialiseFromModel(mt.Model, qparams);
-
             msg.AddedTime = DateTime.UtcNow;
-            queue.Push(msg);
+            ch.Push(msg);
         }
     }
 }

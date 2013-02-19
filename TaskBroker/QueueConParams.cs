@@ -12,9 +12,9 @@ namespace TaskBroker
         {
             MessageModels = new List<QueueConnectionParameters>();
         }
-        public void Add(QueueConnectionParameters mt)
+        public void Add(QueueConnectionParameters qcp)
         {
-            MessageModels.Add(mt);
+            MessageModels.Add(qcp);
         }
         public QueueConnectionParameters GetByName(string cpName)
         {

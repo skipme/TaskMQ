@@ -59,7 +59,7 @@ namespace QueueService
             TaskBroker.Broker b = ModProducer.broker;
             QueueResponse r = new QueueResponse();
             r.Result = new List<Queue>();
-            foreach (var q in b.Queues.QueueList.Values)
+            foreach (var q in b.MessageChannels.Queues.QueueList.Values)
             {
                 r.Result.Add(new Queue()
                 {
