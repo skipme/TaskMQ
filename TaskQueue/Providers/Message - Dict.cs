@@ -36,7 +36,11 @@ namespace TaskQueue.Providers
                     pt = ptn;
 
                 if (v.Value == null && !nullable)
-                    throw new Exception("value does not accept nullable types, key: " + v.Key);
+                {
+                    if (pt.BaseType != typeof(object))
+                        throw new Exception("value does not accept nullable types, key: " + v.Key);
+                    else continue;
+                }
                 else if (!nullable && pt != v.Value.GetType())
                     throw new Exception("unkown type for key: " + v.Key);
 

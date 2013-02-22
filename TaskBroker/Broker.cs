@@ -31,7 +31,7 @@ namespace TaskBroker
         public void RegistrateModule(ModMod mod)
         {
             Modules.AddMod(mod);
-            Modules.InitialiseMod(mod.UniqueName, this);
+            mod.InitialiseEntry(this, mod);
         }
         public void RegistrateModule(System.Reflection.Assembly mod)
         {
@@ -42,7 +42,7 @@ namespace TaskBroker
         {
             MessageChannels.Add(mt);
         }
-        public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue)
+        public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue, Dictionary<string, object> parameters = null)
         {
             ModMod module = Modules.GetByName(modName);
             QueueTask t = new QueueTask()
@@ -50,7 +50,8 @@ namespace TaskBroker
                 Name = uniqueName,
                 Module = module,
                 Description = NameAndDesc,
-                ChannelName = Channel
+                ChannelName = Channel,
+                Parameters = parameters
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {

@@ -7,6 +7,7 @@ namespace EmailConsumer
 {
     public class SmtpModel : TaskQueue.Providers.TItemModel
     {
+        public SmtpModel() { }
         public SmtpModel(Dictionary<string, object> holder)
         {
             SetHolder(holder);

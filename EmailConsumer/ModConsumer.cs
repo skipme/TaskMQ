@@ -12,7 +12,7 @@ namespace EmailConsumer
         public static void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
         {
             broker = brokerInterface;
-            thisModule.UniqueName = "Email Sender";
+            thisModule.UniqueName = "EmailSender";
             thisModule.Description = "Email common sender";
             thisModule.InvokeAs = TaskBroker.ExecutionType.Consumer;
             thisModule.AcceptedModel = new TaskQueue.QueueItemModel(typeof(MailModel));
@@ -26,8 +26,10 @@ namespace EmailConsumer
             SmtpModel smtp_p = new SmtpModel(parameters);
             MailModel mail = new MailModel(model);
 
+            // send email
+            bool result = Sender.Send(mail, smtp_p);
 
-            return true;
+            return result;
         }
         public static void Exit()
         {

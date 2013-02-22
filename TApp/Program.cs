@@ -32,8 +32,6 @@ namespace TApp
         }
         static void Main(string[] args)
         {
-
-
             var prefix = QueueService.ModProducer.ListeningOn;
             var username = Environment.GetEnvironmentVariable("USERNAME");
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
@@ -87,10 +85,46 @@ namespace TApp
             };
             b.RegistrateModule(mcZ);
             //
+            TaskBroker.ModMod email = new TaskBroker.ModMod()
+            {
+                InitialiseEntry = EmailConsumer.ModConsumer.Initialise,
+
+            };
+            b.RegistrateModule(email);
+            //
             //b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
             //    TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
 
             //
+
+            //
+            b.AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
+            {
+                Collection = "email",
+                ConnectionString = "mongodb://user:1234@localhost:27017/?safe=true",//db.addUser('user','1234')
+                Database = "Messages",
+                Name = "MongoLocalhostEmail"
+            });
+            b.RegistarateChannel(new TaskBroker.MessageType()
+            {
+                QueueName = "MongoDBQ",
+                ConnectionParameters = "MongoLocalhostEmail",
+                UniqueName = "EmailC",
+                Model = new TaskQueue.QueueItemModel(typeof(EmailConsumer.MailModel))
+            });
+            EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
+            {
+                Login = "user",
+                UseSSL = true,
+                Port = 587,
+                Password = "",
+                Server = "smtp.yandex.ru"
+            };
+            b.RegistrateTask("Email Common", "EmailC", "EmailSender", "Email Common channel consumer",
+                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000, smtp.GetHolder());
+
+            //
+
             Console.Read();
             b.Scheduler.SuspendAll();
         }

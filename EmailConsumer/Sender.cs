@@ -17,7 +17,9 @@ namespace EmailConsumer
             {
                 MailMessage msg = new MailMessage();
                 msg.To.Add(new MailAddress(model.To));
-                msg.From = new MailAddress(model.From, model.FromAlias);
+                if (model.From != null)
+                    msg.From = new MailAddress(model.From, model.FromAlias);
+                else msg.From = new MailAddress(loginAddress(con.Login, con.Server));
                 msg.Body = model.Body;
                 msg.IsBodyHtml = true;
                 msg.Subject = model.Subject;
@@ -26,9 +28,22 @@ namespace EmailConsumer
             }
             catch (Exception e)
             {
-
+                Console.WriteLine(e.Message);
                 return false;
             }
+        }
+        static string loginAddress(string login, string server)
+        {
+            if (login.Contains('@'))
+                return login;
+
+            string result = login + '@';
+            string[] ds = server.Split('.');
+            for (int i = 1; i < ds.Length; i++)
+            {
+                result += ds[i] + (i == ds.Length - 1 ? "" : ".");
+            }
+            return result;
         }
         public static bool Send(MailMessage message, SmtpModel con)
         {

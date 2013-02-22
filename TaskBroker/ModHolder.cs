@@ -28,7 +28,7 @@ namespace TaskBroker
         public List<ModMod> Modules { get; set; }
         public ModHolder() { Modules = new List<ModMod>(); }
 
-        public void AddMod(Assembly assembly, Broker b = null, bool initialise = false)
+        public void AddMod(Assembly assembly, bool initialise = false)
         {
 
         }
@@ -43,11 +43,7 @@ namespace TaskBroker
                         select mod).FirstOrDefault();
             return m;
         }
-        public void InitialiseMod(string name, Broker b)
-        {
-            ModMod m = GetByName(name);
-            m.InitialiseEntry(b, m);
-        }
+
         public void ExitMod(string name)
         {
             ModMod m = GetByName(name);
