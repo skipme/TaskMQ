@@ -7,23 +7,26 @@ namespace TaskQueue.Providers
 {
     public class MemQueue : ITQueue
     {
-        public static Dictionary<string, Queue<ITItem>> collections = new Dictionary<string, Queue<ITItem>>();
+        //public static Dictionary<string, Queue<ITItem>> collections = new Dictionary<string, Queue<ITItem>>();
 
         QueueItemModel m { get; set; }
         string CollectionName { get; set; }
 
-        Queue<ITItem> baseQueue
-        {
-            get
-            {
-                if (collections.ContainsKey(CollectionName))
-                    return collections[CollectionName];
-                collections.Add(CollectionName, new Queue<ITItem>());
-                return collections[CollectionName];
-            }
-        }
+        //Queue<ITItem> baseQueue
+        //{
+        //    get
+        //    {
+        //        if (collections.ContainsKey(CollectionName))
+        //            return collections[CollectionName];
+        //        collections.Add(CollectionName, new Queue<ITItem>());
+        //        return collections[CollectionName];
+        //    }
+        //}
+        Queue<ITItem> baseQueue;
+
         public MemQueue()
         {
+            baseQueue = new Queue<ITItem>();
         }
         public MemQueue(QueueItemModel model, QueueConnectionParameters connection)
         {
@@ -78,6 +81,12 @@ namespace TaskQueue.Providers
         public ITItem[] GetItemTuple(TQItemSelector selector)
         {
             throw new NotImplementedException();
+        }
+
+
+        public long GetQueueLength(TQItemSelector selector)
+        {
+            return baseQueue.Count;
         }
     }
 }

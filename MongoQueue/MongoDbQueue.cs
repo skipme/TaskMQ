@@ -111,5 +111,13 @@ namespace MongoQueue
 
             return tma.ToArray();
         }
+
+
+        public long GetQueueLength(TQItemSelector selector)
+        {
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector));
+            long result = cursor.Count();
+            return result;
+        }
     }
 }

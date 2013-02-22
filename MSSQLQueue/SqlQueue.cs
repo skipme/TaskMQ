@@ -55,5 +55,11 @@ namespace MSSQLQueue
         {
             throw new NotImplementedException();
         }
+
+
+        public long GetQueueLength(TQItemSelector selector)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

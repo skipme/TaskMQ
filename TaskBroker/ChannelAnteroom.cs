@@ -18,12 +18,26 @@ namespace TaskBroker
         
         public void Push(TaskQueue.ITItem item)
         {
-            Queue.Push(item);
+            try
+            {
+                Queue.Push(item);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+            }
         }
 
         public void Update(TaskQueue.ITItem item)
         {
-            Queue.UpdateItem(item);
+            try
+            {
+                Queue.UpdateItem(item);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+            }
         }
         public TaskQueue.ITItem Next()
         {
@@ -32,7 +46,17 @@ namespace TaskBroker
                 // the internal tuple is empty
                 if (anteroom.Count == 0)
                 {
-                    TaskQueue.ITItem[] items = Queue.GetItemTuple(selector);
+                    TaskQueue.ITItem[] items = null;
+                    try
+                    {
+                        items = Queue.GetItemTuple(selector);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                        return null;
+                    }
+
                     if (items.Length > 0)
                     {
                         for (int i = 1; i < items.Length; i++)

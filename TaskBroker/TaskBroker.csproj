@@ -44,6 +44,8 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="ModHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Qualifier\ChannelQualifier.cs" />
+    <Compile Include="Qualifier\QualifierEstimates.cs" />
     <Compile Include="QueueClassificator.cs" />
     <Compile Include="QueueConParams.cs" />
     <Compile Include="QueueMTClassificator.cs" />

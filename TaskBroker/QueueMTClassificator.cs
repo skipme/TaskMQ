@@ -18,7 +18,14 @@ namespace TaskBroker
         {
             MessageModels.Add(mt);
             ChannelAnteroom ante = GetByName(mt.UniqueName);
-            ante.Queue.OptimiseForSelector(mt.consumerSelector);
+            try
+            {
+                ante.Queue.OptimiseForSelector(mt.consumerSelector);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+            }
         }
         public ChannelAnteroom GetByName(string mtName)
         {
@@ -36,9 +43,15 @@ namespace TaskBroker
                 anteroom = new ChannelAnteroom(mt.consumerSelector);
                 anteroom.Queue = Queues.GetQueue(mt.QueueName);
                 TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
-                anteroom.Queue.InitialiseFromModel(mt.Model, qparams);
-
-                Anterooms.Add(mtName, anteroom);
+                try
+                {
+                    anteroom.Queue.InitialiseFromModel(mt.Model, qparams);
+                    Anterooms.Add(mtName, anteroom);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                }
             }
 
             return anteroom;

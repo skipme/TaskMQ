@@ -11,9 +11,9 @@ namespace TaskQueue
         void Push(ITItem item);
         ITItem GetItemFifo();
         ITItem GetItem(TQItemSelector selector);
-        void UpdateItem(ITItem item);
-
         ITItem[] GetItemTuple(TQItemSelector selector);
+        long GetQueueLength(TQItemSelector selector);
+        void UpdateItem(ITItem item);
 
         void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection);
         string QueueType { get; }
