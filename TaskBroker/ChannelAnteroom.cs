@@ -16,7 +16,7 @@ namespace TaskBroker
         public TaskQueue.ITQueue Queue { get; set; }
         public TaskQueue.TQItemSelector  selector { get; set; }
         
-        public void Push(TaskQueue.ITItem item)
+        public bool Push(TaskQueue.ITItem item)
         {
             try
             {
@@ -25,10 +25,12 @@ namespace TaskBroker
             catch (Exception e)
             {
                 Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                return false;
             }
+            return true;
         }
 
-        public void Update(TaskQueue.ITItem item)
+        public bool Update(TaskQueue.ITItem item)
         {
             try
             {
@@ -37,6 +39,15 @@ namespace TaskBroker
             catch (Exception e)
             {
                 Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                return false;
+            }
+            return true;
+        }
+        public long CountNow
+        {
+            get
+            {
+                return Queue.GetQueueLength(selector);
             }
         }
         public TaskQueue.ITItem Next()

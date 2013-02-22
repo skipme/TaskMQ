@@ -15,6 +15,5 @@ namespace TaskBroker
         public TaskQueue.TQItemSelector consumerSelector { get; set; }
 
         public string ConnectionParameters { get; set; }
-
     }
 }

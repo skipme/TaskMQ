@@ -22,6 +22,7 @@ namespace TaskBroker
         public string Description { get; set; }
 
         public string ChannelName { get; set; }
+        public bool MinChannelOccupancyDirection { get; set; }
         public Dictionary<string, object> Parameters { get; set; }
         public ModMod Module { get; set; }
 

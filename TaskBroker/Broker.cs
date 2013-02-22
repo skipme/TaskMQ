@@ -150,16 +150,21 @@ namespace TaskBroker
         {
             QueueTask task = pi.CustomObject as QueueTask;
         }
-        public void PushMessage(TaskQueue.Providers.TaskMessage msg)
+        public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
             ChannelAnteroom ch = MessageChannels.GetByName(msg.MType);
             if (ch == null)
             {
                 Console.WriteLine("unknown message type: {0}", msg.MType);
-                return;
+                return false;
             }
             msg.AddedTime = DateTime.UtcNow;
-            ch.Push(msg);
+            return ch.Push(msg);
+        }
+        public long GetChannelOccupancy(string channelName)
+        {
+            ChannelAnteroom ch = MessageChannels.GetByName(channelName);
+            return ch.CountNow;
         }
     }
 }

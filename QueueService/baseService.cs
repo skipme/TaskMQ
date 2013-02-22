@@ -111,9 +111,9 @@ namespace QueueService
         {
             TaskBroker.Broker b = ModProducer.broker;
             TaskQueue.Providers.TaskMessage msg = new TaskQueue.Providers.TaskMessage(request.Body);
-            b.PushMessage(msg);
+            bool result = b.PushMessage(msg);
 
-            return new MessageResponse() { Result = "OK", ResultMessage = new Message() { Body = request.Body } };
+            return new MessageResponse() { Result = result ? "OK" : "FAIL", ResultMessage = new Message() { Body = request.Body } };
         }
     }
     public class baseService : AppHostHttpListenerBase

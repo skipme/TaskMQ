@@ -15,10 +15,24 @@ namespace MongoQueue
         const int TupleSize = 16;
         MongoCollection<MongoQueue.MongoMessage> Collection { get; set; }
 
+        public void OptimiseForSelector(TQItemSelector selector)
+        {
+            Collection.EnsureIndex(MongoSelector.GetIndex(selector));
+        }
+
+        public long GetQueueLength(TQItemSelector selector)
+        {
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector));
+            long result = cursor.Count();
+            return result;
+        }
+
         public void Push(ITItem item)
         {
             if (item is TaskMessage)
             {
+                CheckConnection();
+
                 WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
                 if (!result.Ok)
                     throw new Exception("error in push to mongo queue: " + result.ToJson());
@@ -27,6 +41,8 @@ namespace MongoQueue
 
         public ITItem GetItemFifo()
         {
+            CheckConnection();
+
             TaskQueue.TQItemSelector selector = TaskQueue.TQItemSelector.DefaultFifoSelector;
             var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
             cursor.Limit = 1;
@@ -40,6 +56,8 @@ namespace MongoQueue
 
         public ITItem GetItem(TQItemSelector selector)
         {
+            CheckConnection();
+
             var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
             cursor.Limit = 1;
             MongoMessage mms = cursor.FirstOrDefault();
@@ -74,10 +92,27 @@ namespace MongoQueue
 
         public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
         {
+            this.model = model;
+            this.connection = connection;
+
+            OpenConnection(connection);
+        }
+
+        private void OpenConnection(QueueConnectionParameters connection)
+        {
             MongoClient cli = new MongoClient(connection.ConnectionString);
             var server = cli.GetServer();
             var db = server.GetDatabase(connection.Database);
             Collection = db.GetCollection<MongoQueue.MongoMessage>(connection.Collection);
+            Connected = true;
+        }
+
+        private void CheckConnection()
+        {
+            if (!Connected)
+            {
+                OpenConnection(this.connection);
+            }
         }
 
         public string QueueType
@@ -89,13 +124,6 @@ namespace MongoQueue
         {
             get { return "MongoDB queue"; }
         }
-
-
-        public void OptimiseForSelector(TQItemSelector selector)
-        {
-            Collection.EnsureIndex(MongoSelector.GetIndex(selector));
-        }
-
 
         public ITItem[] GetItemTuple(TQItemSelector selector)
         {
@@ -112,12 +140,8 @@ namespace MongoQueue
             return tma.ToArray();
         }
 
-
-        public long GetQueueLength(TQItemSelector selector)
-        {
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector));
-            long result = cursor.Count();
-            return result;
-        }
+        public bool Connected { get; set; }
+        QueueItemModel model { get; set; } 
+        QueueConnectionParameters connection { get; set; }
     }
 }
