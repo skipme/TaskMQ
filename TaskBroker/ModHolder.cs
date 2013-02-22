@@ -12,7 +12,7 @@ namespace TaskBroker
         public string Description { get; set; }
 
         public TaskQueue.QueueItemModel AcceptedModel { get; set; }
-        public Dictionary<string, TaskQueue.TItemValue_Type> AcceptedParameters { get; set; }
+        public TaskQueue.QueueItemModel AcceptedParameters { get; set; }
 
         public Assembly ModAssembly { get; set; }
         public TaskBroker.ExecutionType InvokeAs { get; set; }

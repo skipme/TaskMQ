@@ -8,12 +8,12 @@ namespace TaskQueue
 {
     public interface ITQueue
     {
-        void Push(ITItem item);
-        ITItem GetItemFifo();
-        ITItem GetItem(TQItemSelector selector);
-        ITItem[] GetItemTuple(TQItemSelector selector);
+        void Push(Providers.TaskMessage item);
+        Providers.TaskMessage GetItemFifo();
+        Providers.TaskMessage GetItem(TQItemSelector selector);
+        Providers.TaskMessage[] GetItemTuple(TQItemSelector selector);
         long GetQueueLength(TQItemSelector selector);
-        void UpdateItem(ITItem item);
+        void UpdateItem(Providers.TaskMessage item);
 
         void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection);
         string QueueType { get; }

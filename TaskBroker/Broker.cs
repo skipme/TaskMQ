@@ -118,7 +118,7 @@ namespace TaskBroker
 
             // Pop item from queue
             ChannelAnteroom ch = MessageChannels.GetByName(task.ChannelName);
-            TaskQueue.ITItem item = ch.Next();
+            TaskQueue.Providers.TaskMessage item = ch.Next();
 
             if (item == null)
                 return;
@@ -131,10 +131,10 @@ namespace TaskBroker
             }
         }
 
-        public TaskQueue.ITItem Pop(string channel)
+        public TaskMessage Pop(string channel)
         {
             ChannelAnteroom ch = MessageChannels.GetByName(channel);
-            TaskQueue.ITItem item = ch.Next();
+            TaskQueue.Providers.TaskMessage item = ch.Next();
 
             if (item == null)
                 return null;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskQueue.Providers;
 
 namespace TaskBroker
 {
@@ -10,13 +11,13 @@ namespace TaskBroker
         public ChannelAnteroom(TaskQueue.TQItemSelector selector)
         {
             this.selector = selector;
-            anteroom = new Queue<TaskQueue.ITItem>();
+            anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
         }
-        public Queue<TaskQueue.ITItem> anteroom { get; set; }
+        public Queue<TaskQueue.Providers.TaskMessage> anteroom { get; set; }
         public TaskQueue.ITQueue Queue { get; set; }
         public TaskQueue.TQItemSelector  selector { get; set; }
-        
-        public bool Push(TaskQueue.ITItem item)
+
+        public bool Push(TaskMessage item)
         {
             try
             {
@@ -30,7 +31,7 @@ namespace TaskBroker
             return true;
         }
 
-        public bool Update(TaskQueue.ITItem item)
+        public bool Update(TaskMessage item)
         {
             try
             {
@@ -50,14 +51,14 @@ namespace TaskBroker
                 return Queue.GetQueueLength(selector);
             }
         }
-        public TaskQueue.ITItem Next()
+        public TaskQueue.Providers.TaskMessage Next()
         {
             lock (anteroom)
             {
                 // the internal tuple is empty
                 if (anteroom.Count == 0)
                 {
-                    TaskQueue.ITItem[] items = null;
+                    TaskQueue.Providers.TaskMessage[] items = null;
                     try
                     {
                         items = Queue.GetItemTuple(selector);

@@ -60,7 +60,7 @@ namespace MSSQLQueue
             Columns.Add(new SqlColumn(TableName + "_ID", TaskQueue.TItemValue_Type.num_int, true));
             foreach (var clm in model.schema.ALL())
             {
-                Columns.Add(new SqlColumn(clm.Value1, clm.Value2));
+                //Columns.Add(new SqlColumn(clm.Value1, clm.Value2));
             }
         }
     }

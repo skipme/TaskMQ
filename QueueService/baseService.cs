@@ -104,7 +104,7 @@ namespace QueueService
         {
             TaskBroker.Broker b = ModProducer.broker;
             TaskQueue.Providers.TaskMessage m = new TaskQueue.Providers.TaskMessage(request.Body);
-            TaskQueue.ITItem mp = b.Pop(m.MType);
+            TaskQueue.Providers.TaskMessage mp = b.Pop(m.MType);
             return new MessageResponse() { Result = mp == null ? "Empty" : "OK", ResultMessage = new Message() { Body = mp == null ? null : mp.GetHolder() } };
         }
         public MessageResponse Put(Message request)

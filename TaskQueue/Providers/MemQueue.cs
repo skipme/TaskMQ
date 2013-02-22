@@ -22,28 +22,28 @@ namespace TaskQueue.Providers
         //        return collections[CollectionName];
         //    }
         //}
-        Queue<ITItem> baseQueue;
+        Queue<Providers.TaskMessage> baseQueue;
 
         public MemQueue()
         {
-            baseQueue = new Queue<ITItem>();
+            baseQueue = new Queue<Providers.TaskMessage>();
         }
         public MemQueue(QueueItemModel model, QueueConnectionParameters connection)
         {
             this.InitialiseFromModel(model, connection);
         }
 
-        public void Push(ITItem item)
+        public void Push(Providers.TaskMessage item)
         {
             baseQueue.Enqueue(item);
         }
 
-        public ITItem GetItemFifo()
+        public Providers.TaskMessage GetItemFifo()
         {
             return baseQueue.Dequeue();
         }
 
-        public ITItem GetItem(TQItemSelector selector)
+        public Providers.TaskMessage GetItem(TQItemSelector selector)
         {
             throw new NotImplementedException();
         }
@@ -66,7 +66,7 @@ namespace TaskQueue.Providers
         }
 
 
-        public void UpdateItem(ITItem item)
+        public void UpdateItem(Providers.TaskMessage item)
         {
             //throw new NotImplementedException();
         }
@@ -78,7 +78,7 @@ namespace TaskQueue.Providers
         }
 
 
-        public ITItem[] GetItemTuple(TQItemSelector selector)
+        public Providers.TaskMessage[] GetItemTuple(TQItemSelector selector)
         {
             throw new NotImplementedException();
         }

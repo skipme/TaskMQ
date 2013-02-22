@@ -27,9 +27,9 @@ namespace MongoQueue
             return result;
         }
 
-        public void Push(ITItem item)
+        public void Push(TaskMessage item)
         {
-            if (item is TaskMessage)
+            if (item is TItemModel)
             {
                 CheckConnection();
 
@@ -39,7 +39,7 @@ namespace MongoQueue
             }
         }
 
-        public ITItem GetItemFifo()
+        public TaskMessage GetItemFifo()
         {
             CheckConnection();
 
@@ -54,7 +54,7 @@ namespace MongoQueue
             return msg;
         }
 
-        public ITItem GetItem(TQItemSelector selector)
+        public TaskMessage GetItem(TQItemSelector selector)
         {
             CheckConnection();
 
@@ -68,7 +68,7 @@ namespace MongoQueue
             return msg;
         }
 
-        public void UpdateItem(ITItem item)
+        public void UpdateItem(TaskMessage item)
         {
             Dictionary<string, object> holder = item.GetHolder();
             object id = holder["_id"];
@@ -125,7 +125,7 @@ namespace MongoQueue
             get { return "MongoDB queue"; }
         }
 
-        public ITItem[] GetItemTuple(TQItemSelector selector)
+        public TaskMessage[] GetItemTuple(TQItemSelector selector)
         {
             var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector)).SetBatchSize(TupleSize);
             cursor.Limit = TupleSize;

@@ -6,21 +6,12 @@ using System.Text;
 
 namespace TaskQueue
 {
+
+
     public class QueueItemModel
     {
-        public ValueMap<string, TItemValue_Type> schema = new ValueMap<string, TItemValue_Type>();
+        public ValueMap<string, QueueItemModelValue> schema = new ValueMap<string, QueueItemModelValue>();
 
-        //public void MapPropsToModel<T>(ITItem source, T destination)
-        //{
-        //    foreach (ValueMapItem<string, TItemValue> sk in source.GetValues())
-        //    {
-        //        PropertyInfo pi = typeof(T).GetProperty(sk.Value1);
-        //        if (pi == null)
-        //            continue;
-
-        //        pi.SetValue(destination, sk.Value2.Value, null);
-        //    }
-        //}
         public QueueItemModel(Type classWithProps)
         {
             PropertyInfo[] props = classWithProps.GetProperties();
@@ -30,7 +21,12 @@ namespace TaskQueue
                 {
                     bool isnull;
                     TItemValue_Type itv = GetRType(prop.PropertyType, out isnull);
-                    schema.Add(prop.Name, itv);
+                    QueueItemModelValue sch_v = new QueueItemModelValue(itv);
+                    foreach (TQModelProp attr in prop.GetCustomAttributes(typeof(TQModelProp), false))
+                    {
+                        sch_v.Description = attr.Description;
+                    }
+                    schema.Add(prop.Name, sch_v);
                 }
             }
         }

@@ -7,12 +7,6 @@ namespace TaskQueue
 {
     public interface ITItem
     {
-        //List<string> EnumerateKeys();
-        //IEnumerable<ValueMapItem<string, TItemValue>> GetValues();
         Dictionary<string, object> GetHolder();
-
-        bool Processed { get; set; }
-        DateTime AddedTime { get; set; }
-        DateTime? ProcessedTime { get; set; }
     }
 }

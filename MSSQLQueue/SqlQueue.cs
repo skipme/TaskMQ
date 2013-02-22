@@ -9,22 +9,22 @@ namespace MSSQLQueue
 {
     public class MsSqlQueue : ITQueue
     {
-        public void Push(ITItem item)
+        public void Push(TaskMessage item)
         {
             throw new NotImplementedException();
         }
 
-        public ITItem GetItemFifo()
+        public TaskMessage GetItemFifo()
         {
             throw new NotImplementedException();
         }
 
-        public ITItem GetItem(TQItemSelector selector)
+        public TaskMessage GetItem(TQItemSelector selector)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateItem(ITItem item)
+        public void UpdateItem(TaskMessage item)
         {
             throw new NotImplementedException();
         }
@@ -51,7 +51,7 @@ namespace MSSQLQueue
         }
 
 
-        public ITItem[] GetItemTuple(TQItemSelector selector)
+        public TaskMessage[] GetItemTuple(TQItemSelector selector)
         {
             throw new NotImplementedException();
         }

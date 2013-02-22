@@ -6,7 +6,7 @@ using System.Text;
 namespace TaskBroker
 {
     public delegate void ProducerEntryPoint(Dictionary<string, object> parameters);
-    public delegate bool ConsumerEntryPoint(Dictionary<string, object> parameters, ref TaskQueue.ITItem q_parameter);
+    public delegate bool ConsumerEntryPoint(Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
     public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
     public delegate void StubEntryPoint();
 

@@ -7,20 +7,19 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
-    public class TaskMessage : ITItem
+    public class TItemModel : ITItem
     {
         public Dictionary<string, object> Holder = new Dictionary<string, object>();
 
-        public string MType { get; set; }
-        public bool Processed { get; set; }
-        public DateTime AddedTime { get; set; }
-        public DateTime? ProcessedTime { get; set; }
-
-        public TaskMessage(string mtype)
+        public TItemModel()
         {
-            MType = mtype;
         }
-        public TaskMessage(Dictionary<string, object> msgDict)
+        public TItemModel(Dictionary<string, object> msgDict)
+        {
+            SetHolder(msgDict);
+        }
+
+        public void SetHolder(Dictionary<string, object> msgDict)
         {
             Type t = this.GetType();
             QueueItemModel model = new QueueItemModel(t);
@@ -38,7 +37,7 @@ namespace TaskQueue.Providers
 
                 if (v.Value == null && !nullable)
                     throw new Exception("value does not accept nullable types, key: " + v.Key);
-                else if (!nullable &&pt != v.Value.GetType())
+                else if (!nullable && pt != v.Value.GetType())
                     throw new Exception("unkown type for key: " + v.Key);
 
                 pi.SetValue(this, v.Value, null);

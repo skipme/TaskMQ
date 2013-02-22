@@ -24,7 +24,7 @@ namespace TApp
         class zConsumer
         {
             public static bool Entry(
-                Dictionary<string, object> parameters, ref TaskQueue.ITItem q_parameter)
+                Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
             {
                 Console.WriteLine("zMessage: {0} - {1} {2}", q_parameter.GetHolder()["MType"], q_parameter.AddedTime, q_parameter.GetHolder()["_id"]);
                 return true;
@@ -32,6 +32,8 @@ namespace TApp
         }
         static void Main(string[] args)
         {
+
+
             var prefix = QueueService.ModProducer.ListeningOn;
             var username = Environment.GetEnvironmentVariable("USERNAME");
             var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
@@ -81,7 +83,7 @@ namespace TApp
                 AcceptedModel = new TaskQueue.QueueItemModel(typeof(zModel)),
                 InvokeAs = TaskBroker.ExecutionType.Consumer,
                 UniqueName = "zConsumer",
-                 
+
             };
             b.RegistrateModule(mcZ);
             //
