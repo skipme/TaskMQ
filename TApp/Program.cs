@@ -105,7 +105,7 @@ namespace TApp
                 Database = "Messages",
                 Name = "MongoLocalhostEmail"
             });
-            b.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
+
             TaskBroker.MessageChannel emailChannel = new TaskBroker.MessageChannel("EmailC", "MongoLocalhostEmail", "MongoDBQ");
             b.RegistarateChannel(emailChannel, EmailConsumer.MailModel.Name);
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()

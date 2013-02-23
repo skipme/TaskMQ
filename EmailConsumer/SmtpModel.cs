@@ -8,9 +8,13 @@ namespace EmailConsumer
     public class SmtpModel : TaskQueue.Providers.TItemModel
     {
         public SmtpModel() { }
+        public SmtpModel(TaskQueue.Providers.TItemModel holder)
+        {
+            this.SetHolder(holder.GetHolder());
+        }
         public SmtpModel(Dictionary<string, object> holder)
         {
-            SetHolder(holder);
+            this.SetHolder(holder);
         }
         public string Server { get; set; }
         public int Port { get; set; }

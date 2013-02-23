@@ -13,6 +13,8 @@ namespace EmailConsumer
         public static void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
         {
             broker = brokerInterface;
+            broker.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
+
             thisModule.UniqueName = "EmailSender";
             thisModule.Description = "Email common sender";
             thisModule.InvokeAs = TaskBroker.ExecutionType.Consumer;
@@ -22,7 +24,7 @@ namespace EmailConsumer
         }
         public static bool Send(TItemModel parameters, ref TaskMessage q_parameter)
         {
-            SmtpModel smtp_p = parameters as SmtpModel;
+            SmtpModel smtp_p = new SmtpModel(parameters);
             MailModel mail = new MailModel(q_parameter);
 
             // send email
