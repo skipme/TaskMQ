@@ -7,8 +7,19 @@ namespace EmailConsumer
 {
     public class MailModel : TaskQueue.Providers.TaskMessage
     {
+        public const string Name = "EMail";
+        public MailModel()
+            : base(Name)
+        {
+
+        }
+        public MailModel(TaskQueue.Providers.TaskMessage holder)
+            : base(holder.MType)
+        {
+            this.SetHolder(holder.GetHolder());
+        }
         public MailModel(Dictionary<string, object> holder)
-            : base("EMail")
+            : base(Name)
         {
             this.SetHolder(holder);
         }

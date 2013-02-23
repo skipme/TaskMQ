@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskQueue.Providers;
 
 namespace QueueService
 {
@@ -17,7 +18,7 @@ namespace QueueService
             thisModule.AcceptedParameters = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
             broker.RegistrateTask("http main service", "null", thisModule.UniqueName, "Host for web service", TaskScheduler.IntervalType.isolatedThread, 0);
         }
-        public static void IsolatedProducer(Dictionary<string, object> parameters)
+        public static void IsolatedProducer(TItemModel parameters)
         {
             var appHost = new baseService();
             appHost.Init();

@@ -18,13 +18,13 @@ namespace TApp
         }
         class zModel : TaskQueue.Providers.TaskMessage
         {
-            public zModel() : base("z") { }
+            public const string Name = "z";
+            public zModel() : base(Name) { }
             public string SomeProperty { get; set; }
         }
         class zConsumer
         {
-            public static bool Entry(
-                Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
+            public static bool Entry(TaskQueue.Providers.TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
             {
                 Console.WriteLine("zMessage: {0} - {1} {2}", q_parameter.GetHolder()["MType"], q_parameter.AddedTime, q_parameter.GetHolder()["_id"]);
                 return true;
@@ -54,13 +54,13 @@ namespace TApp
                     Name = "MongoLocalhost"
                 });
             //
-            b.RegistarateChannel(new TaskBroker.MessageType()
+            b.RegistarateMessageModel(new TaskBroker.MessageType(new zModel()));
+            b.RegistarateChannel(new TaskBroker.MessageChannel()
                 {
                     QueueName = "MongoDBQ",
                     ConnectionParameters = "MongoLocalhost",
-                    UniqueName = "z",
-                    Model = new TaskQueue.QueueItemModel(typeof(zModel))
-                });
+                    UniqueName = "z"
+                }, zModel.Name);
             //
             // web service
             TaskBroker.ModMod m = new TaskBroker.ModMod()
@@ -105,13 +105,9 @@ namespace TApp
                 Database = "Messages",
                 Name = "MongoLocalhostEmail"
             });
-            b.RegistarateChannel(new TaskBroker.MessageType()
-            {
-                QueueName = "MongoDBQ",
-                ConnectionParameters = "MongoLocalhostEmail",
-                UniqueName = "EmailC",
-                Model = new TaskQueue.QueueItemModel(typeof(EmailConsumer.MailModel))
-            });
+            b.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
+            TaskBroker.MessageChannel emailChannel = new TaskBroker.MessageChannel("EmailC", "MongoLocalhostEmail", "MongoDBQ");
+            b.RegistarateChannel(emailChannel, EmailConsumer.MailModel.Name);
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
             {
                 Login = "user",
@@ -120,8 +116,8 @@ namespace TApp
                 Password = "",
                 Server = "smtp.yandex.ru"
             };
-            b.RegistrateTask("Email Common", "EmailC", "EmailSender", "Email Common channel consumer",
-                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000, smtp.GetHolder());
+            b.RegistrateTask("Email Common", emailChannel.UniqueName, "EmailSender", "Email Common channel consumer",
+                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000, smtp);
 
             //
 

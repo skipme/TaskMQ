@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskQueue.Providers;
 
 namespace TaskBroker
 {
-    public delegate void ProducerEntryPoint(Dictionary<string, object> parameters);
-    public delegate bool ConsumerEntryPoint(Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
+    public delegate void ProducerEntryPoint(TItemModel parameters);
+    public delegate bool ConsumerEntryPoint(TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
     public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
     public delegate void StubEntryPoint();
 
@@ -23,7 +24,7 @@ namespace TaskBroker
 
         public string ChannelName { get; set; }
         public bool MinChannelOccupancyDirection { get; set; }
-        public Dictionary<string, object> Parameters { get; set; }
+        public TItemModel Parameters { get; set; }
         public ModMod Module { get; set; }
 
         public TaskScheduler.PlanItem Plan { get; set; }

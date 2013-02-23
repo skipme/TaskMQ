@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskQueue.Providers;
 
 namespace EmailConsumer
 {
@@ -19,12 +20,10 @@ namespace EmailConsumer
             thisModule.AcceptedParameters = new TaskQueue.QueueItemModel(typeof(SmtpModel));
             thisModule.Consumer = ModConsumer.Send;
         }
-        public static bool Send(Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
+        public static bool Send(TItemModel parameters, ref TaskMessage q_parameter)
         {
-            Dictionary<string, object> model = q_parameter.GetHolder();
-
-            SmtpModel smtp_p = new SmtpModel(parameters);
-            MailModel mail = new MailModel(model);
+            SmtpModel smtp_p = parameters as SmtpModel;
+            MailModel mail = new MailModel(q_parameter);
 
             // send email
             bool result = Sender.Send(mail, smtp_p);

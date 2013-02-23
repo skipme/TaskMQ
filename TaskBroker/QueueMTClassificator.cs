@@ -10,17 +10,25 @@ namespace TaskBroker
         public QueueMTClassificator()
         {
             MessageModels = new List<MessageType>();
+            MessageChannels = new List<MessageChannel>();
             Anterooms = new Dictionary<string, ChannelAnteroom>();
             Queues = new QueueClassificator();
             Connections = new QueueConParams();
         }
-        public void Add(MessageType mt)
+        public void AddMessageType(MessageType mt)
         {
             MessageModels.Add(mt);
-            ChannelAnteroom ante = GetByName(mt.UniqueName);
+        }
+        public void AddMessageChannel(MessageChannel mc, string messageModelName)
+        {
+            MessageChannels.Add(mc);
+            mc.MessageModel = (from mm in MessageModels
+                               where mm.UniqueName.Equals(messageModelName, StringComparison.OrdinalIgnoreCase)
+                               select mm).FirstOrDefault();
+            ChannelAnteroom ante = GetByName(mc.UniqueName);
             try
             {
-                ante.Queue.OptimiseForSelector(mt.consumerSelector);
+                ante.Queue.OptimiseForSelector(mc.consumerSelector);
             }
             catch (Exception e)
             {
@@ -30,9 +38,9 @@ namespace TaskBroker
         public ChannelAnteroom GetByName(string mtName)
         {
             ChannelAnteroom anteroom = null;
-            MessageType mt = (from mm in MessageModels
-                              where mm.UniqueName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
-                              select mm).FirstOrDefault();
+            MessageChannel mc = (from mm in MessageChannels
+                                 where mm.UniqueName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
+                                 select mm).FirstOrDefault();
 
             if (Anterooms.ContainsKey(mtName))
             {
@@ -40,12 +48,12 @@ namespace TaskBroker
             }
             else
             {
-                anteroom = new ChannelAnteroom(mt.consumerSelector);
-                anteroom.Queue = Queues.GetQueue(mt.QueueName);
-                TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mt.ConnectionParameters);
+                anteroom = new ChannelAnteroom(mc.consumerSelector);
+                anteroom.Queue = Queues.GetQueue(mc.QueueName);
+                TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mc.ConnectionParameters);
                 try
                 {
-                    anteroom.Queue.InitialiseFromModel(mt.Model, qparams);
+                    anteroom.Queue.InitialiseFromModel(mc.MessageModel.Model, qparams);
                     Anterooms.Add(mtName, anteroom);
                 }
                 catch (Exception e)
@@ -58,6 +66,7 @@ namespace TaskBroker
         }
         public Dictionary<string, ChannelAnteroom> Anterooms;
         public List<MessageType> MessageModels;
+        public List<MessageChannel> MessageChannels;
         public QueueClassificator Queues;
         public QueueConParams Connections;
     }

@@ -13,10 +13,8 @@ namespace TaskBroker
         {
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
-            //Queues = new QueueClassificator();
             Modules = new ModHolder();
             MessageChannels = new QueueMTClassificator();
-            //Connections = new QueueConParams();
 
             Scheduler.Allocate();
         }
@@ -37,26 +35,29 @@ namespace TaskBroker
         {
             Modules.AddMod(mod);
         }
-
-        public void RegistarateChannel(MessageType mt)
+        public void RegistarateMessageModel(MessageType mt)
         {
-            MessageChannels.Add(mt);
+            MessageChannels.AddMessageType(mt);
         }
-        public void RegistrateTask(string uniqueName, string Channel, string modName, string NameAndDesc, TaskScheduler.IntervalType it, long intervalValue, Dictionary<string, object> parameters = null)
+        public void RegistarateChannel(MessageChannel mc, string messageModelName)
+        {
+            MessageChannels.AddMessageChannel(mc, messageModelName);
+        }
+        public void RegistrateTask(string uniqueName, string Channel, string modName, string Description, TaskScheduler.IntervalType it, long intervalValue, TItemModel parameters = null)
         {
             ModMod module = Modules.GetByName(modName);
             QueueTask t = new QueueTask()
             {
                 Name = uniqueName,
                 Module = module,
-                Description = NameAndDesc,
+                Description = Description,
                 ChannelName = Channel,
                 Parameters = parameters
             };
             TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
             {
                 CustomObject = t,
-                NameAndDescription = NameAndDesc,
+                NameAndDescription = uniqueName,
                 intervalType = it,
                 intervalValue = intervalValue,
                 planEntry = TaskEntry

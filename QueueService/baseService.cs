@@ -78,9 +78,7 @@ namespace QueueService
             {
                 r.Result.Add(new MessageType()
                 {
-                    Name = s.UniqueName,
-                    Connection = s.ConnectionParameters,
-                    QueueName = s.QueueName
+                    Name = s.UniqueName
                 });
             }
             return r;
