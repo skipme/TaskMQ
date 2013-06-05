@@ -62,7 +62,7 @@ namespace TaskBroker
             Modules.AddMod(stub);
             stub.InitialiseEntry(this, stub);
         }
-        public void RegisterSelfInitiatedModule<C>()
+        public void RegisterSelfValuedModule<C>()
             where C : IModConsumer
         {
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
@@ -158,6 +158,7 @@ namespace TaskBroker
             if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
             {
                 //task.Module.Producer(task.Parameters);
+                ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
             }
             else
             {
@@ -194,12 +195,12 @@ namespace TaskBroker
             if (item == null)
                 return;
 
-            //if (mod.Consumer(task.Parameters, ref item))
-            //{
-            //    item.Processed = true;
-            //    item.ProcessedTime = DateTime.UtcNow;
-            //    ch.Update(item);
-            //}
+            if (((IModConsumer)mod.MI).Push(task.Parameters, ref item))
+            {
+                item.Processed = true;
+                item.ProcessedTime = DateTime.UtcNow;
+                ch.Update(item);
+            }
         }
 
         public TaskMessage Pop(string channel)

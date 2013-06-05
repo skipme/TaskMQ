@@ -107,7 +107,7 @@ namespace TApp
 
             //};
             //b.RegistrateModule(email);
-            b.RegisterSelfInitiatedModule<EmailConsumer.ModConsumer>();
+            b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
             //
             //b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
             //    TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
