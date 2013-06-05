@@ -11,16 +11,25 @@ namespace TaskBroker
         public string UniqueName { get; set; }
         public string Description { get; set; }
 
-        public TaskQueue.QueueItemModel AcceptedModel { get; set; }
-        public TaskQueue.QueueItemModel AcceptedParameters { get; set; }
+        public TaskQueue.QueueItemModel AcceptsModel { get; set; }
+        public TaskQueue.QueueItemModel Parameters { get; set; }
 
         public Assembly ModAssembly { get; set; }
         public TaskBroker.ExecutionType InvokeAs { get; set; }
 
-        public TaskBroker.ConsumerEntryPoint Consumer { get; set; }
-        public TaskBroker.ProducerEntryPoint Producer { get; set; }
-        public ModInitEntryPoint InitialiseEntry { get; set; }
-        public StubEntryPoint ExitEntry { get; set; }
+        //public TaskBroker.ConsumerEntryPoint Consumer { get; set; }
+        //public TaskBroker.ProducerEntryPoint Producer { get; set; }
+        //public ModInitEntryPoint InitialiseEntry { get; set; }
+        //public StubEntryPoint ExitEntry { get; set; }
+        public IMod MI { get; set; }
+        public void ExitEntry()
+        {
+            MI.Exit();
+        }
+        public void InitialiseEntry(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
+        {
+            MI.Initialise(brokerInterface, thisModule);
+        }
     }
 
     public class ModHolder

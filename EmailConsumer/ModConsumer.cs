@@ -2,28 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskBroker;
 using TaskQueue.Providers;
 
 namespace EmailConsumer
 {
-    public class ModConsumer
+    public class ModConsumer : IModConsumer
     {
         public static TaskBroker.Broker broker;
 
-        public static void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
+        public bool Push(TItemModel parameters, ref TaskMessage q_parameter)
         {
-            broker = brokerInterface;
-            broker.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
-
-            thisModule.UniqueName = "EmailSender";
-            thisModule.Description = "Email common sender";
-            thisModule.InvokeAs = TaskBroker.ExecutionType.Consumer;
-            thisModule.AcceptedModel = new TaskQueue.QueueItemModel(typeof(MailModel));
-            thisModule.AcceptedParameters = new TaskQueue.QueueItemModel(typeof(SmtpModel));
-            thisModule.Consumer = ModConsumer.Send;
-        }
-        public static bool Send(TItemModel parameters, ref TaskMessage q_parameter)
-        {
+            //Send
             SmtpModel smtp_p = new SmtpModel(parameters);
             MailModel mail = new MailModel(q_parameter);
 
@@ -32,8 +22,24 @@ namespace EmailConsumer
 
             return result;
         }
-        public static void Exit()
+
+        public void Exit()
         {
+            throw new NotImplementedException();
         }
+
+        public void Initialise(Broker brokerInterface, ModMod thisModule)
+        {
+            broker = brokerInterface;
+            broker.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
+
+            thisModule.UniqueName = "EmailSender";
+            thisModule.Description = "Email common sender";
+            thisModule.InvokeAs = TaskBroker.ExecutionType.Consumer;
+            thisModule.AcceptsModel = new TaskQueue.QueueItemModel(typeof(MailModel));
+            thisModule.Parameters = new TaskQueue.QueueItemModel(typeof(SmtpModel));
+            //thisModule.Consumer = ModConsumer.Send;
+        }
+
     }
 }

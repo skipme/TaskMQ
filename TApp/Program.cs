@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using TaskBroker;
 
 
 namespace TApp
@@ -22,12 +23,22 @@ namespace TApp
             public zModel() : base(Name) { }
             public string SomeProperty { get; set; }
         }
-        class zConsumer
+        class zConsumer : IModConsumer
         {
-            public static bool Entry(TaskQueue.Providers.TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
+            public bool Push(TaskQueue.Providers.TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
             {
                 Console.WriteLine("zMessage: {0} - {1} {2}", q_parameter.GetHolder()["MType"], q_parameter.AddedTime, q_parameter.GetHolder()["_id"]);
                 return true;
+            }
+
+            public void Exit()
+            {
+
+            }
+
+            public void Initialise(Broker brokerInterface, ModMod thisModule)
+            {
+
             }
         }
         static void Main(string[] args)
@@ -63,34 +74,38 @@ namespace TApp
                 }, zModel.Name);
             //
             // web service
-            TaskBroker.ModMod m = new TaskBroker.ModMod()
-            {
-                InitialiseEntry = QueueService.ModProducer.Initialise,
-                ExitEntry = QueueService.ModProducer.Exit,
-                ModAssembly = typeof(QueueService.ModProducer).Assembly,
-            };
-            b.RegistrateModule(m);
+            //TaskBroker.ModMod m = new TaskBroker.ModMod()
+            //{
+            //    InitialiseEntry = QueueService.ModProducer.Initialise,
+            //    ExitEntry = QueueService.ModProducer.Exit,
+            //    ModAssembly = typeof(QueueService.ModProducer).Assembly,
+            //};
+            //b.RegistrateModule(m);
+
             //
             // z channel consumer ...
-            TaskBroker.ModMod mcZ = new TaskBroker.ModMod()
-            {
-                InitialiseEntry = (TaskBroker.Broker bb, TaskBroker.ModMod mm) => { },
-                ExitEntry = () => { },
-                ModAssembly = typeof(zConsumer).Assembly,
-                Consumer = zConsumer.Entry,
-                AcceptedModel = new TaskQueue.QueueItemModel(typeof(zModel)),
-                InvokeAs = TaskBroker.ExecutionType.Consumer,
-                UniqueName = "zConsumer",
+            //TaskBroker.ModMod mcZ = new TaskBroker.ModMod()
+            //{
+            //    InitialiseEntry = (TaskBroker.Broker bb, TaskBroker.ModMod mm) => { },
+            //    ExitEntry = () => { },
+            //    ModAssembly = typeof(zConsumer).Assembly,
+            //    Consumer = zConsumer.Entry,
+            //    AcceptsModel = new TaskQueue.QueueItemModel(typeof(zModel)),
+            //    InvokeAs = TaskBroker.ExecutionType.Consumer,
+            //    UniqueName = "zConsumer",
 
-            };
-            b.RegistrateModule(mcZ);
+            //};
+            //b.RegistrateModule(mcZ);
+            b.RegistrateCosumerModule<zConsumer, zModel>("ZConsume");
+
             //
-            TaskBroker.ModMod email = new TaskBroker.ModMod()
-            {
-                InitialiseEntry = EmailConsumer.ModConsumer.Initialise,
+            //TaskBroker.ModMod email = new TaskBroker.ModMod()
+            //{
+            //    InitialiseEntry = EmailConsumer.ModConsumer.Initialise,
 
-            };
-            b.RegistrateModule(email);
+            //};
+            //b.RegistrateModule(email);
+
             //
             //b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
             //    TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);

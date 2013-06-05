@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Broker.cs" />
     <Compile Include="ChannelAnteroom.cs" />
+    <Compile Include="IMod.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="ModHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

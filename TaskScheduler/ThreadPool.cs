@@ -27,7 +27,8 @@ namespace TaskScheduler
         List<ThreadItem> threads = new List<ThreadItem>();
         ExecutionPlan plan = new ExecutionPlan();
 
-        public void Allocate()
+        //public void Allocate()
+        public ThreadPool()
         {
             if (threads.Count > 0)
             {

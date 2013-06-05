@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using TaskQueue.Providers;
@@ -12,11 +13,11 @@ namespace TaskBroker
         public Broker()
         {
             Tasks = new List<QueueTask>();
-            Scheduler = new TaskScheduler.ThreadPool();
             Modules = new ModHolder();
             MessageChannels = new QueueMTClassificator();
 
-            Scheduler.Allocate();
+            Scheduler = new TaskScheduler.ThreadPool();
+            //Scheduler.Allocate();
         }
 
         //public QueueConParams Connections;
@@ -30,6 +31,37 @@ namespace TaskBroker
         {
             Modules.AddMod(mod);
             mod.InitialiseEntry(this, mod);
+        }
+        //public void RegistrateCosumerModule<T>(ConsumerEntryPoint receiver, string name) where T : TaskQueue.Providers.TaskMessage
+        //{
+        //    //TaskBroker.ModMod stub = new TaskBroker.ModMod()
+        //    //{
+        //    //    //InitialiseEntry = null,
+        //    //    //ExitEntry = null,
+        //    //    ModAssembly = typeof(T).Assembly,
+        //    //    Consumer = receiver,
+        //    //    AcceptsModel = new TaskQueue.QueueItemModel(typeof(T)),
+        //    //    InvokeAs = TaskBroker.ExecutionType.Consumer,
+        //    //    UniqueName = name,
+
+        //    //};
+        //    //Modules.AddMod(stub);
+        //}
+        public void RegistrateCosumerModule<C, M>(string name)
+            where C : IModConsumer
+            where M : TaskMessage
+        {
+            TaskBroker.ModMod stub = new TaskBroker.ModMod()
+                {
+                    //InitialiseEntry = null,
+                    //ExitEntry = null,
+                    ModAssembly = typeof(C).Assembly,
+                    AcceptsModel = new TaskQueue.QueueItemModel(typeof(M)),
+                    InvokeAs = TaskBroker.ExecutionType.Consumer,
+                    UniqueName = name,
+                };
+            Modules.AddMod(stub);
+            stub.InitialiseEntry(this, stub);
         }
         public void RegistrateModule(System.Reflection.Assembly mod)
         {
@@ -88,7 +120,7 @@ namespace TaskBroker
             QueueTask task = pi.CustomObject as QueueTask;
             if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
             {
-                task.Module.Producer(task.Parameters);
+                //task.Module.Producer(task.Parameters);
             }
             else
             {
@@ -106,7 +138,7 @@ namespace TaskBroker
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi.CustomObject as QueueTask;
-            task.Module.Producer(task.Parameters);
+            //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
             {
                 Thread.Sleep(100);
@@ -125,12 +157,12 @@ namespace TaskBroker
             if (item == null)
                 return;
 
-            if (mod.Consumer(task.Parameters, ref item))
-            {
-                item.Processed = true;
-                item.ProcessedTime = DateTime.UtcNow;
-                ch.Update(item);
-            }
+            //if (mod.Consumer(task.Parameters, ref item))
+            //{
+            //    item.Processed = true;
+            //    item.ProcessedTime = DateTime.UtcNow;
+            //    ch.Update(item);
+            //}
         }
 
         public TaskMessage Pop(string channel)

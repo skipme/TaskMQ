@@ -56,62 +56,68 @@ namespace QueueService
     {
         public QueueResponse Get(Queue request)
         {
-            TaskBroker.Broker b = ModProducer.broker;
-            QueueResponse r = new QueueResponse();
-            r.Result = new List<Queue>();
-            foreach (var q in b.MessageChannels.Queues.QueueList.Values)
-            {
-                r.Result.Add(new Queue()
-                {
-                    Name = q.QueueType,
-                    Description = q.QueueDescription
-                });
-            }
-            return r;
+            //TaskBroker.Broker b = ModProducer.broker;
+            //QueueResponse r = new QueueResponse();
+            //r.Result = new List<Queue>();
+            //foreach (var q in b.MessageChannels.Queues.QueueList.Values)
+            //{
+            //    r.Result.Add(new Queue()
+            //    {
+            //        Name = q.QueueType,
+            //        Description = q.QueueDescription
+            //    });
+            //}
+            //return r;
+            return null;
         }
         public MessageTypeResponse Get(MessageType request)
         {
-            TaskBroker.Broker b = ModProducer.broker;
-            MessageTypeResponse r = new MessageTypeResponse();
-            r.Result = new List<MessageType>();
-            foreach (var s in b.MessageChannels.MessageModels)
-            {
-                r.Result.Add(new MessageType()
-                {
-                    Name = s.UniqueName
-                });
-            }
-            return r;
+            //TaskBroker.Broker b = ModProducer.broker;
+            //MessageTypeResponse r = new MessageTypeResponse();
+            //r.Result = new List<MessageType>();
+            //foreach (var s in b.MessageChannels.MessageModels)
+            //{
+            //    r.Result.Add(new MessageType()
+            //    {
+            //        Name = s.UniqueName
+            //    });
+            //}
+            //return r;
+            return null;
         }
         public BrokerTasksResponse Get(BrokerTasks request)
         {
-            TaskBroker.Broker b = ModProducer.broker;
-            BrokerTasksResponse r = new BrokerTasksResponse();
-            r.Result = new List<BrokerTasks>();
-            foreach (var s in b.Tasks)
-            {
-                r.Result.Add(new BrokerTasks()
-                {
-                    Name = s.Name,
-                    Description = s.Description
-                });
-            }
-            return r;
+            //TaskBroker.Broker b = ModProducer.broker;
+            //BrokerTasksResponse r = new BrokerTasksResponse();
+            //r.Result = new List<BrokerTasks>();
+            //foreach (var s in b.Tasks)
+            //{
+            //    r.Result.Add(new BrokerTasks()
+            //    {
+            //        Name = s.Name,
+            //        Description = s.Description
+            //    });
+            //}
+            //return r;
+            return null;
         }
         public MessageResponse Post(Message request)
         {
-            TaskBroker.Broker b = ModProducer.broker;
-            TaskQueue.Providers.TaskMessage m = new TaskQueue.Providers.TaskMessage(request.Body);
-            TaskQueue.Providers.TaskMessage mp = b.Pop(m.MType);
-            return new MessageResponse() { Result = mp == null ? "Empty" : "OK", ResultMessage = new Message() { Body = mp == null ? null : mp.GetHolder() } };
+            //TaskBroker.Broker b = ModProducer.broker;
+            //TaskQueue.Providers.TaskMessage m = new TaskQueue.Providers.TaskMessage(request.Body);
+            //TaskQueue.Providers.TaskMessage mp = b.Pop(m.MType);
+            //return new MessageResponse() { Result = mp == null ? "Empty" : "OK", ResultMessage = new Message() { Body = mp == null ? null : mp.GetHolder() } };
+            return null;
+            return null;
         }
         public MessageResponse Put(Message request)
         {
-            TaskBroker.Broker b = ModProducer.broker;
-            TaskQueue.Providers.TaskMessage msg = new TaskQueue.Providers.TaskMessage(request.Body);
-            bool result = b.PushMessage(msg);
+            //TaskBroker.Broker b = ModProducer.broker;
+            //TaskQueue.Providers.TaskMessage msg = new TaskQueue.Providers.TaskMessage(request.Body);
+            //bool result = b.PushMessage(msg);
 
-            return new MessageResponse() { Result = result ? "OK" : "FAIL", ResultMessage = new Message() { Body = request.Body } };
+            //return new MessageResponse() { Result = result ? "OK" : "FAIL", ResultMessage = new Message() { Body = request.Body } };
+            return null;
         }
     }
     public class baseService : AppHostHttpListenerBase
