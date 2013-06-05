@@ -26,9 +26,9 @@ namespace TaskScheduler
         const int maxThreads = 4;
         List<ThreadItem> threads = new List<ThreadItem>();
         ExecutionPlan plan = new ExecutionPlan();
-
+        public ThreadPool() { Revoke(); }
         //public void Allocate()
-        public ThreadPool()
+        public void Revoke()
         {
             if (threads.Count > 0)
             {

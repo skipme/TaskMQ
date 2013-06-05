@@ -7,9 +7,10 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
-    public class TItemModel : ITItem
+    public abstract class TItemModel : ITItem
     {
         public Dictionary<string, object> Holder = new Dictionary<string, object>();
+        public abstract string ItemTypeName { get; set; }
 
         public TItemModel()
         {
@@ -42,7 +43,7 @@ namespace TaskQueue.Providers
                     else continue;
                 }
                 else if (!nullable && pt != v.Value.GetType())
-                    throw new Exception("unkown type for key: " + v.Key);
+                    throw new Exception("unknown type for key: " + v.Key);
 
                 pi.SetValue(this, v.Value, null);
             }

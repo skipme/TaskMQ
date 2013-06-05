@@ -47,19 +47,30 @@ namespace TaskBroker
         //    //};
         //    //Modules.AddMod(stub);
         //}
-        public void RegistrateCosumerModule<C, M>(string name)
+        public void RegisterCosumerModule<C, M>(string name)
             where C : IModConsumer
             where M : TaskMessage
         {
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
                 {
-                    //InitialiseEntry = null,
-                    //ExitEntry = null,
                     ModAssembly = typeof(C).Assembly,
                     AcceptsModel = new TaskQueue.QueueItemModel(typeof(M)),
                     InvokeAs = TaskBroker.ExecutionType.Consumer,
                     UniqueName = name,
+                    MI = Activator.CreateInstance<C>()
                 };
+            Modules.AddMod(stub);
+            stub.InitialiseEntry(this, stub);
+        }
+        public void RegisterSelfInitiatedModule<C>()
+            where C : IModConsumer
+        {
+            TaskBroker.ModMod stub = new TaskBroker.ModMod()
+            {
+                ModAssembly = typeof(C).Assembly,
+                InvokeAs = TaskBroker.ExecutionType.Consumer,
+                MI = Activator.CreateInstance<C>()
+            };
             Modules.AddMod(stub);
             stub.InitialiseEntry(this, stub);
         }
@@ -75,9 +86,25 @@ namespace TaskBroker
         {
             MessageChannels.AddMessageChannel(mc, messageModelName);
         }
+        public void RegistarateMongoChannel<T>(string connectionName, string channelName)
+            where T : TaskQueue.Providers.TItemModel
+        {
+            var ta = Activator.CreateInstance<T>();
+
+            RegistarateChannel(new TaskBroker.MessageChannel()
+            {
+                QueueName = "MongoDBQ",
+                ConnectionParameters = connectionName,
+                UniqueName = channelName
+            }, ta.ItemTypeName);
+        }
         public void RegistrateTask(string uniqueName, string Channel, string modName, string Description, TaskScheduler.IntervalType it, long intervalValue, TItemModel parameters = null)
         {
             ModMod module = Modules.GetByName(modName);
+            
+            if (module == null)
+                throw new Exception("required qmodule not found.");
+
             QueueTask t = new QueueTask()
             {
                 Name = uniqueName,
@@ -104,6 +131,16 @@ namespace TaskBroker
         public void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp)
         {
             MessageChannels.Connections.Add(qcp);
+        }
+        public void AddConnection(string connectionString, string name, string database, string collection)
+        {
+            MessageChannels.Connections.Add(new TaskQueue.Providers.QueueConnectionParameters()
+                {
+                    Collection = collection,
+                    Name = name,
+                    Database = database,
+                    ConnectionString = connectionString
+                });
         }
         private void UpdatePlan()
         {

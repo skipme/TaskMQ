@@ -22,5 +22,17 @@ namespace TaskQueue.Providers
         {
             MType = mtype;
         }
+
+        public override string ItemTypeName
+        {
+            get
+            {
+                return MType;
+            }
+            set
+            {
+                MType = value;// !!!
+            }
+        }
     }
 }
