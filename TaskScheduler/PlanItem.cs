@@ -19,6 +19,7 @@ namespace TaskScheduler
         public bool ExucutingNow { get; set; }
 
         //public object CustomObject { get; set; }
+        public bool Suspended { get; set; }
         public long LAMS { get; set; }
 
         public long MillisecondsBeforeExecute()

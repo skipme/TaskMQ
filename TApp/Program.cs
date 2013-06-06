@@ -140,7 +140,11 @@ namespace TApp
 
             //
 
-            Console.Read();
+            Console.ReadLine();
+            b.PushMessage(new EmailConsumer.MailModel());
+
+            Console.ReadLine();
+            
             b.Scheduler.SuspendAll();
         }
     }

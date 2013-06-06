@@ -18,21 +18,22 @@ namespace MongoQueue
                 {
                     case TaskQueue.TQItemSelectorSet.Equals:
                         Type kvt = kv.Value.Value.GetType();
-                        if (kvt == typeof(bool))
-                            qs.Add(Query.EQ(kv.Key, (bool)kv.Value.Value));
-                        else
-                            if (kvt == typeof(DateTime))
-                                qs.Add(Query.EQ(kv.Key, (DateTime)kv.Value.Value));
-                            else
-                                if (kvt == typeof(string))
-                                    qs.Add(Query.EQ(kv.Key, kv.Value.Value as string));
-                                else
-                                    if (kvt == typeof(int))
-                                        qs.Add(Query.EQ(kv.Key, (int)kv.Value.Value));
-                                    else
-                                        if (kvt == typeof(double))
-                                            qs.Add(Query.EQ(kv.Key, (double)kv.Value.Value));
-                                        else throw new Exception(string.Format("the query type for mongo queue not implemented in selector, the key: {0}, value type: {1}", kv.Key, kvt.FullName));
+                        qs.Add(new QueryDocument(new Dictionary<string, object>() { { kv.Key, kv.Value.Value } }));
+                        //if (kvt == typeof(bool))
+                        //    qs.Add(Query.EQ(kv.Key, (bool)kv.Value.Value));
+                        //else
+                        //    if (kvt == typeof(DateTime))
+                        //        qs.Add(Query.EQ(kv.Key, (DateTime)kv.Value.Value));
+                        //    else
+                        //        if (kvt == typeof(string))
+                        //            qs.Add(Query.EQ(kv.Key, kv.Value.Value as string));
+                        //        else
+                        //            if (kvt == typeof(int))
+                        //                qs.Add(Query.EQ(kv.Key, (int)kv.Value.Value));
+                        //            else
+                        //                if (kvt == typeof(double))
+                        //                    qs.Add(Query.EQ(kv.Key, (double)kv.Value.Value));
+                        //                else throw new Exception(string.Format("the query type for mongo queue not implemented in selector, the key: {0}, value type: {1}", kv.Key, kvt.FullName));
                         break;
                 }
             }

@@ -8,6 +8,7 @@ namespace TaskBroker
 {
     public class ChannelAnteroom
     {
+        public string ChannelName { get; set; }
         public ChannelAnteroom(TaskQueue.TQItemSelector selector)
         {
             this.selector = selector;

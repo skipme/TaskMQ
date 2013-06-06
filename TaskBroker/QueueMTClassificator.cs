@@ -25,7 +25,7 @@ namespace TaskBroker
             mc.MessageModel = (from mm in MessageModels
                                where mm.UniqueName.Equals(messageModelName, StringComparison.OrdinalIgnoreCase)
                                select mm).FirstOrDefault();
-            ChannelAnteroom ante = GetByName(mc.UniqueName);
+            ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
             try
             {
                 ante.Queue.OptimiseForSelector(mc.consumerSelector);
@@ -35,26 +35,46 @@ namespace TaskBroker
                 Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
             }
         }
-        public ChannelAnteroom GetByName(string mtName)
+        public MessageChannel GetChannelForMessage(string mtName)
+        {
+            // first only // ballancer to do
+            MessageChannel mc = (from mm in MessageChannels
+                                 where mm.MessageModel.UniqueName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
+                                 select mm).FirstOrDefault();
+            return mc;
+        }
+        public ChannelAnteroom GetAnteroomForMessage(string mtName)
+        {
+            MessageChannel mc = GetChannelForMessage(mtName);
+
+            return GetAnteroom(mc.UniqueName);
+        }
+        public MessageChannel GetChannel(string name)
+        {
+            MessageChannel mc = (from mm in MessageChannels
+                                 where mm.UniqueName.Equals(name, StringComparison.OrdinalIgnoreCase)
+                                 select mm).FirstOrDefault();
+            return mc;
+        }
+        public ChannelAnteroom GetAnteroom(string name)
         {
             ChannelAnteroom anteroom = null;
-            MessageChannel mc = (from mm in MessageChannels
-                                 where mm.UniqueName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
-                                 select mm).FirstOrDefault();
+            MessageChannel mc = GetChannel(name);
 
-            if (Anterooms.ContainsKey(mtName))
+            if (Anterooms.ContainsKey(name))
             {
-                anteroom = Anterooms[mtName];
+                anteroom = Anterooms[name];
             }
             else
             {
                 anteroom = new ChannelAnteroom(mc.consumerSelector);
+                anteroom.ChannelName = name;
                 anteroom.Queue = Queues.GetQueue(mc.QueueName);
                 TaskQueue.Providers.QueueConnectionParameters qparams = Connections.GetByName(mc.ConnectionParameters);
                 try
                 {
                     anteroom.Queue.InitialiseFromModel(mc.MessageModel.Model, qparams);
-                    Anterooms.Add(mtName, anteroom);
+                    Anterooms.Add(name, anteroom);
                 }
                 catch (Exception e)
                 {

@@ -102,7 +102,7 @@ namespace TaskBroker
         public void RegistrateTask(string uniqueName, string Channel, string modName, string Description, TaskScheduler.IntervalType it, long intervalValue, TItemModel parameters = null)
         {
             ModMod module = Modules.GetByName(modName);
-            
+
             if (module == null)
                 throw new Exception("required qmodule not found.");
 
@@ -193,15 +193,20 @@ namespace TaskBroker
 
         private void ConsumerEntry(QueueTask task)
         {
+            Console.WriteLine("consumer: {0}", task.ChannelName);
             //QueueTask task = pi as QueueTask;
             ModMod mod = task.Module;
 
             // Pop item from queue
-            ChannelAnteroom ch = MessageChannels.GetByName(task.ChannelName);
+            ChannelAnteroom ch = MessageChannels.GetAnteroom(task.ChannelName);
             TaskQueue.Providers.TaskMessage item = ch.Next();
 
             if (item == null)
+            {
+                Console.WriteLine("consumer empty: {0}", task.ChannelName);
+                task.Suspended = true;
                 return;
+            }
 
             if (((IModConsumer)mod.MI).Push(task.Parameters, ref item))
             {
@@ -213,7 +218,7 @@ namespace TaskBroker
 
         public TaskMessage Pop(string channel)
         {
-            ChannelAnteroom ch = MessageChannels.GetByName(channel);
+            ChannelAnteroom ch = MessageChannels.GetAnteroom(channel);
             TaskQueue.Providers.TaskMessage item = ch.Next();
 
             if (item == null)
@@ -228,22 +233,32 @@ namespace TaskBroker
 
         private void ProducerEntry(QueueTask task)
         {
+            Console.WriteLine("producer: {0}", task.ChannelName);
             //QueueTask task = pi as QueueTask;
         }
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
-            ChannelAnteroom ch = MessageChannels.GetByName(msg.MType);
+            ChannelAnteroom ch = MessageChannels.GetAnteroomForMessage(msg.MType);
             if (ch == null)
             {
                 Console.WriteLine("unknown message type: {0}", msg.MType);
                 return false;
             }
             msg.AddedTime = DateTime.UtcNow;
-            return ch.Push(msg);
+            bool status = ch.Push(msg);
+
+            var x = from t in Tasks
+                    where t.ChannelName == ch.ChannelName
+                    select t;
+            foreach (QueueTask t in x)
+            {
+                t.Suspended = false;
+            }
+            return status;
         }
         public long GetChannelOccupancy(string channelName)
         {
-            ChannelAnteroom ch = MessageChannels.GetByName(channelName);
+            ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
     }

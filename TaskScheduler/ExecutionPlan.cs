@@ -42,7 +42,7 @@ namespace TaskScheduler
         public List<PlanItem> Create()
         {
             var p = from i in PlanComponents
-                    where i.intervalType != IntervalType.isolatedThread &&
+                    where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
                     !i.ExucutingNow && i.MillisecondsBeforeExecute() <= 0
                     orderby i.LAMS
                     select i;
