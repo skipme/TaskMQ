@@ -15,12 +15,8 @@ namespace TaskBroker
         public TaskQueue.QueueItemModel Parameters { get; set; }
 
         public Assembly ModAssembly { get; set; }
-        public TaskBroker.ExecutionType InvokeAs { get; set; }
+        public TaskBroker.ExecutionType Role { get; set; }
 
-        //public TaskBroker.ConsumerEntryPoint Consumer { get; set; }
-        //public TaskBroker.ProducerEntryPoint Producer { get; set; }
-        //public ModInitEntryPoint InitialiseEntry { get; set; }
-        //public StubEntryPoint ExitEntry { get; set; }
         public IMod MI { get; set; }
         public void ExitEntry()
         {
@@ -34,8 +30,9 @@ namespace TaskBroker
 
     public class ModHolder
     {
-        public List<ModMod> Modules { get; set; }
-        public ModHolder() { Modules = new List<ModMod>(); }
+        //public List<ModMod> Modules { get; set; }
+        public Dictionary<string, ModMod> Modules;
+        public ModHolder() { Modules = new Dictionary<string, ModMod>(); }
 
         public void AddMod(Assembly assembly, bool initialise = false)
         {
@@ -43,13 +40,19 @@ namespace TaskBroker
         }
         public void AddMod(ModMod mod)
         {
-            Modules.Add(mod);
+            Modules.Add(mod.UniqueName, mod);
         }
         public ModMod GetByName(string name)
         {
-            ModMod m = (from mod in Modules
-                        where string.Equals(mod.UniqueName, name, StringComparison.OrdinalIgnoreCase)
-                        select mod).FirstOrDefault();
+            //ModMod m = (from mod in Modules
+            //            where string.Equals(mod.UniqueName, name, StringComparison.OrdinalIgnoreCase)
+            //            select mod).FirstOrDefault();
+            //return m;
+            ModMod m;
+            if (!Modules.TryGetValue(name, out m))
+            {
+                // logger lvl
+            }
             return m;
         }
 
@@ -57,6 +60,14 @@ namespace TaskBroker
         {
             ModMod m = GetByName(name);
             m.ExitEntry();
+        }
+
+        ModMod this[string name]
+        {
+            get
+            {
+                return GetByName(name);
+            }
         }
     }
 }

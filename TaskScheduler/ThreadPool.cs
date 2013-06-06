@@ -74,6 +74,14 @@ namespace TaskScheduler
                 plan.Create();
             }
         }
+        public void SetPlan(IEnumerable<PlanItem> planItems)
+        {
+            lock (plan)
+            {
+                plan.PlanComponents = planItems.ToList();
+                plan.Create();
+            }
+        }
         public void CreateIsolatedThreadForPlan(PlanItem pi)
         {
             if (pi.intervalType == IntervalType.isolatedThread)

@@ -18,16 +18,17 @@ namespace TaskScheduler
         public DateTime LastExecutionTime { get; set; }
         public bool ExucutingNow { get; set; }
 
-        public object CustomObject { get; set; }
+        //public object CustomObject { get; set; }
+        public long LAMS { get; set; }
 
         public long MillisecondsBeforeExecute()
         {
             long ms = 0;
             switch (intervalType)
             {
-                case IntervalType.withoutInterval:
-                    ms = 0;
-                    break;
+                //case IntervalType.withoutInterval:
+                //    ms = 0;
+                //    break;
                 case IntervalType.everyCustomMilliseconds:
                     ms = (long)(LastExecutionTime.AddMilliseconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
@@ -37,15 +38,16 @@ namespace TaskScheduler
                 case IntervalType.everyDayAtTime:
                     if (LastExecutionTime.Date == DateTime.Now.Date)
                         ms = (long)(DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
-                    else ms = (long)(DateTime.Today.AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
+                    else 
+                        ms = (long)(DateTime.Today.AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
                     break;
-                case IntervalType.isolatedThread:
+                //case IntervalType.isolatedThread:
 
-                    break;
+                //    break;
                 default:
                     break;
             }
-            return ms;
+            return LAMS = ms;
         }
     }
 }

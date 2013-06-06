@@ -17,18 +17,8 @@ namespace TaskScheduler
             {
                 Create();
             }
-            PlanItem pi = null;
-            //if (CurrentPlanQueue.Count == 0)
-            //{
-            //    Create();
-            //    pi = SubNext();
-            //    if (pi == null)
-            //    {
-            //        return null;
-            //    }
-            //}
 
-            pi = SubNext();
+            PlanItem pi = SubNext();
             if (pi == null)
             {
                 Create();
@@ -39,24 +29,22 @@ namespace TaskScheduler
 
         private PlanItem SubNext()
         {
-            PlanItem pi = null;
             for (int i = QueueCursor; i < CurrentPlanQueue.Count; i++)
             {
                 if (!CurrentPlanQueue[i].ExucutingNow)
                 {
                     QueueCursor = i + 1;
-                    pi = CurrentPlanQueue[i];
-                    break;
+                    return CurrentPlanQueue[i];
                 }
             }
-            return pi;
+            return null;
         }
         public List<PlanItem> Create()
         {
             var p = from i in PlanComponents
                     where i.intervalType != IntervalType.isolatedThread &&
                     !i.ExucutingNow && i.MillisecondsBeforeExecute() <= 0
-                    orderby i.MillisecondsBeforeExecute()
+                    orderby i.LAMS
                     select i;
             QueueCursor = 0;
             return CurrentPlanQueue = p.ToList();

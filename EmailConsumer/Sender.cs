@@ -28,7 +28,7 @@ namespace EmailConsumer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Email sender:: " + e.Message);
                 return false;
             }
         }

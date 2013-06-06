@@ -29,8 +29,8 @@ namespace TaskBroker
 
         public void RegistrateModule(ModMod mod)
         {
-            Modules.AddMod(mod);
             mod.InitialiseEntry(this, mod);
+            Modules.AddMod(mod);
         }
         //public void RegistrateCosumerModule<T>(ConsumerEntryPoint receiver, string name) where T : TaskQueue.Providers.TaskMessage
         //{
@@ -55,12 +55,13 @@ namespace TaskBroker
                 {
                     ModAssembly = typeof(C).Assembly,
                     AcceptsModel = new TaskQueue.QueueItemModel(typeof(M)),
-                    InvokeAs = TaskBroker.ExecutionType.Consumer,
+                    Role = TaskBroker.ExecutionType.Consumer,
                     UniqueName = name,
                     MI = Activator.CreateInstance<C>()
                 };
-            Modules.AddMod(stub);
+
             stub.InitialiseEntry(this, stub);
+            Modules.AddMod(stub);
         }
         public void RegisterSelfValuedModule<C>()
             where C : IModConsumer
@@ -68,11 +69,11 @@ namespace TaskBroker
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
             {
                 ModAssembly = typeof(C).Assembly,
-                InvokeAs = TaskBroker.ExecutionType.Consumer,
+                Role = TaskBroker.ExecutionType.Consumer,
                 MI = Activator.CreateInstance<C>()
             };
-            Modules.AddMod(stub);
             stub.InitialiseEntry(this, stub);
+            Modules.AddMod(stub);
         }
         public void RegistrateModule(System.Reflection.Assembly mod)
         {
@@ -111,22 +112,28 @@ namespace TaskBroker
                 Module = module,
                 Description = Description,
                 ChannelName = Channel,
-                Parameters = parameters
-            };
-            TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
-            {
-                CustomObject = t,
-                NameAndDescription = uniqueName,
+                Parameters = parameters,
+
                 intervalType = it,
                 intervalValue = intervalValue,
-                planEntry = TaskEntry
+                planEntry = TaskEntry,
+
+                NameAndDescription = uniqueName
             };
-            t.Plan = p;
+            //TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
+            //{
+            //    //CustomObject = t,
+            //    NameAndDescription = uniqueName,
+            //    intervalType = it,
+            //    intervalValue = intervalValue,
+            //    planEntry = TaskEntry
+            //};
+            //t.Plan = p;
 
             Tasks.Add(t);
             UpdatePlan();
-            if (p.intervalType == TaskScheduler.IntervalType.isolatedThread)
-                Scheduler.CreateIsolatedThreadForPlan(p);
+            if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
+                Scheduler.CreateIsolatedThreadForPlan(t);
         }
         public void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp)
         {
@@ -144,17 +151,18 @@ namespace TaskBroker
         }
         private void UpdatePlan()
         {
-            List<TaskScheduler.PlanItem> plan = new List<TaskScheduler.PlanItem>();
-            foreach (QueueTask t in Tasks)
-            {
-                plan.Add(t.Plan);
-            }
-            Scheduler.SetPlan(plan);
+            Scheduler.SetPlan(from t in Tasks select t as TaskScheduler.PlanItem);
+            //List<TaskScheduler.PlanItem> plan = new List<TaskScheduler.PlanItem>();
+            //foreach (QueueTask t in Tasks)
+            //{
+            //    plan.Add(t.Plan);
+            //}
+            //Scheduler.SetPlan(plan);
         }
 
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
-            QueueTask task = pi.CustomObject as QueueTask;
+            QueueTask task = pi as QueueTask;
             if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
             {
                 //task.Module.Producer(task.Parameters);
@@ -162,20 +170,20 @@ namespace TaskBroker
             }
             else
             {
-                switch (task.Module.InvokeAs)
+                switch (task.Module.Role)
                 {
                     case ExecutionType.Consumer:
-                        ConsumerEntry(pi);
+                        ConsumerEntry(task);
                         break;
                     case ExecutionType.Producer:
-                        ProducerEntry(pi);
+                        ProducerEntry(task);
                         break;
                 }
             }
         }
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
-            QueueTask task = pi.CustomObject as QueueTask;
+            QueueTask task = pi as QueueTask;
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
             {
@@ -183,9 +191,9 @@ namespace TaskBroker
             }
         }
 
-        private void ConsumerEntry(TaskScheduler.PlanItem pi)
+        private void ConsumerEntry(QueueTask task)
         {
-            QueueTask task = pi.CustomObject as QueueTask;
+            //QueueTask task = pi as QueueTask;
             ModMod mod = task.Module;
 
             // Pop item from queue
@@ -218,9 +226,9 @@ namespace TaskBroker
             return item;
         }
 
-        private void ProducerEntry(TaskScheduler.PlanItem pi)
+        private void ProducerEntry(QueueTask task)
         {
-            QueueTask task = pi.CustomObject as QueueTask;
+            //QueueTask task = pi as QueueTask;
         }
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {

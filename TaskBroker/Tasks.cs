@@ -6,10 +6,10 @@ using TaskQueue.Providers;
 
 namespace TaskBroker
 {
-    public delegate void ProducerEntryPoint(TItemModel parameters);
-    public delegate bool ConsumerEntryPoint(TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
-    public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
-    public delegate void StubEntryPoint();
+    //public delegate void ProducerEntryPoint(TItemModel parameters);
+    //public delegate bool ConsumerEntryPoint(TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
+    //public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
+    //public delegate void StubEntryPoint();
 
     public enum ExecutionType
     {
@@ -17,7 +17,7 @@ namespace TaskBroker
         Producer
     }
 
-    public class QueueTask
+    public class QueueTask : TaskScheduler.PlanItem 
     {
         public string Name { get; set; }
         public string Description { get; set; }
