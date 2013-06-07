@@ -43,11 +43,11 @@ namespace TApp
         }
         static void Main(string[] args)
         {
-            var prefix = QueueService.ModProducer.ListeningOn;
-            var username = Environment.GetEnvironmentVariable("USERNAME");
-            var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-            Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
-                    prefix, userdomain, username);
+            //var prefix = QueueService.ModProducer.ListeningOn;
+            //var username = Environment.GetEnvironmentVariable("USERNAME");
+            //var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
+            //Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
+            //        prefix, userdomain, username);
 
 
             //TaskQueue.QueueItemModel tm = new TaskQueue.QueueItemModel(typeof(zModel));
@@ -135,7 +135,7 @@ namespace TApp
                 Password = "",
                 Server = "smtp.yandex.ru"
             };
-            b.RegistrateTask("Email Common", "EmailC", "EmailSender", "Email Common channel consumer",
+            b.RegistrateTask("Email Common Task", "EmailC", "EmailSender", "Email Common channel consumer on mongo db queue channel",
                 TaskScheduler.IntervalType.everyCustomMilliseconds, 1000, smtp);
 
             //
