@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MongoQueue;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TaskBroker;
+using TaskScheduler;
 
 
 namespace TApp
@@ -57,76 +59,17 @@ namespace TApp
             TaskBroker.Broker b = new TaskBroker.Broker();
 
             //
-            //b.AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
-            //    {
-            //        Collection = "TaskMQ",
-            //        ConnectionString = "mongodb://user:1234@localhost:27017/?safe=true",//db.addUser('user','1234')
-            //        Database = "Messages",
-            //        Name = "MongoLocalhost"
-            //    });
-            b.AddConnection("mongodb://user:1234@localhost:27017/?safe=true", "MongoLocalhost", "Messages", "TaskMQ");
+            b.RegisterConnection<MongoDbQueue>("MongoLocalhost", 
+                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
+            b.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
+                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
             //
-            b.RegistarateMessageModel(new TaskBroker.MessageType(new zModel()));
-            //b.RegistarateChannel(new TaskBroker.MessageChannel()
-            //    {
-            //        QueueName = "MongoDBQ",
-            //        ConnectionParameters = "MongoLocalhost",
-            //        UniqueName = "z"
-            //    }, zModel.Name);
-            b.RegistarateMongoChannel<zModel>("MongoLocalhost", "z");
-            //
-            // web service
-            //TaskBroker.ModMod m = new TaskBroker.ModMod()
-            //{
-            //    InitialiseEntry = QueueService.ModProducer.Initialise,
-            //    ExitEntry = QueueService.ModProducer.Exit,
-            //    ModAssembly = typeof(QueueService.ModProducer).Assembly,
-            //};
-            //b.RegistrateModule(m);
+            //b.RegisterMessageModel<zModel>();
+            b.RegisterChannel<zModel>("MongoLocalhost", "z");
+            b.RegisterConsumerModule<zConsumer, zModel>("ZConsume");
 
-            //
-            // z channel consumer ...
-            //TaskBroker.ModMod mcZ = new TaskBroker.ModMod()
-            //{
-            //    InitialiseEntry = (TaskBroker.Broker bb, TaskBroker.ModMod mm) => { },
-            //    ExitEntry = () => { },
-            //    ModAssembly = typeof(zConsumer).Assembly,
-            //    Consumer = zConsumer.Entry,
-            //    AcceptsModel = new TaskQueue.QueueItemModel(typeof(zModel)),
-            //    InvokeAs = TaskBroker.ExecutionType.Consumer,
-            //    UniqueName = "zConsumer",
-
-            //};
-            //b.RegistrateModule(mcZ);
-            b.RegisterCosumerModule<zConsumer, zModel>("ZConsume");
-
-            //
-            //TaskBroker.ModMod email = new TaskBroker.ModMod()
-            //{
-            //    InitialiseEntry = EmailConsumer.ModConsumer.Initialise,
-
-            //};
-            //b.RegistrateModule(email);
             b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
-            //
-            //b.RegistrateTask("zConsumer - default", "z", "zConsumer", " zConsumer no desc", 
-            //    TaskScheduler.IntervalType.everyCustomMilliseconds, 1000);
-
-            //
-
-            //
-            //b.AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
-            //{
-            //    Collection = "email",
-            //    ConnectionString = "mongodb://user:1234@localhost:27017/?safe=true",//db.addUser('user','1234')
-            //    Database = "Messages",
-            //    Name = "MongoLocalhostEmail"
-            //});
-            b.AddConnection("mongodb://user:1234@localhost:27017/?safe=true", "MongoLocalhostEmail", "Messages", "email");
-
-            //TaskBroker.MessageChannel emailChannel = new TaskBroker.MessageChannel("EmailC", "MongoLocalhostEmail", "MongoDBQ");
-            //b.RegistarateChannel(emailChannel, EmailConsumer.MailModel.Name);
-            b.RegistarateMongoChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
+            b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
             {
                 Login = "user",
@@ -135,8 +78,10 @@ namespace TApp
                 Password = "",
                 Server = "smtp.yandex.ru"
             };
-            b.RegistrateTask("Email Common Task", "EmailC", "EmailSender", "Email Common channel consumer on mongo db queue channel",
-                TaskScheduler.IntervalType.everyCustomMilliseconds, 1000, smtp);
+            b.RegisterTask(
+                "EmailC", "EmailSender",
+                IntervalType.everyCustomMilliseconds, 1000, smtp,
+                "Email Common channel consumer on mongo db queue channel");
 
             //
 
@@ -144,7 +89,7 @@ namespace TApp
             b.PushMessage(new EmailConsumer.MailModel());
 
             Console.ReadLine();
-            
+
             b.Scheduler.SuspendAll();
         }
     }

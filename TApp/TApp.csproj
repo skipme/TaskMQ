@@ -49,6 +49,10 @@
       <Project>{5dba37c6-47d8-4d74-a34b-4fc55c2cf350}</Project>
       <Name>EmailConsumer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
+      <Project>{c250a799-20af-494d-ba51-32ad41a376bb}</Project>
+      <Name>MongoQueue</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MSSQLQueue\MSSQLQueue.csproj">
       <Project>{dab980a3-a5e0-4ffb-b591-99cc4da68fa5}</Project>
       <Name>MSSQLQueue</Name>

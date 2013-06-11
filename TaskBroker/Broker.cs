@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using TaskQueue.Providers;
+using TaskScheduler;
 
 namespace TaskBroker
 {
@@ -27,27 +28,16 @@ namespace TaskBroker
         //public QueueClassificator Queues;
         public TaskScheduler.ThreadPool Scheduler;
 
+
+        //modules
+        //bunch[model, queue, +module] .... TODO: maybe bunch with channel better?
         public void RegistrateModule(ModMod mod)
         {
             mod.InitialiseEntry(this, mod);
             Modules.AddMod(mod);
         }
-        //public void RegistrateCosumerModule<T>(ConsumerEntryPoint receiver, string name) where T : TaskQueue.Providers.TaskMessage
-        //{
-        //    //TaskBroker.ModMod stub = new TaskBroker.ModMod()
-        //    //{
-        //    //    //InitialiseEntry = null,
-        //    //    //ExitEntry = null,
-        //    //    ModAssembly = typeof(T).Assembly,
-        //    //    Consumer = receiver,
-        //    //    AcceptsModel = new TaskQueue.QueueItemModel(typeof(T)),
-        //    //    InvokeAs = TaskBroker.ExecutionType.Consumer,
-        //    //    UniqueName = name,
 
-        //    //};
-        //    //Modules.AddMod(stub);
-        //}
-        public void RegisterCosumerModule<C, M>(string name)
+        public void RegisterConsumerModule<C, M>(string name)
             where C : IModConsumer
             where M : TaskMessage
         {
@@ -79,36 +69,49 @@ namespace TaskBroker
         {
             Modules.AddMod(mod);
         }
-        public void RegistarateMessageModel(MessageType mt)
-        {
-            MessageChannels.AddMessageType(mt);
-        }
-        public void RegistarateChannel(MessageChannel mc, string messageModelName)
-        {
-            MessageChannels.AddMessageChannel(mc, messageModelName);
-        }
-        public void RegistarateMongoChannel<T>(string connectionName, string channelName)
+
+        //public void RegisterMessageModel(MessageType mt)
+        //{
+        //    MessageChannels.AddMessageType(mt);
+        //}
+        //public void RegisterMessageModel<T>()
+        //     where T : TaskQueue.Providers.TaskMessage
+        //{
+        //    TaskQueue.Providers.TaskMessage ta = Activator.CreateInstance<T>();
+        //    MessageChannels.AddMessageType(new TaskBroker.MessageType(ta));
+        //}
+
+
+        //public void RegistarateChannel(MessageChannel mc, string messageModelName)
+        //{
+        //    MessageChannels.AddMessageChannel(mc, messageModelName);
+        //}
+
+        // channels 
+        // bunch [model, queue, +channel]
+        public void RegisterChannel<T>(string connectionName, string channelName)
             where T : TaskQueue.Providers.TItemModel
         {
-            var ta = Activator.CreateInstance<T>();
-
-            RegistarateChannel(new TaskBroker.MessageChannel()
+            MessageChannels.AddMessageChannel<T>(new TaskBroker.MessageChannel()
             {
-                QueueName = "MongoDBQ",
-                ConnectionParameters = connectionName,
+                ConnectionName = connectionName,
                 UniqueName = channelName
-            }, ta.ItemTypeName);
+            });
         }
-        public void RegistrateTask(string uniqueName, string Channel, string modName, string Description, TaskScheduler.IntervalType it, long intervalValue, TItemModel parameters = null)
+
+        // bunch [channel, module, +executionContext]
+        public void RegisterTask(string Channel, string moduleName,
+            IntervalType it = IntervalType.everyCustomMilliseconds,
+            long intervalValue = 100,
+            TItemModel parameters = null, string Description = "-")
         {
-            ModMod module = Modules.GetByName(modName);
+            ModMod module = Modules.GetByName(moduleName);
 
             if (module == null)
                 throw new Exception("required qmodule not found.");
 
             QueueTask t = new QueueTask()
             {
-                Name = uniqueName,
                 Module = module,
                 Description = Description,
                 ChannelName = Channel,
@@ -118,30 +121,28 @@ namespace TaskBroker
                 intervalValue = intervalValue,
                 planEntry = TaskEntry,
 
-                NameAndDescription = uniqueName
+                NameAndDescription = Channel
             };
-            //TaskScheduler.PlanItem p = new TaskScheduler.PlanItem()
-            //{
-            //    //CustomObject = t,
-            //    NameAndDescription = uniqueName,
-            //    intervalType = it,
-            //    intervalValue = intervalValue,
-            //    planEntry = TaskEntry
-            //};
-            //t.Plan = p;
 
             Tasks.Add(t);
             UpdatePlan();
             if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
                 Scheduler.CreateIsolatedThreadForPlan(t);
         }
-        public void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp)
+        // bunch [connectionparams, queue]
+        public void AddConnection<T>(TaskQueue.Providers.QueueConnectionParameters qcp)
+            where T : TaskQueue.ITQueue
         {
-            MessageChannels.Connections.Add(qcp);
+            TaskQueue.ITQueue q = Activator.CreateInstance<T>();
+            qcp.QueueName = q.QueueType;
+            qcp.QueueInstance = q;
+
+            MessageChannels.AddConnection(qcp);
         }
-        public void AddConnection(string connectionString, string name, string database, string collection)
+        public void RegisterConnection<T>(string name, string connectionString, string database, string collection)
+            where T : TaskQueue.ITQueue
         {
-            MessageChannels.Connections.Add(new TaskQueue.Providers.QueueConnectionParameters()
+            AddConnection<T>(new TaskQueue.Providers.QueueConnectionParameters()
                 {
                     Collection = collection,
                     Name = name,
@@ -238,7 +239,7 @@ namespace TaskBroker
         }
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
-            ChannelAnteroom ch = MessageChannels.GetAnteroomForMessage(msg.MType);
+            ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(msg.MType);
             if (ch == null)
             {
                 Console.WriteLine("unknown message type: {0}", msg.MType);

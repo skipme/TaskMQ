@@ -31,7 +31,7 @@ namespace EmailConsumer
         public void Initialise(Broker brokerInterface, ModMod thisModule)
         {
             broker = brokerInterface;
-            broker.RegistarateMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
+            //broker.RegisterMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
 
             thisModule.UniqueName = "EmailSender";
             thisModule.Description = "Email common sender";

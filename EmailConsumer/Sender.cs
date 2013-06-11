@@ -13,9 +13,9 @@ namespace EmailConsumer
     {
         public static bool Send(MailModel model, SmtpModel con)
         {
+            MailMessage msg = new MailMessage();
             try
             {
-                MailMessage msg = new MailMessage();
                 msg.To.Add(new MailAddress(model.To));
                 if (model.From != null)
                     msg.From = new MailAddress(model.From, model.FromAlias);
@@ -23,14 +23,27 @@ namespace EmailConsumer
                 msg.Body = model.Body;
                 msg.IsBodyHtml = true;
                 msg.Subject = model.Subject;
-
-                return Send(msg, con);
+            }
+            catch (Exception e)//model error
+            {
+                Console.WriteLine("Email sender:: " + e.Message);
+                return true;
+            }
+            // 
+            try
+            {
+                if (!Send(msg, con))//configuration smtp error
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine("Email sender:: " + e.Message);
                 return false;
             }
+
+            return false;
         }
         static string loginAddress(string login, string server)
         {

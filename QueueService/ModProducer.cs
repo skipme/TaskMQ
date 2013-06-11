@@ -17,7 +17,9 @@ namespace QueueService
             broker = brokerInterface;
             //thisModule.Producer = IsolatedProducer;
             thisModule.Parameters = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
-            broker.RegistrateTask("http main service", "null", thisModule.UniqueName, "Host for web service", TaskScheduler.IntervalType.isolatedThread, 0);
+            broker.RegisterTask( 
+                "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0,  null, 
+                "Host for web service[REST main service]");
         }
         public void IsolatedProducer(TItemModel parameters)
         {

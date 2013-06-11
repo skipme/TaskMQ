@@ -8,11 +8,11 @@ namespace TaskBroker
 {
     public class MessageChannel
     {
-        public MessageChannel(string uniqueName, string connectionParamsName, string queueName, TaskQueue.TQItemSelector selector = null)
+        public MessageChannel(string uniqueName, string connectionParamsName, TaskQueue.TQItemSelector selector = null)
         {
             this.UniqueName = uniqueName;
-            this.ConnectionParameters = connectionParamsName;
-            this.QueueName = queueName;
+            this.ConnectionName = connectionParamsName;
+            //this.QueueName = queueName;
 
             if (selector == null)
                 this.consumerSelector = TaskQueue.TQItemSelector.DefaultFifoSelector;
@@ -25,10 +25,11 @@ namespace TaskBroker
         }
 
         public string UniqueName { get; set; }
-        public MessageType MessageModel { get; set; }
-        public string QueueName { get; set; }
+        public TaskQueue.Providers.TItemModel MessageModel { get; set; }
+        //public string QueueName { get; set; }
+        public TaskQueue.ITQueue QueueInstance { get; set; }
         public TaskQueue.TQItemSelector consumerSelector { get; set; }
-        public string ConnectionParameters { get; set; }
+        public string ConnectionName { get; set; }
     }
     public class MessageType
     {

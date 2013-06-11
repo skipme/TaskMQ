@@ -19,7 +19,6 @@ namespace TaskBroker
 
     public class QueueTask : TaskScheduler.PlanItem 
     {
-        public string Name { get; set; }
         public string Description { get; set; }
 
         public string ChannelName { get; set; }
