@@ -12,7 +12,10 @@ namespace TaskBroker
         public QueueMTClassificator()
         {
             //MessageModels = new List<MessageType>();
-            MessageChannels = new List<MessageChannel>();
+            MChannelsList = new List<MessageChannel>();
+            MessageChannels = new Dictionary<string, int>();
+            MessageChannelsModels = new Dictionary<string, int>();
+
             Anterooms = new Dictionary<string, ChannelAnteroom>();
             Queues = new QueueClassificator();
             //Connections = new QueueConParams();
@@ -30,13 +33,13 @@ namespace TaskBroker
         public void AddMessageChannel<T>(MessageChannel mc)
             where T : TaskQueue.Providers.TItemModel
         {
-            MessageChannels.Add(mc);
-
             mc.MessageModel = Activator.CreateInstance<T>();
-
-            //(from mm in MessageModels
-            //               where mm.UniqueName.Equals(messageModelName, StringComparison.OrdinalIgnoreCase)
-            //               select mm).FirstOrDefault();
+            lock (MChannelsList)
+            {
+                MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
+                MessageChannelsModels.Add(mc.MessageModel.ItemTypeName, MChannelsList.Count);
+                MChannelsList.Add(mc);
+            }
             ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
             try
             {
@@ -50,10 +53,11 @@ namespace TaskBroker
         public MessageChannel GetChannelForMessage(string mtName)
         {
             // first only // ballancer to do
-            MessageChannel mc = (from mm in MessageChannels
-                                 where mm.MessageModel.ItemTypeName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
-                                 select mm).FirstOrDefault();
-            return mc;
+            //MessageChannel mc = (from mm in MessageChannels
+            //                     where mm.MessageModel.ItemTypeName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
+            //                     select mm).FirstOrDefault();
+            //return mc;
+            return MChannelsList[MessageChannelsModels[mtName]];
         }
         public ChannelAnteroom GetAnteroomByMessage(string mtName)
         {
@@ -63,10 +67,11 @@ namespace TaskBroker
         }
         public MessageChannel GetChannelByName(string name)
         {
-            MessageChannel mc = (from mm in MessageChannels
-                                 where mm.UniqueName.Equals(name, StringComparison.OrdinalIgnoreCase)
-                                 select mm).FirstOrDefault();
-            return mc;
+            //MessageChannel mc = (from mm in MessageChannels
+            //                     where mm.UniqueName.Equals(name, StringComparison.OrdinalIgnoreCase)
+            //                     select mm).FirstOrDefault();
+            //return mc;
+            return MChannelsList[MessageChannels[name]];
         }
         public ChannelAnteroom GetAnteroom(string name)
         {
@@ -91,7 +96,7 @@ namespace TaskBroker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                    Console.WriteLine("anteroom initialisation error: {0}, {1}", e.Message, e.StackTrace);
                 }
             }
 
@@ -99,7 +104,11 @@ namespace TaskBroker
         }
         public Dictionary<string, ChannelAnteroom> Anterooms;
         //public List<MessageType> MessageModels;
-        public List<MessageChannel> MessageChannels;
+
+        public List<MessageChannel> MChannelsList;
+        public Dictionary<string, int> MessageChannels;
+        public Dictionary<string, int> MessageChannelsModels;
+
         public QueueClassificator Queues;
         public Dictionary<string, QueueConnectionParameters> Connections;
         //public QueueConParams Connections;
