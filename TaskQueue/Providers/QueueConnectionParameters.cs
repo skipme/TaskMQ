@@ -16,7 +16,7 @@ namespace TaskQueue.Providers
         public string Database { get; set; }
         public string ConnectionString { get; set; }
 
-        public string QueueName { get; set; }
+        public string QueueTypeName { get; set; }
         public TaskQueue.ITQueue QueueInstance { get; set; }
     }
 }

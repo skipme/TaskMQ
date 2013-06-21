@@ -65,8 +65,8 @@ namespace TApp
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
             //
             //b.RegisterMessageModel<zModel>();
-            b.RegisterChannel<zModel>("MongoLocalhost", "z");
             b.RegisterConsumerModule<zConsumer, zModel>("ZConsume");
+            b.RegisterChannel<zModel>("MongoLocalhost", "z");
 
             b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
             b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");

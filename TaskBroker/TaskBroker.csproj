@@ -40,7 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Broker.cs" />
+    <Compile Include="Configuration\BrokerConfiguration.cs" />
     <Compile Include="ChannelAnteroom.cs" />
+    <Compile Include="Configuration\DynamicConfiguration.cs" />
+    <Compile Include="Configuration\ModuleManager.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="ModHolder.cs" />
@@ -70,9 +73,7 @@
       <Name>TaskScheduler</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Configuration\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

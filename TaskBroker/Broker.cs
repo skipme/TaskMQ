@@ -28,10 +28,9 @@ namespace TaskBroker
         //public QueueClassificator Queues;
         public TaskScheduler.ThreadPool Scheduler;
 
-
         //modules
         //bunch[model, queue, +module] .... TODO: maybe bunch with channel better?
-        public void RegistrateModule(ModMod mod)
+        public void RegisterModule(ModMod mod)
         {
             mod.InitialiseEntry(this, mod);
             Modules.AddMod(mod);
@@ -100,6 +99,7 @@ namespace TaskBroker
         }
 
         // bunch [channel, module, +executionContext]
+        // note: this is configure which channel is selected for custom module
         public void RegisterTask(string Channel, string moduleName,
             IntervalType it = IntervalType.everyCustomMilliseconds,
             long intervalValue = 100,
@@ -134,7 +134,7 @@ namespace TaskBroker
             where T : TaskQueue.ITQueue
         {
             TaskQueue.ITQueue q = Activator.CreateInstance<T>();
-            qcp.QueueName = q.QueueType;
+            qcp.QueueTypeName = q.QueueType;
             qcp.QueueInstance = q;
 
             MessageChannels.AddConnection(qcp);

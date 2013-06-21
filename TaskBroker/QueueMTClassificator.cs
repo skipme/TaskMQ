@@ -71,7 +71,12 @@ namespace TaskBroker
             //                     where mm.UniqueName.Equals(name, StringComparison.OrdinalIgnoreCase)
             //                     select mm).FirstOrDefault();
             //return mc;
-            return MChannelsList[MessageChannels[name]];
+            int chId = 0;
+            if (MessageChannels.TryGetValue(name, out chId))
+            {
+                return MChannelsList[chId];
+            }
+            return null;
         }
         public ChannelAnteroom GetAnteroom(string name)
         {
