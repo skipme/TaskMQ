@@ -9,9 +9,9 @@ namespace TaskScheduler
     {
         withoutInterval = 0x11,
         
-        everyCustomMilliseconds,
-        everyCustomSeconds,
-        everyDayAtTime,
+        intervalMilliseconds,
+        intervalSeconds,
+        DayTime,
 
         isolatedThread
     }

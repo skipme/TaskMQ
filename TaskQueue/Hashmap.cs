@@ -7,8 +7,8 @@ namespace TaskQueue
 {
     public class ValueMapItem<T, LT>
     {
-        public T Value1 { get; set; }
-        public LT Value2 { get; set; }
+        public T Value1;
+        public LT Value2;
     }
     public class ValueMap<T, LT>
     {

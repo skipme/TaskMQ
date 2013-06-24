@@ -30,13 +30,13 @@ namespace TaskScheduler
                 //case IntervalType.withoutInterval:
                 //    ms = 0;
                 //    break;
-                case IntervalType.everyCustomMilliseconds:
+                case IntervalType.intervalMilliseconds:
                     ms = (long)(LastExecutionTime.AddMilliseconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case IntervalType.everyCustomSeconds:
+                case IntervalType.intervalSeconds:
                     ms = (long)(LastExecutionTime.AddSeconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case IntervalType.everyDayAtTime:
+                case IntervalType.DayTime:
                     if (LastExecutionTime.Date == DateTime.Now.Date)
                         ms = (long)(DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
                     else 

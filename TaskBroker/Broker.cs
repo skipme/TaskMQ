@@ -101,7 +101,7 @@ namespace TaskBroker
         // bunch [channel, module, +executionContext]
         // note: this is configure which channel is selected for custom module
         public void RegisterTask(string Channel, string moduleName,
-            IntervalType it = IntervalType.everyCustomMilliseconds,
+            IntervalType it = IntervalType.intervalMilliseconds,
             long intervalValue = 100,
             TItemModel parameters = null, string Description = "-")
         {

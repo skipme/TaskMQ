@@ -46,7 +46,7 @@
     <Compile Include="Providers\MemQueue.cs" />
     <Compile Include="Providers\QueueConnectionParameters.cs" />
     <Compile Include="QueueItemModelValue.cs" />
-    <Compile Include="QueueModel.cs" />
+    <Compile Include="QueueItemModel.cs" />
     <Compile Include="TItemValue.cs" />
     <Compile Include="ITQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

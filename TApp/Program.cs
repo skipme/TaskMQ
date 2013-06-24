@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using TaskBroker;
+using TaskBroker.Configuration;
 using TaskScheduler;
 
 
@@ -80,15 +82,15 @@ namespace TApp
             };
             b.RegisterTask(
                 "EmailC", "EmailSender",
-                IntervalType.everyCustomMilliseconds, 1000, smtp,
+                IntervalType.intervalMilliseconds, 1000, smtp,
                 "Email Common channel consumer on mongo db queue channel");
 
             //
+            File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).Serialise());
+            //Console.ReadLine();
+            //b.PushMessage(new EmailConsumer.MailModel());
 
-            Console.ReadLine();
-            b.PushMessage(new EmailConsumer.MailModel());
-
-            Console.ReadLine();
+            //Console.ReadLine();
 
             b.Scheduler.SuspendAll();
         }
