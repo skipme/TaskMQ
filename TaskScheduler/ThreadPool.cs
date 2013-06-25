@@ -8,6 +8,7 @@ namespace TaskScheduler
 {
     public class ThreadItem
     {
+        public bool Isolated { get; set; }
         public Thread hThread { get; set; }
         public bool HasJob { get; set; }
         public bool JobComplete { get; set; }
@@ -27,6 +28,18 @@ namespace TaskScheduler
         List<ThreadItem> threads = new List<ThreadItem>();
         ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool() { Revoke(); }
+        public bool Activity
+        {
+            get
+            {
+                foreach (ThreadItem t in threads)
+                {
+                    if (t.StoppedThread)
+                        return false;
+                }
+                return true;
+            }
+        }
         //public void Allocate()
         public void Revoke()
         {
@@ -82,6 +95,18 @@ namespace TaskScheduler
                 plan.Create();
             }
         }
+        public void CloseIsolatedThreads()
+        {
+            foreach (ThreadItem t in threads)
+            {
+                if (t.Isolated)
+                {
+                    if (t.hThread.IsAlive)
+                        t.hThread.Abort();
+                }
+
+            }
+        }
         public void CreateIsolatedThreadForPlan(PlanItem pi)
         {
             if (pi.intervalType == IntervalType.isolatedThread)
@@ -91,7 +116,8 @@ namespace TaskScheduler
                 {
                     hThread = thread,
                     rootPlan = plan,
-                    ExecutionContext = pi
+                    ExecutionContext = pi,
+                    Isolated = true
                 };
 
                 thread.Start(ti);

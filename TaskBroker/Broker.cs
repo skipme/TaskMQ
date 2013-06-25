@@ -262,5 +262,26 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
+
+        public void StopBroker()
+        {
+            Scheduler.SuspendAll();
+            while (Scheduler.Activity)
+            {
+                Thread.Sleep(100);
+            }
+            //stop isolated threads...
+            Scheduler.CloseIsolatedThreads();
+            Console.WriteLine("Broker has been stopped...");
+        }
+        public void RevokeBroker()
+        {
+            Scheduler.Revoke();
+            UpdatePlan();
+        }
+        ~Broker()
+        {
+            StopBroker();
+        }
     }
 }

@@ -91,8 +91,7 @@ namespace TApp
             //b.PushMessage(new EmailConsumer.MailModel());
 
             //Console.ReadLine();
-
-            b.Scheduler.SuspendAll();
+            b.StopBroker();
         }
     }
 }
