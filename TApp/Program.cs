@@ -44,6 +44,11 @@ namespace TApp
             {
 
             }
+
+
+            public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
+            {
+            }
         }
         static void Main(string[] args)
         {
@@ -70,7 +75,9 @@ namespace TApp
             b.RegisterConsumerModule<zConsumer, zModel>("ZConsume");
             b.RegisterChannel<zModel>("MongoLocalhost", "z");
 
+            b.RegisterSelfValuedModule<QueueService.ModProducer>();
             b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
+            
             b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
             {
@@ -91,7 +98,7 @@ namespace TApp
             //b.PushMessage(new EmailConsumer.MailModel());
 
             //Console.ReadLine();
-            b.StopBroker();
+            //b.StopBroker();
         }
     }
 }

@@ -77,6 +77,8 @@ namespace TaskBroker.Configuration
     [Serializable]
     public class cModule
     {
+        public string Name { get; set; }
+        public TaskBroker.ExecutionType Role { get; set; }
         // assembly key required |(module id)|
         // 
         public string TypeFullName { get; set; }

@@ -16,10 +16,10 @@ namespace QueueService
         {
             broker = brokerInterface;
             //thisModule.Producer = IsolatedProducer;
-            thisModule.Parameters = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
-            broker.RegisterTask( 
-                "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0,  null, 
-                "Host for web service[REST main service]");
+            thisModule.UniqueName = "REST-service";
+            thisModule.MI = this;
+            thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
+           
         }
         public void IsolatedProducer(TItemModel parameters)
         {
@@ -32,6 +32,13 @@ namespace QueueService
         }
         public void Exit()
         {
+        }
+
+        public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
+        {
+            broker.RegisterTask(
+                 "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0, null,
+                 "Host for web service[REST main service]");
         }
     }
 }

@@ -53,16 +53,17 @@ namespace TaskBroker
             Modules.AddMod(stub);
         }
         public void RegisterSelfValuedModule<C>()
-            where C : IModConsumer
+            where C : IMod
         {
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
             {
                 ModAssembly = typeof(C).Assembly,
-                Role = TaskBroker.ExecutionType.Consumer,
+                Role = (typeof(C) == typeof(IModConsumer)) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
                 MI = Activator.CreateInstance<C>()
             };
             stub.InitialiseEntry(this, stub);
             Modules.AddMod(stub);
+            stub.MI.RegisterTasks(this, stub);
         }
         public void RegistrateModule(System.Reflection.Assembly mod)
         {

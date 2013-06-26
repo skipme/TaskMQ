@@ -7,6 +7,7 @@ namespace TaskBroker
     {
         void Exit();
         void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
+        void RegisterTasks(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);  
     }
     public interface IModConsumer : IMod
     {
