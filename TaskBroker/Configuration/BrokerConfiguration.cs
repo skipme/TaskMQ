@@ -10,7 +10,7 @@ namespace TaskBroker.Configuration
     {
         public static RepresentedConfiguration ExtractFromBroker(Broker b)
         {
-            RepresentedConfiguration c = new RepresentedConfiguration();
+            ConfigurationBroker c = new ConfigurationBroker();
             c.Connections = (from cc in b.MessageChannels.Connections
                              select new cConnection()
                              {
@@ -27,13 +27,7 @@ namespace TaskBroker.Configuration
                               Name = cc.UniqueName,
                               messageModel = new cModel() { TypeFullName = cc.MessageModel.GetType().FullName },
                           }).ToArray();
-            c.Modules = (from mm in b.Modules.Modules
-                         select new cModule()
-                         {
-                             TypeFullName = mm.Value.MI.GetType().FullName,
-                             Name = mm.Key,
-                             Role = mm.Value.Role
-                         }).ToArray();
+
             c.Tasks = (from tt in b.Tasks
                        select new cTask()
                        {
@@ -47,6 +41,24 @@ namespace TaskBroker.Configuration
 
             return c;
         }
+        public static RepresentedConfiguration ExtractModulesFromBroker(Broker b)
+        {
+            ConfigurationModules c = new ConfigurationModules();
+
+            c.Modules = (from mm in b.Modules.Modules
+                         select new cModule()
+                         {
+                             TypeFullName = mm.Value.MI.GetType().FullName,
+                             Name = mm.Key,
+                             Role = mm.Value.Role,
+                             messageModel = new cModel() { TypeFullName = mm.Value.AcceptsModel == null ? null : mm.Value.AcceptsModel.GetType().FullName },
+                             AssemblyFile = mm.Value.ModAssembly.Location
+                         }).ToArray();
+
+
+            return c;
+        }
+
         public static void ConfigureBroker(Broker b, RepresentedConfiguration c)
         {
 
