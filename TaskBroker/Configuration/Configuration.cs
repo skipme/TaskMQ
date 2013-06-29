@@ -12,43 +12,33 @@ namespace TaskBroker.Configuration
     [Serializable]
     public class RepresentedConfiguration
     {
-        //public byte[] Serialise()
-        //{
-        //    MemoryStream memoryStream = new MemoryStream();
-        //    System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer(typeof(RepresentedConfiguration));
-        //    XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.Unicode);
-        //    xmlTextWriter.Formatting = Formatting.Indented;
-        //    x.Serialize(xmlTextWriter, this);
-        //    memoryStream = (MemoryStream)xmlTextWriter.BaseStream;
-
-        //    return memoryStream.ToArray();
-        //}
         public byte[] Serialise()
         {
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
 
             return Encoding.Unicode.GetBytes(v);
         }
-        public static RepresentedConfiguration DeSerialiseXml(byte[] data)
+        public static T DeSerialiseXml<T>(byte[] data)
+            where T : RepresentedConfiguration
         {
-            XmlSerializer xs = new XmlSerializer(typeof(RepresentedConfiguration));
+            XmlSerializer xs = new XmlSerializer(typeof(T));
             MemoryStream memoryStream = new MemoryStream(data);
             XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.Unicode);
 
-            return xs.Deserialize(memoryStream) as RepresentedConfiguration;
+            return xs.Deserialize(memoryStream) as T;
         }
-
+    }
+    public class ConfigurationBroker : RepresentedConfiguration
+    {
         public cConnection[] Connections { get; set; }
         public cChannel[] Channels { get; set; }
         public cTask[] Tasks { get; set; }
+    }
+    public class ConfigurationModules : RepresentedConfiguration
+    {
         public cModule[] Modules { get; set; }
     }
-    [Serializable]
-    public class cModules
-    {
-        public string Name { get; set; }
-        public cModel messageModel { get; set; }
-    }
+
     [Serializable]
     public class cTask
     {
@@ -79,10 +69,12 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
+        public cModel messageModel { get; set; }
         // assembly key required |(module id)|
         // 
         public string TypeFullName { get; set; }
         // module descriptors ... version ... paths ... build system ids ... scm id ...
+        public string AssemblyFile { get; set; }
     }
     [Serializable]
     public class cConnection

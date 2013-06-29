@@ -11,8 +11,8 @@ namespace TaskBroker
         public string UniqueName { get; set; }
         public string Description { get; set; }
 
-        public TaskQueue.QueueItemModel AcceptsModel { get; set; }
-        public TaskQueue.QueueItemModel ParametersModel { get; set; }
+        public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
+        public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
 
         public Assembly ModAssembly { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }

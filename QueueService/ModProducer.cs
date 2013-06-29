@@ -18,7 +18,7 @@ namespace QueueService
             //thisModule.Producer = IsolatedProducer;
             thisModule.UniqueName = "REST-service";
             thisModule.MI = this;
-            thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
+            //thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
            
         }
         public void IsolatedProducer(TItemModel parameters)

@@ -43,7 +43,7 @@ namespace TaskBroker
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
                 {
                     ModAssembly = typeof(C).Assembly,
-                    AcceptsModel = new TaskQueue.QueueItemModel(typeof(M)),
+                    AcceptsModel = Activator.CreateInstance<M>(),
                     Role = TaskBroker.ExecutionType.Consumer,
                     UniqueName = name,
                     MI = Activator.CreateInstance<C>()

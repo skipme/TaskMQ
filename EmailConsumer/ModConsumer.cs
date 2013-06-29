@@ -36,8 +36,8 @@ namespace EmailConsumer
             thisModule.UniqueName = "EmailSender";
             thisModule.Description = "Email common sender";
             thisModule.Role = TaskBroker.ExecutionType.Consumer;
-            thisModule.AcceptsModel = new TaskQueue.QueueItemModel(typeof(MailModel));
-            thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(SmtpModel));
+            thisModule.AcceptsModel = new MailModel();
+            thisModule.ParametersModel = new SmtpModel();
             //thisModule.Consumer = ModConsumer.Send;
         }
 

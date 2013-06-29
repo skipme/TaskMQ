@@ -94,6 +94,7 @@ namespace TApp
 
             //
             File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).Serialise());
+            File.WriteAllBytes("mm.json", BrokerConfiguration.ExtractModulesFromBroker(b).Serialise());
             //Console.ReadLine();
             //b.PushMessage(new EmailConsumer.MailModel());
 
