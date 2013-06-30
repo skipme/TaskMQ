@@ -64,8 +64,8 @@ namespace TApp
             //string rst = MSSQLQueue.SqlScript.ForTableGen(t);
             //
             TaskBroker.Broker b = new TaskBroker.Broker();
-
             //
+
             b.RegisterConnection<MongoDbQueue>("MongoLocalhost", 
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
             b.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
@@ -75,7 +75,7 @@ namespace TApp
             b.RegisterConsumerModule<zConsumer, zModel>("ZConsume");
             b.RegisterChannel<zModel>("MongoLocalhost", "z");
 
-            b.RegisterSelfValuedModule<QueueService.ModProducer>();
+            //b.RegisterSelfValuedModule<QueueService.ModProducer>();
             b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
             
             b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");

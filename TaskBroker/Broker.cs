@@ -65,10 +65,6 @@ namespace TaskBroker
             Modules.AddMod(stub);
             stub.MI.RegisterTasks(this, stub);
         }
-        public void RegistrateModule(System.Reflection.Assembly mod)
-        {
-            Modules.AddMod(mod);
-        }
 
         //public void RegisterMessageModel(MessageType mt)
         //{
