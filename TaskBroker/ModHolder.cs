@@ -31,54 +31,37 @@ namespace TaskBroker
 
     public class ModHolder
     {
-        public ModHolder()
+        public ModHolder(string folder = null)
         {
-
+            ModulesFolder = folder == null ? 
+                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) : 
+                folder;
             CreateDomain();
             Modules = new Dictionary<string, ModMod>();
-            ModInterfaces = new Dictionary<string, IMod>();
+            ModInterfaces = new Dictionary<string, Type>();
+            ModLocalInterfaces = new Dictionary<string, Type>();
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+
+            AddInterfacesFromCurrentDomain();
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            //try
-            //{
-            //    Assembly assembly = System.Reflection.Assembly.Load(args.Name);
-            //    if (assembly != null)
-            //        return assembly;
-            //}
-            //catch
-            //{ // ignore load error 
-            //}
-
-            // *** Try to load by filename - split out the filename of the full assembly name
-            // *** and append the base path of the original assembly (ie. look in the same dir)
-            // *** NOTE: this doesn't account for special search paths but then that never
-            //           worked before either.
             string[] Parts = args.Name.Split(',');
-            string File = @"\bin\Debug" + "\\" + Parts[0].Trim() + ".dll";
+            string File = ModulesFolder + Parts[0].Trim() + ".dll";
 
             return System.Reflection.Assembly.LoadFrom(File);
-            //AssemblyName an = AssemblyName.GetAssemblyName(File);
-            //Assembly assembly = Holder.Load(an);
-            //return assembly;
-            //return null;
         }
 
+        public string ModulesFolder { get; set; }
         AppDomain Holder;
         public Dictionary<string, ModMod> Modules;
-        public Dictionary<string, IMod> ModInterfaces;
+        public Dictionary<string, Type> ModInterfaces;
+        public Dictionary<string, Type> ModLocalInterfaces;
 
-        public void AddMod(string assemblyDefferedPath)
+        public void AddMod(string assemblyName)
         {
-            AssemblyName an = AssemblyName.GetAssemblyName(assemblyDefferedPath);
+            AssemblyName an = AssemblyName.GetAssemblyName(assemblyName);
             Assembly assembly = Holder.Load(an);
-
-            //foreach (AssemblyName item in assembly.GetReferencedAssemblies())
-            //{
-            //    AssemblyName a = AssemblyName.GetAssemblyName(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assemblyDefferedPath), item.FullName+ ".dll"));
-            //    Holder.Load(a);
-            //}
 
             AddModAssembly(assembly);
         }
@@ -87,11 +70,11 @@ namespace TaskBroker
         {
             // get interfaces, add to dic
             var type = typeof(IMod);
-            //var types = AppDomain.CurrentDomain.GetAssemblies().ToList()
-            //    .SelectMany(s => s.GetTypes())
-            //    .Where(p => type.IsAssignableFrom(p));
-            var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p));
-
+            var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+            foreach (var item in types)
+            {
+                ModInterfaces.Add(item.FullName, item);
+            }
         }
         public void AddMod(string interfaceName, ModMod mod)
         {
@@ -149,7 +132,14 @@ namespace TaskBroker
 
         private void AddInterfacesFromCurrentDomain()
         {
-
+            var type = typeof(IMod);
+            var types = AppDomain.CurrentDomain.GetAssemblies().ToList()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+            foreach (Type item in types)
+            {
+                ModLocalInterfaces.Add(item.FullName, item);
+            }
         }
         private void ExitMod(string name)
         {
