@@ -36,7 +36,7 @@ namespace TaskBroker
             Modules.AddMod(mod);
         }
 
-        public void RegisterConsumerModule<C, M>(string name)
+        public void RegisterConsumerModule<C, M>(/*string name*/)
             where C : IModConsumer
             where M : TaskMessage
         {
@@ -45,7 +45,7 @@ namespace TaskBroker
                     ModAssembly = typeof(C).Assembly,
                     AcceptsModel = Activator.CreateInstance<M>(),
                     Role = TaskBroker.ExecutionType.Consumer,
-                    UniqueName = name,
+                    //UniqueName = name,
                     MI = Activator.CreateInstance<C>()
                 };
 

@@ -49,6 +49,17 @@ namespace TApp
             public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
             {
             }
+
+
+            public string Name
+            {
+                get { return "ZConsume"; }
+            }
+
+            public string Description
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
         static void Main(string[] args)
         {
@@ -65,19 +76,24 @@ namespace TApp
             //
             TaskBroker.Broker b = new TaskBroker.Broker();
             //
+            b.Modules.holder.assemblys.Add(new TaskBroker.Assemblys.AssemblyModule()
+            {
+                PathName = "QueueService.dll"
+            });
+            b.Modules.ReloadModules();
 
-            b.RegisterConnection<MongoDbQueue>("MongoLocalhost", 
+            b.RegisterConnection<MongoDbQueue>("MongoLocalhost",
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
             b.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
             //
             //b.RegisterMessageModel<zModel>();
-            b.RegisterConsumerModule<zConsumer, zModel>("ZConsume");
+            b.RegisterConsumerModule<zConsumer, zModel>();
             b.RegisterChannel<zModel>("MongoLocalhost", "z");
 
             //b.RegisterSelfValuedModule<QueueService.ModProducer>();
             b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
-            
+
             b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
             {

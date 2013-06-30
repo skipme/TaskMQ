@@ -25,7 +25,7 @@ namespace EmailConsumer
 
         public void Exit()
         {
-            throw new NotImplementedException();
+
         }
 
         public void Initialise(Broker brokerInterface, ModMod thisModule)
@@ -33,8 +33,6 @@ namespace EmailConsumer
             broker = brokerInterface;
             //broker.RegisterMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
 
-            thisModule.UniqueName = "EmailSender";
-            thisModule.Description = "Email common sender";
             thisModule.Role = TaskBroker.ExecutionType.Consumer;
             thisModule.AcceptsModel = new MailModel();
             thisModule.ParametersModel = new SmtpModel();
@@ -46,6 +44,17 @@ namespace EmailConsumer
         public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
         {
 
+        }
+
+
+        public string Name
+        {
+            get { return "EmailSender"; }
+        }
+
+        public string Description
+        {
+            get { return "Email common sender"; }
         }
     }
 }

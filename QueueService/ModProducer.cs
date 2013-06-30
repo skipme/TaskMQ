@@ -16,7 +16,6 @@ namespace QueueService
         {
             broker = brokerInterface;
             //thisModule.Producer = IsolatedProducer;
-            thisModule.UniqueName = "REST-service";
             thisModule.MI = this;
             //thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
            
@@ -39,6 +38,17 @@ namespace QueueService
             broker.RegisterTask(
                  "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0, null,
                  "Host for web service[REST main service]");
+        }
+
+
+        public string Name
+        {
+            get { return "REST-service"; }
+        }
+
+        public string Description
+        {
+            get { return ""; }
         }
     }
 }

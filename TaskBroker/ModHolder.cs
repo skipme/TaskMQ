@@ -9,14 +9,15 @@ namespace TaskBroker
 {
     public class ModMod
     {
-        public string UniqueName { get; set; }
-        public string Description { get; set; }
+        public string UniqueName { get { return MI.Name; } }
+        public string Description { get { return MI.Description; } }
 
         public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
         public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
 
         public Assembly ModAssembly { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
+        public bool RemoteMod { get; set; }
 
         public IMod MI { get; set; }
         public void ExitEntry()
@@ -31,54 +32,37 @@ namespace TaskBroker
 
     public class ModHolder
     {
-        public ModHolder(string folder = null)
+        public ModHolder()
         {
-            ModulesFolder = folder == null ? 
-                Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) : 
-                folder;
-            CreateDomain();
             Modules = new Dictionary<string, ModMod>();
             ModInterfaces = new Dictionary<string, Type>();
             ModLocalInterfaces = new Dictionary<string, Type>();
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            holder = new Assemblys.AssemblyHolder(Path.Combine(Directory.GetCurrentDirectory(), "assemblys"));
 
             AddInterfacesFromCurrentDomain();
-        }
-        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            string[] Parts = args.Name.Split(',');
-            string File = ModulesFolder + Parts[0].Trim() + ".dll";
-
-            return System.Reflection.Assembly.LoadFrom(File);
+            holder.ReLoadAssemblys(this);
         }
 
-        public string ModulesFolder { get; set; }
-        AppDomain Holder;
         public Dictionary<string, ModMod> Modules;
         public Dictionary<string, Type> ModInterfaces;
         public Dictionary<string, Type> ModLocalInterfaces;
+        public Assemblys.AssemblyHolder holder;
 
-        public void AddMod(string assemblyName)
-        {
-            AssemblyName an = AssemblyName.GetAssemblyName(assemblyName);
-            Assembly assembly = Holder.Load(an);
-
-            AddModAssembly(assembly);
-        }
-
-        private void AddModAssembly(Assembly assembly)
-        {
-            // get interfaces, add to dic
-            var type = typeof(IMod);
-            var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-            foreach (var item in types)
-            {
-                ModInterfaces.Add(item.FullName, item);
-            }
-        }
         public void AddMod(string interfaceName, ModMod mod)
         {
-            Type iface = ModInterfaces[interfaceName].GetType();
+            Type iface = null;
+            if (ModInterfaces.ContainsKey(interfaceName))
+            {
+                iface = ModInterfaces[interfaceName];
+            }
+            else if (ModLocalInterfaces.ContainsKey(interfaceName))
+            {
+                iface = ModLocalInterfaces[interfaceName];
+            }
+            else
+            {
+                // error
+            }
             mod.MI = (IMod)Activator.CreateInstance(iface);
             mod.ModAssembly = iface.Assembly;
 
@@ -101,7 +85,7 @@ namespace TaskBroker
             }
             return m;
         }
-        public void UnloadModules()
+        public void ReloadModules()
         {
             ModInterfaces.Clear();
             foreach (KeyValuePair<string, ModMod> item in Modules)
@@ -111,23 +95,9 @@ namespace TaskBroker
                 item.Value.ModAssembly = null;
             }
             Modules.Clear();
-
-            GC.Collect(); // collects all unused memory
-            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            GC.Collect();
-
-            AppDomain.Unload(Holder);
-
-            GC.Collect(); // collects all unused memory
-            GC.WaitForPendingFinalizers(); // wait until GC has finished its work
-            GC.Collect();
-
-            CreateDomain();
-        }
-
-        private void CreateDomain()
-        {
-            Holder = AppDomain.CreateDomain("MODDOM");
+            holder.UnloadModules();
+            holder.ReLoadAssemblys(this);
+            reloadLocalMods();
         }
 
         private void AddInterfacesFromCurrentDomain()
@@ -139,6 +109,14 @@ namespace TaskBroker
             foreach (Type item in types)
             {
                 ModLocalInterfaces.Add(item.FullName, item);
+            }
+            reloadLocalMods();
+        }
+        private void reloadLocalMods()
+        {
+            foreach (Type item in ModLocalInterfaces.Values)
+            {
+                AddMod(item.FullName, new ModMod() { RemoteMod = false });
             }
         }
         private void ExitMod(string name)

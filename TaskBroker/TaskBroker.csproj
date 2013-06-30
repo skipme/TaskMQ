@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyHolder.cs" />
     <Compile Include="Broker.cs" />
     <Compile Include="Configuration\BrokerConfiguration.cs" />
     <Compile Include="ChannelAnteroom.cs" />

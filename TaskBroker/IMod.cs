@@ -3,11 +3,15 @@ using TaskQueue.Providers;
 
 namespace TaskBroker
 {
+
     public interface IMod
     {
         void Exit();
         void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
-        void RegisterTasks(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);  
+        void RegisterTasks(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
+        
+        string Name { get; }
+        string Description { get; }
     }
     public interface IModConsumer : IMod
     {
