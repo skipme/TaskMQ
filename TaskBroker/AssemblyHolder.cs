@@ -10,6 +10,7 @@ namespace TaskBroker.Assemblys
     public class AssemblyModule
     {
         public string PathName { get; set; } // {...}.dll
+        public bool IsLoaded { get; set; }
         public bool Exists(string domainDirectory)
         {
             return File.Exists(Fullpath(domainDirectory));
@@ -47,23 +48,51 @@ namespace TaskBroker.Assemblys
         AppDomain Domain;
         public List<AssemblyModule> assemblys;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
-        public void ReLoadAssemblys(ModHolder moduleHolder)
+
+        public void AddAssembly(string path)
+        {
+            assemblys.Add(new AssemblyModule()
+                {
+                    PathName = path
+                });
+        }
+
+        public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
 
             foreach (AssemblyModule a in assemblys)
             {
-                if (!a.Exists(ModulesFolder))
+                if (!(a.IsLoaded = LoadAssembly(b, a)))
                 {
-                    continue;
+                    Console.WriteLine("assembly not loaded....");// specific error channel
                 }
+            }
+        }
+
+        private bool LoadAssembly(Broker b, AssemblyModule a)
+        {
+            if (!a.Exists(ModulesFolder))
+            {
+                Console.WriteLine("assembly not found: '{0}'", a.Fullpath(ModulesFolder));
+                return false;
+            }
+            try
+            {
                 AssemblyName an = AssemblyName.GetAssemblyName(a.Fullpath(ModulesFolder));
                 Assembly assembly = Domain.Load(an);
 
-                AddModAssembly(moduleHolder, assembly, a.PathName);
+                AddModAssembly(b, assembly, a.PathName);
             }
+            catch (Exception e)
+            {
+                // diagnostic error channel
+                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.Fullpath(ModulesFolder), e.Message);
+                return false;
+            }
+            return true;
         }
-        private void AddModAssembly(ModHolder moduleHolder, Assembly assembly, string pathname)
+        private void AddModAssembly(Broker b, Assembly assembly, string pathname)
         {
             // get interfaces, add to dic
             AssemblyCard card = new AssemblyCard()
@@ -73,16 +102,17 @@ namespace TaskBroker.Assemblys
             };
             var type = typeof(IMod);
             var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
-            foreach (var item in types)
+            foreach (Type item in types)
             {
-                moduleHolder.ModInterfaces.Add(item.FullName, item);
-                moduleHolder.AddMod(item.FullName, new ModMod() { RemoteMod = true });
+                b.RegisterSelfValuedModule(item);
+                //moduleHolder.ModInterfaces.Add(item.FullName, item);
+                //moduleHolder.AddMod(item.FullName, new ModMod() { RemoteMod = true });
             }
             card.Interfaces = (from t in types
                                select t.FullName).ToArray();
 
             loadedAssemblys.Add(pathname, card);
-            
+
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
@@ -109,6 +139,5 @@ namespace TaskBroker.Assemblys
         {
             Domain = AppDomain.CreateDomain("MODDOM");
         }
-
     }
 }

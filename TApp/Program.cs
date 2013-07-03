@@ -76,11 +76,8 @@ namespace TApp
             //
             TaskBroker.Broker b = new TaskBroker.Broker();
             //
-            b.Modules.holder.assemblys.Add(new TaskBroker.Assemblys.AssemblyModule()
-            {
-                PathName = "QueueService.dll"
-            });
-            b.Modules.ReloadModules();
+            b.AddAssemblyByPath("QueueService.dll");
+            
 
             b.RegisterConnection<MongoDbQueue>("MongoLocalhost",
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
@@ -88,11 +85,11 @@ namespace TApp
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
             //
             //b.RegisterMessageModel<zModel>();
-            b.RegisterConsumerModule<zConsumer, zModel>();
+            //b.RegisterConsumerModule<zConsumer, zModel>();
             b.RegisterChannel<zModel>("MongoLocalhost", "z");
 
             //b.RegisterSelfValuedModule<QueueService.ModProducer>();
-            b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
+            //b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
 
             b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
@@ -103,19 +100,23 @@ namespace TApp
                 Password = "",
                 Server = "smtp.yandex.ru"
             };
+            //
+            b.ReloadModules();
             b.RegisterTask(
                 "EmailC", "EmailSender",
                 IntervalType.intervalMilliseconds, 1000, smtp,
                 "Email Common channel consumer on mongo db queue channel");
 
+
             //
             File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).Serialise());
             File.WriteAllBytes("mm.json", BrokerConfiguration.ExtractModulesFromBroker(b).Serialise());
+            File.WriteAllBytes("mma.json", BrokerConfiguration.ExtractAssemblysFromBroker(b).Serialise());
             //Console.ReadLine();
             //b.PushMessage(new EmailConsumer.MailModel());
 
             //Console.ReadLine();
-            //b.StopBroker();
+            b.StopBroker();
         }
     }
 }

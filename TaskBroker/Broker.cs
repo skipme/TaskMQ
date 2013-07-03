@@ -33,7 +33,7 @@ namespace TaskBroker
         public void RegisterModule(ModMod mod)
         {
             mod.InitialiseEntry(this, mod);
-            Modules.AddMod(mod);
+            Modules.AddModConstructed(mod);
         }
 
         public void RegisterConsumerModule<C, M>(/*string name*/)
@@ -50,22 +50,41 @@ namespace TaskBroker
                 };
 
             stub.InitialiseEntry(this, stub);
-            Modules.AddMod(stub);
+            Modules.AddModConstructed(stub);
         }
         public void RegisterSelfValuedModule<C>()
             where C : IMod
         {
+            var typeC = typeof(IModConsumer);
+
             TaskBroker.ModMod stub = new TaskBroker.ModMod()
             {
                 ModAssembly = typeof(C).Assembly,
-                Role = (typeof(C) == typeof(IModConsumer)) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
+                Role = typeof(C).IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
                 MI = Activator.CreateInstance<C>()
             };
             stub.InitialiseEntry(this, stub);
-            Modules.AddMod(stub);
+            Modules.AddModConstructed(stub);
             stub.MI.RegisterTasks(this, stub);
         }
-
+        public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
+        {
+            var type = typeof(IMod);
+            var typeC = typeof(IModConsumer);
+            if (type.IsAssignableFrom(interfaceMod))
+            {
+                TaskBroker.ModMod stub = new TaskBroker.ModMod()
+                {
+                    ModAssembly = interfaceMod.Assembly,
+                    Role = interfaceMod.IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
+                    MI = (IMod)Activator.CreateInstance(interfaceMod),
+                    RemoteMod = remote
+                };
+                stub.InitialiseEntry(this, stub);
+                Modules.AddModConstructed(stub);
+                stub.MI.RegisterTasks(this, stub);
+            }
+        }
         //public void RegisterMessageModel(MessageType mt)
         //{
         //    MessageChannels.AddMessageType(mt);
@@ -110,6 +129,8 @@ namespace TaskBroker
             QueueTask t = new QueueTask()
             {
                 Module = module,
+                ModuleName = moduleName,
+
                 Description = Description,
                 ChannelName = Channel,
                 Parameters = parameters,
@@ -259,9 +280,15 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
-
+        public void AddAssemblyByPath(string path)
+        {
+            Modules.AddAssembly(path);
+        }
+        //
         public void StopBroker()
         {
+            // stop scheduler
+            // 
             Scheduler.SuspendAll();
             while (Scheduler.Activity)
             {
@@ -269,12 +296,30 @@ namespace TaskBroker
             }
             //stop isolated threads...
             Scheduler.CloseIsolatedThreads();
+
             Console.WriteLine("Broker has been stopped...");
         }
         public void RevokeBroker()
         {
             Scheduler.Revoke();
             UpdatePlan();
+        }
+        public void ReloadModules()
+        {
+            StopBroker();
+
+            Modules.ReloadModules(this);
+            for (int i = 0; i < Tasks.Count; i++)
+            {
+                QueueTask t = Tasks[i];
+                ModMod module = Modules.GetByName(t.ModuleName);// TODO: extract to method - also link it to tasks registration...
+
+                if (module == null)
+                    throw new Exception("required qmodule not found.");
+                t.Module = module;
+            }
+
+            RevokeBroker();
         }
         ~Broker()
         {

@@ -50,15 +50,23 @@ namespace TaskBroker.Configuration
                          {
                              TypeFullName = mm.Value.MI.GetType().FullName,
                              Name = mm.Key,
-                             Role = mm.Value.Role,
-                             messageModel = new cModel() { TypeFullName = mm.Value.AcceptsModel == null ? null : mm.Value.AcceptsModel.GetType().FullName },
-                             AssemblyFile = mm.Value.ModAssembly.Location
+                             Role = mm.Value.Role
                          }).ToArray();
-
 
             return c;
         }
+        public static RepresentedConfiguration ExtractAssemblysFromBroker(Broker b)
+        {
+            ConfigurationAssemblys c = new ConfigurationAssemblys();
 
+            c.Assemblys = (from mm in b.Modules.AssemblyHolder.assemblys
+                           select new cAssembly()
+                           {
+                               path = mm.PathName
+                           }).ToArray();
+
+            return c;
+        }
         public static void ConfigureBroker(Broker b, RepresentedConfiguration c)
         {
 

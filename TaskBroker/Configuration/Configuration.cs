@@ -38,7 +38,10 @@ namespace TaskBroker.Configuration
     {
         public cModule[] Modules { get; set; }
     }
-
+    public class ConfigurationAssemblys : RepresentedConfiguration
+    {
+        public cAssembly[] Assemblys { get; set; }
+    }
     [Serializable]
     public class cTask
     {
@@ -69,12 +72,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
-        public cModel messageModel { get; set; }
-        // assembly key required |(module id)|
-        // 
         public string TypeFullName { get; set; }
-        // module descriptors ... version ... paths ... build system ids ... scm id ...
-        public string AssemblyFile { get; set; }
     }
     [Serializable]
     public class cConnection
@@ -84,5 +82,10 @@ namespace TaskBroker.Configuration
         public string collection { get; set; }
         public string database { get; set; }
         public string queueTypeName { get; set; }
+    }
+    [Serializable]
+    public class cAssembly
+    {
+        public string path { get; set; }
     }
 }

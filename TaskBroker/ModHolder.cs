@@ -37,18 +37,17 @@ namespace TaskBroker
             Modules = new Dictionary<string, ModMod>();
             ModInterfaces = new Dictionary<string, Type>();
             ModLocalInterfaces = new Dictionary<string, Type>();
-            holder = new Assemblys.AssemblyHolder(Path.Combine(Directory.GetCurrentDirectory(), "assemblys"));
+            AssemblyHolder = new Assemblys.AssemblyHolder(Path.Combine(Directory.GetCurrentDirectory(), "assemblys"));
 
             AddInterfacesFromCurrentDomain();
-            holder.ReLoadAssemblys(this);
         }
 
         public Dictionary<string, ModMod> Modules;
         public Dictionary<string, Type> ModInterfaces;
         public Dictionary<string, Type> ModLocalInterfaces;
-        public Assemblys.AssemblyHolder holder;
+        public Assemblys.AssemblyHolder AssemblyHolder;
 
-        public void AddMod(string interfaceName, ModMod mod)
+        public void AddMod(string interfaceName, ModMod mod, Broker b)
         {
             Type iface = null;
             if (ModInterfaces.ContainsKey(interfaceName))
@@ -67,9 +66,18 @@ namespace TaskBroker
             mod.ModAssembly = iface.Assembly;
 
             Modules.Add(mod.UniqueName, mod);
+
+            mod.MI.Initialise(b, mod);
+            mod.MI.RegisterTasks(b, mod);
         }
-        public void AddMod(ModMod mod)
+        public void AddAssembly(string path)
         {
+            AssemblyHolder.AddAssembly(path);
+        }
+        public void AddModConstructed(ModMod mod)
+        {
+            Type i = mod.MI.GetType();
+            ModInterfaces.Add(i.FullName, i);
             Modules.Add(mod.UniqueName, mod);
         }
         public ModMod GetByName(string name)
@@ -85,7 +93,7 @@ namespace TaskBroker
             }
             return m;
         }
-        public void ReloadModules()
+        public void ReloadModules(Broker b)
         {
             ModInterfaces.Clear();
             foreach (KeyValuePair<string, ModMod> item in Modules)
@@ -95,9 +103,9 @@ namespace TaskBroker
                 item.Value.ModAssembly = null;
             }
             Modules.Clear();
-            holder.UnloadModules();
-            holder.ReLoadAssemblys(this);
-            reloadLocalMods();
+            AssemblyHolder.UnloadModules();
+            AssemblyHolder.LoadAssemblys(b);
+            reloadLocalMods(b);
         }
 
         private void AddInterfacesFromCurrentDomain()
@@ -110,13 +118,13 @@ namespace TaskBroker
             {
                 ModLocalInterfaces.Add(item.FullName, item);
             }
-            reloadLocalMods();
+            //reloadLocalMods();
         }
-        private void reloadLocalMods()
+        private void reloadLocalMods(Broker b)
         {
             foreach (Type item in ModLocalInterfaces.Values)
             {
-                AddMod(item.FullName, new ModMod() { RemoteMod = false });
+                AddMod(item.FullName, new ModMod() { RemoteMod = false }, b);
             }
         }
         private void ExitMod(string name)

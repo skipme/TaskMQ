@@ -19,15 +19,16 @@ namespace TaskBroker
 
     public class QueueTask : TaskScheduler.PlanItem 
     {
-        public string Description { get; set; }
+        public string Description;
 
-        public string ChannelName { get; set; }
-        public bool MinChannelOccupancyDirection { get; set; }
-        public TItemModel Parameters { get; set; }
-        public ModMod Module { get; set; }
+        public string ChannelName;
+        public bool MinChannelOccupancyDirection;
+        public TItemModel Parameters;
+        public ModMod Module;
+        public string ModuleName { get; set; }
 
-        public TaskScheduler.PlanItem Plan { get; set; }
-        public bool ProducedByMod { get; set; }
+        public TaskScheduler.PlanItem Plan;
+        //public bool ProducedByMod;
 
         public DateTime NextExecution
         {
