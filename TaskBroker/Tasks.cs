@@ -28,7 +28,7 @@ namespace TaskBroker
         public string ModuleName { get; set; }
 
         public TaskScheduler.PlanItem Plan;
-        //public bool ProducedByMod;
+        public bool Temp;
 
         public DateTime NextExecution
         {

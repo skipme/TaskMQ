@@ -45,12 +45,6 @@ namespace TApp
 
             }
 
-
-            public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
-            {
-            }
-
-
             public string Name
             {
                 get { return "ZConsume"; }
@@ -59,6 +53,12 @@ namespace TApp
             public string Description
             {
                 get { throw new NotImplementedException(); }
+            }
+
+
+            public QueueTask[] RegisterTasks(ModMod thisModule)
+            {
+                return null;
             }
         }
         static void Main(string[] args)
@@ -77,7 +77,7 @@ namespace TApp
             TaskBroker.Broker b = new TaskBroker.Broker();
             //
             b.AddAssemblyByPath("QueueService.dll");
-            
+            //b.AddAssemblyByPath("Dllwithotrefs.dll");
 
             b.RegisterConnection<MongoDbQueue>("MongoLocalhost",
                 "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
@@ -117,6 +117,7 @@ namespace TApp
 
             //Console.ReadLine();
             b.StopBroker();
+            b.ReloadModules();
         }
     }
 }

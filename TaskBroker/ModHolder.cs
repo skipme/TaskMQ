@@ -47,6 +47,25 @@ namespace TaskBroker
         public Dictionary<string, Type> ModLocalInterfaces;
         public Assemblys.AssemblyHolder AssemblyHolder;
 
+        public void RegisterInterface(Type interfaceMod)
+        {
+            var type = typeof(IMod);
+            if (type.IsAssignableFrom(interfaceMod))
+            {
+                if (ModInterfaces.ContainsKey(interfaceMod.FullName))
+                {
+                    // error
+                }
+                else
+                {
+                    ModInterfaces.Add(interfaceMod.FullName, interfaceMod);
+                }
+            }
+            else
+            {
+                // error
+            }
+        }
         public void AddMod(string interfaceName, ModMod mod, Broker b)
         {
             Type iface = null;
@@ -60,26 +79,37 @@ namespace TaskBroker
             }
             else
             {
+                Console.WriteLine("the module at {0} not found", interfaceName);
+                return;
                 // error
             }
             mod.MI = (IMod)Activator.CreateInstance(iface);
             mod.ModAssembly = iface.Assembly;
-
+            if (Modules.ContainsKey(mod.UniqueName))
+            {
+                Console.WriteLine("the module: {0} at {1} already registered", mod.UniqueName, interfaceName);
+                return;
+            }
             Modules.Add(mod.UniqueName, mod);
 
             mod.MI.Initialise(b, mod);
-            mod.MI.RegisterTasks(b, mod);
+            QueueTask[] tasks = mod.MI.RegisterTasks(mod);
+            if (tasks != null)
+                foreach (QueueTask t in tasks)
+                {
+                    b.RegisterTempTask(t);
+                }
         }
         public void AddAssembly(string path)
         {
             AssemblyHolder.AddAssembly(path);
         }
-        public void AddModConstructed(ModMod mod)
-        {
-            Type i = mod.MI.GetType();
-            ModInterfaces.Add(i.FullName, i);
-            Modules.Add(mod.UniqueName, mod);
-        }
+        //public void AddModConstructed(ModMod mod)
+        //{
+        //    Type i = mod.MI.GetType();
+        //    ModInterfaces.Add(i.FullName, i);
+        //    Modules.Add(mod.UniqueName, mod);
+        //}
         public ModMod GetByName(string name)
         {
             //ModMod m = (from mod in Modules

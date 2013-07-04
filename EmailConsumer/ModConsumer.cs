@@ -41,10 +41,6 @@ namespace EmailConsumer
 
 
 
-        public void RegisterTasks(Broker brokerInterface, ModMod thisModule)
-        {
-
-        }
 
 
         public string Name
@@ -55,6 +51,12 @@ namespace EmailConsumer
         public string Description
         {
             get { return "Email common sender"; }
+        }
+
+
+        public QueueTask[] RegisterTasks(ModMod thisModule)
+        {
+            return null;
         }
     }
 }

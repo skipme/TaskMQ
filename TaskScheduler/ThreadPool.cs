@@ -102,7 +102,9 @@ namespace TaskScheduler
                 if (t.Isolated)
                 {
                     if (t.hThread.IsAlive)
+                    {
                         t.hThread.Abort();
+                    }
                 }
 
             }
@@ -112,6 +114,7 @@ namespace TaskScheduler
             if (pi.intervalType == IntervalType.isolatedThread)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(IsolatedThreadEntry));
+                thread.Name = "iso " + pi.NameAndDescription;
                 ThreadItem ti = new ThreadItem()
                 {
                     hThread = thread,
@@ -186,6 +189,7 @@ namespace TaskScheduler
             ti.ManagedID = ti.hThread.ManagedThreadId;
             PlanItem pi = ti.ExecutionContext;
             pi.planEntry(ti, pi);
+
             ExitThread(ti);
         }
     }

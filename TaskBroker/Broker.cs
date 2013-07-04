@@ -30,62 +30,71 @@ namespace TaskBroker
 
         //modules
         //bunch[model, queue, +module] .... TODO: maybe bunch with channel better?
-        public void RegisterModule(ModMod mod)
-        {
-            mod.InitialiseEntry(this, mod);
-            Modules.AddModConstructed(mod);
-        }
+        //public void RegisterModule(ModMod mod)
+        //{
+        //    mod.InitialiseEntry(this, mod);
+        //    Modules.AddModConstructed(mod);
+        //}
 
-        public void RegisterConsumerModule<C, M>(/*string name*/)
-            where C : IModConsumer
-            where M : TaskMessage
-        {
-            TaskBroker.ModMod stub = new TaskBroker.ModMod()
-                {
-                    ModAssembly = typeof(C).Assembly,
-                    AcceptsModel = Activator.CreateInstance<M>(),
-                    Role = TaskBroker.ExecutionType.Consumer,
-                    //UniqueName = name,
-                    MI = Activator.CreateInstance<C>()
-                };
+        //public void RegisterConsumerModule<C, M>(/*string name*/)
+        //    where C : IModConsumer
+        //    where M : TaskMessage
+        //{
+        //    TaskBroker.ModMod stub = new TaskBroker.ModMod()
+        //        {
+        //            ModAssembly = typeof(C).Assembly,
+        //            AcceptsModel = Activator.CreateInstance<M>(),
+        //            Role = TaskBroker.ExecutionType.Consumer,
+        //            //UniqueName = name,
+        //            MI = Activator.CreateInstance<C>()
+        //        };
 
-            stub.InitialiseEntry(this, stub);
-            Modules.AddModConstructed(stub);
-        }
-        public void RegisterSelfValuedModule<C>()
-            where C : IMod
-        {
-            var typeC = typeof(IModConsumer);
+        //    stub.InitialiseEntry(this, stub);
+        //    Modules.AddModConstructed(stub);
+        //}
+        //public void RegisterSelfValuedModule<C>()
+        //    where C : IMod
+        //{
+        //    var typeC = typeof(IModConsumer);
 
-            TaskBroker.ModMod stub = new TaskBroker.ModMod()
-            {
-                ModAssembly = typeof(C).Assembly,
-                Role = typeof(C).IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
-                MI = Activator.CreateInstance<C>()
-            };
-            stub.InitialiseEntry(this, stub);
-            Modules.AddModConstructed(stub);
-            stub.MI.RegisterTasks(this, stub);
-        }
+        //    TaskBroker.ModMod stub = new TaskBroker.ModMod()
+        //    {
+        //        ModAssembly = typeof(C).Assembly,
+        //        Role = typeof(C).IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
+        //        MI = Activator.CreateInstance<C>()
+        //    };
+        //    stub.InitialiseEntry(this, stub);
+        //    Modules.AddModConstructed(stub);
+        //    stub.MI.RegisterTasks(this, stub);
+        //}
+        //public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
+        //{
+        //    var type = typeof(IMod);
+        //    var typeC = typeof(IModConsumer);
+        //    if (type.IsAssignableFrom(interfaceMod))
+        //    {
+        //        TaskBroker.ModMod stub = new TaskBroker.ModMod()
+        //        {
+        //            ModAssembly = interfaceMod.Assembly,
+        //            Role = interfaceMod.IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
+        //            MI = (IMod)Activator.CreateInstance(interfaceMod),
+        //            RemoteMod = remote
+        //        };
+        //        stub.InitialiseEntry(this, stub);
+        //        Modules.AddModConstructed(stub);
+        //        stub.MI.RegisterTasks(this, stub);
+        //    }
+        //}
         public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
         {
-            var type = typeof(IMod);
-            var typeC = typeof(IModConsumer);
-            if (type.IsAssignableFrom(interfaceMod))
-            {
-                TaskBroker.ModMod stub = new TaskBroker.ModMod()
-                {
-                    ModAssembly = interfaceMod.Assembly,
-                    Role = interfaceMod.IsAssignableFrom(typeC) ? TaskBroker.ExecutionType.Consumer : ExecutionType.Producer,
-                    MI = (IMod)Activator.CreateInstance(interfaceMod),
-                    RemoteMod = remote
-                };
-                stub.InitialiseEntry(this, stub);
-                Modules.AddModConstructed(stub);
-                stub.MI.RegisterTasks(this, stub);
-            }
+            Modules.AddMod(interfaceMod.FullName, new ModMod() { RemoteMod = remote }, this);
         }
-        //public void RegisterMessageModel(MessageType mt)
+        public void RegisterSelfValuedModule<C>(bool remote = true)
+            where C : IMod
+        {
+            Modules.AddMod(typeof(C).FullName, new ModMod() { RemoteMod = remote }, this);
+        }
+        ////public void RegisterMessageModel(MessageType mt)
         //{
         //    MessageChannels.AddMessageType(mt);
         //}
@@ -125,7 +134,11 @@ namespace TaskBroker
 
             if (module == null)
                 throw new Exception("required qmodule not found.");
-
+            TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
+            if (it == TaskScheduler.IntervalType.isolatedThread)
+            {
+                ep = IsolatedTaskEntry;
+            }
             QueueTask t = new QueueTask()
             {
                 Module = module,
@@ -137,15 +150,36 @@ namespace TaskBroker
 
                 intervalType = it,
                 intervalValue = intervalValue,
-                planEntry = TaskEntry,
+                planEntry = ep,
 
                 NameAndDescription = Channel
             };
 
             Tasks.Add(t);
             UpdatePlan();
+            //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
+            //    Scheduler.CreateIsolatedThreadForPlan(t);
+        }
+        public void RegisterTempTask(QueueTask t)
+        {
+            ModMod module = Modules.GetByName(t.ModuleName);
+
+            if (module == null)
+                throw new Exception("required qmodule not found.");
+            TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
             if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
-                Scheduler.CreateIsolatedThreadForPlan(t);
+            {
+                ep = IsolatedTaskEntry;
+            }
+            t.planEntry = ep;
+            t.Module = module;
+            t.planEntry = ep;
+            t.Temp = true;
+
+            Tasks.Add(t);
+            UpdatePlan();
+            //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
+            //    Scheduler.CreateIsolatedThreadForPlan(t);
         }
         // bunch [connectionparams, queue]
         public void AddConnection<T>(TaskQueue.Providers.QueueConnectionParameters qcp)
@@ -182,13 +216,13 @@ namespace TaskBroker
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
-            if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
-            {
-                //task.Module.Producer(task.Parameters);
-                ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
-            }
-            else
-            {
+            //if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
+            //{
+            //    //task.Module.Producer(task.Parameters);
+            //    ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
+            //}
+            //else
+            //{
                 switch (task.Module.Role)
                 {
                     case ExecutionType.Consumer:
@@ -198,21 +232,23 @@ namespace TaskBroker
                         ProducerEntry(task);
                         break;
                 }
-            }
+            //}
         }
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
+            ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
             {
                 Thread.Sleep(100);
             }
+            ((IModIsolatedProducer)task.Module.MI).IsolatedProducerStop();
         }
 
         private void ConsumerEntry(QueueTask task)
         {
-            Console.WriteLine("consumer: {0}", task.ChannelName);
+            //Console.WriteLine("consumer: {0}", task.ChannelName);
             //QueueTask task = pi as QueueTask;
             ModMod mod = task.Module;
 
@@ -296,12 +332,18 @@ namespace TaskBroker
             }
             //stop isolated threads...
             Scheduler.CloseIsolatedThreads();
-
+            Tasks.RemoveAll(x => x.Temp);
             Console.WriteLine("Broker has been stopped...");
         }
         public void RevokeBroker()
         {
             Scheduler.Revoke();
+            // start isolated tasks:
+            foreach (var tiso in (from t in Tasks where t.intervalType == IntervalType.isolatedThread
+                                      select t))
+            {
+                Scheduler.CreateIsolatedThreadForPlan(tiso);
+            }
             UpdatePlan();
         }
         public void ReloadModules()

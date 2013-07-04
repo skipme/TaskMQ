@@ -26,7 +26,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                Console.WriteLine("anteroom push error {0}", e.Message);
                 return false;
             }
             return true;
@@ -40,7 +40,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                Console.WriteLine("anteroom update error {0}", e.Message);
                 return false;
             }
             return true;
@@ -66,7 +66,7 @@ namespace TaskBroker
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("e {0}, {1}", e.Message, e.StackTrace);
+                        Console.WriteLine("anteroom take error: {0}", e.Message);
                         return null;
                     }
 

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MongoQueue", "MongoQueue\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailConsumer", "EmailConsumer\EmailConsumer.csproj", "{5DBA37C6-47D8-4D74-A34B-4FC55C2CF350}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dllwithotrefs", "Dllwithotrefs\Dllwithotrefs.csproj", "{AC1D795C-FC05-424E-93F5-68907686BED5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{5DBA37C6-47D8-4D74-A34B-4FC55C2CF350}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DBA37C6-47D8-4D74-A34B-4FC55C2CF350}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5DBA37C6-47D8-4D74-A34B-4FC55C2CF350}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC1D795C-FC05-424E-93F5-68907686BED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC1D795C-FC05-424E-93F5-68907686BED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC1D795C-FC05-424E-93F5-68907686BED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC1D795C-FC05-424E-93F5-68907686BED5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

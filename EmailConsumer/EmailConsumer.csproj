@@ -54,6 +54,10 @@
       <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TaskScheduler\TaskScheduler.csproj">
+      <Project>{71d36b0a-382d-4fcf-95af-67cfea21887d}</Project>
+      <Name>TaskScheduler</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
