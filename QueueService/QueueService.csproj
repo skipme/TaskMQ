@@ -71,6 +71,7 @@
     <Compile Include="baseService.cs" />
     <Compile Include="ModProducer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ThroughputTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskBroker\TaskBroker.csproj">

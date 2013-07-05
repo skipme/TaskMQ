@@ -7,6 +7,7 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
+    [Serializable]
     public class TaskMessage : TItemModel
     {
         public string MType { get; set; }

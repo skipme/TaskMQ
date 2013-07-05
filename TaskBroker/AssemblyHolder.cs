@@ -88,8 +88,17 @@ namespace TaskBroker.Assemblys
 
                 /*Assembly assembly =*/
                 bool l = pd.GetAssembly(a.Fullpath(ModulesFolder), a.PathName);
-                IMod[] ifc = pd.CreateInterfaces(a.PathName);
-                b.RegisterRemoteSelfValuedModule(ifc[0], a.PathName);
+                //IMod[] ifc = pd.CreateInterfaces(a.PathName);
+                //for (int i = 0; i < ifc.Length; i++)
+                //{
+                //    b.RegisterRemoteSelfValuedModule(ifc[i], a.PathName);
+                //}
+                KeyValuePair<string, bool>[] ifc = pd.GetInterfaces(a.PathName);
+                for (int i = 0; i < ifc.Length; i++)
+                {
+                    IMod ifcmod = pd.CreateInterface(ifc[i].Key);
+                    b.RegisterRemoteSelfValuedModule(ifcmod, a.PathName, ifc[i].Value);
+                }
                 //IMod ic = pd.CreateInterface("QueueService.ModProducer");
                 //AddModAssembly(b, assembly, a.PathName);
             }
@@ -153,7 +162,7 @@ namespace TaskBroker.Assemblys
         //    //return assembly;
         //}
 
-        public Dictionary<string, Type> interfaces = new Dictionary<string,Type>();
+        public Dictionary<string, Type> interfaces = new Dictionary<string, Type>();
         public bool GetAssembly(string AssemblyPath, string pathname)
         {
             try
@@ -200,6 +209,12 @@ namespace TaskBroker.Assemblys
         public IMod CreateInterface(string name)
         {
             return (IMod)Activator.CreateInstance(interfaces[name]);
+        }
+        public KeyValuePair<string, bool>[] GetInterfaces(string assembly)
+        {
+            var type = typeof(IModConsumer);
+            return (from i in loadedAssemblys[assembly].Interfaces
+                    select new KeyValuePair<string, bool>(i, type.IsAssignableFrom(interfaces[i]))).ToArray();
         }
         public IMod[] CreateInterfaces(string assembly)
         {

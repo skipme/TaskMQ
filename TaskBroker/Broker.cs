@@ -12,6 +12,19 @@ namespace TaskBroker
 {
     public class Broker
     {
+        /*
+         * 
+         * 
+         * 
+         * 
+         * consumer stub throughput ratings
+
+                10000 at 940 ms. tp 1 at ,09ms :: internal module throughput
+
+                10000 at 3722 ms. tp 1 at ,37 :: external module throughput
+         * 
+         * 
+         */ 
         public Broker()
         {
             Tasks = new List<QueueTask>();
@@ -91,9 +104,15 @@ namespace TaskBroker
         //    Modules.AddMod(interfaceMod.FullName, new ModMod() { RemoteMod = remote }, this);
         //}
 
-        public void RegisterRemoteSelfValuedModule(IMod instance, string assemblyPath)
+        public void RegisterRemoteSelfValuedModule(IMod instance, string assemblyPath, bool consumer)
         {
-            Modules.AddRemoteMod(new ModMod() { RemoteMod = true, MI = instance, ModAssembly = assemblyPath }, this);
+            Modules.AddRemoteMod(new ModMod()
+            {
+                RemoteMod = true,
+                MI = instance,
+                ModAssembly = assemblyPath,
+                Role = consumer ? ExecutionType.Consumer : ExecutionType.Producer
+            }, this);
         }
 
         //public void RegisterSelfValuedModule<C>(bool remote = true)
@@ -240,15 +259,15 @@ namespace TaskBroker
             //}
             //else
             //{
-                switch (task.Module.Role)
-                {
-                    case ExecutionType.Consumer:
-                        ConsumerEntry(task);
-                        break;
-                    case ExecutionType.Producer:
-                        ProducerEntry(task);
-                        break;
-                }
+            switch (task.Module.Role)
+            {
+                case ExecutionType.Consumer:
+                    ConsumerEntry(task);
+                    break;
+                case ExecutionType.Producer:
+                    ProducerEntry(task);
+                    break;
+            }
             //}
         }
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
@@ -279,7 +298,13 @@ namespace TaskBroker
                 task.Suspended = true;
                 return;
             }
-
+            System.Diagnostics.Stopwatch w = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 10000; i++)
+            {
+                ((IModConsumer)mod.MI).Push(task.Parameters, ref item);
+            }
+            w.Stop();
+            Console.WriteLine("10000 at {0} ms. tp 1 at {1:.00}", w.ElapsedMilliseconds, w.ElapsedMilliseconds / 10000.0);
             if (((IModConsumer)mod.MI).Push(task.Parameters, ref item))
             {
                 item.Processed = true;
@@ -356,8 +381,9 @@ namespace TaskBroker
         {
             Scheduler.Revoke();
             // start isolated tasks:
-            foreach (var tiso in (from t in Tasks where t.intervalType == IntervalType.isolatedThread
-                                      select t))
+            foreach (var tiso in (from t in Tasks
+                                  where t.intervalType == IntervalType.isolatedThread
+                                  select t))
             {
                 Scheduler.CreateIsolatedThreadForPlan(tiso);
             }

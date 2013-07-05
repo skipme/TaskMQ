@@ -103,8 +103,8 @@ namespace TApp
             //
             b.ReloadModules();
             b.RegisterTask(
-                "EmailC", "EmailSender",
-                IntervalType.intervalMilliseconds, 1000, smtp,
+                "EmailC", "ThroughputTest",//"EmailSender",
+                IntervalType.intervalMilliseconds, 1000, null /*smtp*/,
                 "Email Common channel consumer on mongo db queue channel");
 
 
@@ -116,7 +116,9 @@ namespace TApp
             //b.PushMessage(new EmailConsumer.MailModel());
 
             Console.ReadLine();
-            b.ReloadModules();
+            b.PushMessage(new EmailConsumer.MailModel());
+            Console.ReadLine();
+            //b.ReloadModules();
         }
     }
 }
