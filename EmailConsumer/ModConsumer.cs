@@ -9,8 +9,6 @@ namespace EmailConsumer
 {
     public class ModConsumer : IModConsumer
     {
-        public static TaskBroker.Broker broker;
-
         public bool Push(TItemModel parameters, ref TaskMessage q_parameter)
         {
             //Send
@@ -28,20 +26,12 @@ namespace EmailConsumer
 
         }
 
-        public void Initialise(Broker brokerInterface, ModMod thisModule)
+        public void Initialise(ModMod thisModule)
         {
-            broker = brokerInterface;
-            //broker.RegisterMessageModel(new TaskBroker.MessageType(new EmailConsumer.MailModel()));
-
             thisModule.Role = TaskBroker.ExecutionType.Consumer;
             thisModule.AcceptsModel = new MailModel();
             thisModule.ParametersModel = new SmtpModel();
-            //thisModule.Consumer = ModConsumer.Send;
         }
-
-
-
-
 
         public string Name
         {
@@ -54,7 +44,7 @@ namespace EmailConsumer
         }
 
 
-        public QueueTask[] RegisterTasks(ModMod thisModule)
+        public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
         {
             return null;
         }

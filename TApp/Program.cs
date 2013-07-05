@@ -40,7 +40,7 @@ namespace TApp
 
             }
 
-            public void Initialise(Broker brokerInterface, ModMod thisModule)
+            public void Initialise(ModMod thisModule)
             {
 
             }
@@ -56,7 +56,7 @@ namespace TApp
             }
 
 
-            public QueueTask[] RegisterTasks(ModMod thisModule)
+            public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
             {
                 return null;
             }
@@ -115,8 +115,7 @@ namespace TApp
             //Console.ReadLine();
             //b.PushMessage(new EmailConsumer.MailModel());
 
-            //Console.ReadLine();
-            b.StopBroker();
+            Console.ReadLine();
             b.ReloadModules();
         }
     }

@@ -7,6 +7,7 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
+    [Serializable]
     public abstract class TItemModel : ITItem
     {
         public Dictionary<string, object> Holder = new Dictionary<string, object>();

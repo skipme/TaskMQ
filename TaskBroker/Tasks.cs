@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
+using TaskScheduler;
 
 namespace TaskBroker
 {
-    //public delegate void ProducerEntryPoint(TItemModel parameters);
-    //public delegate bool ConsumerEntryPoint(TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
-    //public delegate void ModInitEntryPoint(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule);
-    //public delegate void StubEntryPoint();
 
     public enum ExecutionType
     {
         Consumer = 0x11,
         Producer
     }
-
+    [Serializable]
+    public class ModuleSelfTask
+    {
+        public string ChannelName;
+        public string NameAndDescription;
+        public string ModuleName { get; set; }
+        public IntervalType intervalType { get; set; }
+        public long intervalValue { get; set; }
+    }
     public class QueueTask : TaskScheduler.PlanItem 
     {
         public string Description;

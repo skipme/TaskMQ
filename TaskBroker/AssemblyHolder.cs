@@ -44,13 +44,13 @@ namespace TaskBroker.Assemblys
                 Directory.CreateDirectory(ModulesFolder);
             }
 
-            loadedAssemblys = new Dictionary<string, AssemblyCard>();
+            //loadedAssemblys = new Dictionary<string, AssemblyCard>();
             CreateDomain();
         }
         AppDomain Domain;
         PluginLoader pd;
         public List<AssemblyModule> assemblys;
-        public Dictionary<string, AssemblyCard> loadedAssemblys;
+        //public Dictionary<string, AssemblyCard> loadedAssemblys;
 
         public void AddAssembly(string path)
         {
@@ -62,7 +62,7 @@ namespace TaskBroker.Assemblys
 
         public void LoadAssemblys(Broker b)
         {
-            loadedAssemblys.Clear();
+            //loadedAssemblys.Clear();
 
             foreach (AssemblyModule a in assemblys)
             {
@@ -88,6 +88,9 @@ namespace TaskBroker.Assemblys
 
                 /*Assembly assembly =*/
                 bool l = pd.GetAssembly(a.Fullpath(ModulesFolder), a.PathName);
+                IMod[] ifc = pd.CreateInterfaces(a.PathName);
+                b.RegisterRemoteSelfValuedModule(ifc[0], a.PathName);
+                //IMod ic = pd.CreateInterface("QueueService.ModProducer");
                 //AddModAssembly(b, assembly, a.PathName);
             }
             catch (Exception e)
@@ -99,19 +102,7 @@ namespace TaskBroker.Assemblys
             return true;
         }
 
-        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            return null;
-            string[] Parts = args.Name.Split(',');
-            string File = Path.Combine(ModulesFolder, Parts[0].Trim() + ".dll");
 
-            //return System.Reflection.Assembly.LoadFrom(File);
-            AssemblyName an = AssemblyName.GetAssemblyName(File);
-            return Domain.Load(an);
-
-            //Assembly assembly = pd.GetAssembly(File);
-            //return assembly;
-        }
         public void UnloadModules()
         {
             GC.Collect(); // collects all unused memory
@@ -137,11 +128,32 @@ namespace TaskBroker.Assemblys
                 typeof(PluginLoader).Assembly.FullName,
                 typeof(PluginLoader).FullName
             );
+            pd.ModulesFolder = ModulesFolder;
         }
     }
     [SecurityPermission(SecurityAction.Demand, Infrastructure = true)]
     internal sealed class PluginLoader : MarshalByRefObject, IDisposable
     {
+        public string ModulesFolder;
+        public Dictionary<string, AssemblyCard> loadedAssemblys = new Dictionary<string, AssemblyCard>();
+        public PluginLoader()
+        {
+            //AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+        }
+        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        //{
+        //    string[] Parts = args.Name.Split(',');
+        //    string File = Path.Combine(ModulesFolder, Parts[0].Trim() + ".dll");
+
+        //    return System.Reflection.Assembly.LoadFrom(File);
+        //    //AssemblyName an = AssemblyName.GetAssemblyName(File);
+        //    //return Domain.Load(an);
+
+        //    //Assembly assembly = pd.GetAssembly(File);
+        //    //return assembly;
+        //}
+
+        public Dictionary<string, Type> interfaces = new Dictionary<string,Type>();
         public bool GetAssembly(string AssemblyPath, string pathname)
         {
             try
@@ -153,7 +165,7 @@ namespace TaskBroker.Assemblys
             }
             catch (Exception ex)
             {
-                //throw new InvalidOperationException(ex.Message);
+                throw new InvalidOperationException(ex.Message);
             }
             return false;
         }
@@ -165,24 +177,35 @@ namespace TaskBroker.Assemblys
         private void AddModAssembly(Assembly assembly, string pathname)
         {
             // get interfaces, add to dic
-            //AssemblyCard card = new AssemblyCard()
-            //{
-            //    assembly = assembly,
-            //    PathName = pathname
-            //};
+            AssemblyCard card = new AssemblyCard()
+            {
+                assembly = assembly,
+                PathName = pathname
+            };
             var type = typeof(IMod);
             var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
             foreach (Type item in types)
             {
+                interfaces.Add(item.FullName, item);
                 //b.Modules.RegisterInterface(item);
                 //b.RegisterSelfValuedModule(item);
                 //moduleHolder.ModInterfaces.Add(item.FullName, item);
                 //moduleHolder.AddMod(item.FullName, new ModMod() { RemoteMod = true });
             }
-            //card.Interfaces = (from t in types
-            //                   select t.FullName).ToArray();
+            card.Interfaces = (from t in types
+                               select t.FullName).ToArray();
 
-            //loadedAssemblys.Add(pathname, card);
+            loadedAssemblys.Add(pathname, card);
+        }
+        public IMod CreateInterface(string name)
+        {
+            return (IMod)Activator.CreateInstance(interfaces[name]);
+        }
+        public IMod[] CreateInterfaces(string assembly)
+        {
+            var res = from ifs in loadedAssemblys[assembly].Interfaces
+                      select (IMod)Activator.CreateInstance(interfaces[ifs]);
+            return res.ToArray();
         }
     }
     class ProxyDomain : MarshalByRefObject

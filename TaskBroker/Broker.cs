@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using TaskBroker.Assemblys;
 using TaskQueue.Providers;
 using TaskScheduler;
 
@@ -85,15 +86,22 @@ namespace TaskBroker
         //        stub.MI.RegisterTasks(this, stub);
         //    }
         //}
-        public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
+        //public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
+        //{
+        //    Modules.AddMod(interfaceMod.FullName, new ModMod() { RemoteMod = remote }, this);
+        //}
+
+        public void RegisterRemoteSelfValuedModule(IMod instance, string assemblyPath)
         {
-            Modules.AddMod(interfaceMod.FullName, new ModMod() { RemoteMod = remote }, this);
+            Modules.AddRemoteMod(new ModMod() { RemoteMod = true, MI = instance, ModAssembly = assemblyPath }, this);
         }
-        public void RegisterSelfValuedModule<C>(bool remote = true)
-            where C : IMod
-        {
-            Modules.AddMod(typeof(C).FullName, new ModMod() { RemoteMod = remote }, this);
-        }
+
+        //public void RegisterSelfValuedModule<C>(bool remote = true)
+        //    where C : IMod
+        //{
+        //    Modules.AddMod(typeof(C).FullName, new ModMod() { RemoteMod = remote }, this);
+        //}
+
         ////public void RegisterMessageModel(MessageType mt)
         //{
         //    MessageChannels.AddMessageType(mt);
@@ -160,8 +168,20 @@ namespace TaskBroker
             //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
             //    Scheduler.CreateIsolatedThreadForPlan(t);
         }
-        public void RegisterTempTask(QueueTask t)
+        public void RegisterTempTask(ModuleSelfTask mst)
         {
+            QueueTask t = new QueueTask()
+            {
+                ModuleName = mst.ModuleName,
+
+                Description = mst.NameAndDescription,
+                ChannelName = mst.ChannelName,
+                Parameters = null,
+
+                intervalType = mst.intervalType,
+                intervalValue = mst.intervalValue,
+                NameAndDescription = mst.ChannelName
+            };
             ModMod module = Modules.GetByName(t.ModuleName);
 
             if (module == null)
@@ -173,13 +193,10 @@ namespace TaskBroker
             }
             t.planEntry = ep;
             t.Module = module;
-            t.planEntry = ep;
             t.Temp = true;
 
             Tasks.Add(t);
             UpdatePlan();
-            //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
-            //    Scheduler.CreateIsolatedThreadForPlan(t);
         }
         // bunch [connectionparams, queue]
         public void AddConnection<T>(TaskQueue.Providers.QueueConnectionParameters qcp)

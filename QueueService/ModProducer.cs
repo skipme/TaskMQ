@@ -7,15 +7,14 @@ using TaskQueue.Providers;
 
 namespace QueueService
 {
-    public class ModProducer : IModIsolatedProducer
+    [Serializable]
+    public class ModProducer : MarshalByRefObject, IModIsolatedProducer
     {
         public const string ListeningOn = "http://localhost:82/";
-        public TaskBroker.Broker broker;
         baseService appHost = new baseService();
 
-        public void Initialise(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
+        public void Initialise(TaskBroker.ModMod thisModule)
         {
-            broker = brokerInterface;
             //thisModule.Producer = IsolatedProducer;
             thisModule.MI = this;
             //thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
@@ -45,17 +44,16 @@ namespace QueueService
             
         }
 
-        public QueueTask[] RegisterTasks(ModMod thisModule)
+        public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
         {
-            QueueTask t = new QueueTask()
+            ModuleSelfTask t = new ModuleSelfTask()
             {
                 intervalType = TaskScheduler.IntervalType.isolatedThread,
-                Description = "",
                 ModuleName = thisModule.UniqueName,
                 NameAndDescription = "Host for web service[REST main service]"
 
             };
-            return new QueueTask[] { t };
+            return new ModuleSelfTask[] { t };
             //broker.RegisterTask(
             //     "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0, null,
             //     "Host for web service[REST main service]");

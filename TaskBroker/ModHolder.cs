@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TaskBroker.Assemblys;
 
 namespace TaskBroker
 {
+    [Serializable]
     public class ModMod
     {
         public string UniqueName { get { return MI.Name; } }
@@ -15,7 +17,7 @@ namespace TaskBroker
         public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
         public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
 
-        public Assembly ModAssembly { get; set; }
+        public string ModAssembly { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
         public bool RemoteMod { get; set; }
 
@@ -24,9 +26,9 @@ namespace TaskBroker
         {
             MI.Exit();
         }
-        public void InitialiseEntry(TaskBroker.Broker brokerInterface, TaskBroker.ModMod thisModule)
+        public void InitialiseEntry(TaskBroker.ModMod thisModule)
         {
-            MI.Initialise(brokerInterface, thisModule);
+            MI.Initialise(thisModule);
         }
     }
 
@@ -84,7 +86,7 @@ namespace TaskBroker
                 // error
             }
             mod.MI = (IMod)Activator.CreateInstance(iface);
-            mod.ModAssembly = iface.Assembly;
+            //mod.ModAssembly = iface.Assembly;
             if (Modules.ContainsKey(mod.UniqueName))
             {
                 Console.WriteLine("the module: {0} at {1} already registered", mod.UniqueName, interfaceName);
@@ -92,10 +94,23 @@ namespace TaskBroker
             }
             Modules.Add(mod.UniqueName, mod);
 
-            mod.MI.Initialise(b, mod);
-            QueueTask[] tasks = mod.MI.RegisterTasks(mod);
+            mod.MI.Initialise(mod);
+            ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
             if (tasks != null)
-                foreach (QueueTask t in tasks)
+                foreach (ModuleSelfTask t in tasks)
+                {
+                    b.RegisterTempTask(t);
+                }
+        }
+        public void AddRemoteMod(ModMod mod, Broker b)
+        {
+            //mod.ModAssembly = mod.MI.GetType().Assembly;
+            Modules.Add(mod.UniqueName, mod);
+
+            mod.MI.Initialise(mod);
+            ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
+            if (tasks != null)
+                foreach (ModuleSelfTask t in tasks)
                 {
                     b.RegisterTempTask(t);
                 }
