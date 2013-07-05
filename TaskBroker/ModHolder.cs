@@ -37,7 +37,7 @@ namespace TaskBroker
         public ModHolder()
         {
             Modules = new Dictionary<string, ModMod>();
-            ModInterfaces = new Dictionary<string, Type>();
+            //ModInterfaces = new Dictionary<string, Type>();
             ModLocalInterfaces = new Dictionary<string, Type>();
             AssemblyHolder = new Assemblys.AssemblyHolder(Path.Combine(Directory.GetCurrentDirectory(), "assemblys"));
 
@@ -45,37 +45,38 @@ namespace TaskBroker
         }
 
         public Dictionary<string, ModMod> Modules;
-        public Dictionary<string, Type> ModInterfaces;
+        //public Dictionary<string, Type> ModInterfaces;
         public Dictionary<string, Type> ModLocalInterfaces;
         public Assemblys.AssemblyHolder AssemblyHolder;
 
-        public void RegisterInterface(Type interfaceMod)
-        {
-            var type = typeof(IMod);
-            if (type.IsAssignableFrom(interfaceMod))
-            {
-                if (ModInterfaces.ContainsKey(interfaceMod.FullName))
-                {
-                    // error
-                }
-                else
-                {
-                    ModInterfaces.Add(interfaceMod.FullName, interfaceMod);
-                }
-            }
-            else
-            {
-                // error
-            }
-        }
+        //public void RegisterInterface(Type interfaceMod)
+        //{
+        //    var type = typeof(IMod);
+        //    if (type.IsAssignableFrom(interfaceMod))
+        //    {
+        //        if (ModInterfaces.ContainsKey(interfaceMod.FullName))
+        //        {
+        //            // error
+        //        }
+        //        else
+        //        {
+        //            ModInterfaces.Add(interfaceMod.FullName, interfaceMod);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // error
+        //    }
+        //}
         public void AddMod(string interfaceName, ModMod mod, Broker b)
         {
             Type iface = null;
-            if (ModInterfaces.ContainsKey(interfaceName))
-            {
-                iface = ModInterfaces[interfaceName];
-            }
-            else if (ModLocalInterfaces.ContainsKey(interfaceName))
+            //if (ModInterfaces.ContainsKey(interfaceName))
+            //{
+            //    iface = ModInterfaces[interfaceName];
+            //}
+            //else 
+                if (ModLocalInterfaces.ContainsKey(interfaceName))
             {
                 iface = ModLocalInterfaces[interfaceName];
             }
@@ -140,7 +141,7 @@ namespace TaskBroker
         }
         public void ReloadModules(Broker b)
         {
-            ModInterfaces.Clear();
+            //ModInterfaces.Clear();
             foreach (KeyValuePair<string, ModMod> item in Modules)
             {
                 item.Value.MI.Exit();
