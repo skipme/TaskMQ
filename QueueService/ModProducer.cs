@@ -7,23 +7,18 @@ using TaskQueue.Providers;
 
 namespace QueueService
 {
-    [Serializable]
-    public class ModProducer : MarshalByRefObject, IModIsolatedProducer
+    public class ModProducer : IModIsolatedProducer
     {
         public const string ListeningOn = "http://localhost:82/";
-        baseService appHost = new baseService();
+        baseService appHost;
 
         public void Initialise(TaskBroker.ModMod thisModule)
         {
-            //thisModule.Producer = IsolatedProducer;
-            thisModule.MI = this;
-            //thisModule.ParametersModel = new TaskQueue.QueueItemModel(typeof(TaskQueue.Providers.TItemModel));
-
+            appHost = new baseService();
+            appHost.Init();
         }
         public void IsolatedProducer(TItemModel parameters)
         {
-            //appHost = new baseService();
-            appHost.Init();
             appHost.Start(ListeningOn);
 
             System.Console.WriteLine("AppHost queue services Created at {0}, listening on {1}",
@@ -34,8 +29,6 @@ namespace QueueService
             if (appHost != null)
             {
                 appHost.Stop();
-                appHost.Dispose();
-                appHost = null;
             }
         }
 
@@ -54,9 +47,6 @@ namespace QueueService
 
             };
             return new ModuleSelfTask[] { t };
-            //broker.RegisterTask(
-            //     "null", thisModule.UniqueName, TaskScheduler.IntervalType.isolatedThread, 0, null,
-            //     "Host for web service[REST main service]");
         }
 
 

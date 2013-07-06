@@ -63,9 +63,20 @@ namespace TApp
                 return null;
             }
         }
+
         static void Main(string[] args)
         {
-            ApplicationKeeper.AppdomainLoop();
+            //if (System.Diagnostics.Debugger.IsAttached)
+            //{
+            //    ManualResetEvent mre = new ManualResetEvent(false);
+            //    BrokerApplication ba = new BrokerApplication();
+            //    ba.Run(mre);
+            //    mre.WaitOne();
+            //}
+            //else
+            //{
+                ApplicationKeeper.AppdomainLoop();
+            //}
             Console.WriteLine("ok, done");
             Console.ReadLine();
             return;
@@ -107,7 +118,8 @@ namespace TApp
                 Server = "smtp.yandex.ru"
             };
             //
-            b.ReloadModules();
+            //b.ReloadModules();
+            b.ReloadAssemblys();
             b.RegisterTask(
                 "EmailC", "ThroughputTest",//"EmailSender",
                 IntervalType.intervalMilliseconds, 1000, null /*smtp*/,

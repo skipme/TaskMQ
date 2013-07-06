@@ -59,11 +59,11 @@ namespace TaskBroker.Configuration
         {
             ConfigurationAssemblys c = new ConfigurationAssemblys();
 
-            c.Assemblys = (from mm in b.Modules.AssemblyHolder.assemblys
-                           select new cAssembly()
-                           {
-                               path = mm.PathName
-                           }).ToArray();
+            //c.Assemblys = (from mm in b.Modules.AssemblyHolder.assemblys
+            //               select new cAssembly()
+            //               {
+            //                   path = mm.PathName
+            //               }).ToArray();
 
             return c;
         }

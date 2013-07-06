@@ -13,7 +13,7 @@ namespace EmailConsumer
     {
         public static bool Send(MailModel model, SmtpModel con)
         {
-            return true;
+            return false;
             MailMessage msg = new MailMessage();
             try
             {

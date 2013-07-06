@@ -98,7 +98,7 @@ namespace TaskBroker.Assemblys
                 for (int i = 0; i < ifc.Length; i++)
                 {
                     IMod ifcmod = pd.CreateInterface(ifc[i].Key);
-                    b.RegisterRemoteSelfValuedModule(ifcmod, a.PathName, ifc[i].Value);
+                    //b.RegisterRemoteSelfValuedModule(ifcmod, a.PathName, ifc[i].Value);
                 }
                 //IMod ic = pd.CreateInterface("QueueService.ModProducer");
                 //AddModAssembly(b, assembly, a.PathName);

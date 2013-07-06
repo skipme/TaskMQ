@@ -12,22 +12,23 @@ namespace TaskBroker
 {
     public class Broker
     {
+        public delegate void RestartApplication();
+        RestartApplication restartApp;
         /*
-
          * consumer stub throughput ratings
                 10000 at 940 ms. tp 1 at ,09ms :: internal module throughput
                 10000 at 3722 ms. tp 1 at ,37 :: external module throughput
          * 
-         * 
-         */ 
-        public Broker()
+         */
+        public Broker(RestartApplication restartApp = null)
         {
             Tasks = new List<QueueTask>();
-            Modules = new ModHolder();
+            Modules = new ModHolder(this);
             MessageChannels = new QueueMTClassificator();
 
             Scheduler = new TaskScheduler.ThreadPool();
             //Scheduler.Allocate();
+            this.restartApp = restartApp;
         }
 
         //public QueueConParams Connections;
@@ -94,21 +95,21 @@ namespace TaskBroker
         //        stub.MI.RegisterTasks(this, stub);
         //    }
         //}
-        //public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
-        //{
-        //    Modules.AddMod(interfaceMod.FullName, new ModMod() { RemoteMod = remote }, this);
-        //}
-
-        public void RegisterRemoteSelfValuedModule(IMod instance, string assemblyPath, bool consumer)
+        public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
         {
-            Modules.AddRemoteMod(new ModMod()
-            {
-                RemoteMod = true,
-                MI = instance,
-                ModAssembly = assemblyPath,
-                Role = consumer ? ExecutionType.Consumer : ExecutionType.Producer
-            }, this);
+            Modules.AddMod(interfaceMod.FullName, new ModMod() { }, this);
         }
+
+        //public void RegisterRemoteSelfValuedModule(IMod instance, string assemblyPath, bool consumer)
+        //{
+        //    Modules.AddRemoteMod(new ModMod()
+        //    {
+        //        RemoteMod = true,
+        //        MI = instance,
+        //        ModAssembly = assemblyPath,
+        //        Role = consumer ? ExecutionType.Consumer : ExecutionType.Producer
+        //    }, this);
+        //}
 
         //public void RegisterSelfValuedModule<C>(bool remote = true)
         //    where C : IMod
@@ -277,27 +278,32 @@ namespace TaskBroker
 
             // Pop item from queue
             ChannelAnteroom ch = MessageChannels.GetAnteroom(task.ChannelName);
-            TaskQueue.Providers.TaskMessage item = ch.Next();
+            TaskQueue.Providers.TaskMessage message = ch.Next();
 
-            if (item == null)
+            if (message == null)
             {
                 Console.WriteLine("consumer empty: {0}", task.ChannelName);
                 task.Suspended = true;
                 return;
             }
-            System.Diagnostics.Stopwatch w = System.Diagnostics.Stopwatch.StartNew();
-            for (int i = 0; i < 10000; i++)
+            //System.Diagnostics.Stopwatch w = System.Diagnostics.Stopwatch.StartNew();
+            //for (int i = 0; i < 10000; i++)
+            //{
+            //    ((IModConsumer)mod.MI).Push(task.Parameters, ref item);
+            //}
+            //w.Stop();
+            //Console.WriteLine("10000 at {0} ms. tp 1 at {1:.00}", w.ElapsedMilliseconds, w.ElapsedMilliseconds / 10000.0);
+            TaskQueue.Providers.TaskMessage item = message;
+
+            bool updated = ((IModConsumer)mod.MI).Push(task.Parameters, ref message);
+            if (updated)
             {
-                ((IModConsumer)mod.MI).Push(task.Parameters, ref item);
+                message.Processed = true;
+                message.ProcessedTime = DateTime.UtcNow;
             }
-            w.Stop();
-            Console.WriteLine("10000 at {0} ms. tp 1 at {1:.00}", w.ElapsedMilliseconds, w.ElapsedMilliseconds / 10000.0);
-            if (((IModConsumer)mod.MI).Push(task.Parameters, ref item))
-            {
-                item.Processed = true;
-                item.ProcessedTime = DateTime.UtcNow;
-                ch.Update(item);
-            }
+            updated = updated || (!Object.ReferenceEquals(item, message));
+            if (updated)
+                ch.Update(message);
         }
 
         public TaskMessage Pop(string channel)
@@ -349,6 +355,14 @@ namespace TaskBroker
         {
             Modules.AddAssembly(path);
         }
+        public void ReloadAssemblys()
+        {
+            // just restart application
+            if (restartApp != null)
+                restartApp();
+            else
+                Console.WriteLine("Can't restart application");
+        }
         //
         public void StopBroker()
         {
@@ -361,8 +375,12 @@ namespace TaskBroker
             }
             //stop isolated threads...
             Scheduler.CloseIsolatedThreads();
-            Tasks.RemoveAll(x => x.Temp);
+            //Tasks.RemoveAll(x => x.Temp);
             Console.WriteLine("Broker has been stopped...");
+        }
+        public void LoadAssemblys()
+        {
+            Modules.AssemblyHolder.LoadAssemblys(this);
         }
         public void RevokeBroker()
         {
@@ -376,23 +394,23 @@ namespace TaskBroker
             }
             UpdatePlan();
         }
-        public void ReloadModules()
-        {
-            StopBroker();
+        //public void ReloadModules()
+        //{
+        //    StopBroker();
 
-            Modules.ReloadModules(this);
-            for (int i = 0; i < Tasks.Count; i++)
-            {
-                QueueTask t = Tasks[i];
-                ModMod module = Modules.GetByName(t.ModuleName);// TODO: extract to method - also link it to tasks registration...
+        //    Modules.ReloadModules(this);
+        //    for (int i = 0; i < Tasks.Count; i++)
+        //    {
+        //        QueueTask t = Tasks[i];
+        //        ModMod module = Modules.GetByName(t.ModuleName);// TODO: extract to method - also link it to tasks registration...
 
-                if (module == null)
-                    throw new Exception("required qmodule not found.");
-                t.Module = module;
-            }
+        //        if (module == null)
+        //            throw new Exception("required qmodule not found.");
+        //        t.Module = module;
+        //    }
 
-            RevokeBroker();
-        }
+        //    RevokeBroker();
+        //}
         ~Broker()
         {
             StopBroker();

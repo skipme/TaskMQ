@@ -22,7 +22,8 @@ namespace TaskBroker
                 BrokerApplication app = (BrokerApplication)Domain.CreateInstanceAndUnwrap(
                     typeof(BrokerApplication).Assembly.FullName,
                     typeof(BrokerApplication).FullName);
-                RunAppInSeparateThread(app);
+                //RunAppInSeparateThread(app);
+                app.Run(sync);
                 // waitfor sync
                 sync.WaitOne();
 
@@ -34,6 +35,7 @@ namespace TaskBroker
                 GC.Collect();
             }
         }
+
         static void RunAppInSeparateThread(BrokerApplication app)
         {
             Thread thread = new Thread(new ParameterizedThreadStart(AppThread));

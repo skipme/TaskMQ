@@ -12,14 +12,20 @@ namespace TaskBroker
     [SecurityPermission(SecurityAction.Demand, Infrastructure = true)]
     public class BrokerApplication : MarshalByRefObject, IDisposable
     {
+        ManualResetEvent Signal;
+
         TaskBroker.Broker broker;
         public void Dispose()
         {
         }
-
+        void Restart()
+        {
+            broker.StopBroker(); // ! stop scheduler and other isolated threads
+            Signal.Set();
+        }
         public void Run(ManualResetEvent signal)
         {
-            broker = new Broker();
+            broker = new Broker(Restart);
             broker.AddAssemblyByPath("QueueService.dll");
             broker.RegisterConnection<MongoDbQueue>("MongoLocalhost",
                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
@@ -34,14 +40,21 @@ namespace TaskBroker
                 Password = "",
                 Server = "smtp.yandex.ru"
             };
-            broker.ReloadModules();
+
+            broker.LoadAssemblys();
+
             broker.RegisterTask(
                 "EmailC", "EmailSender",
-                IntervalType.intervalMilliseconds, 1000, smtp,
+                //IntervalType.intervalMilliseconds, 1000, smtp,
+                IntervalType.withoutInterval, 0, smtp,
                 "Email Common channel consumer on mongo db queue channel");
 
-            broker.StopBroker(); // ! stop scheduler and other isolated threads
-            signal.Set();
+            broker.RevokeBroker();
+            //broker.PushMessage(new EmailConsumer.MailModel());
+            //broker.StopBroker(); // ! stop scheduler and other isolated threads
+            //signal.Set();
+
+            this.Signal = signal;
         }
     }
 }

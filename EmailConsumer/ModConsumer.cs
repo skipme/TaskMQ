@@ -18,6 +18,11 @@ namespace EmailConsumer
             // send email
             bool result = Sender.Send(mail, smtp_p);
 
+            if (!result)
+            {
+                mail.SendErrors++;
+            }
+            q_parameter = mail;
             return result;
         }
 

@@ -13,7 +13,7 @@ namespace TaskBroker
         Consumer = 0x11,
         Producer
     }
-    [Serializable]
+
     public class ModuleSelfTask
     {
         public string ChannelName;
