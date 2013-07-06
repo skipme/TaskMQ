@@ -34,10 +34,12 @@ namespace TaskScheduler
             {
                 foreach (ThreadItem t in threads)
                 {
-                    if (t.StoppedThread)
-                        return false;
+                    /* IsAlive checking if appdomain unloaded(forced stopping)*/
+                    if (t.hThread.IsAlive && 
+                        !t.StoppedThread)
+                        return true;
                 }
-                return true;
+                return false;
             }
         }
         //public void Allocate()

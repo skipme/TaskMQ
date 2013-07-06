@@ -149,8 +149,8 @@ namespace TaskBroker
                 item.Value.ModAssembly = null;
             }
             Modules.Clear();
-            AssemblyHolder.UnloadModules();
-            AssemblyHolder.LoadAssemblys(b);
+            //AssemblyHolder.UnloadModules();
+            //AssemblyHolder.LoadAssemblys(b);
             reloadLocalMods(b);
         }
 

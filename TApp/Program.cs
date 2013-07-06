@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using TaskBroker;
 using TaskBroker.Configuration;
 using TaskScheduler;
@@ -14,6 +15,7 @@ namespace TApp
 {
     class Program
     {
+        static ManualResetEvent sync;
         //netsh http add urlacl url=http://+:82/ user=User
         static void RestartAsAdmin()
         {
@@ -63,6 +65,10 @@ namespace TApp
         }
         static void Main(string[] args)
         {
+            ApplicationKeeper.AppdomainLoop();
+            Console.WriteLine("ok, done");
+            Console.ReadLine();
+            return;
             //var prefix = QueueService.ModProducer.ListeningOn;
             //var username = Environment.GetEnvironmentVariable("USERNAME");
             //var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");

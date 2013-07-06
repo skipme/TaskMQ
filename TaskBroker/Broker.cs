@@ -13,14 +13,9 @@ namespace TaskBroker
     public class Broker
     {
         /*
-         * 
-         * 
-         * 
-         * 
+
          * consumer stub throughput ratings
-
                 10000 at 940 ms. tp 1 at ,09ms :: internal module throughput
-
                 10000 at 3722 ms. tp 1 at ,37 :: external module throughput
          * 
          * 
@@ -160,7 +155,7 @@ namespace TaskBroker
             ModMod module = Modules.GetByName(moduleName);
 
             if (module == null)
-                throw new Exception("required qmodule not found.");
+                throw new Exception("required qmodule not found: " + moduleName);
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
             if (it == TaskScheduler.IntervalType.isolatedThread)
             {
@@ -252,13 +247,6 @@ namespace TaskBroker
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
-            //if (pi.intervalType == TaskScheduler.IntervalType.isolatedThread)
-            //{
-            //    //task.Module.Producer(task.Parameters);
-            //    ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
-            //}
-            //else
-            //{
             switch (task.Module.Role)
             {
                 case ExecutionType.Consumer:
@@ -268,7 +256,6 @@ namespace TaskBroker
                     ProducerEntry(task);
                     break;
             }
-            //}
         }
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
