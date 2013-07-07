@@ -22,13 +22,13 @@ namespace TaskBroker
          */
         public Broker(RestartApplication restartApp = null)
         {
+            this.restartApp = restartApp;
+
             Tasks = new List<QueueTask>();
-            Modules = new ModHolder(this);
+            Scheduler = new TaskScheduler.ThreadPool();
             MessageChannels = new QueueMTClassificator();
 
-            Scheduler = new TaskScheduler.ThreadPool();
-            //Scheduler.Allocate();
-            this.restartApp = restartApp;
+            Modules = new ModHolder(this);
         }
 
         //public QueueConParams Connections;
@@ -167,7 +167,7 @@ namespace TaskBroker
                 Module = module,
                 ModuleName = moduleName,
 
-                Description = Description,
+                //Description = Description,
                 ChannelName = Channel,
                 Parameters = parameters,
 
@@ -175,7 +175,7 @@ namespace TaskBroker
                 intervalValue = intervalValue,
                 planEntry = ep,
 
-                NameAndDescription = Channel
+                NameAndDescription = Description
             };
 
             Tasks.Add(t);
@@ -183,24 +183,23 @@ namespace TaskBroker
             //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
             //    Scheduler.CreateIsolatedThreadForPlan(t);
         }
-        public void RegisterTempTask(ModuleSelfTask mst)
+        public void RegisterTempTask(ModuleSelfTask mst, ModMod module)
         {
             QueueTask t = new QueueTask()
             {
                 ModuleName = mst.ModuleName,
 
-                Description = mst.NameAndDescription,
+                //Description = mst.NameAndDescription,
                 ChannelName = mst.ChannelName,
                 Parameters = null,
 
                 intervalType = mst.intervalType,
                 intervalValue = mst.intervalValue,
-                NameAndDescription = mst.ChannelName
+                NameAndDescription = mst.NameAndDescription
             };
-            ModMod module = Modules.GetByName(t.ModuleName);
-
-            if (module == null)
-                throw new Exception("required qmodule not found.");
+            //ModMod module = Modules.GetByName(t.ModuleName);
+            //if (module == null)
+            //    throw new Exception("required qmodule not found.");
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
             if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
             {
@@ -236,13 +235,13 @@ namespace TaskBroker
         }
         private void UpdatePlan()
         {
-            Scheduler.SetPlan(from t in Tasks select t as TaskScheduler.PlanItem);
-            //List<TaskScheduler.PlanItem> plan = new List<TaskScheduler.PlanItem>();
-            //foreach (QueueTask t in Tasks)
-            //{
-            //    plan.Add(t.Plan);
-            //}
-            //Scheduler.SetPlan(plan);
+            //Scheduler.SetPlan(from t in Tasks select t as TaskScheduler.PlanItem);
+            List<TaskScheduler.PlanItem> plan = new List<TaskScheduler.PlanItem>();
+            foreach (QueueTask t in Tasks)
+            {
+                plan.Add(t);
+            }
+            Scheduler.SetPlan(plan);
         }
 
         private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)

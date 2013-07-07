@@ -32,7 +32,6 @@ namespace TaskBroker
         public ModMod Module;
         public string ModuleName { get; set; }
 
-        public TaskScheduler.PlanItem Plan;
         public bool Temp;
 
         public DateTime NextExecution

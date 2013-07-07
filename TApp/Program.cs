@@ -66,17 +66,17 @@ namespace TApp
 
         static void Main(string[] args)
         {
-            //if (System.Diagnostics.Debugger.IsAttached)
-            //{
-            //    ManualResetEvent mre = new ManualResetEvent(false);
-            //    BrokerApplication ba = new BrokerApplication();
-            //    ba.Run(mre);
-            //    mre.WaitOne();
-            //}
-            //else
-            //{
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                ManualResetEvent mre = new ManualResetEvent(false);
+                BrokerApplication ba = new BrokerApplication();
+                ba.Run(mre);
+                mre.WaitOne();
+            }
+            else
+            {
                 ApplicationKeeper.AppdomainLoop();
-            //}
+            }
             Console.WriteLine("ok, done");
             Console.ReadLine();
             return;

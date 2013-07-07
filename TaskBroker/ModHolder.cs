@@ -106,7 +106,7 @@ namespace TaskBroker
             if (tasks != null)
                 foreach (ModuleSelfTask t in tasks)
                 {
-                    b.RegisterTempTask(t);
+                    b.RegisterTempTask(t, mod);
                 }
         }
         //public void AddRemoteMod(ModMod mod, Broker b)

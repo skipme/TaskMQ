@@ -26,7 +26,8 @@ namespace TaskBroker
         public void Run(ManualResetEvent signal)
         {
             broker = new Broker(Restart);
-            broker.AddAssemblyByPath("QueueService.dll");
+            QueueService.ModProducer m;
+            //broker.AddAssemblyByPath("QueueService.dll");
             broker.RegisterConnection<MongoDbQueue>("MongoLocalhost",
                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
             broker.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",

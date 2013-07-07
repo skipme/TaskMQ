@@ -59,6 +59,10 @@
       <Project>{dab980a3-a5e0-4ffb-b591-99cc4da68fa5}</Project>
       <Name>MSSQLQueue</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QueueService\QueueService.csproj">
+      <Project>{9ca84f01-7a31-4037-8c46-c9a9e958ab6a}</Project>
+      <Name>QueueService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskBroker\TaskBroker.csproj">
       <Project>{68afd08f-6cec-463c-83ad-737f30c2f40b}</Project>
       <Name>TaskBroker</Name>
