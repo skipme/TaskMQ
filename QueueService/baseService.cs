@@ -5,6 +5,7 @@ using ServiceStack.WebHost.Endpoints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace QueueService
@@ -121,14 +122,19 @@ namespace QueueService
     //        return null;
     //    }
     //}
-    public class ngService : RestServiceBase<Dictionary<string, object>>
+    public class ngService : Service
     {
-        public override object OnPut(Dictionary<string, object> m)
+        public object Put(Dictionary<string, object> m)
         {
             // save to db
             TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(m);
-            return null;
+            bool result = QueueService.ModProducer.broker.PushMessage(tm);
+            return new ServiceStack.Common.Web.HttpResult()
+            {
+                StatusCode = result ? HttpStatusCode.Created : HttpStatusCode.InternalServerError
+            };
         }
+
     }
     public class baseService : AppHostHttpListenerBase
     {
@@ -154,7 +160,7 @@ namespace QueueService
             });
 
             Routes
-              .Add<Dictionary<string, object>>("/q", "GET,PUT");
+              .Add<Dictionary<string, object>>("/tmq/q", "GET,PUT");
         }
     }
 }

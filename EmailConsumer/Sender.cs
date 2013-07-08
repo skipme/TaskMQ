@@ -13,7 +13,6 @@ namespace EmailConsumer
     {
         public static bool Send(MailModel model, SmtpModel con)
         {
-            return false;
             MailMessage msg = new MailMessage();
             try
             {
@@ -27,24 +26,31 @@ namespace EmailConsumer
             }
             catch (Exception e)//model error
             {
-                Console.WriteLine("Email sender:: " + e.Message);
+                model.SendErrors = 5;
+                model.LastSError = "please check email model value:" + e.Message;
                 return true;
             }
             // 
             try
             {
-                if (!Send(msg, con))//configuration smtp error
+                if (!Send(msg, con))//configuration smtp error 
                 {
+                    model.SendErrors = 5;
+                    model.LastSError = "some configuration error maybe, please check smtp model value";
                     return false;
                 }
+                else
+                {
+                    model.SendErrors = 0 - model.SendErrors;
+                    return true;
+                }
             }
-            catch (Exception e)
+            catch (Exception e)//or network error
             {
-                Console.WriteLine("Email sender:: " + e.Message);
+                model.SendErrors++;
+                model.LastSError = "unexpected: " + e.Message;
                 return false;
             }
-
-            return false;
         }
         static string loginAddress(string login, string server)
         {

@@ -7,7 +7,7 @@ namespace TaskBroker
     public interface IMod
     {
         void Exit();
-        void Initialise(TaskBroker.ModMod thisModule);
+        void Initialise(Broker context, TaskBroker.ModMod thisModule);
         ModuleSelfTask[] RegisterTasks(TaskBroker.ModMod thisModule);
         
         string Name { get; }

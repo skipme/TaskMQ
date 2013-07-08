@@ -25,9 +25,9 @@ namespace TaskBroker
         {
             MI.Exit();
         }
-        public void InitialiseEntry(TaskBroker.ModMod thisModule)
+        public void InitialiseEntry(Broker context, TaskBroker.ModMod thisModule)
         {
-            MI.Initialise(thisModule);
+            MI.Initialise(context, thisModule);
         }
     }
 
@@ -101,7 +101,7 @@ namespace TaskBroker
             }
             Modules.Add(mod.UniqueName, mod);
 
-            mod.MI.Initialise(mod);
+            mod.MI.Initialise(b, mod);
             ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
             if (tasks != null)
                 foreach (ModuleSelfTask t in tasks)

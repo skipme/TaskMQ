@@ -30,5 +30,6 @@ namespace EmailConsumer
         public string Subject { get; set; }
 
         public int SendErrors { get; set; }
+        public string LastSError { get; set; }
     }
 }

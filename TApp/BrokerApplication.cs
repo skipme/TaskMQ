@@ -35,10 +35,10 @@ namespace TaskBroker
             broker.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
             EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
             {
-                Login = "user",
+                Login = "usr",
                 UseSSL = true,
                 Port = 587,
-                Password = "",
+                Password = "pwd",
                 Server = "smtp.yandex.ru"
             };
 

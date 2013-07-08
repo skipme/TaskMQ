@@ -11,9 +11,15 @@ namespace QueueService
     {
         public const string ListeningOn = "http://localhost:82/";
         baseService appHost;
+        public static Broker broker;
 
-        public void Initialise(TaskBroker.ModMod thisModule)
+        public void Initialise(Broker context, TaskBroker.ModMod thisModule)
         {
+            if (broker != null)
+            {// except 
+            }
+            QueueService.ModProducer.broker = context;
+
             appHost = new baseService();
             appHost.Init();
         }
@@ -34,7 +40,7 @@ namespace QueueService
 
         public void Exit()
         {
-            
+
         }
 
         public ModuleSelfTask[] RegisterTasks(ModMod thisModule)

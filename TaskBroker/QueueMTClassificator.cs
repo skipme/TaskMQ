@@ -14,7 +14,7 @@ namespace TaskBroker
             //MessageModels = new List<MessageType>();
             MChannelsList = new List<MessageChannel>();
             MessageChannels = new Dictionary<string, int>();
-            MessageChannelsModels = new Dictionary<string, int>();
+            MessageChannelsModels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             Anterooms = new Dictionary<string, ChannelAnteroom>();
             Queues = new QueueClassificator();
@@ -53,16 +53,19 @@ namespace TaskBroker
         public MessageChannel GetChannelForMessage(string mtName)
         {
             // first only // ballancer to do
-            //MessageChannel mc = (from mm in MessageChannels
-            //                     where mm.MessageModel.ItemTypeName.Equals(mtName, StringComparison.OrdinalIgnoreCase)
-            //                     select mm).FirstOrDefault();
-            //return mc;
-            return MChannelsList[MessageChannelsModels[mtName]];
+            //return MChannelsList[MessageChannelsModels[mtName]];
+            int v;
+            if (MessageChannelsModels.TryGetValue(mtName, out v))
+            {
+                return MChannelsList[v];
+            }
+            return null;
         }
         public ChannelAnteroom GetAnteroomByMessage(string mtName)
         {
             MessageChannel mc = GetChannelForMessage(mtName);
-
+            if (mc == null)
+                return null;
             return GetAnteroom(mc.UniqueName);
         }
         public MessageChannel GetChannelByName(string name)

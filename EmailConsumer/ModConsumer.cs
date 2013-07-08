@@ -17,11 +17,8 @@ namespace EmailConsumer
 
             // send email
             bool result = Sender.Send(mail, smtp_p);
-
-            if (!result)
-            {
-                mail.SendErrors++;
-            }
+            if (mail.SendErrors > 5)
+                result = true;
             q_parameter = mail;
             return result;
         }
@@ -31,7 +28,7 @@ namespace EmailConsumer
 
         }
 
-        public void Initialise(ModMod thisModule)
+        public void Initialise(Broker context, ModMod thisModule)
         {
             thisModule.Role = TaskBroker.ExecutionType.Consumer;
             thisModule.AcceptsModel = new MailModel();
