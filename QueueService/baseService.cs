@@ -38,7 +38,11 @@ namespace QueueService
         }
         public object Get(ConfigRequest request)
         {
+            if (request.GetMain)
             return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).Serialise();
+            else if (request.GetModules)
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).Serialise();
+            return null;
         }
     }
     public class baseService : AppHostHttpListenerBase

@@ -122,7 +122,7 @@
                   <tr ng-repeat="m in m_main.Tasks">
                     <td>{{m.Description}}
                     </td>
-                    <td>{{m.intervalType}}/{{m.intervalValue}}
+                    <td>{{m.intervalType | intervt}}/{{m.intervalValue}}
                     </td>
                     <td>{{m.ModuleName}}</td>
                     <td>{{m.ChannelName}}
@@ -152,25 +152,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>emailcommon
+                  <tr ng-repeat="m in m_mods.Modules">
+                    <td>{{m.Name}}
                       <br> 
                     </td>
-                    <td>Common email sender consumer
+                    <td>{{m.Description}}
                       <br> 
                     </td>
-                    <td>EmailConsumer
+                    <td>{{m.TypeFullName}}
                       <br> 
                     </td>
-                  </tr>
-                  <tr>
-                    <td>smsgate1
-                      <br> 
-                    </td>
-                    <td>Consumer for sms gate 1
-                      <br> 
-                    </td>
-                    <td>SmsConsumer</td>
                   </tr>
                 </tbody>
               </table>
@@ -198,27 +189,16 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>cemail
+                  <tr ng-repeat="m in m_main.Channels">
+                    <td>{{m.Name}}
                       <br> 
                     </td>
-                    <td>mongoEmail</td>
-                    <td>email
+                    <td>{{m.connectionName}}</td>
+                    <td>{{m.messageModel.TypeFullName}}
                       <br> 
                     </td>
                     <td>{To:string, Body:string}</td>
                     <td>20/sec</td>
-                  </tr>
-                  <tr>
-                    <td>csms
-                      <br> 
-                    </td>
-                    <td>mongoSMS</td>
-                    <td>sms
-                      <br> 
-                    </td>
-                    <td>{num:string, text:string}</td>
-                    <td>10/sec</td>
                   </tr>
                 </tbody>
               </table>
@@ -248,32 +228,22 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>mongoEmail
+                  <tr ng-repeat="m in m_main.Connections">
+                    <td>{{m.Name}}
                       <br> 
                     </td>
-                    <td>MongoDBQ
+                    <td>{{m.queueTypeName}}
                       <br> 
                     </td>
-                    <td>mongodb://user:1234@localhost:27017/?safe=true
+                    <td>{{m.connectionString}}
                       <br> 
                     </td>
-                    <td>Messages/email
+                    <td>{{m.database}}/{{m.collection}}
                       <br> 
                     </td>
                     <td>15</td>
                   </tr>
-                  <tr>
-                    <td>mongoSMS
-                      <br> 
-                    </td>
-                    <td>MongoDBQ</td>
-                    <td>mongodb://user:1234@localhost:27017/?safe=true</td>
-                    <td>Messages/sms
-                      <br> 
-                    </td>
-                    <td>12</td>
-                  </tr>
+
                 </tbody>
               </table>
             </div>
@@ -309,33 +279,21 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>mongoEmail
+                    <td>-
                       <br> 
                     </td>
-                    <td>MongoDBQ
+                    <td>-
                       <br> 
                     </td>
                     <td>
                       <br> 
                     </td>
-                    <td>Messages/email
+                    <td>-
                       <br> 
                     </td>
-                    <td>15</td>
+                    <td>-</td>
                   </tr>
-                  <tr>
-                    <td>mongoSMS
-                      <br> 
-                    </td>
-                    <td>MongoDBQ</td>
-                    <td>
-                      <br> 
-                    </td>
-                    <td>Messages/sms
-                      <br> 
-                    </td>
-                    <td>12</td>
-                  </tr>
+
                 </tbody>
               </table>
               <table></table>
