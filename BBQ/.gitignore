@@ -1,9 +1,10 @@
 *.dll
 *.pdb
 *.suo
+*.user
 *.nupkg
 *.obj
 *.exe
 Thumbs.db
 bin/
-obj/
+obj

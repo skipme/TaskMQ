@@ -1,0 +1,347 @@
+﻿@{
+    ViewBag.Title = "Map";
+    Layout = "~/Views/Shared/_L.cshtml";
+}
+
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="#">TaskMQ</a>
+          <div class="navbar-content">
+            <ul class="nav  pull-right">
+              <li class="active">
+                <a href="#">AdminPanel</a> 
+              </li>
+              <li>
+                <a href="#">Dashboard</a> 
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="page-header">
+        <h1>BBQ&nbsp;
+          <sup>configuration editor</sup>
+          <br> 
+        </h1>
+      </div>
+      <div class="alert alert-info hidden-phone">
+        <a class="close" data-dismiss="alert">×</a>
+        <span>
+          <b>Ready to dive in?</b>&nbsp;Click the page name dropdown in the top left
+          and create a new page using the embedded form.</span> 
+      </div>
+      <div class="alert alert-block">
+        <b>Warning!</b> Parameters changed, required server reconfiguration.
+        <div class="btn-group pull-right">
+          <button class="btn btn-warning" data-toggle="dropdown" href="#">Action</button>
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+    <span class="caret"></span>
+  </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="#">Rollback changes</a> 
+            </li>
+            <li>
+              <a href="#">Commit changes</a> 
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-block">
+        <b>Warning!</b> Assembly sources changed, restart requied.
+        <div class="btn-group pull-right">
+          <button class="btn btn-danger" data-toggle="dropdown" href="#">Action</button>
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+    <span class="caret"></span>
+  </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="#">Rollback </a> 
+            </li>
+            <li>
+              <a href="#">Commit And Restart</a> 
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li>
+            <a href="#persp" data-toggle="tab">Service</a> 
+          </li>
+          <li class="active">
+            <a href="#servp" data-toggle="tab">Entities</a> 
+          </li>
+          <li>
+            <a href="#assemblys" data-toggle="tab">Assemblys</a> 
+          </li>
+        </ul>
+        <div class="tab-content row">
+          <div id="persp" class="tab-pane span11">
+            <div class="well">
+              <h4>Tasks
+                <br> 
+              </h4>
+              <p>The important part for bunching all components
+                <br> 
+              </p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>description
+                      <br> 
+                    </th>
+                    <th>interval/val
+                      <br> 
+                    </th>
+                    <th>module</th>
+                    <th>channel</th>
+                    <th>parameters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>email default consumer
+                      <br> 
+                    </td>
+                    <td>ms/500
+                      <br> 
+                    </td>
+                    <td>emailcommon</td>
+                    <td>email
+                      <br> 
+                    </td>
+                    <td>{login:usr, password:pwd, ssl:true,port:587, server:smtp.yandex.ru}</td>
+                  </tr>
+                  <tr>
+                    <td>sms sender
+                      <br> 
+                    </td>
+                    <td>ms/600</td>
+                    <td>smsgate1
+                      <br> 
+                    </td>
+                    <td>sms
+                      <br> 
+                    </td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="well">
+              <h4>Modules
+                <br> 
+              </h4>
+              <p>Service components
+                <br> 
+              </p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>name
+                      <br> 
+                    </th>
+                    <th>description
+                      <br> 
+                    </th>
+                    <th>assembly</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>emailcommon
+                      <br> 
+                    </td>
+                    <td>Common email sender consumer
+                      <br> 
+                    </td>
+                    <td>EmailConsumer
+                      <br> 
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>smsgate1
+                      <br> 
+                    </td>
+                    <td>Consumer for sms gate 1
+                      <br> 
+                    </td>
+                    <td>SmsConsumer</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="servp" class="tab-pane span11 active">
+            <div class="well">
+              <h4>Channels</h4>
+              <h4></h4>
+              <p>Message model typing
+                <br> 
+              </p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>id
+                      <br> 
+                    </th>
+                    <th>connection</th>
+                    <th>Mtype(name)
+                      <br> 
+                    </th>
+                    <th>model</th>
+                    <th>throughput</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>cemail
+                      <br> 
+                    </td>
+                    <td>mongoEmail</td>
+                    <td>email
+                      <br> 
+                    </td>
+                    <td>{To:string, Body:string}</td>
+                    <td>20/sec</td>
+                  </tr>
+                  <tr>
+                    <td>csms
+                      <br> 
+                    </td>
+                    <td>mongoSMS</td>
+                    <td>sms
+                      <br> 
+                    </td>
+                    <td>{num:string, text:string}</td>
+                    <td>10/sec</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="well">
+              <h4>Connections
+                <br> 
+              </h4>
+              <h4></h4>
+              <p>Contains persitant part
+                <br> 
+              </p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>id
+                      <br> 
+                    </th>
+                    <th>queue</th>
+                    <th>connection string
+                      <br> 
+                    </th>
+                    <th>database/collection(table)</th>
+                    <th>currentLevel
+                      <br> 
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>mongoEmail
+                      <br> 
+                    </td>
+                    <td>MongoDBQ
+                      <br> 
+                    </td>
+                    <td>mongodb://user:1234@localhost:27017/?safe=true
+                      <br> 
+                    </td>
+                    <td>Messages/email
+                      <br> 
+                    </td>
+                    <td>15</td>
+                  </tr>
+                  <tr>
+                    <td>mongoSMS
+                      <br> 
+                    </td>
+                    <td>MongoDBQ</td>
+                    <td>mongodb://user:1234@localhost:27017/?safe=true</td>
+                    <td>Messages/sms
+                      <br> 
+                    </td>
+                    <td>12</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="assemblys" class="tab-pane span11">
+            <div style="" class="well tab-pane active">
+              <h4>Assembly paths
+                <br> 
+              </h4>
+              <h4></h4>
+              <p>Contains assemblys whose contains modules
+                <br> 
+              </p>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>path
+                      <br> 
+                    </th>
+                    <th>project location
+                      <br> 
+                    </th>
+                    <th>git repo
+                      <br> 
+                    </th>
+                    <th>current version / timestamp / wh
+                      <br> 
+                    </th>
+                    <th>auto rebuild
+                      <br> 
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>mongoEmail
+                      <br> 
+                    </td>
+                    <td>MongoDBQ
+                      <br> 
+                    </td>
+                    <td>
+                      <br> 
+                    </td>
+                    <td>Messages/email
+                      <br> 
+                    </td>
+                    <td>15</td>
+                  </tr>
+                  <tr>
+                    <td>mongoSMS
+                      <br> 
+                    </td>
+                    <td>MongoDBQ</td>
+                    <td>
+                      <br> 
+                    </td>
+                    <td>Messages/sms
+                      <br> 
+                    </td>
+                    <td>12</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table></table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>           
