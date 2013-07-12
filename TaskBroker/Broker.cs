@@ -151,7 +151,7 @@ namespace TaskBroker
         public void RegisterTask(string Channel, string moduleName,
             IntervalType it = IntervalType.intervalMilliseconds,
             long intervalValue = 100,
-            TItemModel parameters = null, string Description = "-")
+            Dictionary<string, object> parameters = null, string Description = "-")
         {
             ModMod module = Modules.GetByName(moduleName);
 

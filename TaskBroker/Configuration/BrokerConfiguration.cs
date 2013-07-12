@@ -25,18 +25,19 @@ namespace TaskBroker.Configuration
                           {
                               connectionName = cc.ConnectionName,
                               Name = cc.UniqueName,
-                              messageModel = new cModel() { TypeFullName = cc.MessageModel.GetType().FullName },
+                              messageModel = new cModel() { TypeFullName = cc.MessageType },
                           }).ToArray();
 
             c.Tasks = (from tt in b.Tasks
                        select new cTask()
                        {
                            intervalType = tt.intervalType,
-                           Description = tt.Description,
+                           Description = tt.NameAndDescription,
                            ChannelName = tt.ChannelName,
                            intervalValue = tt.intervalValue,
                            ModuleName = tt.Module.UniqueName,
-                           parameters = tt.Parameters == null ? null : tt.Parameters.ToDictionary()
+                           parameters = tt.Parameters == null ? null : tt.Parameters,
+                           Auto = tt.Temp
                        }).ToArray();
 
             return c;
@@ -50,6 +51,7 @@ namespace TaskBroker.Configuration
                          {
                              TypeFullName = mm.Value.MI.GetType().FullName,
                              Name = mm.Key,
+                             Description = mm.Value.Description,
                              Role = mm.Value.Role
                          }).ToArray();
 

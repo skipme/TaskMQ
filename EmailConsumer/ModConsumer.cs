@@ -9,7 +9,7 @@ namespace EmailConsumer
 {
     public class ModConsumer : IModConsumer
     {
-        public bool Push(TItemModel parameters, ref TaskMessage q_parameter)
+        public bool Push(Dictionary<string, object> parameters, ref TaskMessage q_parameter)
         {
             //Send
             SmtpModel smtp_p = new SmtpModel(parameters);
@@ -30,9 +30,7 @@ namespace EmailConsumer
 
         public void Initialise(Broker context, ModMod thisModule)
         {
-            thisModule.Role = TaskBroker.ExecutionType.Consumer;
-            thisModule.AcceptsModel = new MailModel();
-            thisModule.ParametersModel = new SmtpModel();
+            //thisModule.Role = TaskBroker.ExecutionType.Consumer;
         }
 
         public string Name
@@ -49,6 +47,17 @@ namespace EmailConsumer
         public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
         {
             return null;
+        }
+
+
+        public TItemModel ParametersModel
+        {
+            get { return new SmtpModel(); }
+        }
+
+        public TItemModel AcceptsModel
+        {
+            get { return new MailModel(); }
         }
     }
 }

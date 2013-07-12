@@ -24,11 +24,11 @@ namespace TaskBroker
     }
     public class QueueTask : TaskScheduler.PlanItem 
     {
-        public string Description;
+        //public string Description;
 
         public string ChannelName;
         public bool MinChannelOccupancyDirection;
-        public TItemModel Parameters;
+        public Dictionary<string, object> Parameters;
         public ModMod Module;
         public string ModuleName { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TaskQueue.Providers;
 
 namespace TaskBroker
@@ -15,7 +16,15 @@ namespace TaskBroker
     }
     public interface IModConsumer : IMod
     {
-        bool Push(TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
+        bool Push(Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter);
+        TaskQueue.Providers.TItemModel ParametersModel
+        {
+            get;
+        }
+        TaskQueue.Providers.TItemModel AcceptsModel
+        {
+            get;
+        }
     }
     public interface IModProducer : IMod
     {
@@ -23,7 +32,7 @@ namespace TaskBroker
     }
     public interface IModIsolatedProducer : IMod
     {
-        void IsolatedProducer(TItemModel parameters);
+        void IsolatedProducer(Dictionary<string, object> parameters);
         void IsolatedProducerStop();
     }
 }

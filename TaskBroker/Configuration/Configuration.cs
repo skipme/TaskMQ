@@ -12,18 +12,22 @@ namespace TaskBroker.Configuration
     [Serializable]
     public class RepresentedConfiguration
     {
-        public byte[] Serialise()
+        public byte[] Serialise(Encoding enc = null)
         {
+            if (enc == null)
+                enc = Encoding.UTF8;
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
 
-            return Encoding.Unicode.GetBytes(v);
+            return enc.GetBytes(v);
         }
-        public static T DeSerialiseXml<T>(byte[] data)
+        public static T DeSerialiseXml<T>(byte[] data, Encoding enc = null)
             where T : RepresentedConfiguration
         {
+            if (enc == null)
+                enc = Encoding.UTF8;
             XmlSerializer xs = new XmlSerializer(typeof(T));
             MemoryStream memoryStream = new MemoryStream(data);
-            XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.Unicode);
+            XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, enc);
 
             return xs.Deserialize(memoryStream) as T;
         }
@@ -52,6 +56,7 @@ namespace TaskBroker.Configuration
 
         public string ChannelName { get; set; }
         public string ModuleName { get; set; }
+        public bool Auto { get; set; }
     }
     [Serializable]
     public class cChannel
@@ -71,6 +76,7 @@ namespace TaskBroker.Configuration
     public class cModule
     {
         public string Name { get; set; }
+        public string Description { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
         public string TypeFullName { get; set; }
     }

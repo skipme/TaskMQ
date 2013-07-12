@@ -25,8 +25,8 @@ namespace TaskBroker
         }
 
         public string UniqueName { get; set; }
-        public TaskQueue.Providers.TItemModel MessageModel { get; set; }
-        //public string QueueName { get; set; }
+        //public TaskQueue.Providers.TItemModel MessageModel { get; set; }
+        public string MessageType { get; set; }
         public TaskQueue.ITQueue QueueInstance { get; set; }
         public TaskQueue.TQItemSelector consumerSelector { get; set; }
         public string ConnectionName { get; set; }

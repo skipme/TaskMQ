@@ -31,7 +31,7 @@ namespace TApp
         }
         class zConsumer : IModConsumer
         {
-            public bool Push(TaskQueue.Providers.TItemModel parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
+            public bool Push(Dictionary<string, object> parameters, ref TaskQueue.Providers.TaskMessage q_parameter)
             {
                 Console.WriteLine("zMessage: {0} - {1} {2}", q_parameter.GetHolder()["MType"], q_parameter.AddedTime, q_parameter.GetHolder()["_id"]);
                 return true;
@@ -54,13 +54,24 @@ namespace TApp
 
             public string Description
             {
-                get { throw new NotImplementedException(); }
+                get { return null; }
             }
 
 
             public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
             {
                 return null;
+            }
+
+
+            public TaskQueue.Providers.TItemModel ParametersModel
+            {
+                get { return null; }
+            }
+
+            public TaskQueue.Providers.TItemModel AcceptsModel
+            {
+                get { return new zModel(); }
             }
         }
 

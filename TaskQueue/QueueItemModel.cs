@@ -6,8 +6,6 @@ using System.Text;
 
 namespace TaskQueue
 {
-
-
     public class QueueItemModel
     {
         public ValueMap<string, QueueItemModelValue> schema = new ValueMap<string, QueueItemModelValue>();

@@ -23,7 +23,7 @@ namespace QueueService
             appHost = new baseService();
             appHost.Init();
         }
-        public void IsolatedProducer(TItemModel parameters)
+        public void IsolatedProducer(Dictionary<string, object> parameters)
         {
             appHost.Start(ListeningOn);
 

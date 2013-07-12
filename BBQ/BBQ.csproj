@@ -39,6 +39,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ServiceStack">
+      <HintPath>..\packages\ServiceStack.3.9.55\lib\net35\ServiceStack.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Common">
+      <HintPath>..\packages\ServiceStack.Common.3.9.55\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces">
+      <HintPath>..\packages\ServiceStack.Common.3.9.55\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.55\lib\ServiceStack.OrmLite.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.OrmLite.SqlServer">
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.55\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Redis">
+      <HintPath>..\packages\ServiceStack.Redis.3.9.55\lib\net35\ServiceStack.Redis.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.ServiceInterface">
+      <HintPath>..\packages\ServiceStack.3.9.55\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\packages\ServiceStack.Text.3.9.55\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.Entity" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -99,9 +123,10 @@
     <Content Include="Content\flatui\bootstrap-docs.css" />
     <Content Include="Content\flatui\bootstrap-responsive.css" />
     <Content Include="Content\flatui\bootstrap.css" />
+    <Content Include="Content\flatui\cf.css" />
     <Content Include="Content\flatui\flat-ui.css" />
-    <Content Include="Content\flatui\fonts\Flat-UI-Icons.dev.svg" />
-    <Content Include="Content\flatui\fonts\Flat-UI-Icons.svg" />
+    <Content Include="Content\fonts\Flat-UI-Icons.dev.svg" />
+    <Content Include="Content\fonts\Flat-UI-Icons.svg" />
     <Content Include="Content\flatui\images\demo\browser-2x.png" />
     <Content Include="Content\flatui\images\demo\browser-author.jpg" />
     <Content Include="Content\flatui\images\demo\browser-pic-1.jpg" />
@@ -155,14 +180,16 @@
     <Content Include="Content\flatui\images\video\volume-full.png" />
     <Content Include="Content\flatui\images\video\volume-off-2x.png" />
     <Content Include="Content\flatui\images\video\volume-off.png" />
-    <Content Include="Content\flatui\img\glyphicons-halflings-white.png" />
-    <Content Include="Content\flatui\img\glyphicons-halflings.png" />
+    <Content Include="Content\img\glyphicons-halflings-white.png" />
+    <Content Include="Content\img\glyphicons-halflings.png" />
     <Content Include="Content\flatui\js\application.js" />
     <Content Include="Content\flatui\js\google-code-prettify\prettify.js" />
     <Content Include="Content\flatui\js\holder.js" />
     <Content Include="Content\flatui\prettify.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\application.js" />
+    <Content Include="Scripts\bbq\application.js" />
+    <Content Include="Scripts\bbq\app_ui.js" />
     <Content Include="Scripts\bootstrap-select.js" />
     <Content Include="Scripts\bootstrap-switch.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -195,13 +222,16 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\flatui\fonts\Flat-UI-Icons.eot" />
-    <Content Include="Content\flatui\fonts\Flat-UI-Icons.ttf" />
-    <Content Include="Content\flatui\fonts\Flat-UI-Icons.woff" />
-    <Content Include="Content\flatui\fonts\icomoon-session.json" />
+    <Content Include="Content\fonts\Flat-UI-Icons.eot" />
+    <Content Include="Content\fonts\Flat-UI-Icons.ttf" />
+    <Content Include="Content\fonts\Flat-UI-Icons.woff" />
+    <Content Include="Content\fonts\icomoon-session.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\bbq\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_L.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

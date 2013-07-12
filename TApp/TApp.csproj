@@ -82,11 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationKeeper.cs" />
-    <Compile Include="App_Start\AppHost.cs" />
     <Compile Include="BrokerApplication.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebServiceExamples.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EmailConsumer\EmailConsumer.csproj">
@@ -120,12 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Content\js\ss-validation.js" />
-    <Content Include="default.htm" />
-    <Content Include="jqunback-1.51.min.js" />
-    <Content Include="README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

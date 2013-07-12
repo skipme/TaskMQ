@@ -8,14 +8,13 @@ using TaskBroker.Assemblys;
 
 namespace TaskBroker
 {
-    [Serializable]
     public class ModMod
     {
         public string UniqueName { get { return MI.Name; } }
         public string Description { get { return MI.Description; } }
 
-        public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
-        public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
+        //public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
+        //public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
 
         public string ModAssembly { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }

@@ -2,9 +2,22 @@
     ViewBag.Title = "Map";
     Layout = "~/Views/Shared/_L.cshtml";
 }
+@section scripts {
+    <script src="http://todomvc.com/architecture-examples/angularjs/bower_components/angular/angular.js"></script>
+    <script src="@Url.Content("Scripts/bbq/application.js")"></script>
+    <script src="@Url.Content("Scripts/bbq/app_ui.js")"></script>
+
+     
+    <script>
+        //var bbqmvc = angular.module('bbq', []);
+        //bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
+        //    var m_main = $scope.m_main = bbq_tmq.m_main;
+        //});
+    </script>
+}
 
 
-    <div class="navbar navbar-fixed-top">
+       <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#">TaskMQ</a>
@@ -21,13 +34,15 @@
         </div>
       </div>
     </div>
-    <div class="container">
+    <div class="container" ng-app="bbq" data-framework="angularjs">
       <div class="page-header">
         <h1>BBQ&nbsp;
           <sup>configuration editor</sup>
           <br> 
         </h1>
       </div>
+
+
       <div class="alert alert-info hidden-phone">
         <a class="close" data-dismiss="alert">×</a>
         <span>
@@ -68,12 +83,12 @@
           </ul>
         </div>
       </div>
-      <div class="tabbable">
+      <div class="tabbable" ng-controller="bbqCtrl">
         <ul class="nav nav-tabs">
-          <li>
+          <li class="active">
             <a href="#persp" data-toggle="tab">Service</a> 
           </li>
-          <li class="active">
+          <li>
             <a href="#servp" data-toggle="tab">Entities</a> 
           </li>
           <li>
@@ -81,7 +96,7 @@
           </li>
         </ul>
         <div class="tab-content row">
-          <div id="persp" class="tab-pane span11">
+          <div id="persp" class="tab-pane span11 active">
             <div class="well">
               <h4>Tasks
                 <br> 
@@ -104,31 +119,15 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>email default consumer
-                      <br> 
+                  <tr ng-repeat="m in m_main.Tasks">
+                    <td>{{m.Description}}
                     </td>
-                    <td>ms/500
-                      <br> 
+                    <td>{{m.intervalType}}/{{m.intervalValue}}
                     </td>
-                    <td>emailcommon</td>
-                    <td>email
-                      <br> 
+                    <td>{{m.ModuleName}}</td>
+                    <td>{{m.ChannelName}}
                     </td>
-                    <td>{login:usr, password:pwd, ssl:true,port:587, server:smtp.yandex.ru}</td>
-                  </tr>
-                  <tr>
-                    <td>sms sender
-                      <br> 
-                    </td>
-                    <td>ms/600</td>
-                    <td>smsgate1
-                      <br> 
-                    </td>
-                    <td>sms
-                      <br> 
-                    </td>
-                    <td></td>
+                    <td>{{m.parameters | long}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -177,7 +176,7 @@
               </table>
             </div>
           </div>
-          <div id="servp" class="tab-pane span11 active">
+          <div id="servp" class="tab-pane span11">
             <div class="well">
               <h4>Channels</h4>
               <h4></h4>

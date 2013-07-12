@@ -11,33 +11,28 @@ namespace TaskBroker
     {
         public QueueMTClassificator()
         {
-            //MessageModels = new List<MessageType>();
             MChannelsList = new List<MessageChannel>();
             MessageChannels = new Dictionary<string, int>();
             MessageChannelsModels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             Anterooms = new Dictionary<string, ChannelAnteroom>();
             Queues = new QueueClassificator();
-            //Connections = new QueueConParams();
             Connections = new Dictionary<string, QueueConnectionParameters>();
         }
         public void AddConnection(QueueConnectionParameters conParameters)
         {
-            //Connections.Add(conParameters);
             Connections.Add(conParameters.Name, conParameters);
-        }
-        public void AddMessageType(MessageType mt)
-        {
-            //MessageModels.Add(mt);
         }
         public void AddMessageChannel<T>(MessageChannel mc)
             where T : TaskQueue.Providers.TItemModel
         {
-            mc.MessageModel = Activator.CreateInstance<T>();
+            //mc.MessageModel = Activator.CreateInstance<T>();
+            TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
+            mc.MessageType = tim.ItemTypeName;
             lock (MChannelsList)
             {
                 MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
-                MessageChannelsModels.Add(mc.MessageModel.ItemTypeName, MChannelsList.Count);
+                MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
                 MChannelsList.Add(mc);
             }
             ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
@@ -97,7 +92,8 @@ namespace TaskBroker
                 anteroom.Queue = (TaskQueue.ITQueue)Activator.CreateInstance(qparams.QueueInstance.GetType()); //Queues.GetQueue(mc.QueueName);
                 try
                 {
-                    anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
+                    //anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
+                    anteroom.Queue.InitialiseFromModel(new QueueItemModel(typeof(TaskMessage)), qparams);// schema free only queue providers (exclude sql server)
                     Anterooms.Add(name, anteroom);
 
                     return anteroom;
