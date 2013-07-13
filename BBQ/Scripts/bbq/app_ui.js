@@ -13,6 +13,8 @@
         $scope.m_main = null;
         $scope.m_mods = null;
 
+        $scope.triggers = { Info: false, wReset: false, wRestart: false };
+
         bbq_tmq.syncFrom(function (d) {
             $scope.m_main = d;
             $scope.$apply();

@@ -26,6 +26,13 @@ TQItemSelector selector = new TQItemSelector("Processed", false)
 
 And a very important feature of queues: after module process message you can keep message in queue and, or, change field values.
 
+##Configuration, Statistics, Web-access##
+
+Default access module implemented with service stack and self-hosted within application, so you can simply push messages with http protocol at **tmq/q** with PUT method, also at **tmq/c** open access to the configuration. **BBQ** is web interface for simply view and modify all entities on taskmq server, show statictics, maintain queues.
+
+BBQ web interface: <br />![BBQ TaskMQ](doc/tmq-bbq.png "TaskMQ :: BBQ")
+
+
 Other stuff
 -------------
 Blueprint project, message queue service with task scheduler<br />
