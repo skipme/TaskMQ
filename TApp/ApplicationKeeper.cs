@@ -15,6 +15,7 @@ namespace TaskBroker
             sync = new ManualResetEvent(false);
             while (true)
             {
+                sync.Reset();
                 // create appdomain
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 AppDomain Domain = AppDomain.CreateDomain("ApplicationKeeper", null, setup);
