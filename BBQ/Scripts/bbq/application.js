@@ -25,29 +25,32 @@
     {
         return url + "?format=json&callback=?";
     }
+
     function getServiceModel(succ, err)
     {
-        //$.ajax({
-        //    url: url_cb_js(url_c),
-        //    contentType: "",
-        //    data: null,
-        //    type: 'GET',
-        //    success: function (d) {
-        //        main_cmodel = bbq_tmq.m_main = $.parseJSON(d);
-        //        succ(bbq_tmq.m_main);
-        //    },
-        //    error: err
-        //});
-        $.getJSON(url_cb_js(url_c), {GetMain: true }, function (data) {
+        jsonp(function (data) {
             main_cmodel = bbq_tmq.m_main = data;
             succ(main_cmodel);
-        });
+        }, err, { GetMain: true });
     }
-    function getModsModel(succ, err) {
-        $.getJSON(url_cb_js(url_c), {GetModules: true}, function (data) {
+    function getModsModel(succ, err)
+    {
+        jsonp(function (data) {
             mods_cmodel = bbq_tmq.m_mods = data;
             succ(mods_cmodel);
-        });
+        }, err, { GetModules: true });
+    }
+    function jsonp(succ, err, data)
+    {
+        $.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000 })
+            .done(function (data) {
+                mods_cmodel = bbq_tmq.m_mods = data;
+                succ(mods_cmodel);
+            }).fail(function () {
+                console.log("error at: " + url_c);
+                if (err)
+                    err();
+            });
     }
     resetModels();
 
