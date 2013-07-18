@@ -2746,3 +2746,7 @@ body.vjs-full-window {
     border-bottom-color: #34495E !important;
     border-top-color: #34495E !important;
 }
+
+.btn-small [class^="icon-"], .btn-small [class*=" icon-"] {
+    margin-top: 4px;
+}

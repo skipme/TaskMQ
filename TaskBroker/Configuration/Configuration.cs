@@ -79,6 +79,7 @@ namespace TaskBroker.Configuration
         public string Description { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
         public string TypeFullName { get; set; }
+        public Dictionary<string, string> ParametersModel { get; set; }
     }
     [Serializable]
     public class cConnection

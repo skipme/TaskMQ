@@ -50,12 +50,12 @@ namespace EmailConsumer
         }
 
 
-        public TItemModel ParametersModel
+        public TaskQueue.Providers.TItemModel ParametersModel
         {
             get { return new SmtpModel(); }
         }
 
-        public TItemModel AcceptsModel
+        public TaskQueue.Providers.TItemModel AcceptsModel
         {
             get { return new MailModel(); }
         }

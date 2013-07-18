@@ -9,7 +9,7 @@ namespace TaskQueue.Providers
     {
         //public static Dictionary<string, Queue<ITItem>> collections = new Dictionary<string, Queue<ITItem>>();
 
-        QueueItemModel m { get; set; }
+        RepresentedModel m { get; set; }
         string CollectionName { get; set; }
 
         //Queue<ITItem> baseQueue
@@ -28,7 +28,7 @@ namespace TaskQueue.Providers
         {
             baseQueue = new Queue<Providers.TaskMessage>();
         }
-        public MemQueue(QueueItemModel model, QueueConnectionParameters connection)
+        public MemQueue(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.InitialiseFromModel(model, connection);
         }
@@ -48,7 +48,7 @@ namespace TaskQueue.Providers
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.m = model;
             CollectionName = connection.Collection;

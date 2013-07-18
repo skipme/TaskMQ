@@ -23,7 +23,7 @@ namespace TaskQueue.Providers
         public void SetHolder(Dictionary<string, object> msgDict)
         {
             Type t = this.GetType();
-            QueueItemModel model = new QueueItemModel(t);
+            //RepresentedModel model = new RepresentedModel(t);
             foreach (KeyValuePair<string, object> v in msgDict)
             {
                 PropertyInfo pi = t.GetProperty(v.Key);
@@ -64,7 +64,7 @@ namespace TaskQueue.Providers
         void SetProps()
         {
             Type t = this.GetType();
-            QueueItemModel model = new QueueItemModel(t);
+            RepresentedModel model = new RepresentedModel(t);
             foreach (string k in model.schema.val1)
             {
                 PropertyInfo pi = t.GetProperty(k);

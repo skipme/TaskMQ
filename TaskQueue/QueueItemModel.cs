@@ -6,13 +6,24 @@ using System.Text;
 
 namespace TaskQueue
 {
-    public class QueueItemModel
+    public class RepresentedModel
     {
         public ValueMap<string, QueueItemModelValue> schema = new ValueMap<string, QueueItemModelValue>();
+        public static RepresentedModel Empty
+        {
+            get
+            {
+                return new RepresentedModel()
+                {
 
-        public QueueItemModel(Type classWithProps)
+                };
+            }
+        }
+        private RepresentedModel() { }
+        public RepresentedModel(Type classWithProps)
         {
             PropertyInfo[] props = classWithProps.GetProperties();
+
             foreach (PropertyInfo prop in props)
             {
                 if (prop.CanRead && prop.CanWrite)
@@ -20,9 +31,13 @@ namespace TaskQueue
                     bool isnull;
                     TItemValue_Type itv = GetRType(prop.PropertyType, out isnull);
                     QueueItemModelValue sch_v = new QueueItemModelValue(itv);
-                    foreach (TQModelProp attr in prop.GetCustomAttributes(typeof(TQModelProp), false))
+
+                    TQModelProp[] attrs = (TQModelProp[])prop.GetCustomAttributes(typeof(TQModelProp), false);
+                    if (attrs.Length > 0)
                     {
-                        sch_v.Description = attr.Description;
+                        sch_v.Description = attrs[0].Description;
+                        if (attrs[0].Ignore)
+                            continue;
                     }
                     schema.Add(prop.Name, sch_v);
                 }

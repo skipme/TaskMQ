@@ -52,7 +52,7 @@ namespace MSSQLQueue
         public string TableName { get; set; }
         public List<SqlColumn> Columns { get; set; }
 
-        public SqlTable(TaskQueue.QueueItemModel model, string tableName)
+        public SqlTable(TaskQueue.RepresentedModel model, string tableName)
         {
             TableName = tableName;
 

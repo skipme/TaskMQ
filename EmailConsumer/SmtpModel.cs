@@ -28,6 +28,7 @@ namespace EmailConsumer
         [TaskQueue.TQModelProp("See OverrideCertificateSecurity prop")]
         public string OverrideX509CertificateSerial { get; set; }
 
+        [TaskQueue.TQModelProp(true)]
         public override string ItemTypeName
         {
             get

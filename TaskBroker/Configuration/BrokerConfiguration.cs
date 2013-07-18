@@ -52,7 +52,8 @@ namespace TaskBroker.Configuration
                              TypeFullName = mm.Value.MI.GetType().FullName,
                              Name = mm.Key,
                              Description = mm.Value.Description,
-                             Role = mm.Value.Role
+                             Role = mm.Value.Role,
+                             ParametersModel = mm.Value.ParametersModel.schema.ALL().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString())
                          }).ToArray();
 
             return c;

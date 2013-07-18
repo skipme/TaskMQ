@@ -36,10 +36,10 @@ namespace TaskBroker
         public MessageType(TaskMessage model)
         {
             UniqueName = model.MType;
-            Model = new TaskQueue.QueueItemModel(model.GetType());
+            Model = new TaskQueue.RepresentedModel(model.GetType());
         }
         public MessageType() { }
         public string UniqueName { get; set; }
-        public TaskQueue.QueueItemModel Model { get; set; }
+        public TaskQueue.RepresentedModel Model { get; set; }
     }
 }

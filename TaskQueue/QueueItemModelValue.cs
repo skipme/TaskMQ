@@ -9,10 +9,15 @@ namespace TaskQueue
     public class TQModelProp : Attribute
     {
         public string Description;
+        public bool Ignore { get; set; }
 
         public TQModelProp(string Description)
         {
             this.Description = Description;
+        }
+        public TQModelProp(bool ignore)
+        {
+            this.Ignore = ignore;
         }
     }
     public class QueueItemModelValue

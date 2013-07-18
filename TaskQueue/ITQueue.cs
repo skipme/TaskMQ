@@ -15,7 +15,7 @@ namespace TaskQueue
         long GetQueueLength(TQItemSelector selector);
         void UpdateItem(Providers.TaskMessage item);
 
-        void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection);
+        void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection);
         string QueueType { get; }
         string QueueDescription { get; }
 

@@ -28,6 +28,19 @@ namespace TaskBroker
         {
             MI.Initialise(context, thisModule);
         }
+        public TaskQueue.RepresentedModel ParametersModel
+        {
+            get
+            {
+                if (Role == ExecutionType.Consumer)
+                {
+                    return ((IModConsumer)MI).ParametersModel != null ? 
+                        new TaskQueue.RepresentedModel(((IModConsumer)MI).ParametersModel.GetType()) : 
+                        TaskQueue.RepresentedModel.Empty;
+                }
+                return TaskQueue.RepresentedModel.Empty;
+            }
+        }
     }
 
     public class ModHolder
@@ -91,6 +104,8 @@ namespace TaskBroker
                 return;
                 // error
             }
+            var tc = typeof(IModConsumer);
+            mod.Role = tc.IsAssignableFrom(iface) ? ExecutionType.Consumer : ExecutionType.Producer;
             mod.MI = (IMod)Activator.CreateInstance(iface);
             mod.ModAssembly = loadedInterfaces[interfaceName];
             if (Modules.ContainsKey(mod.UniqueName))

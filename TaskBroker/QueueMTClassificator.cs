@@ -93,7 +93,7 @@ namespace TaskBroker
                 try
                 {
                     //anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
-                    anteroom.Queue.InitialiseFromModel(new QueueItemModel(typeof(TaskMessage)), qparams);// schema free only queue providers (exclude sql server)
+                    anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams);// schema free only queue providers (exclude sql server)
                     Anterooms.Add(name, anteroom);
 
                     return anteroom;

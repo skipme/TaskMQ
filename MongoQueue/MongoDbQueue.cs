@@ -90,7 +90,7 @@ namespace MongoQueue
             }
         }
 
-        public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.model = model;
             this.connection = connection;
@@ -141,7 +141,7 @@ namespace MongoQueue
         }
 
         public bool Connected { get; set; }
-        QueueItemModel model { get; set; } 
+        RepresentedModel model { get; set; } 
         QueueConnectionParameters connection { get; set; }
     }
 }

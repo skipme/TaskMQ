@@ -29,7 +29,7 @@ namespace MSSQLQueue
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(QueueItemModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             throw new NotImplementedException();
         }
