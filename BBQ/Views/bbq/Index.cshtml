@@ -9,7 +9,7 @@
 }
 
 
-       <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="#">TaskMQ</a>
@@ -296,7 +296,7 @@
           </div>
         </div>
       </div>
-    </div>          
+       
 
 <!-- Modal -->
 <div id="modal-new-task" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtaskModal" aria-hidden="true">
@@ -305,10 +305,45 @@
         <h3 id="newtaskModal">New Task</h3>
     </div>
         <div class="modal-body">
-        <p>One fine body…</p>
+        <form name="myForm" ng-controller="bbqCtrl">
+            
+            Description: <input type="text" name="desc" ng-model="newtask.description"
+            ng-pattern="textp" required>
+            <span class="error" ng-show="myForm.desc.$error.required">
+            Required!</span>
+            <span class="error" ng-show="myForm.desc.$error.pattern">
+            No spaces at start and only one between words!</span>
+            <br />
+            Channel: <select class="customselect" ng-model="newtask.channel" ng-options="c.Name as c.Name for c in m_main.Channels">
+            </select>
+            <br />
+            Module: <select class="customselect" ng-model="newtask.module" ng-options="c.Name as c.Name for c in m_mods.Modules">
+            </select>
+            <br />
+            Interval: <select class="customselect" ng-model="newtask.intervalType" ng-options="c.t as c.l for c in intervals">
+            </select><input type="number" name="iv" ng-model="newtask.intervalValue" ng-model="value" min="1" max="1000" required>
+            <span class="error" ng-show="myForm.iv.$error.required">
+            Required!</span>
+            <span class="error" ng-show="myForm.iv.$error.number">
+            Not valid number!</span>
+            <span class="error" ng-show="myForm.iv.$error.max || myForm.iv.$error.min">
+            Not in space!</span>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+        </form>
         </div>
     <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
         <button class="btn btn-primary">Save and close</button>
     </div>
 </div> 
+
+</div>   <!-- /app -->

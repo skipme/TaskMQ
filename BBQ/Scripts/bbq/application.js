@@ -52,6 +52,19 @@
                     err();
             });
     }
+    function createTask(description, channel, module, parametersStr, intervalType, intervalValue)
+    {
+        var pobj = $.parseJSON(parametersStr);
+        var t = {
+            Description: description,
+            ChannelName: channel,
+            ModuleName: module,
+            intervalType: intervalType,
+            intervalValue: intervalValue,
+            parameters: pobj
+        };
+        main_cmodel.Tasks.push(t);
+    }
     resetModels();
 
     function stub(){}
@@ -62,6 +75,8 @@
         commitandReset: stub,
         commitandRestart: stub,
         syncFrom: getServiceModel,
-        syncFromMods: getModsModel
+        syncFromMods: getModsModel,
+
+        createTask: createTask
     };
 })(jQuery);
