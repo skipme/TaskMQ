@@ -52,15 +52,16 @@
                     err();
             });
     }
-    function createTask(description, channel, module, parametersStr, intervalType, intervalValue)
+    // obj {description, channel, module, parametersStr, intervalType, intervalValue}
+    function createTask(obj)
     {
-        var pobj = $.parseJSON(parametersStr);
+        var pobj = $.parseJSON(obj.parametersStr);
         var t = {
-            Description: description,
-            ChannelName: channel,
-            ModuleName: module,
-            intervalType: intervalType,
-            intervalValue: intervalValue,
+            Description: obj.description,
+            ChannelName: obj.channel,
+            ModuleName: obj.module,
+            intervalType: obj.intervalType,
+            intervalValue: obj.intervalValue,
             parameters: pobj
         };
         main_cmodel.Tasks.push(t);
