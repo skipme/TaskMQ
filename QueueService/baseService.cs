@@ -16,13 +16,19 @@ namespace QueueService
         public bool Reset { get; set; }
         public bool Restart { get; set; }
 
-        public bool GetMain { get; set; }
-        public bool GetModules { get; set; }
-        public bool GetAssemblys { get; set; }
+        public bool MainPart { get; set; }
+        public bool ModulesPart { get; set; }
+        public bool AssemblysPart { get; set; }
 
         public string Body { get; set; }
+        public string ConfigId { get; set; }
     }
 
+    public class ConfigResponse
+    {
+        public string ConfigCommitID { get; set; }
+        public string Result { get; set; }
+    }
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
@@ -38,11 +44,27 @@ namespace QueueService
         }
         public object Get(ConfigRequest request)
         {
-            if (request.GetMain)
-            return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).Serialise();
-            else if (request.GetModules)
+            if (request.MainPart)
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).Serialise();
+            else if (request.ModulesPart)
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).Serialise();
             return null;
+        }
+        public ConfigResponse Post(ConfigRequest request)
+        {
+            if (request.MainPart)
+            {
+                Console.Write("conf main part set: {0}", request.Body);
+            }
+            else if (request.ModulesPart)
+            {
+                Console.Write("conf mod part set: {0}", request.Body);
+            }
+            return new ConfigResponse()
+            {
+                Result = "OK", // OR SOME ERROR DESCRIPTION
+                ConfigCommitID = request.ConfigId
+            };
         }
     }
     public class baseService : AppHostHttpListenerBase

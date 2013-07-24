@@ -29,13 +29,18 @@ bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
     $scope.m_main = null;
     $scope.m_mods = null;
 
-    $scope.triggers = { Info: false, wReset: false, wRestart: false };
+    $scope.triggers = null;
 
     function ResyncAll() {
+
+        $scope.triggers = { Info: false, wReset: false, wRestart: false };
+
         bbq_tmq.syncFrom(function (d) {
             $scope.m_main = d;
             $scope.newtask.channel = d.Channels[0].Name;
             $scope.$apply();
+
+            bbq_tmq.toastr_success(" Synced main conf ");
         }, function () { });
 
         bbq_tmq.syncFromMods(function (d) {
@@ -43,6 +48,8 @@ bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
             $scope.newtask.module = d.Modules[0].Name;
             $scope.newtask.mpxy = d.Modules[0];
             $scope.$apply();
+
+            bbq_tmq.toastr_success(" Synced modules conf ");
         }, function () { });
     }
 
@@ -57,15 +64,33 @@ bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
         $scope.newtask.parametersStr = angular.toJson($scope.newtask.mpxy.ParametersModel, true);
     }
     $scope.newtask_add = function () {
+        // check sync state
+        if (!bbq_tmq.check_synced()) {
+            alert('the state is not synced...');
+            return;
+        }
         //validation
-        if (!$scope.newTaskForm.$valid) { return; }
+        if (!$scope.newTaskForm.$valid || $scope.m_main === null || $scope.m_mods === null
+            || $scope.m_main.Channels.length === 0
+            || $scope.m_mods.Modules.length === 0) { return; }
         //
         bbq_tmq.createTask($scope.newtask);
         $('div#modal-new-task').modal('hide');
+
+        bbq_tmq.toastr_info(" Task created: " + $scope.newtask.description);
         resetNewTask();
         $scope.triggers.wReset = true;
     }
     // ~new task dialog
+
+    $scope.rollback_sync = function () {
+        ResyncAll();
+    }
+    $scope.commit_reset = function () {
+        bbq_tmq.syncToAndReset(function (data) {
+            bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
+        }, function () { });
+    }
 
     resetNewForms();
     ResyncAll();

@@ -18,6 +18,8 @@
     <link rel="shortcut icon" href="images/favicon.ico">
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <link rel="stylesheet" href="@Url.Content("Content/flatui/cf.css")">
+
+    @RenderSection("styles", required: false)
   </head>
   <body>
 
@@ -36,6 +38,7 @@
     @*<script src="@Url.Content("Scripts/jquery.placeholder.js")"></script>*@
     @*<script src="@Url.Content("Scripts/jquery.stacktable.js")"></script>*@
     @*<script src="@Url.Content("Scripts/application.js")"></script>*@
-  @RenderSection("scripts", required: false)
+
+    @RenderSection("scripts", required: false)
   </body>
 </html>

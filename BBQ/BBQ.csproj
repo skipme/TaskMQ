@@ -186,11 +186,14 @@
     <Content Include="Content\flatui\js\google-code-prettify\prettify.js" />
     <Content Include="Content\flatui\js\holder.js" />
     <Content Include="Content\flatui\prettify.css" />
+    <Content Include="Content\toastr.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\application.js" />
     <Content Include="Scripts\bbq\angular.js" />
+    <Content Include="Scripts\bbq\application-info.js" />
     <Content Include="Scripts\bbq\application.js" />
     <Content Include="Scripts\bbq\app_ui.js" />
+    <Content Include="Scripts\bbq\toastr.js" />
     <Content Include="Scripts\bootstrap-select.js" />
     <Content Include="Scripts\bootstrap-switch.js" />
     <Content Include="Scripts\bootstrap.min.js" />

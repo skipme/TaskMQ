@@ -17,3 +17,9 @@
     margin-bottom: 60px;
   }
 }
+
+.modal-body {
+
+  max-height: 480px;
+
+}

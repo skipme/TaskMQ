@@ -6,9 +6,12 @@
     <script src="@Url.Content("Scripts/bbq/angular.js")"></script>
     <script src="@Url.Content("Scripts/bbq/application.js")"></script>
     <script src="@Url.Content("Scripts/bbq/app_ui.js")"></script>
+    <script src="@Url.Content("Scripts/bbq/toastr.js")"></script>
 }
 
-
+@section styles {
+    <link rel="stylesheet" href="@Url.Content("Content/toastr.css")">
+}
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -46,15 +49,15 @@
                 <b>Warning!</b> Parameters changed, required server reconfiguration.
                 <div class="btn-group pull-right" style="float:right;line-height: 20px;position: relative;right: -21px;top: -2px;">
                   <button class="btn btn-warning" data-toggle="dropdown" href="#">Action</button>
-                  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                  <a class="btn dropdown-toggle" data-toggle="dropdown" >
             <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="#">Rollback changes</a> 
+              <a ng-click="rollback_sync()" href="#">Rollback changes</a> 
             </li>
             <li>
-              <a href="#">Commit changes</a> 
+              <a ng-click="commit_reset()" href="#">Commit changes</a> 
             </li>
           </ul>
         </div>
@@ -334,10 +337,11 @@
                  <div class="controls">
                      <select name="it" ng-change="newtask.intervalType=newtask.itpxy.t" class="customselect" ng-model="newtask.itpxy" ng-options="c as c.l for c in intervals | filter:c.s=true" required>
             </select><br /><div ng-show="newtask.itpxy.sv">
-                     <input type="number" name="iv" ng-model="newtask.intervalValue" min="1" max="1000">
+                     <input type="number" name="iv" ng-model="newtask.intervalValue" min="0" max="1000">
                         <span class="error" ng-show="newTaskForm.iv.$error.number">
                         Not valid number!</span>
                         <span class="error" ng-show="newTaskForm.iv.$error.max || newTaskForm.iv.$error.min">
+                            Not in space!</span>
                        </div>
             </div>
             </div>
