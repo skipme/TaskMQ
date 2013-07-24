@@ -30,27 +30,63 @@ bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
     $scope.m_mods = null;
 
     $scope.triggers = null;
-
-    function ResyncAll() {
-
+    function resetTriggers() {
         $scope.triggers = { Info: false, wReset: false, wRestart: false };
+    }
+    function aftermath() {
+        var aftermath_context = {
+            num: arguments.length,
+            sequence: [],
+            ondonef: null,
+            ondone: function (a) { this.ondonef = a; this.go(); },
+            ok: function () {
+                this.num--;
+                if (this.num <= 0) {
+                    this.ondonef();
+                }
+            },
+            go: function () {
+                for (var i = 0; i < this.sequence.length; i++) {
+                    this.sequence[i](this);
+                }
+            }
+        };
+        for (var i = 0; i < arguments.length; i++) {
+            aftermath_context.sequence.push(arguments[i]);
+        }
+        return aftermath_context;
+    }
+    function ResyncAll() {
+        aftermath(function (actx) {
+            bbq_tmq.syncFrom(function (d) {
+                $scope.m_main = d;
+                $scope.newtask.channel = d.Channels[0].Name;
+                $scope.$apply();
 
-        bbq_tmq.syncFrom(function (d) {
-            $scope.m_main = d;
-            $scope.newtask.channel = d.Channels[0].Name;
+                //bbq_tmq.toastr_success(" Synced main conf ");
+                actx.ok();
+            }, function () { actx.ok(); })
+        }, function (actx) {
+            bbq_tmq.syncFromMods(function (d) {
+                $scope.m_mods = d;
+                $scope.newtask.module = d.Modules[0].Name;
+                $scope.newtask.mpxy = d.Modules[0];
+                $scope.$apply();
+
+                //bbq_tmq.toastr_success(" Synced modules conf ");
+                actx.ok();
+            }, function () { actx.ok(); })
+        }
+        ).ondone(function () {
+            $scope.triggers.Info = !bbq_tmq.check_synced();
+            if (!$scope.triggers.Info)
+                bbq_tmq.toastr_info(" Configuration synced ", true);
+            else {
+                bbq_tmq.toastr_error(" Erorr in configuration sync.", true);
+                bbq_tmq.rollbackAppC();
+            }
             $scope.$apply();
-
-            bbq_tmq.toastr_success(" Synced main conf ");
-        }, function () { });
-
-        bbq_tmq.syncFromMods(function (d) {
-            $scope.m_mods = d;
-            $scope.newtask.module = d.Modules[0].Name;
-            $scope.newtask.mpxy = d.Modules[0];
-            $scope.$apply();
-
-            bbq_tmq.toastr_success(" Synced modules conf ");
-        }, function () { });
+        });
     }
 
     $scope.$watch('m_main', function () {
@@ -87,11 +123,35 @@ bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
         ResyncAll();
     }
     $scope.commit_reset = function () {
-        bbq_tmq.syncToAndReset(function (data) {
-            bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
-        }, function () { });
+        aftermath(
+            function (actx) {
+                bbq_tmq.syncToMain(function (data) {
+                    bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
+                    actx.ok();
+                }, function () { actx.ok(); })
+            },
+            function (actx) {
+                bbq_tmq.syncToMods(function (data) {
+                    bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
+                    actx.ok();
+                }, function () { actx.ok(); })
+            }).ondone(function () {
+                //aftermath(
+                //function (actx) {
+                bbq_tmq.CommitAndReset(function (data) {
+                    bbq_tmq.toastr_success(" configuration commit ok: " + data.ConfigCommitID, true);
+                    $scope.triggers.Info = true; $scope.$apply();
+                    //ResyncAll();
+                    /*actx.ok();*/
+                }, function () { /*actx.ok();*/ })
+                //}).ondone(function () {
+                //});
+
+                //ResyncAll()
+            });
     }
 
+    resetTriggers();
     resetNewForms();
     ResyncAll();
 });

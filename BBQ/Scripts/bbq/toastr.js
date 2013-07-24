@@ -90,7 +90,7 @@
 					});
 				},
 
-				clear = function ($toastElement) {
+				clear = function (onSuccess, $toastElement) {
 					var options = getOptions();
 					if (!$container) {
 						getContainer(options);
@@ -103,8 +103,13 @@
 					}
 					if ($container.children().length) {
 						$container.fadeOut(options.fadeOut, function () {
-							$container.remove();
+						    $container.remove();
+						    if (typeof onSuccess !== 'undefined')
+						        onSuccess();
 						});
+					} else {
+					    if (typeof onSuccess !== 'undefined')
+					        onSuccess();
 					}
 				};
 

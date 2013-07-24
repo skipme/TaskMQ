@@ -11,6 +11,7 @@
 
     var main_synced = false;
     var mods_synced = false;
+    var config_commit_ok = false;
 
     uuid = (function () {
         // Private array of chars to use
@@ -81,7 +82,7 @@
         }, err, { ModulesPart: true });
     }
     function jsonp(succ, err, data) {
-        $.ajax({ url: url_cb_js(url_c), dataType: "json", data: data, timeout: 10000 })
+        $.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000 })
             .done(function (data) {
                 succ(data);
             }).fail(function () {
@@ -118,7 +119,7 @@
         main_cmodel_id = uuid();
     }
     // ==============
-    function setServiceModelAndReset(succ, err) {
+    function setServiceModel(succ, err) {
         json_proxy(function (data) {
             if (data.Result == 'OK') {
                 succ(data);
@@ -128,12 +129,21 @@
             }
         }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
     }
+    function setModsModel(succ, err) {
+        succ({Result:'OK', ConfigCommitID: uuid()});
+    }
     // =========
+    function CommitAndReset(succ, err) {
+        succ({ Result: 'OK', ConfigCommitID: uuid() });
+    }
+    //=========
     resetModels();
 
     function stub() { }
     bbq_tmq = {
         check_synced: function () { return main_synced && mods_synced; },
+        check_commit: function () { return config_commit_ok; },
+
         m_main: main_cmodel,
         m_mods: mods_cmodel,
         rollbackAppC: resetModels, // reset models
@@ -143,7 +153,9 @@
         syncFromMods: getModsModel,
 
         createTask: createTask,
-        syncToAndReset: setServiceModelAndReset
+        syncToMain: setServiceModel,
+        syncToMods: setModsModel,
+        CommitAndReset: CommitAndReset
     };
     //
     jQuery.cachedScript = function (url, options) {
