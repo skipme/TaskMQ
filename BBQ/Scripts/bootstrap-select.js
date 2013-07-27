@@ -95,7 +95,18 @@
             }
 
             //Listen for updates to the DOM and re render...
+            var observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    console.log(mutation.type);
+                    _this.reloadLi();
+                });
+            });
+            var config = { attributes: false, childList: true, characterData: false };
+            observer.observe(this.$element[0], config);
+            // later, you can stop observing
+            //observer.disconnect();
             this.$element.bind('DOMNodeInserted', $.proxy(this.reloadLi, this));
+            //this.$element.bind('DOMNodeInserted', $.proxy(this.reloadLi, this));
 
             this.render();
         },
