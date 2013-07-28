@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using TaskBroker.Assemblys;
+using TaskBroker.Configuration;
 using TaskQueue.Providers;
 using TaskScheduler;
 
@@ -29,9 +30,13 @@ namespace TaskBroker
             MessageChannels = new QueueMTClassificator();
 
             Modules = new ModHolder(this);
+
+            Configurations = new ConfigurationDepo();
+
         }
 
         //public QueueConParams Connections;
+        public ConfigurationDepo Configurations;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
         public ModHolder Modules;

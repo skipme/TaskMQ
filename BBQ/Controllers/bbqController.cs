@@ -25,9 +25,11 @@ namespace BBQ.Controllers
             string json = client.Get<string>("tmq/c?format=json");
             return new JsonResult() { Data = json };
         }
-        public JsonResult PxySet(string data)
+        public JsonResult PxySet(string data, string urlpostfix = null)
         {
-            var client = WebRequest.Create(tmq_host + "tmq/c?format=json");
+            string urlbase = tmq_host + "tmq/c" + urlpostfix ?? "";
+
+            var client = WebRequest.Create(urlbase + "?format=json");
             client.Method = "POST";
             client.ContentType = "application/json";
             using (var writer = new StreamWriter(client.GetRequestStream()))

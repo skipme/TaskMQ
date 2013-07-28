@@ -8,6 +8,7 @@
     var mods_cmodel = null;
 
     var main_cmodel_id = null;
+    var mods_cmodel_id = null;
 
     var main_synced = false;
     var mods_synced = false;
@@ -59,14 +60,16 @@
             "Modules": [
             ],
         };
-        main_cmodel_id = uuid();
+        main_cmodel_id = null;
+        mods_cmodel_id = null;
     }
+    
     function url_cb_js(url) {
         return url + "?format=json&callback=?";
     }
 
     function getServiceModel(succ, err) {
-        main_synced = false;
+        main_synced = false; main_cmodel_id = null;
         jsonp(function (data) {
             main_synced = true;
             main_cmodel = bbq_tmq.m_main = data;
@@ -74,7 +77,7 @@
         }, err, { MainPart: true });
     }
     function getModsModel(succ, err) {
-        mods_synced = false;
+        mods_synced = false; mods_cmodel_id = null; 
         jsonp(function (data) {
             mods_synced = true;
             mods_cmodel = bbq_tmq.m_mods = data;
@@ -116,6 +119,9 @@
             parameters: pobj
         };
         main_cmodel.Tasks.push(t);
+        mainPartChanged();
+    }
+    function mainPartChanged() {
         main_cmodel_id = uuid();
     }
     // ==============
@@ -127,14 +133,30 @@
                 if (err)
                     err();
             }
-        }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
+        }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: main_cmodel_id }) });
     }
     function setModsModel(succ, err) {
-        succ({Result:'OK', ConfigCommitID: uuid()});
+        //succ({Result:'OK', ConfigCommitID: uuid()});
+        json_proxy(function (data) {
+            if (data.Result == 'OK') {
+                succ(data);
+            } else {
+                if (err)
+                    err();
+            }
+        }, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: mods_cmodel_id }) });
     }
     // =========
     function CommitAndReset(succ, err) {
-        succ({ Result: 'OK', ConfigCommitID: uuid() });
+        //succ({ Result: 'OK', ConfigCommitID: uuid() });
+        json_proxy(function (data) {
+            if (data.Result == 'OK') {
+                succ(data);
+            } else {
+                if (err)
+                    err();
+            }
+        }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id }), urlpostfix: "/commit" });
     }
     //=========
     resetModels();
@@ -153,6 +175,8 @@
         syncFromMods: getModsModel,
 
         createTask: createTask,
+        mainPartChanged: mainPartChanged,
+
         syncToMain: setServiceModel,
         syncToMods: setModsModel,
         CommitAndReset: CommitAndReset

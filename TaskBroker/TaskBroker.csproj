@@ -48,6 +48,9 @@
     <Compile Include="Configuration\BrokerConfiguration.cs" />
     <Compile Include="ChannelAnteroom.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\ConfigurationDepo.cs" />
+    <Compile Include="Configuration\ConfigurationStorage.cs" />
+    <Compile Include="Configuration\ConfigurationValidation.cs" />
     <Compile Include="Configuration\ModuleManager.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="MessageType.cs" />
@@ -76,6 +79,10 @@
     <ProjectReference Include="..\TaskScheduler\TaskScheduler.csproj">
       <Project>{71d36b0a-382d-4fcf-95af-67cfea21887d}</Project>
       <Name>TaskScheduler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
+      <Project>{5c45cdba-1aac-4349-8d42-28b7ad794ba0}</Project>
+      <Name>FileContentArchive</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -56,11 +56,20 @@
                 num: arguments.length,
                 sequence: [],
                 ondonef: null,
-                ondone: function (a) { this.ondonef = a; this.go(); },
+                onerrorf: null,
+                errorHit: false,
+                ondone: function (a, e) { this.ondonef = a; this.onerrorf = e; this.go(); },
                 ok: function () {
                     this.num--;
-                    if (this.num <= 0) {
+                    if (this.num <= 0 ) {
                         this.ondonef();
+                    }
+                },
+                error: function (msg) {
+                    this.num--;
+                    if (this.onerrorf && !this.errorHit) {
+                        this.errorHit = true;
+                        this.onerrorf(msg);
                     }
                 },
                 go: function () {
@@ -122,17 +131,18 @@
             $scope.newtask.parametersStr = angular.toJson(mpxy.ParametersModel, true);
         }
         $scope.show_newtask = function () {
+            //check sync state
+            if (!bbq_tmq.check_synced()) {
+                alert('the state is not synced...');
+                return;
+            }
             $scope.newtask.mpxy = $scope.m_mods.Modules[0];
             $scope.newtask.module = $scope.m_mods.Modules[0].Name;
 
             $('div#modal-new-task').modal('show');
         }
         $scope.newtask_add = function () {
-            // check sync state
-            if (!bbq_tmq.check_synced()) {
-                alert('the state is not synced...');
-                return;
-            }
+
             //validation
             if (!$scope.newTaskForm.$valid || $scope.m_main === null || $scope.m_mods === null
                 || $scope.m_main.Channels.length === 0
@@ -145,7 +155,13 @@
             resetNewTaskForm();
             $scope.triggers.wReset = true;
         }
+
         $scope.task_edit = function (model_e) {
+            //check sync state
+            if (!bbq_tmq.check_synced()) {
+                alert('the state is not synced...');
+                return;
+            }
             $scope.ref_task = model_e;
 
             $scope.intervals.forEach(function (e) {
@@ -164,8 +180,9 @@
 
             $('div#modal-edit-task').modal('show');
         }
-        $scope.task_edit_cpy = function () {
 
+        $scope.task_edit_cpy = function () {
+            if (!$scope.editTaskForm.$valid) { return; }
             var obj = null;
             try
             {
@@ -174,8 +191,12 @@
                 bbq_tmq.toastr_warning(" check json syntax! " + e.message);
                 return;
             }
+
             angular.copy($scope.edit_task, $scope.ref_task);
             $scope.ref_task.parameters = obj;
+
+            bbq_tmq.mainPartChanged();
+            $scope.triggers.wReset = true;
 
             $('div#modal-edit-task').modal('hide');
         }
@@ -190,26 +211,25 @@
                     bbq_tmq.syncToMain(function (data) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.ok(); })
+                    }, function () { actx.error("main configuration upload error"); })
                 },
                 function (actx) {
                     bbq_tmq.syncToMods(function (data) {
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.ok(); })
+                    }, function () { actx.error("module configuration upload error"); })
                 }).ondone(function () {
-                    //aftermath(
-                    //function (actx) {
-                    bbq_tmq.CommitAndReset(function (data) {
-                        bbq_tmq.toastr_success(" configuration commit ok: " + data.ConfigCommitID, true);
-                        $scope.triggers.Info = true; $scope.$apply();
-                        //ResyncAll();
-                        /*actx.ok();*/
-                    }, function () { /*actx.ok();*/ })
-                    //}).ondone(function () {
-                    //});
 
-                    //ResyncAll()
+                    bbq_tmq.CommitAndReset(function (data) {
+                        bbq_tmq.toastr_success(" configuration commit ok ", true);
+                        $scope.triggers.Info = true;
+                        $scope.triggers.wReset = false;
+                        $scope.$apply();
+
+                    }, function () { })
+
+                }, function (msg) {
+                    bbq_tmq.toastr_error(" Configuration commit error: " + msg);
                 });
         }
 
