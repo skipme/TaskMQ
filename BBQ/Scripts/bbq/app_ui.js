@@ -25,9 +25,18 @@
         $scope.newtask = null;
         $scope.ref_task = null;
         $scope.edit_task = null;
-
+        function resetNewTaskForm() {
+            $scope.newtask = {
+                description: '', channel: '', module: '',
+                parametersStr: '', intervalType: $scope.intervals[0].t,
+                intervalValue: 0,
+                itpxy: $scope.intervals[0],
+                mpxy: null,
+                mpxyz: null
+            };
+        }
         function resetTaskForms() {
-            $scope.newtask = { description: '', channel: '', module: '', parametersStr: '', intervalType: $scope.intervals[0].t, intervalValue: 0, itpxy: $scope.intervals[0], mpxy: null };
+            resetNewTaskForm();
             $scope.edit_task = { ChannelName: '' };
         }
         function resetNewForms() {
@@ -78,8 +87,8 @@
             }, function (actx) {
                 bbq_tmq.syncFromMods(function (d) {
                     $scope.m_mods = d;
-                    $scope.newtask.module = d.Modules[0].Name;
-                    $scope.newtask.mpxy = d.Modules[0];
+                    //$scope.newtask.module = d.Modules[0].Name;
+
                     $scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced modules conf ");
@@ -101,12 +110,22 @@
         $scope.$watch('m_main', function () {
             return true;
         });
+        //$scope.$watch('newtask.mpxy', function (newVal, oldVal) {
+        //    //console.log('newtask.mpxy.Name');
+        //    //$("select.customselect[name='mod']").selectpicker('render');
+        //}, false);
         $scope.update = function () {
 
         };
         //  task dialogs:
-        $scope.newtask_represent = function () {
-            $scope.newtask.parametersStr = angular.toJson($scope.newtask.mpxy.ParametersModel, true);
+        $scope.task_represent = function (mpxy) {
+            $scope.newtask.parametersStr = angular.toJson(mpxy.ParametersModel, true);
+        }
+        $scope.show_newtask = function () {
+            $scope.newtask.mpxy = $scope.m_mods.Modules[0];
+            $scope.newtask.module = $scope.m_mods.Modules[0].Name;
+
+            $('div#modal-new-task').modal('show');
         }
         $scope.newtask_add = function () {
             // check sync state
@@ -123,18 +142,41 @@
             $('div#modal-new-task').modal('hide');
 
             bbq_tmq.toastr_info(" Task created: " + $scope.newtask.description);
-            resetNewTask();
+            resetNewTaskForm();
             $scope.triggers.wReset = true;
         }
         $scope.task_edit = function (model_e) {
             $scope.ref_task = model_e;
-            //$scope.edit_task = angular.copy(model_e);
+
+            $scope.intervals.forEach(function (e) {
+                if (e.t == model_e.intervalType)
+                    $scope.newtask.itpxy = e;
+            });
+            $scope.newtask.mpxy = null;
+            $scope.m_mods.Modules.forEach(function (e) {
+                if (e.Name == model_e.ModuleName)
+                    $scope.newtask.mpxyz = e;
+            });
+
+            $scope.newtask.parametersStr = angular.toJson(model_e.parameters, true);
+
             angular.copy(model_e, $scope.edit_task);
-            //$scope.$apply();
+
             $('div#modal-edit-task').modal('show');
         }
         $scope.task_edit_cpy = function () {
+
+            var obj = null;
+            try
+            {
+                obj = angular.fromJson($scope.newtask.parametersStr);
+            } catch (e) {
+                bbq_tmq.toastr_warning(" check json syntax! " + e.message);
+                return;
+            }
             angular.copy($scope.edit_task, $scope.ref_task);
+            $scope.ref_task.parameters = obj;
+
             $('div#modal-edit-task').modal('hide');
         }
         // ~ task dialogs

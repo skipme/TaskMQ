@@ -109,6 +109,9 @@
             //this.$element.bind('DOMNodeInserted', $.proxy(this.reloadLi, this));
 
             this.render();
+            this.$element[0].onchange = function (e) {
+                _this.render();
+            };
         },
 
         createDropdown: function() {
@@ -342,6 +345,7 @@
 
                     // Trigger select 'change'
                     $select.prev('select').trigger('change');
+ 
                 }
 
             });
@@ -353,9 +357,12 @@
                 $select.find('button').focus();
             });
 
-            this.$element.on('change', function(e) {
-                _this.render();
-            });
+            //this.$element.on('change', function(e) {
+            //    _this.render();
+            //});
+           //this.$element[0].onchange = function (e) {
+           //    _this.render();
+           //};
         },
         
         val:function(value) {

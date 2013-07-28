@@ -99,7 +99,7 @@
                     </h4>
                     <p>
                         The important part for bunching all components
-                  <a class="btn btn-primary pull-right" href="#modal-new-task" role="button" data-toggle="modal"><i class="icon-plus-sign icon-white"></i>Create new</a>
+                  <a class="btn btn-primary pull-right" @*href="#modal-new-task"*@ role="button" @*data-toggle="modal"*@ ng-click="show_newtask()"><i class="icon-plus-sign icon-white"></i>Create new</a>
                     </p>
 
                     <table class="table">
@@ -119,7 +119,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="m in m_main.Tasks">
-                                <td><a class="btn-link" ng-click="task_edit(m)" ng-hide="m.Auto"><i class="icon-pencil"></i></a></td>
+                                <td><a class="btn-link" ng-click="task_edit(m)" ng-hide="m.Auto9"><i class="icon-pencil"></i></a></td>
                                 <td>{{m.Description}}
                                 </td>
                                 <td>{{m.intervalType | intervt}}/{{m.intervalValue}}
@@ -354,12 +354,12 @@
                     <label class="control-label" for="params">Parameters(json)</label>
                     <div class="controls">
                         <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%"></textarea>
-                        <a class="btn btn-small" ng-click="newtask_represent()"><i class="icon-leaf icon-white"></i>Represent</a>
+                        <a class="btn btn-small" ng-click="task_represent(newtask.mpxy)"><i class="icon-leaf icon-white"></i>Represent</a>
                     </div>
                 </div>
             </form>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer"><!--              FOOTER -->
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             <button class="btn btn-primary" ng-click="newtask_add()">Save and close</button>
         </div>
@@ -387,6 +387,34 @@
                     <div class="controls">
                         <select class="customselect" name="chan" ng-options="c.Name as c.Name for c in m_main.Channels" ng-model="edit_task.ChannelName">
                         </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="mod">Module</label>
+                    <div class="controls">
+                        @*<select name="mod" class="customselect" ng-model="edit_task.ModuleName" ng-options="c.Name as c.Name for c in m_mods.Modules | filter:c.Role=17">
+                        </select>*@
+                        <select name="mod" class="customselect" ng-change="edit_task.ModuleName=newtask.mpxyz.Name" ng-model="newtask.mpxyz" ng-options="c.Name for c in m_mods.Modules | filter:c.Role=17">
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="it">Interval</label>
+                    <div class="controls">
+                        <select name="it" ng-change="edit_task.intervalType=newtask.itpxy.t" class="customselect" ng-model="newtask.itpxy" ng-options="c as c.l for c in intervals | filter:c.s=true" required>
+                        </select><br />
+                        <div ng-show="newtask.itpxy.sv">
+                            <input type="number" name="iv" ng-model="edit_task.intervalValue" min="0" max="1000">
+                            <span class="error" ng-show="editTaskForm.iv.$error.number">Not valid number!</span>
+                            <span class="error" ng-show="editTaskForm.iv.$error.max || newTaskForm.iv.$error.min">Not in space!</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="params">Parameters(json)</label>
+                    <div class="controls">
+                        <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%"></textarea>
+                        <a class="btn btn-small" ng-click="task_represent(newtask.mpxyz)"><i class="icon-leaf icon-white"></i>Represent</a>
                     </div>
                 </div>
             </form>
