@@ -2,6 +2,9 @@
 
 **The version of this file is preliminary**
 
+Donations are welcome: 
+<a href='http://www.pledgie.com/campaigns/21114'><img alt='Click here to lend your support to: TaskMQ donation and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/21114.png?skin_name=chrome' border='0' /></a>
+
 ##Introduction##
 
 Suppose you have some enterprise application consists with modules implementing BL or other features.
