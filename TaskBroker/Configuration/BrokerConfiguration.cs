@@ -25,7 +25,7 @@ namespace TaskBroker.Configuration
                           {
                               connectionName = cc.ConnectionName,
                               Name = cc.UniqueName,
-                              messageModel = new cModel() { TypeFullName = cc.MessageType },
+                              MType = cc.MessageType ,
                           }).ToArray();
 
             c.Tasks = (from tt in b.Tasks

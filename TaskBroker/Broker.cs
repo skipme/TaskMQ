@@ -17,8 +17,8 @@ namespace TaskBroker
         RestartApplication restartApp;
         /*
          * consumer stub throughput ratings
-                10000 at 940 ms. tp 1 at ,09ms :: internal module throughput
-                10000 at 3722 ms. tp 1 at ,37 :: external module throughput
+                10000 at 940 ms. tp 1 at ,09ms :: internal module throughput (same appdomain)
+                10000 at 3722 ms. tp 1 at ,37 :: external module throughput (cross appdomain)
          * 
          */
         public Broker(RestartApplication restartApp = null)
@@ -32,9 +32,14 @@ namespace TaskBroker
             Modules = new ModHolder(this);
 
             Configurations = new ConfigurationDepo();
-
         }
 
+        private void LoadLastConfiguration()
+        {
+            ConfigurationBroker cmain = Configurations.GetNewestConfigurationVersion();
+            if (cmain != null)
+                cmain.Apply(this);
+        }
         //public QueueConParams Connections;
         public ConfigurationDepo Configurations;
         public QueueMTClassificator MessageChannels;
@@ -42,6 +47,8 @@ namespace TaskBroker
         public ModHolder Modules;
         //public QueueClassificator Queues;
         public TaskScheduler.ThreadPool Scheduler;
+
+        public ConfigurationBroker c_apmain;
 
         //modules
         //bunch[model, queue, +module] .... TODO: maybe bunch with channel better?
@@ -150,7 +157,15 @@ namespace TaskBroker
                 UniqueName = channelName
             });
         }
-
+        public void RegisterChannel(string connectionName, string channelName, string MType)
+        {
+            MessageChannels.AddMessageChannel(new TaskBroker.MessageChannel()
+            {
+                ConnectionName = connectionName,
+                UniqueName = channelName,
+                MessageType = MType
+            });
+        }
         // bunch [channel, module, +executionContext]
         // note: this is configure which channel is selected for custom module
         public void RegisterTask(string Channel, string moduleName,
@@ -218,25 +233,36 @@ namespace TaskBroker
             UpdatePlan();
         }
         // bunch [connectionparams, queue]
-        public void AddConnection<T>(TaskQueue.Providers.QueueConnectionParameters qcp)
-            where T : TaskQueue.ITQueue
+        private void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp, TaskQueue.ITQueue qI)
+        //where T : TaskQueue.ITQueue
         {
-            TaskQueue.ITQueue q = Activator.CreateInstance<T>();
-            qcp.QueueTypeName = q.QueueType;
-            qcp.QueueInstance = q;
+            //TaskQueue.ITQueue q = (TaskQueue.ITQueue)Activator.CreateInstance(qType);
+            qcp.QueueTypeName = qI.QueueType;
+            qcp.QueueInstance = qI;
 
             MessageChannels.AddConnection(qcp);
         }
         public void RegisterConnection<T>(string name, string connectionString, string database, string collection)
             where T : TaskQueue.ITQueue
         {
-            AddConnection<T>(new TaskQueue.Providers.QueueConnectionParameters()
+            TaskQueue.ITQueue q = Activator.CreateInstance<T>();
+            AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
                 {
                     Collection = collection,
                     Name = name,
                     Database = database,
                     ConnectionString = connectionString
-                });
+                }, q);
+        }
+        public void RegisterConnection(string name, string connectionString, string database, string collection, TaskQueue.ITQueue qI)
+        {
+            AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
+            {
+                Collection = collection,
+                Name = name,
+                Database = database,
+                ConnectionString = connectionString
+            }, qI);
         }
         private void UpdatePlan()
         {
@@ -386,8 +412,10 @@ namespace TaskBroker
         {
             Modules.AssemblyHolder.LoadAssemblys(this);
         }
-        public void RevokeBroker()
+        public void RevokeBroker(bool reconfigureFromStorage = false)
         {
+            if (reconfigureFromStorage)
+                LoadLastConfiguration();
             Scheduler.Revoke();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks

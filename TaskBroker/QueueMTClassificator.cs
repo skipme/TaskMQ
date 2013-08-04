@@ -26,9 +26,26 @@ namespace TaskBroker
         public void AddMessageChannel<T>(MessageChannel mc)
             where T : TaskQueue.Providers.TItemModel
         {
-            //mc.MessageModel = Activator.CreateInstance<T>();
             TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
             mc.MessageType = tim.ItemTypeName;
+            lock (MChannelsList)
+            {
+                MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
+                MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
+                MChannelsList.Add(mc);
+            }
+            ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
+            try
+            {
+                ante.Queue.OptimiseForSelector(mc.consumerSelector);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
+            }
+        }
+        public void AddMessageChannel(MessageChannel mc)
+        {
             lock (MChannelsList)
             {
                 MessageChannels.Add(mc.UniqueName, MChannelsList.Count);

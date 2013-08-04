@@ -7,12 +7,18 @@ namespace TaskBroker.Configuration
 {
     public class ConfigurationValidation
     {
-        public static bool ValidateMain(string json, out string errors)
+        public static bool ValidateMain(ref string json, out string errors)
         {
-            ConfigurationBroker bc = null;
+            ConfigurationBroker cb;
+            return ValidateMain(ref json, out errors, out cb);
+        }
+        public static bool ValidateMain(ref string json, out string errors, out ConfigurationBroker bc)
+        {
+            bc = null;
             try
             {
                 bc = ConfigurationBroker.DeSerialiseJson(json);
+                json = bc.SerialiseString();
             }
             catch (Exception e)
             {

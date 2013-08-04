@@ -19,6 +19,23 @@ namespace TaskBroker.Configuration
             versions = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage("conf-json.zip"));
         }
 
+        public Configuration.ConfigurationBroker GetNewestConfigurationVersion()
+        {
+            Configuration.ConfigurationBroker bc;
+            string errors;
+
+            string json = versions.GetLatestVersion(key_main);
+            if (json == null)
+                return null;
+            
+            if(ConfigurationValidation.ValidateMain(ref json, out errors, out bc))
+            {
+                return bc;
+            }
+            return null;
+        }
+
+
         public void RegisterConfiguration(string id, string body)
         {
             if (jsonConfigurations.ContainsKey(id))
@@ -36,7 +53,7 @@ namespace TaskBroker.Configuration
             else
             {
                 string json = jsonConfigurations[id];
-                bool vok = ConfigurationValidation.ValidateMain(json, out errors);
+                bool vok = ConfigurationValidation.ValidateMain(ref json, out errors);
                 // TODO: save to configuration storage
                 versions.AddVersion(key_main, json);
             }

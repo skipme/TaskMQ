@@ -45,7 +45,7 @@ namespace FileContentArchive
         {
             if (!History.ContainsKey(key))
             {
-                return key + "$1" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
+                return key + "$1_" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
             }
             else
             {

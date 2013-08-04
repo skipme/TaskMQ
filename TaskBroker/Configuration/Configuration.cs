@@ -12,13 +12,23 @@ namespace TaskBroker.Configuration
     [Serializable]
     public class RepresentedConfiguration
     {
+        public DateTime CreationDate = DateTime.Now;// server time...
+
         public byte[] Serialise(Encoding enc = null)
+        {
+            if (enc == null)
+                enc = Encoding.UTF8;
+            string v = SerialiseString(enc);
+
+            return enc.GetBytes(v);
+        }
+        public string SerialiseString(Encoding enc = null)
         {
             if (enc == null)
                 enc = Encoding.UTF8;
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
 
-            return enc.GetBytes(v);
+            return v;
         }
         //public static T DeSerialiseXml<T>(byte[] data, Encoding enc = null)
         //    where T : RepresentedConfiguration
@@ -75,7 +85,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public string connectionName { get; set; }
-        public cModel messageModel { get; set; }
+        public string MType { get; set; }
     }
     [Serializable]
     public class cModel

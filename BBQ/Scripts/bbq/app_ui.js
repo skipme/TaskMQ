@@ -87,7 +87,7 @@
             aftermath(function (actx) {
                 bbq_tmq.syncFrom(function (d) {
                     $scope.m_main = d;
-                    $scope.newtask.channel = d.Channels[0].Name;
+                    //$scope.newtask.channel = d.Channels[0].Name;
                     $scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced main conf ");

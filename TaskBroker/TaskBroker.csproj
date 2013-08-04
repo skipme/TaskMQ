@@ -48,6 +48,7 @@
     <Compile Include="Configuration\BrokerConfiguration.cs" />
     <Compile Include="ChannelAnteroom.cs" />
     <Compile Include="Configuration\Configuration.cs" />
+    <Compile Include="Configuration\ConfigurationApply.cs" />
     <Compile Include="Configuration\ConfigurationDepo.cs" />
     <Compile Include="Configuration\ConfigurationStorage.cs" />
     <Compile Include="Configuration\ConfigurationValidation.cs" />
