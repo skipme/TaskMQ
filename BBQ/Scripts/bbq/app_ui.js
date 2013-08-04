@@ -61,7 +61,7 @@
                 ondone: function (a, e) { this.ondonef = a; this.onerrorf = e; this.go(); },
                 ok: function () {
                     this.num--;
-                    if (this.num <= 0 ) {
+                    if (this.num <= 0 && !this.errorHit) {
                         this.ondonef();
                     }
                 },
@@ -184,8 +184,7 @@
         $scope.task_edit_cpy = function () {
             if (!$scope.editTaskForm.$valid) { return; }
             var obj = null;
-            try
-            {
+            try {
                 obj = angular.fromJson($scope.newtask.parametersStr);
             } catch (e) {
                 bbq_tmq.toastr_warning(" check json syntax! " + e.message);
@@ -218,25 +217,27 @@
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                     }, function () { actx.error("module configuration upload error"); })
-                }).ondone(function () {
+                })
+          .ondone(function () {
+              bbq_tmq.CommitAndReset(function (data) {
+                  bbq_tmq.toastr_success(" configuration commit ok ", true);
+                  $scope.triggers.Info = true;
+                  $scope.triggers.wReset = false;
+                  $scope.$apply();
 
-                    bbq_tmq.CommitAndReset(function (data) {
-                        bbq_tmq.toastr_success(" configuration commit ok ", true);
-                        $scope.triggers.Info = true;
-                        $scope.triggers.wReset = false;
-                        $scope.$apply();
 
-                    }, function () { })
-
-                }, function (msg) {
-                    bbq_tmq.toastr_error(" Configuration commit error: " + msg);
-                });
+              }, function () { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
+          }, function (msg) {
+              bbq_tmq.toastr_error(" Configuration commit error: " + msg);
+          });
         }
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         resetTriggers();
         resetNewForms();
         ResyncAll();
-    });
+    });// ~controller
+
     bbqmvc.filter('long', function () {
         return function (json) {
             if (!json) { return '-'; }

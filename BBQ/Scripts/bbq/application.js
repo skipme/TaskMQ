@@ -133,7 +133,7 @@
                 if (err)
                     err();
             }
-        }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: main_cmodel_id }) });
+        }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
     }
     function setModsModel(succ, err) {
         //succ({Result:'OK', ConfigCommitID: uuid()});
@@ -144,7 +144,7 @@
                 if (err)
                     err();
             }
-        }, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: mods_cmodel_id }) });
+        }, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id }) });
     }
     // =========
     function CommitAndReset(succ, err) {
