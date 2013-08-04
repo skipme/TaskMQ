@@ -29,6 +29,10 @@ TQItemSelector selector = new TQItemSelector("Processed", false)
 
 And a very important feature of queues: after module process message you can keep message in queue and, or, change field values.
 
+###Channels###
+
+**Channels** take a message  distribution role   for modules, it realise the scalability as on the same machine as like on separate application instances.
+
 ##Configuration, Statistics, Web-access##
 
 Default access module implemented with service stack and self-hosted within application, so you can simply push messages with http protocol at **tmq/q** with PUT method, also at **tmq/c** open access to the configuration. **BBQ** is web interface for simply view and modify all entities on taskmq server, show statictics, maintain queues.
