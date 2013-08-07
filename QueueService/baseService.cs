@@ -78,11 +78,34 @@ namespace QueueService
         {
             Console.WriteLine("id's {0} {1}", request.MainPart, request.ModulesPart);
             string errors = "";
-            bool resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
-            
-            
+            bool resp = false;
+
+            if (request.MainPart != null)
+                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
+
+            if (resp && request.ModulesPart != null)
+                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
+
             if (resp)
+            {
                 errors = "OK";
+                if (request.Reset)
+                {
+                    // delay reset....
+                }
+                else if (request.Restart)
+                {
+                    // delay restart....
+                }
+            }
+            else
+            {
+                return new ConfigResponse()
+                {
+                    Result = errors,
+                    ConfigCommitID = null
+                };
+            }
             return new ConfigResponse()
             {
                 Result = errors, // OR SOME ERROR DESCRIPTION

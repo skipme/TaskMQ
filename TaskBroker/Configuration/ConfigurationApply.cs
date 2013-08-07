@@ -10,7 +10,7 @@ namespace TaskBroker
     {
         public static void Apply(this ConfigurationBroker con, Broker broker)
         {
-            Console.WriteLine("trying to apply main configuration with date stamp: {0}", con.CreationDate);
+            Console.WriteLine("trying to apply main configuration with datetime stamp: {0}", con.CreationDate);
 
             foreach (var connection in con.Connections)
             {

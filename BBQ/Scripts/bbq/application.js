@@ -70,16 +70,16 @@
 
     function getServiceModel(succ, err) {
         main_synced = false; main_cmodel_id = null;
-        jsonp(function (data) {
-            main_synced = true;
+        jsonp(function (data) {// success
+            main_synced = true; main_cmodel_id = null;
             main_cmodel = bbq_tmq.m_main = data;
             succ(main_cmodel);
         }, err, { MainPart: true });
     }
     function getModsModel(succ, err) {
         mods_synced = false; mods_cmodel_id = null; 
-        jsonp(function (data) {
-            mods_synced = true;
+        jsonp(function (data) {// success
+            mods_synced = true; mods_cmodel_id = null;
             mods_cmodel = bbq_tmq.m_mods = data;
             succ(mods_cmodel);
         }, err, { ModulesPart: true });
@@ -126,6 +126,10 @@
     }
     // ==============
     function setServiceModel(succ, err) {
+        if (typeof main_cmodel === 'undefined' || main_cmodel === null) {
+            succ("mods model not changed since last sync...");
+            return;
+        }
         json_proxy(function (data) {
             if (data.Result == 'OK') {
                 succ(data);
@@ -137,12 +141,16 @@
     }
     function setModsModel(succ, err) {
         //succ({Result:'OK', ConfigCommitID: uuid()});
+        if (typeof mods_cmodel_id === 'undefined' || mods_cmodel_id === null) {
+            succ("mods model not changed since last sync...");
+            return;
+        }
         json_proxy(function (data) {
             if (data.Result == 'OK') {
                 succ(data);
             } else {
                 if (err)
-                    err();
+                    err(data.Result);
             }
         }, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id }) });
     }
@@ -154,7 +162,7 @@
                 succ(data);
             } else {
                 if (err)
-                    err();
+                    err(data.Result);
             }
         }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id }), urlpostfix: "/commit" });
     }

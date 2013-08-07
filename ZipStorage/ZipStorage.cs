@@ -41,11 +41,12 @@ namespace FileContentArchive
         }
         public void UpdateContent(string loc, string content)
         {
-            string c = GetContent(loc);
-            if (c != null)
-            {
-                DeleteContent(loc);
-            }
+            //string c = GetContent(loc);
+            //if (c != null)
+            //{
+            //    //DeleteContent(loc);
+            //    // actually not required but just leave it
+            //}
             SetContent(loc, content);
         }
         void SetContent(string loc, string content)

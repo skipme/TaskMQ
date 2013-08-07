@@ -210,13 +210,13 @@
                     bbq_tmq.syncToMain(function (data) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.error("main configuration upload error"); })
+                    }, function (msg) { actx.error("main configuration upload error"); })
                 },
                 function (actx) {
                     bbq_tmq.syncToMods(function (data) {
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.error("module configuration upload error"); })
+                    }, function (msg) { actx.error("module configuration upload error"); })
                 })
           .ondone(function () {
               bbq_tmq.CommitAndReset(function (data) {
@@ -226,7 +226,7 @@
                   $scope.$apply();
 
 
-              }, function () { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
+              }, function (msg) { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
           }, function (msg) {
               bbq_tmq.toastr_error(" Configuration commit error: " + msg);
           });

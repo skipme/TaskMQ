@@ -63,6 +63,12 @@ namespace TaskBroker.Configuration
     public class ConfigurationModules : RepresentedConfiguration
     {
         public cModule[] Modules { get; set; }
+
+        public static ConfigurationModules DeSerialiseJson(string json)
+        {
+            ConfigurationModules obj = RepresentedConfiguration.DeSerialiseJson<ConfigurationModules>(json);
+            return obj;
+        }
     }
     public class ConfigurationAssemblys : RepresentedConfiguration
     {

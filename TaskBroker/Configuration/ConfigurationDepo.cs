@@ -54,7 +54,7 @@ namespace TaskBroker.Configuration
             {
                 string json = jsonConfigurations[id];
                 bool vok = ConfigurationValidation.ValidateMain(ref json, out errors);
-                // TODO: save to configuration storage
+
                 versions.AddVersion(key_main, json);
             }
 
@@ -63,6 +63,23 @@ namespace TaskBroker.Configuration
         }
 
 
+        public bool ValidateAndCommitMods(string id, out string errors)
+        {
+            if (id == null || !jsonConfigurations.ContainsKey(id))
+            {
+                errors = "id not present in commit queue";
+                return false;
+            }
+            else
+            {
+                string json = jsonConfigurations[id];
+                bool vok = ConfigurationValidation.ValidateMain(ref json, out errors);
 
+                versions.AddVersion(key_modules, json);
+            }
+
+            errors = "ok";
+            return true;
+        }
     }
 }

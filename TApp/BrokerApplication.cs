@@ -28,8 +28,9 @@ namespace TaskBroker
         public void Run(ManualResetEvent signal)
         {
             broker = new Broker(Restart);
-            QueueService.ModProducer m;// todo: force loading local dep's
-            EmailConsumer.ModConsumer ec;
+            //QueueService.ModProducer m;// todo: force loading local dep's
+            //EmailConsumer.ModConsumer ec;
+
 
             //broker.AddAssemblyByPath("QueueService.dll");
     //        broker.RegisterConnection<MongoDbQueue>("MongoLocalhost",
