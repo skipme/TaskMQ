@@ -115,7 +115,11 @@
                 $scope.$apply();
             });
         }
-
+        $scope.sync = function () {
+            resetTriggers();
+            resetNewForms();
+            ResyncAll();
+        }
         $scope.$watch('m_main', function () {
             return true;
         });
@@ -220,22 +224,31 @@
                 })
           .ondone(function () {
               bbq_tmq.CommitAndReset(function (data) {
-                  bbq_tmq.toastr_success(" configuration commit ok ", true);
+                 
+                  refModels();
                   $scope.triggers.Info = true;
                   $scope.triggers.wReset = false;
+                  
                   $scope.$apply();
 
-
+                  bbq_tmq.toastr_success(" configuration commit ok ", true);
               }, function (msg) { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
           }, function (msg) {
               bbq_tmq.toastr_error(" Configuration commit error: " + msg);
           });
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+        
         resetTriggers();
         resetNewForms();
-        ResyncAll();
+        $scope.triggers.Info = true;
+        //ResyncAll();
+
+        function refModels()
+        {
+            $scope.m_main = bbq_tmq.m_main;
+            $scope.m_mods = bbq_tmq.m_mods;
+        }
     });// ~controller
 
     bbqmvc.filter('long', function () {

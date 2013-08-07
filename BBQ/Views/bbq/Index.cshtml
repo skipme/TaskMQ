@@ -41,7 +41,7 @@
     <div class="alert alert-info hidden-phone" ng-show="triggers.Info">
         @*<a class="close" data-dismiss="alert">×</a>*@
         <span>
-            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint -connect-.</span>
+            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint <button class="btn" ng-click="sync()">Connect</button></span>
     </div>
 
     <div class="alert alert-block" ng-show="triggers.wReset">

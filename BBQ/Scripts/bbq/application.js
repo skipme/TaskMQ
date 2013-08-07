@@ -159,7 +159,9 @@
         //succ({ Result: 'OK', ConfigCommitID: uuid() });
         json_proxy(function (data) {
             if (data.Result == 'OK') {
+                resetModels();
                 succ(data);
+
             } else {
                 if (err)
                     err(data.Result);
