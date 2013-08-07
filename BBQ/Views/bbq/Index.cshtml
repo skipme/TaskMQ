@@ -183,26 +183,20 @@
                         <thead>
                             <tr>
                                 <th>id
-                      <br>
                                 </th>
                                 <th>connection</th>
                                 <th>Mtype(name)
-                      <br>
                                 </th>
-                                <th>model</th>
                                 <th>throughput</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="m in m_main.Channels">
                                 <td>{{m.Name}}
-                      <br>
                                 </td>
                                 <td>{{m.connectionName}}</td>
-                                <td>{{m.messageModel.TypeFullName}}
-                      <br>
+                                <td>{{m.MType}}
                                 </td>
-                                <td>{To:string, Body:string}</td>
                                 <td>20/sec</td>
                             </tr>
                         </tbody>

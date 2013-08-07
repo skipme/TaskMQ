@@ -14,7 +14,7 @@ namespace TaskBroker
 
             foreach (var connection in con.Connections)
             {
-                var qinterface = broker.MessageChannels.Queues.GetQueue(connection.queueTypeName);
+                var qinterface = broker.QueueInterfaces.GetQueue(connection.queueTypeName);
                 broker.RegisterConnection(connection.Name, connection.connectionString,
                     connection.database, connection.collection, qinterface);
             }

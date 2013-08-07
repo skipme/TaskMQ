@@ -1,10 +1,5 @@
 ﻿(function ($) {
 
-    //$(document).ready(
-    //    function () {
-    //        $("select.customselect").selectpicker({ style: 'btn-primary', menuStyle: 'dropdown-inverse' });
-    //    });
-
     function reviewMainModel() {
 
     }
@@ -123,10 +118,6 @@
         $scope.$watch('m_main', function () {
             return true;
         });
-        //$scope.$watch('newtask.mpxy', function (newVal, oldVal) {
-        //    //console.log('newtask.mpxy.Name');
-        //    //$("select.customselect[name='mod']").selectpicker('render');
-        //}, false);
         $scope.update = function () {
 
         };

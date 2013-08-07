@@ -16,7 +16,6 @@ namespace TaskBroker
             MessageChannelsModels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             Anterooms = new Dictionary<string, ChannelAnteroom>();
-            Queues = new QueueClassificator();
             Connections = new Dictionary<string, QueueConnectionParameters>();
         }
         public void AddConnection(QueueConnectionParameters conParameters)
@@ -124,14 +123,11 @@ namespace TaskBroker
             return null;
         }
         public Dictionary<string, ChannelAnteroom> Anterooms;
-        //public List<MessageType> MessageModels;
 
         public List<MessageChannel> MChannelsList;
         public Dictionary<string, int> MessageChannels;
         public Dictionary<string, int> MessageChannelsModels;
 
-        public QueueClassificator Queues;
         public Dictionary<string, QueueConnectionParameters> Connections;
-        //public QueueConParams Connections;
     }
 }
