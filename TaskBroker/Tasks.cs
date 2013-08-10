@@ -27,11 +27,11 @@ namespace TaskBroker
         //public string Description;
 
         public string ChannelName;
+        public ChannelAnteroom Anteroom;
         public bool MinChannelOccupancyDirection;
         public Dictionary<string, object> Parameters;
         public ModMod Module;
         public string ModuleName { get; set; }
-
         public bool Temp;
 
         public DateTime NextExecution

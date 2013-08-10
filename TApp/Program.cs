@@ -74,9 +74,22 @@ namespace TApp
                 get { return new zModel(); }
             }
         }
-
+        static void TestStat()
+        {
+            TaskBroker.Statistics.StatMatchModel sm = new TaskBroker.Statistics.StatMatchModel(TaskBroker.Statistics.StatHub.useRanges);
+            Random rnd = new Random(DateTime.UtcNow.Millisecond);
+            while (true)
+            {
+                sm.inc();
+                Console.Write("{0}\r", sm.Print());
+                System.Threading.Thread.Sleep(10);
+            }
+        }
         static void Main(string[] args)
         {
+            TestStat();
+            return;
+
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);

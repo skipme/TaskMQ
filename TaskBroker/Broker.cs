@@ -24,7 +24,7 @@ namespace TaskBroker
         public Broker(RestartApplication restartApp = null)
         {
             this.restartApp = restartApp;
-            
+
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
             MessageChannels = new QueueMTClassificator();
@@ -53,7 +53,7 @@ namespace TaskBroker
 
         //modules
         //bunch[model, queue, +module] .... TODO: maybe bunch with channel better?
-       
+
         public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
         {
             Modules.AddMod(interfaceMod.FullName, new ModMod() { }, this);
@@ -102,6 +102,7 @@ namespace TaskBroker
 
                 //Description = Description,
                 ChannelName = Channel,
+                Anteroom = Channel == null ? null : MessageChannels.GetAnteroom(Channel),
                 Parameters = parameters,
 
                 intervalType = it,
@@ -124,6 +125,7 @@ namespace TaskBroker
 
                 //Description = mst.NameAndDescription,
                 ChannelName = mst.ChannelName,
+                Anteroom = mst.ChannelName == null ? null : MessageChannels.GetAnteroom(mst.ChannelName),
                 Parameters = null,
 
                 intervalType = mst.intervalType,
@@ -220,7 +222,7 @@ namespace TaskBroker
             ModMod mod = task.Module;
 
             // Pop item from queue
-            ChannelAnteroom ch = MessageChannels.GetAnteroom(task.ChannelName);
+            ChannelAnteroom ch = task.Anteroom;//MessageChannels.GetAnteroom(task.ChannelName);
             TaskQueue.Providers.TaskMessage message = ch.Next();
 
             if (message == null)

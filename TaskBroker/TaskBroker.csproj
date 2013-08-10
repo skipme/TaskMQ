@@ -62,6 +62,8 @@
     <Compile Include="QueueClassificator.cs" />
     <Compile Include="QueueConParams.cs" />
     <Compile Include="QueueMTClassificator.cs" />
+    <Compile Include="Statistics\Hub.cs" />
+    <Compile Include="Statistics\Model.cs" />
     <Compile Include="Tasks.cs" />
   </ItemGroup>
   <ItemGroup>
