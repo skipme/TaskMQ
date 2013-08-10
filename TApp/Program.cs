@@ -76,7 +76,8 @@ namespace TApp
         }
         static void TestStat()
         {
-            TaskBroker.Statistics.StatMatchModel sm = new TaskBroker.Statistics.StatMatchModel(TaskBroker.Statistics.StatHub.useRanges);
+            TaskBroker.Statistics.StatMatchModel sm = new TaskBroker.Statistics.StatMatchModel();
+            sm.CreateRanges(TaskBroker.Statistics.StatHub.useRanges);
             Random rnd = new Random(DateTime.UtcNow.Millisecond);
             while (true)
             {
@@ -87,8 +88,8 @@ namespace TApp
         }
         static void Main(string[] args)
         {
-            TestStat();
-            return;
+            //TestStat();
+            //return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {

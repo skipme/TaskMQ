@@ -42,6 +42,66 @@
         $scope.m_main = null;
         $scope.m_mods = null;
 
+        // * statistic
+        var heartbeatInterval = null;
+        $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22] }];
+        function updateHeartbeat() {
+
+            //var applyGraphs = function (){$('span.channel-sparkline').each(function (index) {
+            //    var n = $(this).attr('statsel');
+            //    var that = this;
+            //    $scope.stat_channels.forEach(function (e) {
+            //        if (e.name == n) {
+            //            $(that).sparkline(e.heartbeat, {
+            //                width: 70, //type: 'line',
+            //                lineColor: '#34495e',
+            //                fillColor: '#1abc9c', tooltipSuffix: ' messages per !!!'
+            //            });
+            //        }
+            //    });
+            //});
+            //}
+            bbq_tmq.heartbeat(function (resp) {
+                resp.Channels.forEach(function (c) {
+
+                    var ref = null;
+                    for (var i = 0; i < $scope.stat_channels.length; i++) {
+                        if ($scope.stat_channels[i].name == c.Name) {
+                            ref = $scope.stat_channels[i];
+                            break;
+                        }
+                    }
+                    if (ref === null) {
+                        ref = { name: c.Name, heartbeat: [], lastLeft: null };
+                        $scope.stat_channels.push(ref);
+                    }
+
+                    if (ref.lastLeft != c.Left) {
+                        ref.lastLeft = c.Left;
+                        ref.heartbeat.push(c.Count);
+                        if (ref.heartbeat.length > 30)
+                            ref.heartbeat.splice(0, 1);
+
+                        $('span.channel-sparkline[statsel="' + c.Name + '"]').sparkline(ref.heartbeat, {
+                            width: 70, //type: 'line',
+                            lineColor: '#34495e',
+                            fillColor: '#1abc9c', tooltipSuffix: ' messages per !!!'
+                        });
+                    }
+
+                });
+            }, function () {
+
+            });
+
+            tryKillHeartbeat();
+            heartbeatInterval = setTimeout(updateHeartbeat, 1000 * 5);
+        }
+        function tryKillHeartbeat() {
+            if (heartbeatInterval !== null)
+                clearTimeout(heartbeatInterval);
+        }
+        //~statistic
         $scope.triggers = null;
         function resetTriggers() {
             $scope.triggers = { Info: false, wReset: false, wRestart: false };
@@ -101,8 +161,10 @@
             }
             ).ondone(function () {
                 $scope.triggers.Info = !bbq_tmq.check_synced();
-                if (!$scope.triggers.Info)
+                if (!$scope.triggers.Info) {
                     bbq_tmq.toastr_info(" Configuration synced ", true);
+                    updateHeartbeat();
+                }
                 else {
                     bbq_tmq.toastr_error(" Erorr in configuration sync.", true);
                     bbq_tmq.rollbackAppC();

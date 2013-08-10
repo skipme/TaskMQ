@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using TaskBroker.Assemblys;
 using TaskBroker.Configuration;
+using TaskBroker.Statistics;
 using TaskQueue.Providers;
 using TaskScheduler;
 
@@ -24,9 +25,21 @@ namespace TaskBroker
         public Broker(RestartApplication restartApp = null)
         {
             this.restartApp = restartApp;
-
+            Statistics = new StatHub();
+            
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
+            OtherTasks = new List<PlanItem>()
+            {
+                // include statistic flush task
+                new PlanItem(){
+                     intervalType = IntervalType.intervalSeconds,
+                     intervalValue = 5,
+                     NameAndDescription="statistic maintenance task",
+                     planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushReatairedChunks(); }
+                }
+            };
+
             MessageChannels = new QueueMTClassificator();
 
             Modules = new ModHolder(this);
@@ -45,9 +58,12 @@ namespace TaskBroker
         public ConfigurationDepo Configurations;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
+        public List<PlanItem> OtherTasks;
+
         public ModHolder Modules;
         public QueueClassificator QueueInterfaces;
         public TaskScheduler.ThreadPool Scheduler;
+        public StatHub Statistics;
 
         public ConfigurationBroker c_apmain;
 
@@ -111,7 +127,10 @@ namespace TaskBroker
 
                 NameAndDescription = Description
             };
-
+            if (t.Anteroom != null)
+            {
+                t.Anteroom.ChannelStatistic = Statistics.FindModel<ChannelStat>(new ChannelStat(Channel));
+            }
             Tasks.Add(t);
             UpdatePlan();
             //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
@@ -132,6 +151,10 @@ namespace TaskBroker
                 intervalValue = mst.intervalValue,
                 NameAndDescription = mst.NameAndDescription
             };
+            if (t.Anteroom != null)
+            {
+                t.Anteroom.ChannelStatistic = Statistics.FindModel<ChannelStat>(new ChannelStat(mst.ChannelName));
+            }
             //ModMod module = Modules.GetByName(t.ModuleName);
             //if (module == null)
             //    throw new Exception("required qmodule not found.");
@@ -186,6 +209,10 @@ namespace TaskBroker
             foreach (QueueTask t in Tasks)
             {
                 plan.Add(t);
+            } 
+            foreach (PlanItem p in OtherTasks)
+            {
+                plan.Add(p);
             }
             Scheduler.SetPlan(plan);
         }
@@ -223,14 +250,17 @@ namespace TaskBroker
 
             // Pop item from queue
             ChannelAnteroom ch = task.Anteroom;//MessageChannels.GetAnteroom(task.ChannelName);
+
+
             TaskQueue.Providers.TaskMessage message = ch.Next();
 
             if (message == null)
             {
-                Console.WriteLine("consumer empty: {0}", task.ChannelName);
+                //Console.WriteLine("consumer empty: {0}", task.ChannelName);
                 task.Suspended = true;
                 return;
             }
+            ch.ChannelStatistic.inc();
             //System.Diagnostics.Stopwatch w = System.Diagnostics.Stopwatch.StartNew();
             //for (int i = 0; i < 10000; i++)
             //{
@@ -341,6 +371,7 @@ namespace TaskBroker
             {
                 Scheduler.CreateIsolatedThreadForPlan(tiso);
             }
+
             UpdatePlan();
         }
 

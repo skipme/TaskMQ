@@ -97,7 +97,7 @@
             //Listen for updates to the DOM and re render...
             var observer = new MutationObserver(function (mutations) {
                 mutations.forEach(function (mutation) {
-                    console.log(mutation.type);
+                    //console.log(mutation.type);
                     _this.reloadLi();
                 });
             });

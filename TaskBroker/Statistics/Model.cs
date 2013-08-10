@@ -59,6 +59,10 @@ namespace TaskBroker.Statistics
         {
             get
             {
+                if (Expired)
+                {
+                    return new TimeSpan(0, 0, secondsInterval);
+                }
                 return DateTime.UtcNow - Left;
             }
         }
@@ -81,12 +85,32 @@ namespace TaskBroker.Statistics
     public class StatMatchModel : TaskQueue.Providers.TItemModel
     {
         StatRange[] currentRanges;
-        public StatMatchModel(int[] secRanges)
+        StatRange[] lastRanges;
+        public void CreateRanges(int[] secRanges)
         {
             currentRanges = new StatRange[secRanges.Length];
+            lastRanges = new StatRange[secRanges.Length];
             for (int i = 0; i < secRanges.Length; i++)
             {
-                currentRanges[i] = new StatRange(secRanges[i]);
+                lastRanges[i] = currentRanges[i] = new StatRange(secRanges[i]);
+            }
+        }
+
+        public StatMatchModel()
+        {
+
+        }
+        public void checkExpired()
+        {
+            for (int i = 0; i < currentRanges.Length; i++)
+            {
+                StatRange r = currentRanges[i];
+                if (r.Expired)
+                {
+                    // flush and create new
+                    lastRanges[i] = r;
+                    r = currentRanges[i] = new StatRange(r);
+                }
             }
         }
         public void inc()
@@ -97,14 +121,16 @@ namespace TaskBroker.Statistics
                 if (r.Expired)
                 {
                     // flush and create new
+                    lastRanges[i] = r;
                     r = currentRanges[i] = new StatRange(r);
                 }
                 r.inc();
             }
         }
-        public StatRange GetMinRange()
+
+        public StatRange GetFlushedMinRange()
         {
-            return currentRanges[0];
+            return lastRanges[0];
         }
         public string Print()
         {

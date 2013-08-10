@@ -122,6 +122,14 @@ namespace TaskBroker
 
             return null;
         }
+
+        public IEnumerable<Statistics.ChannelStat> GetStatistics()
+        {
+            foreach (KeyValuePair<string, ChannelAnteroom> sca in Anterooms)
+            {
+                yield return sca.Value.ChannelStatistic;
+            }
+        }
         public Dictionary<string, ChannelAnteroom> Anterooms;
 
         public List<MessageChannel> MChannelsList;

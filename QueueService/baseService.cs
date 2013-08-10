@@ -31,6 +31,23 @@ namespace QueueService
         public string ModulesPart { get; set; }
         public string AssemblysPart { get; set; }
     }
+    [Route("/tmq/s", Verbs = "GET")]
+    public class StatisticRequest
+    {
+        public bool GetHeartbit { get; set; }
+    }
+
+    public class ItemCounter
+    {
+        public string Name { get; set; }
+        public int Count { get; set; }
+        public string Left { get; set; }
+    }
+    public class StatisticResponseHeartbit
+    {
+        public List<ItemCounter> Channels { get; set; }
+    }
+
     public class ConfigResponse
     {
         public string ConfigCommitID { get; set; }
@@ -39,11 +56,31 @@ namespace QueueService
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
+        public object Get(StatisticRequest r)
+        {
+
+            StatisticResponseHeartbit h = new StatisticResponseHeartbit();
+            h.Channels = new List<ItemCounter>();
+            foreach (TaskBroker.Statistics.ChannelStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
+            {
+                TaskBroker.Statistics.StatRange range = sm.GetFlushedMinRange();
+                h.Channels.Add(new ItemCounter()
+                {
+                    Name = sm.Name,
+                    Count = (int)range.PerMinute,
+                    Left = range.Left.ToString()
+                });
+            }
+
+            return h;
+        }
         public object Put(Dictionary<string, object> m)
         {
             // save to db
             TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(m);
-            bool result = QueueService.ModProducer.broker.PushMessage(tm);
+            bool result = false;
+            if (tm.MType != null)
+                result = QueueService.ModProducer.broker.PushMessage(tm);
             return new ServiceStack.Common.Web.HttpResult()
             {
                 StatusCode = result ? HttpStatusCode.Created : HttpStatusCode.InternalServerError

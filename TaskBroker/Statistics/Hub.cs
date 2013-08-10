@@ -7,12 +7,23 @@ namespace TaskBroker.Statistics
 {
     public class StatHub
     {
-        public static int[] useRanges = new int[] { StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
-       
-        public T FindModel<T>()
+        public static int[] useRanges = new int[] { 15, StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
+
+        public void FlushReatairedChunks()
+        {
+            foreach (StatMatchModel m in RetrievedModels)
+            {
+                m.checkExpired();
+            }
+        }
+        public List<StatMatchModel> RetrievedModels = new List<StatMatchModel>();
+
+        public T FindModel<T>(T match)
             where T : StatMatchModel
         {
-            return null;
+            match.CreateRanges(useRanges);
+            RetrievedModels.Add(match);
+            return match;
         }
     }
 }

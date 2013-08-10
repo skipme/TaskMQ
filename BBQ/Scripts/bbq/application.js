@@ -2,6 +2,7 @@
 (function ($) {
     var url_host = "http://localhost:82/";
     var url_c = url_host + "tmq/c";
+    var url_stat = url_host + "tmq/s";
     var url_c_pxy = "/bbq/" + "PxySet";
 
     var main_cmodel = null;
@@ -95,6 +96,17 @@
                     err();
             });
     }
+    function jsonpu(url, succ, err, data) {
+        $.ajax({ url: url_cb_js(url), dataType: "jsonp", data: data, timeout: 10000 })
+            .done(function (data) {
+                succ(data);
+            }).fail(function () {
+                //console.log("error at: " + url_c);
+                bbq_tmq.toastr_error(" jsonp unavailable: " + url_c);
+                if (err)
+                    err();
+            });
+    }
     function json_proxy(succ, err, data) {
         $.ajax({ url: url_c_pxy, dataType: "json", data: data, timeout: 10000, type: 'POST' })
            .done(function (data) {
@@ -173,6 +185,8 @@
 
     function stub() { }
     bbq_tmq = {
+        jsonp: jsonpu,
+        url_stat: url_stat,
         check_synced: function () { return main_synced && mods_synced; },
         check_commit: function () { return config_commit_ok; },
 
@@ -207,6 +221,8 @@
     $.cachedScript("Scripts/bbq/application-info.js").done(function (script, textStatus) {
         console.log(textStatus);
     });
-
+    $.cachedScript("Scripts/bbq/statistic.js").done(function (script, textStatus) {
+        console.log(textStatus);
+    });
 })(jQuery);
 

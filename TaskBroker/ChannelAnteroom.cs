@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskBroker.Statistics;
 using TaskQueue.Providers;
 
 namespace TaskBroker
@@ -9,6 +10,7 @@ namespace TaskBroker
     public class ChannelAnteroom
     {
         public string ChannelName { get; set; }
+        public ChannelStat ChannelStatistic;
         public ChannelAnteroom(TaskQueue.TQItemSelector selector)
         {
             this.selector = selector;

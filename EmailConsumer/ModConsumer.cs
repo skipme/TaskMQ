@@ -11,6 +11,7 @@ namespace EmailConsumer
     {
         public bool Push(Dictionary<string, object> parameters, ref TaskMessage q_parameter)
         {
+            return true;
             //Send
             SmtpModel smtp_p = new SmtpModel(parameters);
             MailModel mail = new MailModel(q_parameter);

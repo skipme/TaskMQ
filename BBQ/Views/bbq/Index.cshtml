@@ -7,6 +7,7 @@
     <script src="@Url.Content("Scripts/bbq/application.js")"></script>
     <script src="@Url.Content("Scripts/bbq/app_ui.js")"></script>
     <script src="@Url.Content("Scripts/bbq/toastr.js")"></script>
+    <script src="@Url.Content("Scripts/jquery.sparkline.min.js")"></script>
 }
 
 @section styles {
@@ -176,7 +177,7 @@
                     <h4>Channels</h4>
                     <h4></h4>
                     <p>
-                        Message model typing<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
+                        Message model typing and scalability point<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
                     </p>
 
                     <table class="table">
@@ -188,6 +189,7 @@
                                 <th>Mtype(name)
                                 </th>
                                 <th>throughput</th>
+                                <th>heartbeat</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -198,6 +200,7 @@
                                 <td>{{m.MType}}
                                 </td>
                                 <td>20/sec</td>
+                                <td><span class="channel-sparkline" statsel="{{m.Name}}">sparkline...</span></td>
                             </tr>
                         </tbody>
                     </table>
