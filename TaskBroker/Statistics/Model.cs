@@ -82,7 +82,7 @@ namespace TaskBroker.Statistics
             }
         }
     }
-    public class StatMatchModel : TaskQueue.Providers.TItemModel
+    public class StatMatchModel
     {
         StatRange[] currentRanges;
         StatRange[] lastRanges;
@@ -141,15 +141,13 @@ namespace TaskBroker.Statistics
             }
             return sb.ToString();
         }
-        public override string ItemTypeName
+        public virtual Dictionary<string, string> MatchData
         {
             get
             {
-                throw new NotImplementedException();
-            }
-            set
-            {
+                return new Dictionary<string, string>();
             }
         }
+
     }
 }

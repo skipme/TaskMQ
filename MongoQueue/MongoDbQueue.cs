@@ -13,7 +13,7 @@ namespace MongoQueue
     public class MongoDbQueue : ITQueue
     {
         const int TupleSize = 16;
-        MongoCollection<MongoQueue.MongoMessage> Collection { get; set; }
+        MongoCollection<MongoQueue.MongoMessage> Collection;
 
         public void OptimiseForSelector(TQItemSelector selector)
         {

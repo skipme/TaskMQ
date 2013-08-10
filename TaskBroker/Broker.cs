@@ -34,7 +34,7 @@ namespace TaskBroker
                 // include statistic flush task
                 new PlanItem(){
                      intervalType = IntervalType.intervalSeconds,
-                     intervalValue = 5,
+                     intervalValue = StatRange.seconds30,
                      NameAndDescription="statistic maintenance task",
                      planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushReatairedChunks(); }
                 }
