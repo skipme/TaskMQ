@@ -36,7 +36,7 @@ namespace TaskBroker
                      intervalType = IntervalType.intervalSeconds,
                      intervalValue = StatRange.seconds30,
                      NameAndDescription="statistic maintenance task",
-                     planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushReatairedChunks(); }
+                     planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
                 }
             };
 

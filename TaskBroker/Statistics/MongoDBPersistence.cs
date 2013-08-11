@@ -26,7 +26,7 @@ namespace TaskBroker.Statistics
     }
     public class MongoDBPersistence
     {
-        public MongoDBPersistence(string conString, string dbName, string colName = "tmqStats")
+        public MongoDBPersistence(string conString, string dbName, string colName = "QStats")
         {
             ConnectionString = conString;
             DatabaseName = dbName;
@@ -38,6 +38,23 @@ namespace TaskBroker.Statistics
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public string CollectionName { get; set; }
+
+        public void PurgeExcessive(int secRange, int secAlive)
+        {
+            string js = @"
+var date = new Date(); 
+date.setSeconds(date.getSeconds()- {0});
+db.{2}.remove({SecondsInterval: {1}, Left:{$lt:date}})
+";
+            // 0 - seconds life of significant chunks
+            // 1 - chunk id...
+            // 2 - collection
+            DateTime dtl = DateTime.UtcNow.AddSeconds(-secAlive);
+            Collection.Remove(Query.And(
+                Query<MongoRange>.EQ(p => p.SecondsInterval, secRange),
+                Query<MongoRange>.LT(p => p.Left, dtl)
+            ));
+        }
 
         private IMongoQuery GetQuery(Dictionary<string, object> matchData)
         {
@@ -59,63 +76,62 @@ db.tmqStats.aggregate({$match:{ch:"4", z:"5"}}, { $sort: { Left: 1 } },
              */
 
             var match = new BsonDocument
+            {
                 {
-                    {
-                        "$match",
-                        new BsonDocument(matchData)
-                    }
-                };
+                    "$match",
+                    new BsonDocument(matchData)
+                }
+            };
             var sort = new BsonDocument
+            {
                 {
-                    {
-                        "$sort",
-                        new BsonDocument("Left", 1)
-                    }
-                };
+                    "$sort",
+                    new BsonDocument("Left", 1)
+                }
+            };
             var group = new BsonDocument
+            {
                 {
-                    {
-                       "$group",
-                       new BsonDocument
-                            {
-                                                 {
-                                                     "_id","$SecondsInterval"
-                                                 },
-                                                 {
-                                                     "Left", new BsonDocument
-                                                                    {
-                                                                        { "$last", "$Left" }
-                                                                    }
-                                                 },
-                                                 {
-                                                     "id", new BsonDocument
-                                                                    {
-                                                                        { "$last", "$_id" }
-                                                                    }
-                                                 },
-                                                 {
-                                                     "Counter", new BsonDocument
-                                                                    {
-                                                                        { "$last", "$Counter" }
-                                                                    }
-                                                 }
-                                             }
-                    }
-                };
-            BsonDocument proj = new BsonDocument
-                            {
-                                //{"_id","$id"},
-                                {"_id",0},
-                                {"SecondsInterval","$_id"}, {"Left",1}, {"Counter",1}
-                            };
+                    "$group",
+                    new BsonDocument
+                        {
+                                                {
+                                                    "_id","$SecondsInterval"
+                                                },
+                                                {
+                                                    "Left", new BsonDocument
+                                                                {
+                                                                    { "$last", "$Left" }
+                                                                }
+                                                },
+                                                {
+                                                    "id", new BsonDocument
+                                                                {
+                                                                    { "$last", "$_id" }
+                                                                }
+                                                },
+                                                {
+                                                    "Counter", new BsonDocument
+                                                                {
+                                                                    { "$last", "$Counter" }
+                                                                }
+                                                }
+                                            }
+                }
+            };
 
             var project = new BsonDocument
+            {
                 {
-                    {
-                        "$project",
-                       proj
-                    }
-                };
+                    "$project",
+                    new BsonDocument
+                        {
+                            //{"_id","$id"},
+                            {"_id",0},
+                            {"SecondsInterval","$_id"}, {"Left",1}, {"Counter",1}
+                        }
+                }
+            };
             var pipeline = new[] { match, sort, group, project };
 
             CheckConnection();

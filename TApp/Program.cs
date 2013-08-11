@@ -89,7 +89,7 @@ namespace TApp
         static void TesMtStat()
         {
             TaskBroker.Statistics.MongoDBPersistence sm = new TaskBroker.Statistics.MongoDBPersistence(
-                "mongodb://user:1234@localhost:27017", "test");
+                "mongodb://user:1234@localhost:27017", "Messages");
             //sm.Save(new TaskBroker.Statistics.MongoRange
             //{
             //    Counter = 6,
@@ -102,8 +102,8 @@ namespace TApp
         static void Main(string[] args)
         {
             //TestStat();
-            TesMtStat();
-            return;
+            //TesMtStat();
+            //return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {

@@ -81,12 +81,21 @@ namespace TaskBroker.Statistics
                 return (double)Counter / Spend.TotalMinutes;
             }
         }
+
+        public void Restore(MongoRange mr)
+        {
+            this.Counter = mr.Counter;
+            this.Left = mr.Left;
+        }
     }
     public class StatMatchModel
     {
         StatRange[] currentRanges;
         StatRange[] lastRanges;
-        public void CreateRanges(int[] secRanges)
+
+        StatHub.FlushCB flushCallback;
+
+        public void CreateRanges(int[] secRanges, StatHub.FlushCB f = null)
         {
             currentRanges = new StatRange[secRanges.Length];
             lastRanges = new StatRange[secRanges.Length];
@@ -94,8 +103,29 @@ namespace TaskBroker.Statistics
             {
                 lastRanges[i] = currentRanges[i] = new StatRange(secRanges[i]);
             }
-        }
 
+            flushCallback = f;
+        }
+        public void CreateRanges(int[] secRanges, MongoRange[] pranges, StatHub.FlushCB f = null)
+        {
+            currentRanges = new StatRange[secRanges.Length];
+            lastRanges = new StatRange[secRanges.Length];
+            for (int i = 0; i < secRanges.Length; i++)
+            {
+                StatRange sr = new StatRange(secRanges[i]);
+                for (int j = 0; j < pranges.Length; j++)
+                {
+                    if (pranges[j].SecondsInterval == secRanges[i])
+                    {
+                        sr.Restore(pranges[j]);
+                        break;
+                    }
+                }
+                lastRanges[i] = currentRanges[i] = sr;
+            }
+
+            flushCallback = f;
+        }
         public StatMatchModel()
         {
 
@@ -108,6 +138,8 @@ namespace TaskBroker.Statistics
                 if (r.Expired)
                 {
                     // flush and create new
+                    if (flushCallback != null)
+                        flushCallback(r, this.MatchData);
                     lastRanges[i] = r;
                     r = currentRanges[i] = new StatRange(r);
                 }
@@ -121,6 +153,8 @@ namespace TaskBroker.Statistics
                 if (r.Expired)
                 {
                     // flush and create new
+                    if (flushCallback != null)
+                        flushCallback(r, this.MatchData);
                     lastRanges[i] = r;
                     r = currentRanges[i] = new StatRange(r);
                 }
@@ -141,11 +175,11 @@ namespace TaskBroker.Statistics
             }
             return sb.ToString();
         }
-        public virtual Dictionary<string, string> MatchData
+        public virtual Dictionary<string, object> MatchData
         {
             get
             {
-                return new Dictionary<string, string>();
+                return new Dictionary<string, object>();
             }
         }
 
