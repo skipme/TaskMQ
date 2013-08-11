@@ -61,7 +61,7 @@ namespace TaskBroker.Statistics
             {
                 if (Expired)
                 {
-                    return new TimeSpan(0, 0, secondsInterval);
+                    return TimeSpan.FromSeconds(secondsInterval);
                 }
                 return DateTime.UtcNow - Left;
             }

@@ -86,10 +86,24 @@ namespace TApp
                 System.Threading.Thread.Sleep(10);
             }
         }
+        static void TesMtStat()
+        {
+            TaskBroker.Statistics.MongoDBPersistence sm = new TaskBroker.Statistics.MongoDBPersistence(
+                "mongodb://user:1234@localhost:27017", "test");
+            //sm.Save(new TaskBroker.Statistics.MongoRange
+            //{
+            //    Counter = 6,
+            //    Left = DateTime.Now,
+            //    MatchElements = new Dictionary<string, object> { { "ch", "4" }, { "z", "5" } }
+            //    , SecondsInterval =22
+            //});
+            var x = sm.GetNewest(new Dictionary<string, object> { { "ch", "4" }, { "z", "5" } }).ToList();
+        }
         static void Main(string[] args)
         {
             //TestStat();
-            //return;
+            TesMtStat();
+            return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
