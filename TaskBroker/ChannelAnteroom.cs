@@ -10,7 +10,7 @@ namespace TaskBroker
     public class ChannelAnteroom
     {
         public string ChannelName { get; set; }
-        public ChannelStat ChannelStatistic;
+        public BrokerStat ChannelStatistic;
         public ChannelAnteroom(TaskQueue.TQItemSelector selector)
         {
             this.selector = selector;

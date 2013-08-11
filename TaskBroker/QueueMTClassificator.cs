@@ -123,7 +123,7 @@ namespace TaskBroker
             return null;
         }
 
-        public IEnumerable<Statistics.ChannelStat> GetStatistics()
+        public IEnumerable<Statistics.BrokerStat> GetStatistics()
         {
             foreach (KeyValuePair<string, ChannelAnteroom> sca in Anterooms)
             {

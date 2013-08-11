@@ -5,16 +5,16 @@ using System.Text;
 
 namespace TaskBroker.Statistics
 {
-    public class ChannelStat : StatMatchModel
+    public class BrokerStat : StatMatchModel
     {
         Dictionary<string, object> match;
-        public ChannelStat(string name)
+        public BrokerStat(string role, string name)
         {
             this.Name = name;
             match = new Dictionary<string, object>
             {
-                {"_role","Channel"},
-                {"_name",Name}
+                {"_role", role},
+                {"_name", Name}
             };
         }
 

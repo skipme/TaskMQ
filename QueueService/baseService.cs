@@ -61,7 +61,7 @@ namespace QueueService
 
             StatisticResponseHeartbit h = new StatisticResponseHeartbit();
             h.Channels = new List<ItemCounter>();
-            foreach (TaskBroker.Statistics.ChannelStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
+            foreach (TaskBroker.Statistics.BrokerStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
             {
                 TaskBroker.Statistics.StatRange range = sm.GetFlushedMinRange();
                 h.Channels.Add(new ItemCounter()

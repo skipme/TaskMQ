@@ -129,7 +129,7 @@ namespace TaskBroker
             };
             if (t.Anteroom != null)
             {
-                t.Anteroom.ChannelStatistic = Statistics.FindModel<ChannelStat>(new ChannelStat(Channel));
+                t.Anteroom.ChannelStatistic = Statistics.FindModel(new BrokerStat("channel", Channel));
             }
             Tasks.Add(t);
             UpdatePlan();
@@ -153,7 +153,7 @@ namespace TaskBroker
             };
             if (t.Anteroom != null)
             {
-                t.Anteroom.ChannelStatistic = Statistics.FindModel<ChannelStat>(new ChannelStat(mst.ChannelName));
+                t.Anteroom.ChannelStatistic = Statistics.FindModel(new BrokerStat("channel", mst.ChannelName));
             }
             //ModMod module = Modules.GetByName(t.ModuleName);
             //if (module == null)

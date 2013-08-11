@@ -15,6 +15,11 @@ namespace TaskBroker.Statistics
         public StatHub()
         {
             PersistenceChunks = new MongoDBPersistence("mongodb://user:1234@localhost:27017", "Messages");
+            OptimisePerformance();
+        }
+        private void OptimisePerformance()
+        {
+            PersistenceChunks.EnsureIndex(new BrokerStat("", "").MatchData);
         }
         public void FlushRetairedChunks()
         {
@@ -50,7 +55,11 @@ namespace TaskBroker.Statistics
             //Console.WriteLine("stat ch saved: {0}", match.Values.FirstOrDefault());
         }
 
-        public T FindModel<T>(T match)
+        public BrokerStat FindModel(BrokerStat instanceMatch)
+        {
+            return FindModel<BrokerStat>(instanceMatch);
+        }
+        private T FindModel<T>(T match)
             where T : StatMatchModel
         {
             // restore from persistent component

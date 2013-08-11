@@ -50,12 +50,25 @@ db.{2}.remove({SecondsInterval: {1}, Left:{$lt:date}})
             // 1 - chunk id...
             // 2 - collection
             DateTime dtl = DateTime.UtcNow.AddSeconds(-secAlive);
+
+            CheckConnection();
             Collection.Remove(Query.And(
                 Query<MongoRange>.EQ(p => p.SecondsInterval, secRange),
                 Query<MongoRange>.LT(p => p.Left, dtl)
             ));
         }
+        public void EnsureIndex(Dictionary<string, object> matchData)
+        {
+            // matchKeys, Interval, Left
+            IndexKeysBuilder ikb = new IndexKeysBuilder();
+            ikb = ikb.Ascending(matchData.Keys.ToArray());
 
+            CheckConnection();
+            Collection.EnsureIndex(ikb);
+            //
+            var indexE = IndexKeys<MongoRange>.Ascending(r => r.SecondsInterval).Ascending(r => r.Left);
+            Collection.EnsureIndex(indexE);
+        }
         private IMongoQuery GetQuery(Dictionary<string, object> matchData)
         {
             List<IMongoQuery> qs = new List<IMongoQuery>();
@@ -76,62 +89,62 @@ db.tmqStats.aggregate({$match:{ch:"4", z:"5"}}, { $sort: { Left: 1 } },
              */
 
             var match = new BsonDocument
-            {
-                {
-                    "$match",
-                    new BsonDocument(matchData)
-                }
-            };
+			{
+				{
+					"$match",
+					new BsonDocument(matchData)
+				}
+			};
             var sort = new BsonDocument
-            {
-                {
-                    "$sort",
-                    new BsonDocument("Left", 1)
-                }
-            };
+			{
+				{
+					"$sort",
+					new BsonDocument("Left", 1)
+				}
+			};
             var group = new BsonDocument
-            {
-                {
-                    "$group",
-                    new BsonDocument
-                        {
-                                                {
-                                                    "_id","$SecondsInterval"
-                                                },
-                                                {
-                                                    "Left", new BsonDocument
-                                                                {
-                                                                    { "$last", "$Left" }
-                                                                }
-                                                },
-                                                {
-                                                    "id", new BsonDocument
-                                                                {
-                                                                    { "$last", "$_id" }
-                                                                }
-                                                },
-                                                {
-                                                    "Counter", new BsonDocument
-                                                                {
-                                                                    { "$last", "$Counter" }
-                                                                }
-                                                }
-                                            }
-                }
-            };
+			{
+				{
+					"$group",
+					new BsonDocument
+						{
+												{
+													"_id","$SecondsInterval"
+												},
+												{
+													"Left", new BsonDocument
+																{
+																	{ "$last", "$Left" }
+																}
+												},
+												{
+													"id", new BsonDocument
+																{
+																	{ "$last", "$_id" }
+																}
+												},
+												{
+													"Counter", new BsonDocument
+																{
+																	{ "$last", "$Counter" }
+																}
+												}
+											}
+				}
+			};
 
             var project = new BsonDocument
-            {
-                {
-                    "$project",
-                    new BsonDocument
-                        {
-                            //{"_id","$id"},
-                            {"_id",0},
-                            {"SecondsInterval","$_id"}, {"Left",1}, {"Counter",1}
-                        }
-                }
-            };
+			{
+				{
+					"$project",
+					new BsonDocument
+						{
+							//{"_id","$id"},
+							{"_id",0},
+							{"SecondsInterval","$_id"}, {"Left",1}, {"Counter",1}
+						}
+				}
+			};
             var pipeline = new[] { match, sort, group, project };
 
             CheckConnection();
@@ -161,6 +174,7 @@ db.tmqStats.aggregate({$match:{ch:"4", z:"5"}}, { $sort: { Left: 1 } },
             MongoClient cli = new MongoClient(ConnectionString);
             var server = cli.GetServer();
             var db = server.GetDatabase(DatabaseName);
+
             Collection = db.GetCollection<MongoRange>(CollectionName);
             Connected = true;
         }
