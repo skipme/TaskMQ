@@ -1,10 +1,5 @@
 ﻿(function ($) {
 
-    //$(document).ready(
-    //    function () {
-    //        $("select.customselect").selectpicker({ style: 'btn-primary', menuStyle: 'dropdown-inverse' });
-    //    });
-
     function reviewMainModel() {
 
     }
@@ -56,11 +51,20 @@
                 num: arguments.length,
                 sequence: [],
                 ondonef: null,
-                ondone: function (a) { this.ondonef = a; this.go(); },
+                onerrorf: null,
+                errorHit: false,
+                ondone: function (a, e) { this.ondonef = a; this.onerrorf = e; this.go(); },
                 ok: function () {
                     this.num--;
-                    if (this.num <= 0) {
+                    if (this.num <= 0 && !this.errorHit) {
                         this.ondonef();
+                    }
+                },
+                error: function (msg) {
+                    this.num--;
+                    if (this.onerrorf && !this.errorHit) {
+                        this.errorHit = true;
+                        this.onerrorf(msg);
                     }
                 },
                 go: function () {
@@ -78,7 +82,7 @@
             aftermath(function (actx) {
                 bbq_tmq.syncFrom(function (d) {
                     $scope.m_main = d;
-                    $scope.newtask.channel = d.Channels[0].Name;
+                    //$scope.newtask.channel = d.Channels[0].Name;
                     $scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced main conf ");
@@ -106,14 +110,14 @@
                 $scope.$apply();
             });
         }
-
+        $scope.sync = function () {
+            resetTriggers();
+            resetNewForms();
+            ResyncAll();
+        }
         $scope.$watch('m_main', function () {
             return true;
         });
-        //$scope.$watch('newtask.mpxy', function (newVal, oldVal) {
-        //    //console.log('newtask.mpxy.Name');
-        //    //$("select.customselect[name='mod']").selectpicker('render');
-        //}, false);
         $scope.update = function () {
 
         };
@@ -122,17 +126,18 @@
             $scope.newtask.parametersStr = angular.toJson(mpxy.ParametersModel, true);
         }
         $scope.show_newtask = function () {
+            //check sync state
+            if (!bbq_tmq.check_synced()) {
+                alert('the state is not synced...');
+                return;
+            }
             $scope.newtask.mpxy = $scope.m_mods.Modules[0];
             $scope.newtask.module = $scope.m_mods.Modules[0].Name;
 
             $('div#modal-new-task').modal('show');
         }
         $scope.newtask_add = function () {
-            // check sync state
-            if (!bbq_tmq.check_synced()) {
-                alert('the state is not synced...');
-                return;
-            }
+
             //validation
             if (!$scope.newTaskForm.$valid || $scope.m_main === null || $scope.m_mods === null
                 || $scope.m_main.Channels.length === 0
@@ -145,7 +150,13 @@
             resetNewTaskForm();
             $scope.triggers.wReset = true;
         }
+
         $scope.task_edit = function (model_e) {
+            //check sync state
+            if (!bbq_tmq.check_synced()) {
+                alert('the state is not synced...');
+                return;
+            }
             $scope.ref_task = model_e;
 
             $scope.intervals.forEach(function (e) {
@@ -164,18 +175,22 @@
 
             $('div#modal-edit-task').modal('show');
         }
-        $scope.task_edit_cpy = function () {
 
+        $scope.task_edit_cpy = function () {
+            if (!$scope.editTaskForm.$valid) { return; }
             var obj = null;
-            try
-            {
+            try {
                 obj = angular.fromJson($scope.newtask.parametersStr);
             } catch (e) {
                 bbq_tmq.toastr_warning(" check json syntax! " + e.message);
                 return;
             }
+
             angular.copy($scope.edit_task, $scope.ref_task);
             $scope.ref_task.parameters = obj;
+
+            bbq_tmq.mainPartChanged();
+            $scope.triggers.wReset = true;
 
             $('div#modal-edit-task').modal('hide');
         }
@@ -190,33 +205,43 @@
                     bbq_tmq.syncToMain(function (data) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.ok(); })
+                    }, function (msg) { actx.error("main configuration upload error"); })
                 },
                 function (actx) {
                     bbq_tmq.syncToMods(function (data) {
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                    }, function () { actx.ok(); })
-                }).ondone(function () {
-                    //aftermath(
-                    //function (actx) {
-                    bbq_tmq.CommitAndReset(function (data) {
-                        bbq_tmq.toastr_success(" configuration commit ok: " + data.ConfigCommitID, true);
-                        $scope.triggers.Info = true; $scope.$apply();
-                        //ResyncAll();
-                        /*actx.ok();*/
-                    }, function () { /*actx.ok();*/ })
-                    //}).ondone(function () {
-                    //});
+                    }, function (msg) { actx.error("module configuration upload error"); })
+                })
+          .ondone(function () {
+              bbq_tmq.CommitAndReset(function (data) {
+                 
+                  refModels();
+                  $scope.triggers.Info = true;
+                  $scope.triggers.wReset = false;
+                  
+                  $scope.$apply();
 
-                    //ResyncAll()
-                });
+                  bbq_tmq.toastr_success(" configuration commit ok ", true);
+              }, function (msg) { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
+          }, function (msg) {
+              bbq_tmq.toastr_error(" Configuration commit error: " + msg);
+          });
         }
-
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
         resetTriggers();
         resetNewForms();
-        ResyncAll();
-    });
+        $scope.triggers.Info = true;
+        //ResyncAll();
+
+        function refModels()
+        {
+            $scope.m_main = bbq_tmq.m_main;
+            $scope.m_mods = bbq_tmq.m_mods;
+        }
+    });// ~controller
+
     bbqmvc.filter('long', function () {
         return function (json) {
             if (!json) { return '-'; }

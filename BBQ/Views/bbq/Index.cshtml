@@ -39,9 +39,9 @@
 
 
     <div class="alert alert-info hidden-phone" ng-show="triggers.Info">
-        <a class="close" data-dismiss="alert">×</a>
+        @*<a class="close" data-dismiss="alert">×</a>*@
         <span>
-            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint -connect-.</span>
+            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint <button class="btn" ng-click="sync()">Connect</button></span>
     </div>
 
     <div class="alert alert-block" ng-show="triggers.wReset">
@@ -90,6 +90,9 @@
             </li>
             <li>
                 <a href="#assemblys" data-toggle="tab">Assemblys</a>
+            </li>
+            <li>
+                <a href="#configurations" data-toggle="tab">Configurations</a>
             </li>
         </ul>
         <div class="tab-content row">
@@ -180,26 +183,20 @@
                         <thead>
                             <tr>
                                 <th>id
-                      <br>
                                 </th>
                                 <th>connection</th>
                                 <th>Mtype(name)
-                      <br>
                                 </th>
-                                <th>model</th>
                                 <th>throughput</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr ng-repeat="m in m_main.Channels">
                                 <td>{{m.Name}}
-                      <br>
                                 </td>
                                 <td>{{m.connectionName}}</td>
-                                <td>{{m.messageModel.TypeFullName}}
-                      <br>
+                                <td>{{m.MType}}
                                 </td>
-                                <td>{To:string, Body:string}</td>
                                 <td>20/sec</td>
                             </tr>
                         </tbody>
@@ -307,7 +304,7 @@
     </div>
 
 
-    <!-- Modal -->
+    <!-- TASK NEW Modal -->
     <div id="modal-new-task" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="newtaskModal" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -365,7 +362,7 @@
         </div>
     </div>
 
-    <!-- -->
+    <!-- TASK EDIT Modal -->
     <div id="modal-edit-task" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="edittaskModal" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -419,7 +416,7 @@
                 </div>
             </form>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer"><!--              FOOTER -->
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             <button class="btn btn-primary" ng-click="task_edit_cpy()">Save and close</button>
         </div>

@@ -16,7 +16,6 @@ namespace TaskBroker
             MessageChannelsModels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             Anterooms = new Dictionary<string, ChannelAnteroom>();
-            Queues = new QueueClassificator();
             Connections = new Dictionary<string, QueueConnectionParameters>();
         }
         public void AddConnection(QueueConnectionParameters conParameters)
@@ -26,9 +25,26 @@ namespace TaskBroker
         public void AddMessageChannel<T>(MessageChannel mc)
             where T : TaskQueue.Providers.TItemModel
         {
-            //mc.MessageModel = Activator.CreateInstance<T>();
             TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
             mc.MessageType = tim.ItemTypeName;
+            lock (MChannelsList)
+            {
+                MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
+                MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
+                MChannelsList.Add(mc);
+            }
+            ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
+            try
+            {
+                ante.Queue.OptimiseForSelector(mc.consumerSelector);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
+            }
+        }
+        public void AddMessageChannel(MessageChannel mc)
+        {
             lock (MChannelsList)
             {
                 MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
@@ -107,14 +123,11 @@ namespace TaskBroker
             return null;
         }
         public Dictionary<string, ChannelAnteroom> Anterooms;
-        //public List<MessageType> MessageModels;
 
         public List<MessageChannel> MChannelsList;
         public Dictionary<string, int> MessageChannels;
         public Dictionary<string, int> MessageChannelsModels;
 
-        public QueueClassificator Queues;
         public Dictionary<string, QueueConnectionParameters> Connections;
-        //public QueueConParams Connections;
     }
 }

@@ -176,6 +176,8 @@ namespace TaskBroker
 
         private void AddInterfacesFromCurrentDomain(Broker b)
         {
+            TaskBroker.Assemblys.Assemblys.ForceReferencedLoad();// locals...
+
             var type = typeof(IMod);
             var types = AppDomain.CurrentDomain.GetAssemblies().ToList()
                 .SelectMany(s => s.GetTypes())

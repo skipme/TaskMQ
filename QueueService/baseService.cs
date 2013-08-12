@@ -13,9 +13,6 @@ namespace QueueService
     [Route("/tmq/c", Verbs = "GET,POST")]
     public class ConfigRequest
     {
-        public bool Reset { get; set; }
-        public bool Restart { get; set; }
-
         public bool MainPart { get; set; }
         public bool ModulesPart { get; set; }
         public bool AssemblysPart { get; set; }
@@ -23,7 +20,17 @@ namespace QueueService
         public string Body { get; set; }
         public string ConfigId { get; set; }
     }
+    [Route("/tmq/c/commit", Verbs = "POST")]
+    public class ConfigCommitRequest
+    {
+        public bool Reset { get; set; }
+        public bool Restart { get; set; }
 
+        // IDS:
+        public string MainPart { get; set; }
+        public string ModulesPart { get; set; }
+        public string AssemblysPart { get; set; }
+    }
     public class ConfigResponse
     {
         public string ConfigCommitID { get; set; }
@@ -54,16 +61,55 @@ namespace QueueService
         {
             if (request.MainPart)
             {
-                Console.Write("conf main part set: {0}", request.Body);
+                QueueService.ModProducer.broker.Configurations.RegisterConfiguration(request.ConfigId, request.Body);
+                //Console.Write("conf main part set: {0}", request.Body);
             }
             else if (request.ModulesPart)
             {
-                Console.Write("conf mod part set: {0}", request.Body);
+                //Console.Write("conf mod part set: {0}", request.Body);
             }
             return new ConfigResponse()
             {
                 Result = "OK", // OR SOME ERROR DESCRIPTION
                 ConfigCommitID = request.ConfigId
+            };
+        }
+        public ConfigResponse Post(ConfigCommitRequest request)
+        {
+            Console.WriteLine("id's {0} {1}", request.MainPart, request.ModulesPart);
+            string errors = "";
+            bool resp = false;
+
+            if (request.MainPart != null)
+                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
+
+            if (resp && request.ModulesPart != null)
+                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
+
+            if (resp)
+            {
+                errors = "OK";
+                if (request.Reset)
+                {
+                    // delay reset....
+                }
+                else if (request.Restart)
+                {
+                    // delay restart....
+                }
+            }
+            else
+            {
+                return new ConfigResponse()
+                {
+                    Result = errors,
+                    ConfigCommitID = null
+                };
+            }
+            return new ConfigResponse()
+            {
+                Result = errors, // OR SOME ERROR DESCRIPTION
+                ConfigCommitID = null
             };
         }
     }
