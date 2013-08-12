@@ -38,7 +38,14 @@ namespace MongoQueue
                     throw new Exception("error in push to mongo queue: " + result.ToJson());
             }
         }
-
+        public T GetItemFifo<T>()
+            where T : TaskMessage
+        {
+            TaskMessage tmr = GetItemFifo();
+            T tmo = Activator.CreateInstance<T>();
+            tmo.SetHolder(tmr.Holder);
+            return tmo;
+        }
         public TaskMessage GetItemFifo()
         {
             CheckConnection();
@@ -67,28 +74,47 @@ namespace MongoQueue
             msg.Holder.Add("_id", mms.id.Value);
             return msg;
         }
-
         public void UpdateItem(TaskMessage item)
         {
             Dictionary<string, object> holder = item.GetHolder();
             object id = holder["_id"];
             if (id == null || !(id is ObjectId))
                 throw new Exception("_id of queue element is missing");
+            
             BsonObjectId objid = new BsonObjectId((ObjectId)id);
-            var doc = Collection.FindOne(Query.EQ("_id", objid));
-            if (doc == null)
+            holder.Remove("_id");
+
+            MongoMessage msg = new MongoMessage
             {
-                return;
-            }
-            else
-            {
-                holder.Remove("_id");
-                doc.ExtraElements = holder;
-                var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
-                if (!result.Ok)
-                    throw new Exception("error in update to mongo queue: " + result.ToJson());
-            }
+                ExtraElements = holder,
+                id = objid
+            };
+
+            var result = Collection.Save(msg, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+            if (!result.Ok)
+                throw new Exception("error in update to mongo queue: " + result.ToJson());
         }
+        //public void UpdateItem(TaskMessage item)
+        //{
+        //    Dictionary<string, object> holder = item.GetHolder();
+        //    object id = holder["_id"];
+        //    if (id == null || !(id is ObjectId))
+        //        throw new Exception("_id of queue element is missing");
+        //    BsonObjectId objid = new BsonObjectId((ObjectId)id);
+        //    var doc = Collection.FindOne(Query.EQ("_id", objid));
+        //    if (doc == null)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        holder.Remove("_id");
+        //        doc.ExtraElements = holder;
+        //        var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+        //        if (!result.Ok)
+        //            throw new Exception("error in update to mongo queue: " + result.ToJson());
+        //    }
+        //}
 
         public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
@@ -140,8 +166,14 @@ namespace MongoQueue
             return tma.ToArray();
         }
 
+        public void Purge()
+        {
+            CheckConnection();
+            Collection.RemoveAll();
+        }
+
         public bool Connected { get; set; }
-        RepresentedModel model { get; set; } 
+        RepresentedModel model { get; set; }
         QueueConnectionParameters connection { get; set; }
     }
 }
