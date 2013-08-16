@@ -6,6 +6,11 @@ using System.Text;
 
 namespace SourceControl
 {
+    public class BuildResultFile
+    {
+        public string Name;
+        public byte[] Data;
+    }
     public class AssemblyBuilder
     {
         public class bLogger : Microsoft.Build.Framework.ILogger, IDisposable
@@ -13,12 +18,18 @@ namespace SourceControl
             StringBuilder log = new StringBuilder();
             public void Initialize(Microsoft.Build.Framework.IEventSource eventSource)
             {
-                eventSource.AnyEventRaised += eventSource_AnyEventRaised;
+                //eventSource.AnyEventRaised += eventSource_AnyEventRaised;
+                eventSource.ErrorRaised += eventSource_ErrorRaised;
+            }
+
+            void eventSource_ErrorRaised(object sender, Microsoft.Build.Framework.BuildErrorEventArgs e)
+            {
+                Console.WriteLine("\t[{0}] {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
             }
 
             void eventSource_AnyEventRaised(object sender, Microsoft.Build.Framework.BuildEventArgs e)
             {
-                log.AppendFormat("el: [{0}] {1}: {2}", e.Timestamp, e.SenderName, e.Message);
+                log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
                 //Console.WriteLine("el: [{0}] {1}: {2}", e.Timestamp, e.SenderName, e.Message);
             }
 
@@ -65,7 +76,7 @@ namespace SourceControl
 
         public AssemblyBuilder(string projectPath)
         {
-            ProjectLocation = @"C:\Users\USER\test\EmailConsumer\EmailConsumer.csproj";
+            ProjectLocation = projectPath;// @"C:\Users\USER\test\EmailConsumer\EmailConsumer.csproj";
         }
         public bool BuildProject()
         {

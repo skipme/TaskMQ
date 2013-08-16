@@ -45,9 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assemblys\AssemblyBuilder.cs" />
+    <Compile Include="Assemblys\AssemblyProjects.cs" />
+    <Compile Include="Assemblys\AssemblySource.cs" />
     <Compile Include="Assemblys\AssemblyVersions.cs" />
-    <Compile Include="Git\LocalBranch.cs" />
+    <Compile Include="Git\git_scm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SCM.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

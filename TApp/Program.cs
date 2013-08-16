@@ -101,13 +101,25 @@ namespace TApp
         }
         static void TesGit()
         {
-            SourceControl.Git.LocalBranch b = new SourceControl.Git.LocalBranch(
-                Path.Combine(System.Environment.CurrentDirectory, "testRepo"),
-                //"https://github.com/libgit2/TestGitRepository.git"
-                "https://github.com/skipme/test.git"
-                );
-            b.TakeChanges();
-
+            //SourceControl.Git.LocalBranch b = new SourceControl.Git.LocalBranch(
+            //    Path.Combine(System.Environment.CurrentDirectory, "testRepo"),
+            //    //"https://github.com/libgit2/TestGitRepository.git"
+            //    "https://github.com/skipme/test.git"
+            //    );
+            //b.TakeChanges();
+            SourceControl.Assemblys.AssemblySource source = new SourceControl.Assemblys.AssemblySource(
+               System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
+                "EmailConsumer/EmailConsumer.csproj", "https://github.com/skipme/TaskMQ.git");
+            //if (source.IsActualToRemote)
+            //source.SetUpToDate();
+            {
+                byte[] l = null;
+                byte[] s = null;
+                if (source.BuildProject(out l, out s))
+                {
+                    Console.WriteLine("successfull build!");
+                }
+            }
         }
         static void ZipDir()
         {
@@ -122,11 +134,11 @@ namespace TApp
         {
             //TestStat();
             //TesMtStat();
-            //TesGit();
+            TesGit();
             //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
             //a.BuildProject();
-//            ZipDir();
-//            return;
+            //            ZipDir();
+            return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
