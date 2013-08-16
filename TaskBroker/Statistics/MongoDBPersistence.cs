@@ -41,11 +41,11 @@ namespace TaskBroker.Statistics
 
         public void PurgeExcessive(int secRange, int secAlive)
         {
-            string js = @"
-var date = new Date(); 
-date.setSeconds(date.getSeconds()- {0});
-db.{2}.remove({SecondsInterval: {1}, Left:{$lt:date}})
-";
+//            string js = @"
+//var date = new Date(); 
+//date.setSeconds(date.getSeconds()- {0});
+//db.{2}.remove({SecondsInterval: {1}, Left:{$lt:date}})
+//";
             // 0 - seconds life of significant chunks
             // 1 - chunk id...
             // 2 - collection

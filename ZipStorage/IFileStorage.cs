@@ -6,11 +6,15 @@ namespace FileContentArchive
     {
         public string Location { get; set; }
         public DateTime Created { get; set; }
+        public bool IsDir { get; set; }
     }
     public interface IFileStorage
     {
         string GetContent(string loc);
+        byte[] GetContentRaw(string loc);
+
         void UpdateContent(string loc, string content);
+        void UpdateContent(string loc, byte[] content);
         FileStorageEntry[] GetAllEntrys();
     }
 }

@@ -9,6 +9,8 @@ namespace FileContentArchive
 {
     public class ZipStorage : FileContentArchive.IFileStorage
     {
+        // not usable for parallel
+
         //ZipFile zipFile;
         string FileLoc;
 
@@ -23,9 +25,9 @@ namespace FileContentArchive
                 }
             }
         }
-        public string GetContent(string loc)
+        public byte[] GetContentRaw(string loc)
         {
-            string cont = null;
+            byte[] cont = null;
             ZipFile zipFile = new ZipFile(FileLoc);
             int i = zipFile.FindEntry(loc, false);
             if (i >= 0)
@@ -34,10 +36,27 @@ namespace FileContentArchive
                 Stream s = zipFile.GetInputStream(ze);
                 byte[] buff = new byte[(int)ze.Size];
                 s.Read(buff, 0, buff.Length);
-                cont = Encoding.Unicode.GetString(buff);
+                cont = buff;
             }
             zipFile.Close();
             return cont;
+        }
+        public string GetContent(string loc)
+        {
+            return Encoding.Unicode.GetString(GetContentRaw(loc));
+            //string cont = null;
+            //ZipFile zipFile = new ZipFile(FileLoc);
+            //int i = zipFile.FindEntry(loc, false);
+            //if (i >= 0)
+            //{
+            //    ZipEntry ze = zipFile[i];
+            //    Stream s = zipFile.GetInputStream(ze);
+            //    byte[] buff = new byte[(int)ze.Size];
+            //    s.Read(buff, 0, buff.Length);
+            //    cont = Encoding.Unicode.GetString(buff);
+            //}
+            //zipFile.Close();
+            //return cont;
         }
         public void UpdateContent(string loc, string content)
         {
@@ -49,15 +68,49 @@ namespace FileContentArchive
             //}
             SetContent(loc, content);
         }
+        public void UpdateContent(string loc, byte[] content)
+        {
+            //string c = GetContent(loc);
+            //if (c != null)
+            //{
+            //    //DeleteContent(loc);
+            //    // actually not required but just leave it
+            //}
+
+            SetContent(loc, content);
+        }
         void SetContent(string loc, string content)
+        {
+            SetContent(loc, Encoding.Unicode.GetBytes(content));
+        }
+        void AddDirectory(string loc)
         {
             ZipFile zipFile = new ZipFile(FileLoc);
 
             // Must call BeginUpdate to start, and CommitUpdate at the end.
             zipFile.BeginUpdate();
+            zipFile.AddDirectory(loc);
+            // Both CommitUpdate and Close must be called.
+            zipFile.CommitUpdate();
+            zipFile.Close();
+        }
+        void SetContent(string loc, byte[] content)
+        {
+            ZipFile zipFile = new ZipFile(FileLoc);
 
+            // Must call BeginUpdate to start, and CommitUpdate at the end.
+            zipFile.BeginUpdate();
+            if (loc.Contains('/'))
+            {
+                int i = loc.IndexOf('/');
+                string dir = loc.Remove(i+1, loc.Length - i-1);
+                if (zipFile.FindEntry(dir, true) < 0)
+                {
+                    zipFile.AddDirectory(dir);
+                }
+            }
             CustomStaticDataSource sds = new CustomStaticDataSource();
-            sds.SetStream(new MemoryStream(Encoding.Unicode.GetBytes(content)));
+            sds.SetStream(new MemoryStream(content));
 
             // If an entry of the same name already exists, it will be overwritten; otherwise added.
             zipFile.Add(sds, loc);
@@ -151,7 +204,8 @@ namespace FileContentArchive
                 es.Add(new FileStorageEntry()
                     {
                         Created = e.DateTime,
-                        Location = e.Name
+                        Location = e.Name,
+                        IsDir = e.IsDirectory
                     });
             }
 

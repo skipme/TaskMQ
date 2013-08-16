@@ -5,10 +5,18 @@ using System.Text;
 
 namespace FileContentArchive
 {
+    public class VersionData
+    {
+        public string Key { get; set; }
+        public string Name { get; set; }
+        public DateTime Created { get; set; }
+        public byte[] data;
+    }
     public class ContentVersionStorage
     {
         IFileStorage storage;
         Dictionary<string, List<FileStorageEntry>> History = new Dictionary<string, List<FileStorageEntry>>();
+        public string key_most_fresh { get; private set; }
 
         public ContentVersionStorage(IFileStorage istorage = null)
         {
@@ -20,12 +28,52 @@ namespace FileContentArchive
 
             PopulateContents();
         }
+        public List<FileStorageEntry> GetVersions()
+        {
+            if (History.Count == 0)
+                return null;
+
+            List<FileStorageEntry> versions = History[key_most_fresh];
+            return versions;
+        }
+        //public byte[] GetLatestVersion(ref string location)
+        //{
+        //    if (History.Count == 0)
+        //        return null;
+
+        //    List<FileStorageEntry> versions = History.Values.First();
+        //    FileStorageEntry actual = (from v in versions
+        //                               orderby v.Created descending
+        //                               select v).First();
+        //    location = actual.Location;
+        //    return storage.GetContentRaw(actual.Location);
+        //}
+        public IEnumerable<VersionData> GetLatestVersion()
+        {
+            if (History.Count == 0)
+                yield break;
+
+            List<FileStorageEntry> versions = History[key_most_fresh];
+
+            foreach (FileStorageEntry v in versions)
+            {
+                if (v.IsDir) continue;
+                yield return new VersionData
+                {
+                    Key = key_most_fresh,
+                    Name = v.Location.Remove(0, key_most_fresh.Length + 1),
+                    Created = v.Created,
+                    data = storage.GetContentRaw(v.Location)
+                };
+            }
+        }
         public string GetLatestVersion(string key)
         {
             if (History.ContainsKey(key))
             {
                 List<FileStorageEntry> versions = History[key];
                 FileStorageEntry actual = (from v in versions
+                                           where !v.IsDir
                                            orderby v.Created descending
                                            select v).First();
                 return storage.GetContent(actual.Location);
@@ -41,20 +89,25 @@ namespace FileContentArchive
             storage.UpdateContent(loc, contents);
             PopulateContents();// TODO: just add to dictionary instant
         }
+        public void AddVersion(string name, byte[] contents)
+        {
+            storage.UpdateContent(name, contents);
+            PopulateContents();// TODO: just add to dictionary instant
+        }
         string locPostfixNew(string key)
         {
             if (!History.ContainsKey(key))
             {
-                return key + "$1_" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
+                return key + "/1_" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
             }
             else
             {
-                return key + "$" + (History[key].Count + 1) + "_" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
+                return key + "/" + (History[key].Count + 1) + "_" + DateTime.UtcNow.ToString("dd.MM.yyyy_HH-mm-ss");
             }
         }
         string KeyPrefix(string locFull)
         {
-            int index = locFull.IndexOf('$');
+            int index = locFull.IndexOf('/');
             if (index > 0)
             {
                 return locFull.Substring(0, index);
@@ -65,17 +118,23 @@ namespace FileContentArchive
         void PopulateContents()
         {
             History.Clear();
-
-            foreach (FileStorageEntry item in storage.GetAllEntrys())
+            key_most_fresh = null;
+            DateTime mostfresh = DateTime.MinValue;
+            foreach (FileStorageEntry fi in storage.GetAllEntrys())
             {
-                string k = KeyPrefix(item.Location);
+                if (fi.Created > mostfresh)
+                {
+                    mostfresh = fi.Created;
+                    key_most_fresh = KeyPrefix(fi.Location);
+                }
+                string k = KeyPrefix(fi.Location);
                 if (!History.ContainsKey(k))
                 {
-                    History.Add(k, new List<FileStorageEntry>() { item });
+                    History.Add(k, new List<FileStorageEntry>() { fi });
                 }
                 else
                 {
-                    History[k].Add(item);
+                    History[k].Add(fi);
                 }
             }
         }

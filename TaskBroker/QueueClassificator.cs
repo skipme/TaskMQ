@@ -10,7 +10,7 @@ namespace TaskBroker
         public QueueClassificator()
         {
             addQueue(new TaskQueue.Providers.MemQueue());
-            addQueue(new MSSQLQueue.MsSqlQueue());
+            //addQueue(new MSSQLQueue.MsSqlQueue());
             addQueue(new MongoQueue.MongoDbQueue());
         }
         // queues

@@ -27,8 +27,8 @@ namespace TaskBroker.Configuration
             string json = versions.GetLatestVersion(key_main);
             if (json == null)
                 return null;
-            
-            if(ConfigurationValidation.ValidateMain(ref json, out errors, out bc))
+
+            if (ConfigurationValidation.ValidateMain(ref json, out errors, out bc))
             {
                 return bc;
             }
@@ -55,7 +55,16 @@ namespace TaskBroker.Configuration
                 string json = jsonConfigurations[id];
                 bool vok = ConfigurationValidation.ValidateMain(ref json, out errors);
 
-                versions.AddVersion(key_main, json);
+                try
+                {
+                    versions.AddVersion(key_main, json);
+                }
+                catch (Exception e)
+                {
+                    // archive errors // opened in another app
+                    errors = e.Message;
+                    return false;
+                }
             }
 
             errors = "ok";
@@ -73,9 +82,17 @@ namespace TaskBroker.Configuration
             else
             {
                 string json = jsonConfigurations[id];
-                bool vok = ConfigurationValidation.ValidateMain(ref json, out errors);
-
-                versions.AddVersion(key_modules, json);
+                bool vok = ConfigurationValidation.ValidateMods(ref json, out errors);
+                try
+                {
+                    versions.AddVersion(key_modules, json);
+                }
+                catch (Exception e)
+                {
+                    // archive errors // opened in another app
+                    errors = e.Message;
+                    return false;
+                }
             }
 
             errors = "ok";

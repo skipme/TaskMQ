@@ -16,7 +16,18 @@ namespace TaskBroker.Assemblys
 
             var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
-            toLoad.ForEach(path => loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path))));
+
+            foreach (var path in toLoad)
+            {
+                try
+                {
+                    loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path)));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("assembly force load exception: {0}", e.Message);
+                }
+            }
         }
         public string ModulesFolder { get; set; }
         public Assemblys(string folder = null)

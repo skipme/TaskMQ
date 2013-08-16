@@ -14,12 +14,19 @@ namespace TaskBroker.Statistics
         private MongoDBPersistence PersistenceChunks;
         public StatHub()
         {
-            PersistenceChunks = new MongoDBPersistence("mongodb://user:1234@localhost:27017", "Messages");
+            PersistenceChunks = new MongoDBPersistence("mongodb://user:1234@localhost:27017/Messages", "Messages");
             OptimisePerformance();
         }
         private void OptimisePerformance()
         {
-            PersistenceChunks.EnsureIndex(new BrokerStat("", "").MatchData);
+            try
+            {
+                PersistenceChunks.EnsureIndex(new BrokerStat("", "").MatchData);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("can't ensure statistic collection index");
+            }
         }
         public void FlushRetairedChunks()
         {
@@ -51,7 +58,14 @@ namespace TaskBroker.Statistics
                 MatchElements = match,
                 SecondsInterval = range.secondsInterval
             };
-            PersistenceChunks.Save(r);
+            try
+            {
+                PersistenceChunks.Save(r);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("can't save statistic collection index");
+            }
             //Console.WriteLine("stat ch saved: {0}", match.Values.FirstOrDefault());
         }
 
@@ -63,8 +77,24 @@ namespace TaskBroker.Statistics
             where T : StatMatchModel
         {
             // restore from persistent component
+            MongoRange[] pranges = null;
             if (match.MatchData.Count != 0)
-                match.CreateRanges(useRanges, PersistenceChunks.GetNewest(match.MatchData).ToArray(), FlushCallBack);
+            {
+                try
+                {
+                    pranges = PersistenceChunks.GetNewest(match.MatchData).ToArray();
+
+                }
+                catch (Exception e)
+                {
+
+                }
+            }
+            if (pranges != null)
+            {
+
+                match.CreateRanges(useRanges, pranges, FlushCallBack);
+            }
             else
             {
                 match.CreateRanges(useRanges);

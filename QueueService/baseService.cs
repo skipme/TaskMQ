@@ -56,6 +56,8 @@ namespace QueueService
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
+        string _lock = "lock";
+
         public object Get(StatisticRequest r)
         {
 
@@ -117,12 +119,14 @@ namespace QueueService
             string errors = "";
             bool resp = false;
 
-            if (request.MainPart != null)
-                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
+            lock (_lock)
+            {
+                if (request.MainPart != null)
+                    resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
 
-            if (resp && request.ModulesPart != null)
-                resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
-
+                if (resp && request.ModulesPart != null)
+                    resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
+            }
             if (resp)
             {
                 errors = "OK";

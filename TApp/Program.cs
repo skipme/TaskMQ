@@ -99,11 +99,34 @@ namespace TApp
             //});
             var x = sm.GetNewest(new Dictionary<string, object> { { "ch", "4" }, { "z", "5" } }).ToList();
         }
+        static void TesGit()
+        {
+            SourceControl.Git.LocalBranch b = new SourceControl.Git.LocalBranch(
+                Path.Combine(System.Environment.CurrentDirectory, "testRepo"),
+                //"https://github.com/libgit2/TestGitRepository.git"
+                "https://github.com/skipme/test.git"
+                );
+            b.TakeChanges();
+
+        }
+        static void ZipDir()
+        {
+            SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder("");
+            if (a.BuildProject())
+            {
+                SourceControl.AssemblyVersions v = new SourceControl.AssemblyVersions(Path.GetFileName(a.BuildResultDll) + ".zip", Path.GetFileNameWithoutExtension(a.BuildResultDll));
+                v.AddVersion("dbdbdbdada2343adasd54", File.ReadAllBytes(a.BuildResultDll), File.ReadAllBytes(a.BuildResultSymbols));
+            }
+        }
         static void Main(string[] args)
         {
             //TestStat();
             //TesMtStat();
-            //return;
+            //TesGit();
+            //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
+            //a.BuildProject();
+//            ZipDir();
+//            return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
