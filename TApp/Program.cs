@@ -111,7 +111,7 @@ namespace TApp
                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
                 "EmailConsumer/EmailConsumer.csproj", "https://github.com/skipme/TaskMQ.git");
             //if (source.IsActualToRemote)
-            //source.SetUpToDate();
+            source.SetUpToDate();
             {
                 byte[] l = null;
                 byte[] s = null;
