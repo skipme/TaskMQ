@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SourceControl
+namespace SourceControl.Assemblys
 {
     public class BuildResultFile
     {
@@ -20,11 +20,25 @@ namespace SourceControl
             {
                 //eventSource.AnyEventRaised += eventSource_AnyEventRaised;
                 eventSource.ErrorRaised += eventSource_ErrorRaised;
+                eventSource.MessageRaised += eventSource_MessageRaised;
+                eventSource.BuildFinished += eventSource_BuildFinished;
+            }
+
+            void eventSource_BuildFinished(object sender, Microsoft.Build.Framework.BuildFinishedEventArgs e)
+            {
+                log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
+            }
+
+            void eventSource_MessageRaised(object sender, Microsoft.Build.Framework.BuildMessageEventArgs e)
+            {
+                log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
+                //throw new NotImplementedException();
             }
 
             void eventSource_ErrorRaised(object sender, Microsoft.Build.Framework.BuildErrorEventArgs e)
             {
                 Console.WriteLine("\t[{0}] {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
+                log.AppendFormat("\t[{0}] {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
             }
 
             void eventSource_AnyEventRaised(object sender, Microsoft.Build.Framework.BuildEventArgs e)
@@ -91,6 +105,8 @@ namespace SourceControl
                     Project p = new Project(ProjectLocation);
                     string path = p.GetPropertyValue("TargetPath");
                     string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".pdb");
+
+                    Console.WriteLine("building project: {0}", ProjectLocation);
 
                     result = p.Build(logger);
                     Log = logger.Result();

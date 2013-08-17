@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assemblys\AssemblyBuilder.cs" />
+    <Compile Include="Assemblys\AssemblyProject.cs" />
     <Compile Include="Assemblys\AssemblyProjects.cs" />
     <Compile Include="Assemblys\AssemblySource.cs" />
     <Compile Include="Assemblys\AssemblyVersions.cs" />

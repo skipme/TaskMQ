@@ -11,12 +11,11 @@ namespace SourceControl.Git
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)
         { }
-        private Branch focusBranch;
+
         private SCM.Status status = Status.none;
 
         public override bool Fetch()
         {
-            focusBranch = null;
             if (CheckLocalCopy())
             {
                 using (var repo = new Repository(base.LocalContainerDirectory))
@@ -46,9 +45,14 @@ namespace SourceControl.Git
         {
             get
             {
-                if (focusBranch == null)
-                    return null;
-                return focusBranch.Commits.First().Sha;
+                Branch focusBranch = null;
+                using (var repo = new Repository(base.LocalContainerDirectory))
+                {
+                    focusBranch = CheckoutRemoteBranch(repo);
+                    if (focusBranch == null)
+                        return null;
+                    return focusBranch.Commits.First().Sha;
+                }
             }
         }
 
@@ -59,7 +63,6 @@ namespace SourceControl.Git
 
         public override void UpdateStatus()
         {
-            focusBranch = null;
             if (CheckLocalCopy())
             {
                 status = Status.fetchRequied;
@@ -82,10 +85,11 @@ namespace SourceControl.Git
             { return false; }
             return true;
         }
-        private void CheckoutRemoteBranch(Repository rep)
+
+        private Branch CheckoutRemoteBranch(Repository rep)
         {
             // set to remote branch
-            focusBranch = rep.Checkout(GetRemoteBranch(rep));
+            return rep.Checkout(GetRemoteBranch(rep));
         }
         public override bool Clone()
         {
@@ -93,6 +97,9 @@ namespace SourceControl.Git
             try
             {
                 dc = Repository.Clone(base.cloneUri, base.LocalContainerDirectory);
+                if (CheckLocalCopy())
+                    status = Status.allUpToDate;
+                else status = Status.cloneFailure;
             }
             catch
             {
@@ -100,7 +107,6 @@ namespace SourceControl.Git
                 return false;
             }
 
-            UpdateStatus();
             return true;
         }
         private Branch GetRemoteBranch(Repository rep)

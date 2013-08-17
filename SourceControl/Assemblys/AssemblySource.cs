@@ -6,7 +6,6 @@ using System.Text;
 
 namespace SourceControl.Assemblys
 {
-
     public class AssemblySource
     {
         public string SourceUriOrigin { get; private set; }// repository url
@@ -14,17 +13,35 @@ namespace SourceControl.Assemblys
         public string Name { get; set; }
         private bool IsUpToDate { get; set; }
         public string lastBuildLog { get; private set; }
+        public bool BuildInProgress { get; private set; }
 
-        public bool IsActualToRemote
+        private SCM scm;
+        public SCM.Status Status
         {
             get
             {
-                if (!IsUpToDate)
-                    return SetUpToDate();
-                return true;
+                return scm.CurrentStatus;
             }
         }
-        public SCM scm;
+
+        public string Version
+        {
+            get
+            {
+                if (scm.LocalVersion == null && scm.CurrentStatus == SCM.Status.none)
+                    scm.UpdateStatus();
+                return scm.LocalVersion;
+            }
+        }
+        //public bool IsActualToRemote
+        //{
+        //    get
+        //    {
+        //        if (!IsUpToDate)
+        //            return SetUpToDate();
+        //        return true;
+        //    }
+        //}
 
         public AssemblySource(string root, string projFileRelativePath, string remoteUri)
         {
@@ -43,21 +60,26 @@ namespace SourceControl.Assemblys
 
         public bool BuildProject(out byte[] library, out byte[] symbols)
         {
+            bool bresult;
             library = symbols = null;
+
+            BuildInProgress = true;
+
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
-            if (builder.BuildProject())
+            if (bresult = builder.BuildProject())
             {
                 library = File.ReadAllBytes(builder.BuildResultDll);
                 symbols = File.ReadAllBytes(builder.BuildResultSymbols);
-                lastBuildLog = builder.Log;
-                return true;
             }
             else
             {
-                lastBuildLog = builder.Log;
                 Console.WriteLine("build project failure: {0}", builder.Log);
             }
-            return false;
+            lastBuildLog = builder.Log;
+
+            BuildInProgress = false;
+
+            return bresult;
         }
         public bool SetUpToDate()
         {
@@ -80,7 +102,6 @@ namespace SourceControl.Assemblys
                 //
                 case SCM.Status.fetchFailure:
                     return scm.Fetch();
-
                 case SCM.Status.fetchRequied:
                     return scm.Fetch();
 
