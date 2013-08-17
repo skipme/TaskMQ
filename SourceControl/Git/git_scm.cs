@@ -41,20 +41,7 @@ namespace SourceControl.Git
             return false;
         }
 
-        public override string LocalVersion
-        {
-            get
-            {
-                Branch focusBranch = null;
-                using (var repo = new Repository(base.LocalContainerDirectory))
-                {
-                    focusBranch = CheckoutRemoteBranch(repo);
-                    if (focusBranch == null)
-                        return null;
-                    return focusBranch.Commits.First().Sha;
-                }
-            }
-        }
+
 
         public override SCM.Status CurrentStatus
         {
@@ -99,7 +86,11 @@ namespace SourceControl.Git
                 dc = Repository.Clone(base.cloneUri, base.LocalContainerDirectory);
                 if (CheckLocalCopy())
                     status = Status.allUpToDate;
-                else status = Status.cloneFailure;
+                else
+                {
+                    status = Status.cloneFailure;
+                    return false;
+                }
             }
             catch
             {
@@ -125,6 +116,73 @@ namespace SourceControl.Git
             if (name == null)
                 throw new Exception("repository does not contain remote branch");
             return name;
+        }
+
+        //public override DateTimeOffset LocalCommitDate
+        //{
+        //    get
+        //    {
+        //        Branch focusBranch = null;
+        //        using (var repo = new Repository(base.LocalContainerDirectory))
+        //        {
+        //            focusBranch = CheckoutRemoteBranch(repo);
+        //            if (focusBranch == null)
+        //                return DateTimeOffset.MinValue;
+        //            return focusBranch.Commits.First().Committer.When;
+        //        }
+        //    }
+        //}
+
+        //public override string LocalCommitMessage
+        //{
+        //    get
+        //    {
+        //        Branch focusBranch = null;
+        //        using (var repo = new Repository(base.LocalContainerDirectory))
+        //        {
+        //            focusBranch = CheckoutRemoteBranch(repo);
+        //            if (focusBranch == null)
+        //                return null;
+        //            return focusBranch.Commits.First().Message;
+        //        }
+        //    }
+        //}
+
+        //public override string LocalCommitCommiter
+        //{
+        //    get
+        //    {
+        //        Branch focusBranch = null;
+        //        using (var repo = new Repository(base.LocalContainerDirectory))
+        //        {
+        //            focusBranch = CheckoutRemoteBranch(repo);
+        //            if (focusBranch == null)
+        //                return null;
+        //            return focusBranch.Commits.First().Committer.Email;
+        //        }
+        //    }
+        //}
+
+        public override VersionRevision LocalVersion
+        {
+            get
+            {
+                Branch focusBranch = null;
+                using (var repo = new Repository(base.LocalContainerDirectory))
+                {
+                    focusBranch = CheckoutRemoteBranch(repo);
+                    if (focusBranch == null)
+                        return null;
+                    Commit commit = focusBranch.Commits.First();
+                    return new VersionRevision
+                    {
+                        CommitMessage = commit.Message,
+                        CommitTime = commit.Committer.When,
+                        Revision = commit.Sha,
+                        Commiter = commit.Committer.Email
+                    };
+                }
+            }
         }
     }
 }

@@ -41,6 +41,25 @@ namespace FileContentArchive
             zipFile.Close();
             return cont;
         }
+        public byte[] GetContentRaw(string loc, out DateTime CreationTime)
+        {
+            byte[] cont = null; CreationTime = DateTime.MinValue;
+            ZipFile zipFile = new ZipFile(FileLoc);
+
+            int i = zipFile.FindEntry(loc, false);
+            if (i >= 0)
+            {
+                ZipEntry ze = zipFile[i];
+                CreationTime = ze.DateTime;
+                Stream s = zipFile.GetInputStream(ze);
+                byte[] buff = new byte[(int)ze.Size];
+                s.Read(buff, 0, buff.Length);
+                cont = buff;
+            }
+            zipFile.Close();
+
+            return cont;
+        }
         public string GetContent(string loc)
         {
             return Encoding.Unicode.GetString(GetContentRaw(loc));
@@ -103,7 +122,7 @@ namespace FileContentArchive
             if (loc.Contains('/'))
             {
                 int i = loc.IndexOf('/');
-                string dir = loc.Remove(i+1, loc.Length - i-1);
+                string dir = loc.Remove(i + 1, loc.Length - i - 1);
                 if (zipFile.FindEntry(dir, true) < 0)
                 {
                     zipFile.AddDirectory(dir);

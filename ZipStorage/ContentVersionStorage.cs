@@ -28,7 +28,7 @@ namespace FileContentArchive
 
             PopulateContents();
         }
-        public List<FileStorageEntry> GetVersions()
+        public List<FileStorageEntry> GetLatestVersionContents()
         {
             if (History.Count == 0)
                 return null;
@@ -50,7 +50,7 @@ namespace FileContentArchive
         //}
         public List<VersionData> GetLatestVersion(out string revision)
         {
-            List<VersionData> vresult = new List<VersionData>(); 
+            List<VersionData> vresult = new List<VersionData>();
             revision = null;
             if (History.Count == 0)
                 return null;
@@ -70,11 +70,26 @@ namespace FileContentArchive
             }
             return vresult;
         }
+        public VersionData GetSpecificVersionData(string location)
+        {
+            DateTime c;
+            byte[] data = storage.GetContentRaw(location, out c);
+            if (data == null)
+                return null;
+            string key = KeyPrefix(location);
+            return new VersionData
+            {
+                Key = key,
+                Name = location.Remove(0, key.Length + 1),
+                Created = c,
+                data = data
+            };
+        }
         public IEnumerable<VersionData> GetSpecificVersion(string key)
         {
             if (History.Count == 0 || !History.ContainsKey(key))
                 yield break;
-            
+
             List<FileStorageEntry> versions = History[key];
 
             foreach (FileStorageEntry v in versions)
@@ -88,6 +103,10 @@ namespace FileContentArchive
                     data = storage.GetContentRaw(v.Location)
                 };
             }
+        }
+        public string[] GetVersions()
+        {
+            return History.Keys.ToArray();
         }
         public string GetLatestVersion(string key)
         {

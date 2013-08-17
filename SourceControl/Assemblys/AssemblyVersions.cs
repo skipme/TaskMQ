@@ -1,19 +1,12 @@
 ﻿using FileContentArchive;
-using SourceControl.Assemblys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SourceControl.Assemblys
 {
     public class AssemblyBinVersions
     {
-        public class AssemblyRevision
-        {
-            public string Revision { get; set; }
-            public DateTime CreateAt { get; set; }
-        }
         public ContentVersionStorage versionContainer;
         public string Path { get; private set; }
         public string name { get; private set; }
@@ -25,11 +18,14 @@ namespace SourceControl.Assemblys
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
 
-        public void AddVersion(string revision, byte[] library, byte[] pdb)
+        public void AddVersion(VersionRevision assemblyRev, byte[] library, byte[] pdb)
         {
+            string revision = assemblyRev.Revision;
+            byte[] revdata = assemblyRev.Serialise();
             //revision = string.Format("{0:dd.MM.yy HH-mm} ${1}", DateTime.UtcNow, revision);
             versionContainer.AddVersion(revision + "/" + name + ".dll", library);
             versionContainer.AddVersion(revision + "/" + name + ".pdb", pdb);
+            versionContainer.AddVersion(revision + "/.revision", revdata);
         }
 
         public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
@@ -68,15 +64,21 @@ namespace SourceControl.Assemblys
                 return versionContainer.key_most_fresh;
             }
         }
-        public AssemblyRevision[] GetVersions()
+        public List<VersionRevision> GetVersions()
         {
-            return (from v in versionContainer.GetVersions()
-                    where v.IsDir
-                    select new AssemblyRevision
-                    {
-                        CreateAt = v.Created,
-                        Revision = v.Location
-                    }).ToArray();
+            List<VersionRevision> vers = new List<VersionRevision>();
+            foreach (string f in versionContainer.GetVersions())
+            {
+                VersionData vd = versionContainer.GetSpecificVersionData(f + "/.revision");
+                if (vd == null)
+                {
+                    Console.WriteLine("binary version {0} unannotated with revision data in {1}", f, Path);
+                }
+                VersionRevision vr = VersionRevision.DeSerialise(vd.data);
+                vr.CreateAt = vd.Created;
+                vers.Add(vr);
+            }
+            return vers;
         }
     }
 }

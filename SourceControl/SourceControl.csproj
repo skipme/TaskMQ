@@ -54,6 +54,7 @@
     <Compile Include="Git\git_scm.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SCM.cs" />
+    <Compile Include="SourceRevision.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

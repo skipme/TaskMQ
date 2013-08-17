@@ -24,7 +24,7 @@ namespace SourceControl.Assemblys
             }
         }
 
-        public string Version
+        public VersionRevision Version
         {
             get
             {

@@ -31,7 +31,11 @@ namespace SourceControl
         public abstract void UpdateStatus();
         public abstract bool Fetch();
         public abstract bool Clone();
-        public abstract string LocalVersion { get; }
+        public abstract VersionRevision LocalVersion { get; }
+        //public abstract string LocalVersion { get; }
+        //public abstract DateTimeOffset LocalCommitDate { get; }
+        //public abstract string LocalCommitMessage { get; }
+        //public abstract string LocalCommitCommiter { get; }
         public abstract Status CurrentStatus { get; }
     }
 }

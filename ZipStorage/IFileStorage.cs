@@ -12,6 +12,7 @@ namespace FileContentArchive
     {
         string GetContent(string loc);
         byte[] GetContentRaw(string loc);
+        byte[] GetContentRaw(string loc, out DateTime dateCreate);
 
         void UpdateContent(string loc, string content);
         void UpdateContent(string loc, byte[] content);

@@ -13,7 +13,7 @@ namespace SourceControl.Assemblys
         private AssemblySource Source;
         private AssemblyBinVersions Versions;
 
-        public AssemblyBinVersions.AssemblyRevision[] GetStoredVersions()
+        public List<VersionRevision> GetStoredVersions()
         {
             return Versions.GetVersions();
         }
@@ -45,7 +45,7 @@ namespace SourceControl.Assemblys
             {
                 return Versions.GetSpecificVersion(revision, out library, out symbols);
             }
-            else 
+            else
             {
                 library = symbols = null;
                 return false;
@@ -53,28 +53,30 @@ namespace SourceControl.Assemblys
         }
         public void StoreNewIfRequired()
         {
-            if (sourceVersionRevision == null)
+            VersionRevision rev = sourceVersionRevision;
+            if (rev == null)
                 return;
-            if (sourceVersionRevision != storedVersionRevision)
+            
+            if (rev.Revision != edgeStoredVersionRevision)
             {
                 if (Source.SetUpToDate())
                 {
                     byte[] lib, sym;
                     if (Source.BuildProject(out lib, out sym))
                     {
-                        Versions.AddVersion(Source.Version, lib, sym);
+                        Versions.AddVersion(rev, lib, sym);
                     }
                 }
             }
         }
-        public string sourceVersionRevision
+        public VersionRevision sourceVersionRevision
         {
             get
             {
                 return Source.Version;
             }
         }
-        public string storedVersionRevision
+        public string edgeStoredVersionRevision
         {
             get
             {

@@ -131,22 +131,22 @@ namespace TApp
         }
         static void ZipDir()
         {
-            SourceControl.Assemblys.AssemblyBuilder a = new SourceControl.Assemblys.AssemblyBuilder("");
-            if (a.BuildProject())
-            {
-                SourceControl.Assemblys.AssemblyBinVersions v = new SourceControl.Assemblys.AssemblyBinVersions(Path.GetFileName(a.BuildResultDll) + ".zip", Path.GetFileNameWithoutExtension(a.BuildResultDll));
-                v.AddVersion("dbdbdbdada2343adasd54", File.ReadAllBytes(a.BuildResultDll), File.ReadAllBytes(a.BuildResultSymbols));
-            }
+            //SourceControl.Assemblys.AssemblyBuilder a = new SourceControl.Assemblys.AssemblyBuilder("");
+            //if (a.BuildProject())
+            //{
+            //    SourceControl.Assemblys.AssemblyBinVersions v = new SourceControl.Assemblys.AssemblyBinVersions(Path.GetFileName(a.BuildResultDll) + ".zip", Path.GetFileNameWithoutExtension(a.BuildResultDll));
+            //    v.AddVersion("dbdbdbdada2343adasd54", File.ReadAllBytes(a.BuildResultDll), File.ReadAllBytes(a.BuildResultSymbols));
+            //}
         }
         static void Main(string[] args)
         {
             //TestStat();
             //TesMtStat();
-            //TesGit();
+            TesGit();
             //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
             //a.BuildProject();
             //            ZipDir();
-            //return;
+            return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
