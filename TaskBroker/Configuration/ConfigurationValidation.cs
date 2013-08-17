@@ -23,7 +23,7 @@ namespace TaskBroker.Configuration
             try
             {
                 bc = ConfigurationBroker.DeSerialiseJson(json);
-                json = bc.SerialiseString();
+                json = bc.SerialiseJsonString();
             }
             catch (Exception e)
             {
@@ -40,7 +40,7 @@ namespace TaskBroker.Configuration
             try
             {
                 bc = ConfigurationModules.DeSerialiseJson(json);
-                json = bc.SerialiseString();
+                json = bc.SerialiseJsonString();
             }
             catch (Exception e)
             {

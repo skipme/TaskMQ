@@ -38,7 +38,7 @@ namespace TaskBroker.Assemblys
             list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             //loadedInterfaces = new Dictionary<string, string>();
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            //AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
         }
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
@@ -108,12 +108,12 @@ namespace TaskBroker.Assemblys
 
             loadedAssemblys.Add(a.PathName, card);
         }
-        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            string[] Parts = args.Name.Split(',');
-            string File = Path.Combine(ModulesFolder, Parts[0].Trim() + ".dll");
+        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        //{
+        //    string[] Parts = args.Name.Split(',');
+        //    string File = Path.Combine(ModulesFolder, Parts[0].Trim() + ".dll");
 
-            return System.Reflection.Assembly.LoadFrom(File);
-        }
+        //    return System.Reflection.Assembly.LoadFrom(File);
+        //}
     }
 }

@@ -18,39 +18,34 @@ namespace TaskBroker.Configuration
         }
         public DateTime CreationDate { get; set; }
 
-        public byte[] Serialise(Encoding enc = null)
+        public byte[] SerialiseJson(Encoding enc = null)
         {
             if (enc == null)
                 enc = Encoding.UTF8;
-            string v = SerialiseString(enc);
+            string v = SerialiseJsonString(enc);
 
             return enc.GetBytes(v);
         }
-        public string SerialiseString(Encoding enc = null)
+        public string SerialiseJsonString(Encoding enc = null)
         {
             if (enc == null)
                 enc = Encoding.UTF8;
+
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
             //string v = ServiceStack.Text.JsonSerializer.SerializeToString(this, this.GetType());
             //v = ServiceStack.Text.JsvFormatter.Format(v); not clever!
             return v;
         }
-        //public static T DeSerialiseXml<T>(byte[] data, Encoding enc = null)
-        //    where T : RepresentedConfiguration
-        //{
-        //    if (enc == null)
-        //        enc = Encoding.UTF8;
-        //    XmlSerializer xs = new XmlSerializer(typeof(T));
-        //    MemoryStream memoryStream = new MemoryStream(data);
-        //    XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, enc);
 
-        //    return xs.Deserialize(memoryStream) as T;
-        //}
         public static T DeSerialiseJson<T>(string data)
            where T : RepresentedConfiguration
         {
+#if MONO
+            // json.net use biginteger parse method what not implemented in mono runtime
+            T obj = ServiceStack.Text.JsonSerializer.DeserializeFromString<T>(data);
+#else
             T obj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
-            //T obj = ServiceStack.Text.JsonSerializer.DeserializeFromString<T>(data);
+#endif
             return obj;
         }
     }

@@ -63,9 +63,9 @@ namespace TaskBroker
 
         public void exportConfiguration()
         {
-            File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).Serialise());
-            File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).Serialise());
-            File.WriteAllBytes("assemblys.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).Serialise());
+            File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());
+            File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).SerialiseJson());
+            File.WriteAllBytes("assemblys.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).SerialiseJson());
         }
     }
 }

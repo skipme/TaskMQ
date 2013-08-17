@@ -142,11 +142,11 @@ namespace TApp
         {
             //TestStat();
             //TesMtStat();
-            TesGit();
+            //TesGit();
             //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
             //a.BuildProject();
             //            ZipDir();
-            return;
+            //return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -209,9 +209,9 @@ namespace TApp
 
 
             //
-            File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).Serialise());
-            File.WriteAllBytes("mm.json", BrokerConfiguration.ExtractModulesFromBroker(b).Serialise());
-            File.WriteAllBytes("mma.json", BrokerConfiguration.ExtractAssemblysFromBroker(b).Serialise());
+            File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).SerialiseJson());
+            File.WriteAllBytes("mm.json", BrokerConfiguration.ExtractModulesFromBroker(b).SerialiseJson());
+            File.WriteAllBytes("mma.json", BrokerConfiguration.ExtractAssemblysFromBroker(b).SerialiseJson());
             //Console.ReadLine();
             //b.PushMessage(new EmailConsumer.MailModel());
 

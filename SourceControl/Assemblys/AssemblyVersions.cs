@@ -9,7 +9,12 @@ namespace SourceControl.Assemblys
 {
     public class AssemblyBinVersions
     {
-        public ContentVersionStorage versions;
+        public class AssemblyRevision
+        {
+            public string Revision { get; set; }
+            public DateTime CreateAt { get; set; }
+        }
+        public ContentVersionStorage versionContainer;
         public string Path { get; private set; }
         public string name { get; private set; }
 
@@ -17,23 +22,37 @@ namespace SourceControl.Assemblys
         {
             this.Path = System.IO.Path.Combine(dirContainer, name + ".zip");
             this.name = name;
-            versions = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
+            versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
 
         public void AddVersion(string revision, byte[] library, byte[] pdb)
         {
             //revision = string.Format("{0:dd.MM.yy HH-mm} ${1}", DateTime.UtcNow, revision);
-            versions.AddVersion(revision + "/" + name + ".dll", library);
-            versions.AddVersion(revision + "/" + name + ".pdb", pdb);
+            versionContainer.AddVersion(revision + "/" + name + ".dll", library);
+            versionContainer.AddVersion(revision + "/" + name + ".pdb", pdb);
         }
 
         public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
         {
-            revision = versions.key_most_fresh;
+            revision = null;
             library = symbols = null;
             if (revision == null)
                 return false;
-            VersionData[] files = versions.GetLatestVersion().ToArray();
+            List<VersionData> files = versionContainer.GetLatestVersion(out revision);
+            library = (from f in files
+                       where f.Name.EndsWith(".dll")
+                       select f.data).First();
+            symbols = (from f in files
+                       where f.Name.EndsWith(".pdb")
+                       select f.data).First();
+            return true;
+        }
+        public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
+        {
+            library = symbols = null;
+            if (revision == null)
+                return false;
+            VersionData[] files = versionContainer.GetSpecificVersion(revision).ToArray();
             library = (from f in files
                        where f.Name.EndsWith(".dll")
                        select f.data).First();
@@ -46,12 +65,18 @@ namespace SourceControl.Assemblys
         {
             get
             {
-                return versions.key_most_fresh;
+                return versionContainer.key_most_fresh;
             }
         }
-        public List<FileStorageEntry> GetVersions()
+        public AssemblyRevision[] GetVersions()
         {
-            return versions.GetVersions();
+            return (from v in versionContainer.GetVersions()
+                    where v.IsDir
+                    select new AssemblyRevision
+                    {
+                        CreateAt = v.Created,
+                        Revision = v.Location
+                    }).ToArray();
         }
     }
 }

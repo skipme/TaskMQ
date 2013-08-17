@@ -48,12 +48,34 @@ namespace FileContentArchive
         //    location = actual.Location;
         //    return storage.GetContentRaw(actual.Location);
         //}
-        public IEnumerable<VersionData> GetLatestVersion()
+        public List<VersionData> GetLatestVersion(out string revision)
         {
+            List<VersionData> vresult = new List<VersionData>(); 
+            revision = null;
             if (History.Count == 0)
-                yield break;
+                return null;
 
-            List<FileStorageEntry> versions = History[key_most_fresh];
+            List<FileStorageEntry> versions = History[revision = key_most_fresh];
+
+            foreach (FileStorageEntry v in versions)
+            {
+                if (v.IsDir) continue;
+                vresult.Add(new VersionData
+                {
+                    Key = key_most_fresh,
+                    Name = v.Location.Remove(0, key_most_fresh.Length + 1),
+                    Created = v.Created,
+                    data = storage.GetContentRaw(v.Location)
+                });
+            }
+            return vresult;
+        }
+        public IEnumerable<VersionData> GetSpecificVersion(string key)
+        {
+            if (History.Count == 0 || !History.ContainsKey(key))
+                yield break;
+            
+            List<FileStorageEntry> versions = History[key];
 
             foreach (FileStorageEntry v in versions)
             {

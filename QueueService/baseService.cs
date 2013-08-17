@@ -91,9 +91,9 @@ namespace QueueService
         public object Get(ConfigRequest request)
         {
             if (request.MainPart)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).Serialise();
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             else if (request.ModulesPart)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).Serialise();
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             return null;
         }
         public ConfigResponse Post(ConfigRequest request)
