@@ -23,9 +23,9 @@ namespace SourceControl.Assemblys
             string revision = assemblyRev.Revision;
             byte[] revdata = assemblyRev.Serialise();
             //revision = string.Format("{0:dd.MM.yy HH-mm} ${1}", DateTime.UtcNow, revision);
-            versionContainer.AddVersion(revision + "/" + name + ".dll", library);
-            versionContainer.AddVersion(revision + "/" + name + ".pdb", pdb);
-            versionContainer.AddVersion(revision + "/.revision", revdata);
+            versionContainer.AddVersionData(revision + "/" + name + ".dll", library);
+            versionContainer.AddVersionData(revision + "/" + name + ".pdb", pdb);
+            versionContainer.AddVersionData(revision + "/.revision", revdata);
         }
 
         public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
@@ -73,6 +73,7 @@ namespace SourceControl.Assemblys
                 if (vd == null)
                 {
                     Console.WriteLine("binary version {0} unannotated with revision data in {1}", f, Path);
+                    continue;
                 }
                 VersionRevision vr = VersionRevision.DeSerialise(vd.data);
                 vr.CreateAt = vd.Created;

@@ -13,7 +13,7 @@ namespace SourceControl
         public string Commiter { get; set; }
         public string Revision { get; set; }
         public string CommitMessage { get; set; }
-        public DateTimeOffset CommitTime { get; set; }
+        public DateTime CommitTime { get; set; }
         public DateTime CreateAt { get; set; }
 
         public byte[] Serialise()
@@ -21,7 +21,8 @@ namespace SourceControl
             XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                using (XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.Unicode))
+                XmlWriterSettings settings = new XmlWriterSettings { Encoding = Encoding.Unicode, Indent = true };
+                using (XmlWriter xmlTextWriter = XmlWriter.Create(memoryStream, settings))
                 {
                     xs.Serialize(xmlTextWriter, this);
                 }

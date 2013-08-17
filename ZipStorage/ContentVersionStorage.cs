@@ -130,9 +130,9 @@ namespace FileContentArchive
             storage.UpdateContent(loc, contents);
             PopulateContents();// TODO: just add to dictionary instant
         }
-        public void AddVersion(string name, byte[] contents)
+        public void AddVersionData(string location, byte[] contents)
         {
-            storage.UpdateContent(name, contents);
+            storage.UpdateContent(location, contents);
             PopulateContents();// TODO: just add to dictionary instant
         }
         string locPostfixNew(string key)

@@ -33,15 +33,6 @@ namespace SourceControl.Assemblys
                 return scm.LocalVersion;
             }
         }
-        //public bool IsActualToRemote
-        //{
-        //    get
-        //    {
-        //        if (!IsUpToDate)
-        //            return SetUpToDate();
-        //        return true;
-        //    }
-        //}
 
         public AssemblySource(string root, string projFileRelativePath, string remoteUri)
         {

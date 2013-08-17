@@ -177,7 +177,7 @@ namespace SourceControl.Git
                     return new VersionRevision
                     {
                         CommitMessage = commit.Message,
-                        CommitTime = commit.Committer.When,
+                        CommitTime = commit.Committer.When.LocalDateTime,
                         Revision = commit.Sha,
                         Commiter = commit.Committer.Email
                     };
