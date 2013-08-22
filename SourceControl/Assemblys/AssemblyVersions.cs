@@ -18,23 +18,29 @@ namespace SourceControl.Assemblys
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
 
-        public void AddVersion(VersionRevision assemblyRev, byte[] library, byte[] pdb)
+        public void AddVersion(VersionRevision assemblyRev, byte[] library, byte[] pdb, IEnumerable<BuildResultFile> artefacts)
         {
             string revision = assemblyRev.Revision;
-            byte[] revdata = assemblyRev.Serialise();
             //revision = string.Format("{0:dd.MM.yy HH-mm} ${1}", DateTime.UtcNow, revision);
             versionContainer.AddVersionData(revision + "/" + name + ".dll", library);
             versionContainer.AddVersionData(revision + "/" + name + ".pdb", pdb);
+
+            assemblyRev.CreateAt = DateTime.Now;
+            byte[] revdata = assemblyRev.Serialise();
             versionContainer.AddVersionData(revision + "/.revision", revdata);
+            foreach (var art in artefacts)
+            {
+                versionContainer.AddVersionData(revision + "/artefacts/" + art.Name, art.Data);
+            }
         }
 
         public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
         {
             revision = null;
             library = symbols = null;
+            List<VersionData> files = versionContainer.GetLatestVersion(out revision);
             if (revision == null)
                 return false;
-            List<VersionData> files = versionContainer.GetLatestVersion(out revision);
             library = (from f in files
                        where f.Name.EndsWith(".dll")
                        select f.data).First();
@@ -46,9 +52,10 @@ namespace SourceControl.Assemblys
         public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
         {
             library = symbols = null;
-            if (revision == null)
-                return false;
+
             VersionData[] files = versionContainer.GetSpecificVersion(revision).ToArray();
+            if (files.Length == 0)
+                return false;
             library = (from f in files
                        where f.Name.EndsWith(".dll")
                        select f.data).First();

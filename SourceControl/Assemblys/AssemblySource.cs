@@ -37,7 +37,9 @@ namespace SourceControl.Assemblys
         public AssemblySource(string root, string projFileRelativePath, string remoteUri)
         {
             SourceUriOrigin = remoteUri;
-            Name = System.IO.Path.GetFileNameWithoutExtension(projFileRelativePath);
+            //Name = System.IO.Path.GetFileNameWithoutExtension(projFileRelativePath);
+            Uri u = new Uri(remoteUri);
+            Name = System.IO.Path.GetFileNameWithoutExtension(u.AbsolutePath);
             ProjectFilePath = System.IO.Path.Combine(root, Name, projFileRelativePath);
             string dir = System.IO.Path.Combine(root, Name);
             if (!System.IO.Directory.Exists(dir))
@@ -49,18 +51,21 @@ namespace SourceControl.Assemblys
             scm = (SCM)Activator.CreateInstance(T, new object[] { dir, remoteUri });
         }
 
-        public bool BuildProject(out byte[] library, out byte[] symbols)
+        public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
         {
             bool bresult;
+            assetsPath = null;
             library = symbols = null;
-
+            outputLocation = null;
             BuildInProgress = true;
 
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
             if (bresult = builder.BuildProject())
             {
+                outputLocation = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
                 library = File.ReadAllBytes(builder.BuildResultDll);
                 symbols = File.ReadAllBytes(builder.BuildResultSymbols);
+                assetsPath = builder.BuildResultAssets;
             }
             else
             {

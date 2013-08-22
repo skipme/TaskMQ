@@ -87,7 +87,8 @@ namespace FileContentArchive
         }
         public IEnumerable<VersionData> GetSpecificVersion(string key)
         {
-            if (History.Count == 0 || !History.ContainsKey(key))
+            if (History.Count == 0 || 
+                !History.ContainsKey(key))
                 yield break;
 
             List<FileStorageEntry> versions = History[key];

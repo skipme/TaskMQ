@@ -16,6 +16,10 @@ Of course for all of that you can use distributed message queues or develop comm
 
 The **channel** realise a functional approach, now it only means what in domain part you choose **model** (class), populate and push it to taskmq, *taskmq* picks **channel**, **queue** and eventually invoke specific module.
 
+###Conception###
+
+The concept focuses on the implementation of the project scale, this is achieved by the distribution of tasks to compute nodes via a message queue. In the simplest case, this is sufficient, however, require the full depth of the CQRS approaches, such as events and store denormalized data. This solution tries to combine the approaches of queues and services, simplifying the deployment and updates, and DDD approach commands change the state of the domain store events, followed by de-normalization of domain data for read requests.
+
 ##Entities##
 
 ###Queues###

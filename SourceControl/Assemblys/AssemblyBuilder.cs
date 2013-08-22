@@ -87,6 +87,7 @@ namespace SourceControl.Assemblys
         public string Log;
         public string BuildResultDll;
         public string BuildResultSymbols;
+        public string[] BuildResultAssets;
 
         public AssemblyBuilder(string projectPath)
         {
@@ -95,9 +96,9 @@ namespace SourceControl.Assemblys
         public bool BuildProject()
         {
             Log = "";
-            bool result = false;
+            bool buildResultOK = false;
             BuildResultDll = BuildResultSymbols = "";
-
+            BuildResultAssets = null;
             try
             {
                 using (bLogger logger = new bLogger())
@@ -108,13 +109,22 @@ namespace SourceControl.Assemblys
 
                     Console.WriteLine("building project: {0}", ProjectLocation);
 
-                    result = p.Build(logger);
+                    buildResultOK = p.Build(logger);
                     Log = logger.Result();
 
-                    if (result)
+                    if (buildResultOK)
                     {
                         BuildResultDll = path;
                         BuildResultSymbols = pdb;
+                        List<string> files = new List<string>();
+                        foreach (string F in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(path)))// not recursive! not now...
+                        {
+                            if (F != BuildResultDll && F != BuildResultSymbols)
+                            {
+                                files.Add(F);
+                            }
+                        }
+                        BuildResultAssets = files.ToArray();
                     }
                 }
             }
@@ -122,7 +132,7 @@ namespace SourceControl.Assemblys
             {
                 Log += string.Format("major exception while build: {0}", e.Message);
             }
-            return result;
+            return buildResultOK;
         }
     }
 }

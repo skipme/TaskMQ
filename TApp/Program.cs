@@ -120,9 +120,12 @@ namespace TApp
             //        Console.WriteLine("successfull build!");
             //    }
             //}
-            SourceControl.Assemblys.AssemblyProject p = new SourceControl.Assemblys.AssemblyProject(
+            SourceControl.Assemblys.AssemblySource src = new SourceControl.Assemblys.AssemblySource(
                 System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"), "EmailConsumer/EmailConsumer.csproj",
                 "https://github.com/skipme/TaskMQ.git");
+            SourceControl.Assemblys.AssemblyProject p = new SourceControl.Assemblys.AssemblyProject(
+                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
+                src);
             if (!p.IsSourceUpToDate)
             {
                 if (p.SetUpSourceToDate())
