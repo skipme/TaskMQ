@@ -17,6 +17,11 @@ namespace TaskBroker.Configuration
             ConfigurationModules cm;
             return ValidateMods(ref json, out errors, out cm);
         }
+        public static bool ValidateAssemblys(ref string json, out string errors)
+        {
+            ConfigurationAssemblys cm;
+            return ValidateAssemblys(ref json, out errors, out cm);
+        }
         public static bool ValidateMain(ref string json, out string errors, out ConfigurationBroker bc)
         {
             bc = null;
@@ -40,6 +45,22 @@ namespace TaskBroker.Configuration
             try
             {
                 bc = ConfigurationModules.DeSerialiseJson(json);
+                json = bc.SerialiseJsonString();
+            }
+            catch (Exception e)
+            {
+                errors = "Configuration broken: " + e.Message;
+                return false;
+            }
+            errors = "ok";
+            return true;
+        }
+        public static bool ValidateAssemblys(ref string json, out string errors, out ConfigurationAssemblys bc)
+        {
+            bc = null;
+            try
+            {
+                bc = ConfigurationAssemblys.DeSerialiseJson(json);
                 json = bc.SerialiseJsonString();
             }
             catch (Exception e)

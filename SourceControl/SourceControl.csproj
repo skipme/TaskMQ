@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assemblys\AssemblyBinary.cs" />
     <Compile Include="Assemblys\AssemblyBuilder.cs" />
     <Compile Include="Assemblys\AssemblyProject.cs" />
     <Compile Include="Assemblys\AssemblyProjects.cs" />

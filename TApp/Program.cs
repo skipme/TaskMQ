@@ -121,7 +121,8 @@ namespace TApp
             //    }
             //}
             SourceControl.Assemblys.AssemblySource src = new SourceControl.Assemblys.AssemblySource(
-                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"), "EmailConsumer/EmailConsumer.csproj",
+                System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
+                "QueueService/QueueService.csproj",
                 "https://github.com/skipme/TaskMQ.git");
             SourceControl.Assemblys.AssemblyProject p = new SourceControl.Assemblys.AssemblyProject(
                 System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
@@ -145,11 +146,11 @@ namespace TApp
         {
             //TestStat();
             //TesMtStat();
-            TesGit();
+            //TesGit();
             //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
             //a.BuildProject();
             //            ZipDir();
-            return;
+            //return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -165,63 +166,6 @@ namespace TApp
             Console.WriteLine("ok, done");
             Console.ReadLine();
             return;
-            //var prefix = QueueService.ModProducer.ListeningOn;
-            //var username = Environment.GetEnvironmentVariable("USERNAME");
-            //var userdomain = Environment.GetEnvironmentVariable("USERDOMAIN");
-            //Console.WriteLine("  netsh http add urlacl url={0} user={1}\\{2} listen=yes",
-            //        prefix, userdomain, username);
-
-
-            //TaskQueue.QueueItemModel tm = new TaskQueue.QueueItemModel(typeof(zModel));
-            //MSSQLQueue.SqlTable t = new MSSQLQueue.SqlTable(tm, "Z");
-            //string rst = MSSQLQueue.SqlScript.ForTableGen(t);
-            //
-            TaskBroker.Broker b = new TaskBroker.Broker();
-            //
-            b.AddAssemblyByPath("QueueService.dll");
-            //b.AddAssemblyByPath("Dllwithotrefs.dll");
-
-            b.RegisterConnection<MongoDbQueue>("MongoLocalhost",
-                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
-            b.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
-                "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
-            //
-            //b.RegisterMessageModel<zModel>();
-            //b.RegisterConsumerModule<zConsumer, zModel>();
-            b.RegisterChannel<zModel>("MongoLocalhost", "z");
-
-            //b.RegisterSelfValuedModule<QueueService.ModProducer>();
-            //b.RegisterSelfValuedModule<EmailConsumer.ModConsumer>();
-
-            b.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
-            EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
-            {
-                Login = "user",
-                UseSSL = true,
-                Port = 587,
-                Password = "",
-                Server = "smtp.yandex.ru"
-            };
-            //
-            //b.ReloadModules();
-            b.ReloadAssemblys();
-            b.RegisterTask(
-                "EmailC", "ThroughputTest",//"EmailSender",
-                IntervalType.intervalMilliseconds, 1000, null /*smtp*/,
-                "Email Common channel consumer on mongo db queue channel");
-
-
-            //
-            File.WriteAllBytes("cc.json", BrokerConfiguration.ExtractFromBroker(b).SerialiseJson());
-            File.WriteAllBytes("mm.json", BrokerConfiguration.ExtractModulesFromBroker(b).SerialiseJson());
-            File.WriteAllBytes("mma.json", BrokerConfiguration.ExtractAssemblysFromBroker(b).SerialiseJson());
-            //Console.ReadLine();
-            //b.PushMessage(new EmailConsumer.MailModel());
-
-            Console.ReadLine();
-            b.PushMessage(new EmailConsumer.MailModel());
-            Console.ReadLine();
-            //b.ReloadModules();
         }
     }
 }

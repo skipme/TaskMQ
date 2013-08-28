@@ -33,31 +33,31 @@ namespace TaskBroker
 
 
             //broker.AddAssemblyByPath("QueueService.dll");
-    //        broker.RegisterConnection<MongoDbQueue>("MongoLocalhost",
-    //           "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
-    //        broker.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
-    //"mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
-    //broker.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
-    //        EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
-    //        {
-    //            Login = "usr",
-    //            UseSSL = true,
-    //            Port = 587,
-    //            Password = "pwd",
-    //            Server = "smtp.yandex.ru"
-    //        };
+            //        broker.RegisterConnection<MongoDbQueue>("MongoLocalhost",
+            //           "mongodb://user:1234@localhost:27017/?safe=true", "Messages", "TaskMQ");
+            //        broker.RegisterConnection<MongoDbQueue>("MongoLocalhostEmail",
+            //"mongodb://user:1234@localhost:27017/?safe=true", "Messages", "email");
+            //broker.RegisterChannel<EmailConsumer.MailModel>("MongoLocalhostEmail", "EmailC");
+            //        EmailConsumer.SmtpModel smtp = new EmailConsumer.SmtpModel()
+            //        {
+            //            Login = "usr",
+            //            UseSSL = true,
+            //            Port = 587,
+            //            Password = "pwd",
+            //            Server = "smtp.yandex.ru"
+            //        };
 
-    //        broker.LoadAssemblys();
+            //        broker.LoadAssemblys();
 
-    //        broker.RegisterTask(
-    //            "EmailC", "EmailSender",
-    //            //IntervalType.intervalMilliseconds, 1000, smtp,
-    //            IntervalType.withoutInterval, 0, smtp.ToDictionary(),
-    //            "Email Common channel consumer on mongo db queue channel");
-            broker.LoadAssemblys();
+            //        broker.RegisterTask(
+            //            "EmailC", "EmailSender",
+            //            //IntervalType.intervalMilliseconds, 1000, smtp,
+            //            IntervalType.withoutInterval, 0, smtp.ToDictionary(),
+            //            "Email Common channel consumer on mongo db queue channel");
+            //broker.LoadAssemblys();
+            
             broker.RevokeBroker(true);
             this.Signal = signal;
-
             exportConfiguration();
         }
 

@@ -26,7 +26,7 @@ namespace TaskBroker
         {
             this.restartApp = restartApp;
             Statistics = new StatHub();
-            
+
             Tasks = new List<QueueTask>();
             Scheduler = new TaskScheduler.ThreadPool();
             OtherTasks = new List<PlanItem>()
@@ -43,24 +43,33 @@ namespace TaskBroker
             MessageChannels = new QueueMTClassificator();
 
             Modules = new ModHolder(this);
+            AssemblyHolder = new Assemblys.Assemblys();
             QueueInterfaces = new QueueClassificator();
 
-            Configurations = new ConfigurationDepo();
+            Configurations = new ConfigurationDepot();
         }
 
-        private void LoadLastConfiguration()
+        private void LoadLatestConfiguration()
         {
-            ConfigurationBroker cmain = Configurations.GetNewestConfigurationVersion();
+            ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
+            if (casm != null)
+            {
+                casm.Apply(this);
+                LoadAssemblys();
+            }
+            ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
+            
             if (cmain != null)
                 cmain.Apply(this);
         }
 
-        public ConfigurationDepo Configurations;
+        public ConfigurationDepot Configurations;
         public QueueMTClassificator MessageChannels;
         public List<QueueTask> Tasks;
         public List<PlanItem> OtherTasks;
 
         public ModHolder Modules;
+        public Assemblys.Assemblys AssemblyHolder;
         public QueueClassificator QueueInterfaces;
         public TaskScheduler.ThreadPool Scheduler;
         public StatHub Statistics;
@@ -72,7 +81,7 @@ namespace TaskBroker
 
         public void RegisterSelfValuedModule(Type interfaceMod, bool remote = true)
         {
-            Modules.AddMod(interfaceMod.FullName, new ModMod() { }, this);
+            Modules.HostModule(interfaceMod.FullName, new ModMod() { }, this);
         }
 
         // channels 
@@ -209,7 +218,7 @@ namespace TaskBroker
             foreach (QueueTask t in Tasks)
             {
                 plan.Add(t);
-            } 
+            }
             foreach (PlanItem p in OtherTasks)
             {
                 plan.Add(p);
@@ -328,9 +337,10 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
-        public void AddAssemblyByPath(string path)
+        public void AddAssemblyByName(string name)
         {
-            Modules.AddAssembly(path);
+            //Modules.AddAssembly(path);
+            AssemblyHolder.AddAssembly(name);
         }
         public void ReloadAssemblys()
         {
@@ -357,12 +367,13 @@ namespace TaskBroker
         }
         public void LoadAssemblys()
         {
-            Modules.AssemblyHolder.LoadAssemblys(this);
+            AssemblyHolder.LoadAssemblys(this);
+            //Modules.AssemblyHolder.LoadAssemblys(this);
         }
         public void RevokeBroker(bool reconfigureFromStorage = false)
         {
             if (reconfigureFromStorage)
-                LoadLastConfiguration();
+                LoadLatestConfiguration();
             Scheduler.Revoke();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks

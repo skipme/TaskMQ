@@ -34,34 +34,49 @@ namespace SourceControl.Assemblys
             }
         }
 
-        public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
+        //public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
+        public bool GetLatestVersion(out string revision, out AssemblyBinary bin)
         {
             revision = null;
-            library = symbols = null;
+            bin = new AssemblyBinary();
             List<VersionData> files = versionContainer.GetLatestVersion(out revision);
             if (revision == null)
                 return false;
-            library = (from f in files
-                       where f.Name.EndsWith(".dll")
-                       select f.data).First();
-            symbols = (from f in files
-                       where f.Name.EndsWith(".pdb")
-                       select f.data).First();
+            VersionData vdl = (from f in files
+                               where !f.Name.Contains("artefacts") && f.Name.EndsWith(".dll")
+                               select f).First();
+            bin.library = vdl.data;
+            bin.Name = System.IO.Path.GetFileNameWithoutExtension(vdl.Name);
+            bin.symbols = (from f in files
+                           where !f.Name.Contains("artefacts") && f.Name.EndsWith(".pdb")
+                           select f.data).First();
+            foreach (var item in (from f in files
+                                  where f.Name.Contains("artefacts/")
+                                  select f))
+            {
+                AssemblyAsset at = new AssemblyAsset
+                       {
+                           Data = item.data,
+                           Name = System.IO.Path.GetFileName(item.Name)
+                       };
+                bin.AddAsset(at);
+            }
             return true;
         }
-        public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
+        //public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
+        public bool GetSpecificVersion(string revision, out AssemblyBinary bin)
         {
-            library = symbols = null;
+            bin = new AssemblyBinary();
 
             VersionData[] files = versionContainer.GetSpecificVersion(revision).ToArray();
             if (files.Length == 0)
                 return false;
-            library = (from f in files
-                       where f.Name.EndsWith(".dll")
-                       select f.data).First();
-            symbols = (from f in files
-                       where f.Name.EndsWith(".pdb")
-                       select f.data).First();
+            bin.library = (from f in files
+                           where !f.Name.Contains("artefacts") && f.Name.EndsWith(".dll")
+                           select f.data).First();
+            bin.symbols = (from f in files
+                           where !f.Name.Contains("artefacts") && f.Name.EndsWith(".pdb")
+                           select f.data).First();
             return true;
         }
         public string LatestRevision

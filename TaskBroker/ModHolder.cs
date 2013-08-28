@@ -13,9 +13,6 @@ namespace TaskBroker
         public string UniqueName { get { return MI.Name; } }
         public string Description { get { return MI.Description; } }
 
-        //public TaskQueue.Providers.TItemModel AcceptsModel { get; set; }
-        //public TaskQueue.Providers.TItemModel ParametersModel { get; set; }
-
         public string ModAssembly { get; set; }
         public TaskBroker.ExecutionType Role { get; set; }
 
@@ -52,11 +49,6 @@ namespace TaskBroker
             ModLocalInterfaces = new Dictionary<string, Type>();
             loadedInterfaces = new Dictionary<string, string>();
 
-            //AssemblyHolder = new Assemblys.AssemblyHolder(Path.Combine(Directory.GetCurrentDirectory(), "assemblys"));
-            AssemblyHolder = new Assemblys.Assemblys(
-                Path.Combine(Directory.GetCurrentDirectory(), "assemblys")
-                );
-
             AddInterfacesFromCurrentDomain(b);
         }
 
@@ -64,8 +56,6 @@ namespace TaskBroker
         public Dictionary<string, Type> ModInterfaces;
         public Dictionary<string, Type> ModLocalInterfaces;
         public Dictionary<string, string> loadedInterfaces;
-        //public Assemblys.AssemblyHolder AssemblyHolder;
-        public Assemblys.Assemblys AssemblyHolder;
 
         public void RegisterInterface(Type interfaceMod, string assembly)
         {
@@ -87,7 +77,7 @@ namespace TaskBroker
                 // error
             }
         }
-        public void AddMod(string interfaceName, ModMod mod, Broker b)
+        public void HostModule(string interfaceName, ModMod mod, Broker b)
         {
             Type iface = null;
             if (ModInterfaces.ContainsKey(interfaceName))
@@ -123,35 +113,9 @@ namespace TaskBroker
                     b.RegisterTempTask(t, mod);
                 }
         }
-        //public void AddRemoteMod(ModMod mod, Broker b)
-        //{
-        //    //mod.ModAssembly = mod.MI.GetType().Assembly;
-        //    Modules.Add(mod.UniqueName, mod);
 
-        //    mod.MI.Initialise(mod);
-        //    ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
-        //    if (tasks != null)
-        //        foreach (ModuleSelfTask t in tasks)
-        //        {
-        //            b.RegisterTempTask(t);
-        //        }
-        //}
-        public void AddAssembly(string path)
-        {
-            AssemblyHolder.AddAssembly(path);
-        }
-        //public void AddModConstructed(ModMod mod)
-        //{
-        //    Type i = mod.MI.GetType();
-        //    ModInterfaces.Add(i.FullName, i);
-        //    Modules.Add(mod.UniqueName, mod);
-        //}
         public ModMod GetByName(string name)
         {
-            //ModMod m = (from mod in Modules
-            //            where string.Equals(mod.UniqueName, name, StringComparison.OrdinalIgnoreCase)
-            //            select mod).FirstOrDefault();
-            //return m;
             ModMod m;
             if (!Modules.TryGetValue(name, out m))
             {
@@ -159,24 +123,10 @@ namespace TaskBroker
             }
             return m;
         }
-        //public void ReloadModules(Broker b)
-        //{
-        //    //ModInterfaces.Clear();
-        //    foreach (KeyValuePair<string, ModMod> item in Modules)
-        //    {
-        //        item.Value.MI.Exit();
-        //        item.Value.MI = null;
-        //        item.Value.ModAssembly = null;
-        //    }
-        //    Modules.Clear();
-        //    //AssemblyHolder.UnloadModules();
-        //    //AssemblyHolder.LoadAssemblys(b);
-        //    reloadLocalMods(b);
-        //}
 
         private void AddInterfacesFromCurrentDomain(Broker b)
         {
-            TaskBroker.Assemblys.Assemblys.ForceReferencedLoad();// locals...
+            //TaskBroker.Assemblys.Assemblys.ForceReferencedLoad();// locals...
 
             var type = typeof(IMod);
             var types = AppDomain.CurrentDomain.GetAssemblies().ToList()
@@ -193,7 +143,7 @@ namespace TaskBroker
         {
             foreach (Type item in ModLocalInterfaces.Values)
             {
-                AddMod(item.FullName, new ModMod(), b);
+                HostModule(item.FullName, new ModMod(), b);
             }
         }
         private void ExitMod(string name)

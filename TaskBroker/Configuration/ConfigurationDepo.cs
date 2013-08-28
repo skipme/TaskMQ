@@ -5,21 +5,22 @@ using System.Text;
 
 namespace TaskBroker.Configuration
 {
-    public class ConfigurationDepo
+    public class ConfigurationDepot
     {
         const string key_main = "JC_MAIN";
         const string key_modules = "JC_MODULES";
         const string key_assemblys = "JC_ASSEMBLYS";
+        const string conf_archive = "conf-json.zip";
 
         public FileContentArchive.ContentVersionStorage versions;
         public Dictionary<string, string> jsonConfigurations = new Dictionary<string, string>();
 
-        public ConfigurationDepo()
+        public ConfigurationDepot()
         {
-            versions = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage("conf-json.zip"));
+            versions = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(conf_archive));
         }
 
-        public Configuration.ConfigurationBroker GetNewestConfigurationVersion()
+        public Configuration.ConfigurationBroker GetNewestMainConfiguration()
         {
             Configuration.ConfigurationBroker bc;
             string errors;
@@ -32,9 +33,25 @@ namespace TaskBroker.Configuration
             {
                 return bc;
             }
+            Console.WriteLine(errors);
             return null;
         }
+        public Configuration.ConfigurationAssemblys GetNewestAssemblysConfiguration()
+        {
+            Configuration.ConfigurationAssemblys bc;
+            string errors;
 
+            string json = versions.GetLatestVersion(key_assemblys);
+            if (json == null)
+                return null;
+
+            if (ConfigurationValidation.ValidateAssemblys(ref json, out errors, out bc))
+            {
+                return bc;
+            }
+            Console.WriteLine(errors);
+            return null;
+        }
 
         public void RegisterConfiguration(string id, string body)
         {

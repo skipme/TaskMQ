@@ -30,5 +30,15 @@ namespace TaskBroker
                 }
             }
         }
+        public static void Apply(this ConfigurationAssemblys con, Broker broker)
+        {
+            Console.WriteLine("trying to apply assembly's configuration with datetime stamp: {0}", con.CreationDate);
+
+            foreach (var asem in con.Assemblys)
+            {
+                broker.AddAssemblyByName(asem.Name);
+            }
+
+        }
     }
 }

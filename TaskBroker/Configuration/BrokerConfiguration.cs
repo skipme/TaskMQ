@@ -25,7 +25,7 @@ namespace TaskBroker.Configuration
                           {
                               connectionName = cc.ConnectionName,
                               Name = cc.UniqueName,
-                              MType = cc.MessageType ,
+                              MType = cc.MessageType,
                           }).ToArray();
 
             c.Tasks = (from tt in b.Tasks
@@ -62,11 +62,11 @@ namespace TaskBroker.Configuration
         {
             ConfigurationAssemblys c = new ConfigurationAssemblys();
 
-            //c.Assemblys = (from mm in b.Modules.AssemblyHolder.assemblys
-            //               select new cAssembly()
-            //               {
-            //                   path = mm.PathName
-            //               }).ToArray();
+            c.Assemblys = (from mm in b.AssemblyHolder.list
+                           select new cAssembly()
+                           {
+                               Name = mm.PathName
+                           }).ToArray();
 
             return c;
         }

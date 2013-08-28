@@ -1,4 +1,5 @@
-﻿using System;
+﻿#undef MONO
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -40,6 +41,7 @@ namespace TaskBroker.Configuration
         public static T DeSerialiseJson<T>(string data)
            where T : RepresentedConfiguration
         {
+
 #if MONO
             // json.net use biginteger parse method what not implemented in mono runtime
             T obj = ServiceStack.Text.JsonSerializer.DeserializeFromString<T>(data);
@@ -74,6 +76,12 @@ namespace TaskBroker.Configuration
     public class ConfigurationAssemblys : RepresentedConfiguration
     {
         public cAssembly[] Assemblys { get; set; }
+
+        public static ConfigurationAssemblys DeSerialiseJson(string json)
+        {
+            ConfigurationAssemblys obj = RepresentedConfiguration.DeSerialiseJson<ConfigurationAssemblys>(json);
+            return obj;
+        }
     }
     [Serializable]
     public class cTask
@@ -122,6 +130,8 @@ namespace TaskBroker.Configuration
     [Serializable]
     public class cAssembly
     {
-        public string path { get; set; }
+        public string Name { get; set; }
+        public string RepositoryUrl { get; set; }// null if !useSCM
+        public bool useSCM { get; set; }// clone and update from remote repo
     }
 }

@@ -87,6 +87,10 @@
       <Project>{c250a799-20af-494d-ba51-32ad41a376bb}</Project>
       <Name>MongoQueue</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SourceControl\SourceControl.csproj">
+      <Project>{b0afee79-b1af-48c4-9ffd-638f638c2c00}</Project>
+      <Name>SourceControl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
       <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
       <Name>TaskQueue</Name>

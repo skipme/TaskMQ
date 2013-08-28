@@ -9,7 +9,7 @@ namespace TaskBroker.Assemblys
 {
     public class Assemblys
     {
-        public static void ForceReferencedLoad()
+        public static void ForceReferencedLoad()// because JIT, should drop after assembly aggregation implemented
         {
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
@@ -29,91 +29,133 @@ namespace TaskBroker.Assemblys
                 }
             }
         }
-        public string ModulesFolder { get; set; }
-        public Assemblys(string folder = null)
+        public string ModulesFolder { get; private set; }
+        public Assemblys()
         {
-            ModulesFolder = folder == null ?
-                AppDomain.CurrentDomain.BaseDirectory :
-                folder;
             list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             //loadedInterfaces = new Dictionary<string, string>();
-            //AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
         }
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
-        public Dictionary<string, string> loadedInterfaces;
+        private AssemblyModule CurrentLoadingAssemblyModule;
 
-        public void AddAssembly(string path)
+        public void AddAssembly(string name)
         {
-            if (loadedAssemblys.ContainsKey(path))
-            {
-                // error
-                return;
-            }
-            list.Add(new AssemblyModule()
-            {
-                PathName = path
-            });
+            SourceControl.Assemblys.AssemblyBinVersions ver = new SourceControl.Assemblys.AssemblyBinVersions(
+                System.IO.Directory.GetCurrentDirectory(), name);
+            SourceControl.Assemblys.AssemblyBinary bin;
+            string rev;
+            ver.GetLatestVersion(out rev, out bin);
+            list.Add(new AssemblyModule(bin));
+        }
+        public void AddAssembly(SourceControl.Assemblys.AssemblyBinary binary)
+        {
+            list.Add(new AssemblyModule(binary));
         }
         public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
+            //loadedInterfaces.Clear();
             foreach (AssemblyModule a in list)
             {
-                if (!(a.IsLoaded = LoadAssembly(b, a)))
-                {
-                    Console.WriteLine("assembly not loaded....");// specific error channel
-                }
+                LoadAssembly(b, a);
+                //if (!(a.IsLoaded = LoadAssembly(b, a)))
+                //{
+                //    Console.WriteLine("assembly not loaded....");// specific error channel
+                //}
             }
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
         {
-            if (!a.Exists(ModulesFolder))
-            {
-                Console.WriteLine("assembly not found: '{0}'", a.Fullpath(ModulesFolder));
-                return false;
-            }
             try
             {
+                CurrentLoadingAssemblyModule = a;
                 AddAssemblyUnsafe(b, a);
             }
             catch (Exception e)
             {
                 // diagnostic error channel
-                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.Fullpath(ModulesFolder), e.Message);
+                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
                 return false;
             }
+            CurrentLoadingAssemblyModule = null;
             return true;
         }
 
         private void AddAssemblyUnsafe(Broker b, AssemblyModule a)
         {
-            Assembly assembly = Assembly.LoadFrom(a.Fullpath(ModulesFolder));
+            Assembly assembly = null;
+            if (a.SymbolsPresented)
+                assembly = Assembly.Load(a.binary.library, a.binary.symbols);
+            else assembly = Assembly.Load(a.binary.library);
+
+            string assemblyName = assembly.GetName().Name;
             AssemblyCard card = new AssemblyCard()
             {
                 assembly = assembly,
-                PathName = a.PathName
+                AssemblyName = assemblyName
             };
             var type = typeof(IMod);
             var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+
             foreach (Type item in types)
             {
-                b.Modules.RegisterInterface(item, a.PathName);
+                b.Modules.RegisterInterface(item, assemblyName);
                 b.RegisterSelfValuedModule(item);
                 //loadedInterfaces.Add(item.FullName, a.PathName);
             }
             card.Interfaces = (from t in types
                                select t.FullName).ToArray();
 
-            loadedAssemblys.Add(a.PathName, card);
+            loadedAssemblys.Add(assemblyName, card);
         }
-        //Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        //{
-        //    string[] Parts = args.Name.Split(',');
-        //    string File = Path.Combine(ModulesFolder, Parts[0].Trim() + ".dll");
-
-        //    return System.Reflection.Assembly.LoadFrom(File);
-        //}
+        Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            //string source = args.RequestingAssembly.FullName.Split(',')[0].Trim().ToLower();
+            //for (int i = 0; i < list.Count; i++)
+            //{
+            //    if (source == list[i].PathName.ToLower())
+            //    {
+            //        string[] Parts = args.Name.Split(',');
+            //        string File = Parts[0].Trim() + ".dll";
+            //        string FileSym = Parts[0].Trim() + ".pdb";
+            //        SourceControl.Assemblys.AssemblyAsset asset;
+            //        SourceControl.Assemblys.AssemblyAsset assetsym;
+            //        if (list[i].binary.assets.TryGetValue(File.ToLower(), out asset))
+            //        {
+            //            if (list[i].binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
+            //            {
+            //                return Assembly.Load(asset.Data, assetsym.Data);
+            //            }
+            //            else
+            //            {
+            //                return Assembly.Load(asset.Data);
+            //            }
+            //        }
+            //    }
+            //}
+            if (CurrentLoadingAssemblyModule != null)
+            {
+                string[] Parts = args.Name.Split(',');
+                string File = Parts[0].Trim() + ".dll";
+                string FileSym = Parts[0].Trim() + ".pdb";
+                SourceControl.Assemblys.AssemblyAsset asset;
+                SourceControl.Assemblys.AssemblyAsset assetsym;
+                if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(File.ToLower(), out asset))
+                {
+                    if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
+                    {
+                        return Assembly.Load(asset.Data, assetsym.Data);
+                    }
+                    else
+                    {
+                        return Assembly.Load(asset.Data);
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

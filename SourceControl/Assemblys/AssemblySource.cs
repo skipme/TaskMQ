@@ -13,7 +13,6 @@ namespace SourceControl.Assemblys
         public string Name { get; set; }
         private bool IsUpToDate { get; set; }
         public string lastBuildLog { get; private set; }
-        public bool BuildInProgress { get; private set; }
 
         private SCM scm;
         public SCM.Status Status
@@ -51,20 +50,19 @@ namespace SourceControl.Assemblys
             scm = (SCM)Activator.CreateInstance(T, new object[] { dir, remoteUri });
         }
 
-        public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
+        //public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
+        public bool BuildProject(out AssemblyBinary bin, out string[] assetsPath, out string assetsRoot)
         {
             bool bresult;
-            assetsPath = null;
-            library = symbols = null;
-            outputLocation = null;
-            BuildInProgress = true;
+            assetsPath =  null;
+            assetsRoot = null;
+            bin = null;
 
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
             if (bresult = builder.BuildProject())
             {
-                outputLocation = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
-                library = File.ReadAllBytes(builder.BuildResultDll);
-                symbols = File.ReadAllBytes(builder.BuildResultSymbols);
+                bin = AssemblyBinary.FromFile(builder.BuildResultDll, builder.BuildResultSymbols);
+                assetsRoot = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
                 assetsPath = builder.BuildResultAssets;
             }
             else
@@ -72,8 +70,6 @@ namespace SourceControl.Assemblys
                 Console.WriteLine("build project failure: {0}", builder.Log);
             }
             lastBuildLog = builder.Log;
-
-            BuildInProgress = false;
 
             return bresult;
         }

@@ -38,15 +38,15 @@ namespace SourceControl.Assemblys
             Console.WriteLine("source '{0}' update: {1}", Source.Name, result ? "ok" : "fail");
             return result;
         }
-        public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
+        public bool GetSpecificVersion(string revision, out AssemblyBinary binary)
         {
             if (GetStoredVersions().Where(v => v.Revision == revision).Count() == 1)
             {
-                return Versions.GetSpecificVersion(revision, out library, out symbols);
+                return Versions.GetSpecificVersion(revision, out binary);
             }
             else
             {
-                library = symbols = null;
+                binary = null;
                 return false;
             }
         }
@@ -60,10 +60,10 @@ namespace SourceControl.Assemblys
             {
                 if (Source.SetUpToDate())
                 {
-                    byte[] lib, sym;
                     string[] assets = null;
                     string reldir = null;
-                    if (Source.BuildProject(out reldir, out lib, out sym, out assets))
+                    AssemblyBinary bin;
+                    if (Source.BuildProject(out bin, out assets, out reldir))
                     {
                         if (reldir.EndsWith("/") || reldir.EndsWith("\\"))
                             reldir = reldir.Remove(reldir.Length - 1);
@@ -73,7 +73,7 @@ namespace SourceControl.Assemblys
                                           Data = File.ReadAllBytes(a),
                                           Name = a.Replace(reldir, "").Remove(0, 1)
                                       };
-                        Versions.AddVersion(rev, lib, sym, iassets);
+                        Versions.AddVersion(rev, bin.library, bin.symbols, iassets);
                     }
                 }
             }
