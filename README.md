@@ -1,9 +1,9 @@
+![](http://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png "")
+
 #TaskMQ#
 
 **The version of this file is preliminary**
 
-Donations are welcome: 
-<a href='http://www.pledgie.com/campaigns/21114'><img alt='Click here to lend your support to: TaskMQ donation and make a donation at www.pledgie.com !' src='http://www.pledgie.com/campaigns/21114.png?skin_name=chrome' border='0' /></a>
 
 ##Introduction##
 
