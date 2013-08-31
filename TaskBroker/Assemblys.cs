@@ -113,7 +113,7 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            //string source = args.RequestingAssembly.FullName.Split(',')[0].Trim().ToLower();
+            string source = args.RequestingAssembly.FullName.Split(',')[0].Trim();
             //for (int i = 0; i < list.Count; i++)
             //{
             //    if (source == list[i].PathName.ToLower())
@@ -145,6 +145,7 @@ namespace TaskBroker.Assemblys
                 SourceControl.Assemblys.AssemblyAsset assetsym;
                 if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(File.ToLower(), out asset))
                 {
+                    Console.WriteLine("loading artefact {1} in {0} for {2}", CurrentLoadingAssemblyModule.PathName, asset.Name, source);
                     if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
                     {
                         return Assembly.Load(asset.Data, assetsym.Data);

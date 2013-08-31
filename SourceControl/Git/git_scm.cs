@@ -118,51 +118,6 @@ namespace SourceControl.Git
             return name;
         }
 
-        //public override DateTimeOffset LocalCommitDate
-        //{
-        //    get
-        //    {
-        //        Branch focusBranch = null;
-        //        using (var repo = new Repository(base.LocalContainerDirectory))
-        //        {
-        //            focusBranch = CheckoutRemoteBranch(repo);
-        //            if (focusBranch == null)
-        //                return DateTimeOffset.MinValue;
-        //            return focusBranch.Commits.First().Committer.When;
-        //        }
-        //    }
-        //}
-
-        //public override string LocalCommitMessage
-        //{
-        //    get
-        //    {
-        //        Branch focusBranch = null;
-        //        using (var repo = new Repository(base.LocalContainerDirectory))
-        //        {
-        //            focusBranch = CheckoutRemoteBranch(repo);
-        //            if (focusBranch == null)
-        //                return null;
-        //            return focusBranch.Commits.First().Message;
-        //        }
-        //    }
-        //}
-
-        //public override string LocalCommitCommiter
-        //{
-        //    get
-        //    {
-        //        Branch focusBranch = null;
-        //        using (var repo = new Repository(base.LocalContainerDirectory))
-        //        {
-        //            focusBranch = CheckoutRemoteBranch(repo);
-        //            if (focusBranch == null)
-        //                return null;
-        //            return focusBranch.Commits.First().Committer.Email;
-        //        }
-        //    }
-        //}
-
         public override VersionRevision LocalVersion
         {
             get
