@@ -9,6 +9,9 @@ using System.Threading;
 
 namespace TaskBroker.Assemblys
 {
+    /// <summary>
+    /// Encapsulate path specific assembly (runtime ready scm revision (prior) or dll in file system)
+    /// </summary>
     public class AssemblyModule
     {
         public AssemblyModule(SourceControl.Assemblys.AssemblyBinary bin)
@@ -34,6 +37,9 @@ namespace TaskBroker.Assemblys
             }
         }
         public readonly SourceControl.Assemblys.AssemblyBinary binary;
+
+        public bool RuntimeLoaded { get; private set; }
+        public string RutimeLoadException { get; private set; }
     }
     public class AssemblyCard
     {

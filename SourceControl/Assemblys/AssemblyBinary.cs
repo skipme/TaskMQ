@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SourceControl.Assemblys
 {
+    /// <summary>
+    /// Runtime ready assembly with symbols, dependencies, other assets like resource files
+    /// </summary>
     public class AssemblyBinary
     {
         public AssemblyBinary()
@@ -65,9 +68,23 @@ namespace SourceControl.Assemblys
         }
         public string Name { get; set; }
     }
+    /// <summary>
+    /// Could be dll or sym or 
+    /// </summary>
     public class AssemblyAsset
     {
+        /// <summary>
+        /// Relative / only filename
+        /// </summary>
         public string Name;
         public byte[] Data;
+        /// <summary>
+        /// For reference
+        /// </summary>
+        public string Version;
+        /// <summary>
+        /// Recognise for the version
+        /// </summary>
+        public string HashCode;
     }
 }

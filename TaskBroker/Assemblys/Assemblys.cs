@@ -9,26 +9,26 @@ namespace TaskBroker.Assemblys
 {
     public class Assemblys
     {
-        public static void ForceReferencedLoad()// because JIT, should drop after assembly aggregation implemented
-        {
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-            var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
+        //public static void ForceReferencedLoad()// because JIT
+        //{
+        //    var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+        //    var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
 
-            var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-            var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
+        //    var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+        //    var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
 
-            foreach (var path in toLoad)
-            {
-                try
-                {
-                    loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path)));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("assembly force load exception: {0}", e.Message);
-                }
-            }
-        }
+        //    foreach (var path in toLoad)
+        //    {
+        //        try
+        //        {
+        //            loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path)));
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            Console.WriteLine("assembly force load exception: {0}", e.Message);
+        //        }
+        //    }
+        //}
         public string ModulesFolder { get; private set; }
         public Assemblys()
         {
@@ -37,6 +37,7 @@ namespace TaskBroker.Assemblys
             //loadedInterfaces = new Dictionary<string, string>();
             AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
         }
+
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
         private AssemblyModule CurrentLoadingAssemblyModule;
@@ -65,7 +66,9 @@ namespace TaskBroker.Assemblys
                 //{
                 //    Console.WriteLine("assembly not loaded....");// specific error channel
                 //}
+                // TODO: use artefacts depot :: confilct checking exceptions
             }
+            
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
         {
@@ -113,29 +116,9 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            string source = args.RequestingAssembly.FullName.Split(',')[0].Trim();
-            //for (int i = 0; i < list.Count; i++)
-            //{
-            //    if (source == list[i].PathName.ToLower())
-            //    {
-            //        string[] Parts = args.Name.Split(',');
-            //        string File = Parts[0].Trim() + ".dll";
-            //        string FileSym = Parts[0].Trim() + ".pdb";
-            //        SourceControl.Assemblys.AssemblyAsset asset;
-            //        SourceControl.Assemblys.AssemblyAsset assetsym;
-            //        if (list[i].binary.assets.TryGetValue(File.ToLower(), out asset))
-            //        {
-            //            if (list[i].binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
-            //            {
-            //                return Assembly.Load(asset.Data, assetsym.Data);
-            //            }
-            //            else
-            //            {
-            //                return Assembly.Load(asset.Data);
-            //            }
-            //        }
-            //    }
-            //}
+            string source;
+            source = Path.GetFileName(args.RequestingAssembly.ManifestModule.ScopeName);
+
             if (CurrentLoadingAssemblyModule != null)
             {
                 string[] Parts = args.Name.Split(',');
@@ -156,7 +139,9 @@ namespace TaskBroker.Assemblys
                     }
                 }
             }
+            // TODO: use artefacts depot
             return null;
         }
+
     }
 }
