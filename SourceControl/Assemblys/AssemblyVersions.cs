@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace SourceControl.Assemblys
 {
     public class AssemblyBinVersions
     {
+        const string packageInfo = "package.xml";
         public ContentVersionStorage versionContainer;
         public string Path { get; private set; }
         public string name { get; private set; }
@@ -17,11 +19,28 @@ namespace SourceControl.Assemblys
             this.name = name;
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
-
+        private PackageInfo getPackageInfo()
+        {
+            byte[] p = versionContainer.GetRootFileData(packageInfo);
+            if (p == null)
+                return null;
+            return PackageInfo.DeSerialise(p);
+        }
+        private void setPackageInfo(PackageInfo p)
+        {
+            byte[] data = p.Serialise();
+            versionContainer.SetRootFileData(packageInfo, data);
+        }
         public void AddVersion(VersionRevision assemblyRev, byte[] library, byte[] pdb, IEnumerable<BuildResultFile> artefacts)
         {
+            PackageInfo p = getPackageInfo();
+            if (p == null)
+                p = new PackageInfo();
+
             string revision = assemblyRev.Revision;
-            //revision = string.Format("{0:dd.MM.yy HH-mm} ${1}", DateTime.UtcNow, revision);
+
+            PackageVersion pv = p.AddRevision(revision, name + ".dll", name + ".pdb", library);
+
             versionContainer.AddVersionData(revision + "/" + name + ".dll", library);
             versionContainer.AddVersionData(revision + "/" + name + ".pdb", pdb);
 
@@ -31,7 +50,9 @@ namespace SourceControl.Assemblys
             foreach (var art in artefacts)
             {
                 versionContainer.AddVersionData(revision + "/artefacts/" + art.Name, art.Data);
+                pv.AddArtefact(art.Name, art.Data);
             }
+            setPackageInfo(p);
         }
 
         //public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)

@@ -87,7 +87,7 @@ namespace FileContentArchive
         }
         public IEnumerable<VersionData> GetSpecificVersion(string key)
         {
-            if (History.Count == 0 || 
+            if (History.Count == 0 ||
                 !History.ContainsKey(key))
                 yield break;
 
@@ -104,6 +104,25 @@ namespace FileContentArchive
                     data = storage.GetContentRaw(v.Location)
                 };
             }
+        }
+        public byte[] GetRootFileData(string name)
+        {
+            if (History.Count == 0 ||
+               !History.ContainsKey(name))
+                return null;
+            if (History[name].Count != 1)
+            {
+                throw new Exception("unhandled exeption");
+            }
+            FileStorageEntry version = History[name][0];
+            return storage.GetContentRaw(version.Location);
+        }
+        public void SetRootFileData(string name, byte[] data)
+        {
+            if (name.Contains('/') || name.Contains('\\'))
+                throw new Exception("not allowed chars found...");
+
+            storage.UpdateContent(name, data);
         }
         public string[] GetVersions()
         {

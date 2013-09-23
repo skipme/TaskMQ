@@ -108,7 +108,7 @@ namespace SourceControl.Assemblys
                     string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".pdb");
 
                     Console.WriteLine("building project: {0}", ProjectLocation);
-
+                    
                     buildResultOK = p.Build(logger);
                     Log = logger.Result();
 
@@ -117,7 +117,7 @@ namespace SourceControl.Assemblys
                         BuildResultDll = path;
                         BuildResultSymbols = pdb;
                         List<string> files = new List<string>();
-                        foreach (string F in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(path)))// not recursive! not now...
+                        foreach (string F in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(path)))// TODO: not recursive! not now...
                         {
                             if (F != BuildResultDll && F != BuildResultSymbols)
                             {
