@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SourceControl.Build;
+using SourceControl.Containers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,29 +16,26 @@ namespace TaskBroker.Assemblys
     /// </summary>
     public class AssemblyModule
     {
-        public AssemblyModule(SourceControl.Assemblys.AssemblyBinary bin)
+        public AssemblyModule(AssemblyVersionPackage package)
         {
-            binary = bin;
+            this.package = package;
         }
-        //public AssemblyModule(string dll)
-        //{
-        //    binary = SourceControl.Assemblys.AssemblyBinary.FromFile(dll);
-        //}
         public bool SymbolsPresented
         {
             get
             {
-                return binary.symbols != null;
+                return package.Version.FileSymbols != null;
             }
         }
         public string PathName
         {
             get
             {
-                return binary.Name;
+                throw new Exception();
+                //return package.Version.;
             }
         }
-        public readonly SourceControl.Assemblys.AssemblyBinary binary;
+        public readonly AssemblyVersionPackage package;
 
         public bool RuntimeLoaded { get; private set; }
         public string RutimeLoadException { get; private set; }

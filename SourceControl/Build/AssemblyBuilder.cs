@@ -4,13 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SourceControl.Assemblys
+namespace SourceControl.Build
 {
-    public class BuildResultFile
-    {
-        public string Name;
-        public byte[] Data;
-    }
+
     public class AssemblyBuilder
     {
         public class bLogger : Microsoft.Build.Framework.ILogger, IDisposable
@@ -31,7 +27,7 @@ namespace SourceControl.Assemblys
 
             void eventSource_MessageRaised(object sender, Microsoft.Build.Framework.BuildMessageEventArgs e)
             {
-                log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
+                //log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
                 //throw new NotImplementedException();
             }
 
@@ -43,7 +39,7 @@ namespace SourceControl.Assemblys
 
             void eventSource_AnyEventRaised(object sender, Microsoft.Build.Framework.BuildEventArgs e)
             {
-                log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
+                //log.AppendFormat("[{0}] {1}: {2} \r\n", e.Timestamp, e.SenderName, e.Message);
                 //Console.WriteLine("el: [{0}] {1}: {2}", e.Timestamp, e.SenderName, e.Message);
             }
 

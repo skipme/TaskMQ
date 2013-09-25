@@ -1,4 +1,7 @@
-﻿using System;
+﻿using SourceControl.Build;
+using SourceControl.Containers;
+using SourceControl.Ref;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,18 +41,18 @@ namespace SourceControl.Assemblys
             Console.WriteLine("source '{0}' update: {1}", Source.Name, result ? "ok" : "fail");
             return result;
         }
-        public bool GetSpecificVersion(string revision, out AssemblyBinary binary)
-        {
-            if (GetStoredVersions().Where(v => v.Revision == revision).Count() == 1)
-            {
-                return Versions.GetSpecificVersion(revision, out binary);
-            }
-            else
-            {
-                binary = null;
-                return false;
-            }
-        }
+        //public bool GetSpecificVersion(string revision, out AssemblyBinaryBuildResult binary)
+        //{
+        //    if (GetStoredVersions().Where(v => v.Revision == revision).Count() == 1)
+        //    {
+        //        return Versions.GetSpecificVersion(revision, out binary);
+        //    }
+        //    else
+        //    {
+        //        binary = null;
+        //        return false;
+        //    }
+        //}
         public void StoreNewIfRequired()
         {
             VersionRevision rev = sourceVersionRevision;
@@ -60,20 +63,10 @@ namespace SourceControl.Assemblys
             {
                 if (Source.SetUpToDate())
                 {
-                    string[] assets = null;
-                    string reldir = null;
-                    AssemblyBinary bin;
-                    if (Source.BuildProject(out bin, out assets, out reldir))
+                    AssemblyBinaryBuildResult bin;
+                    if (Source.BuildProject(out bin))
                     {
-                        if (reldir.EndsWith("/") || reldir.EndsWith("\\"))
-                            reldir = reldir.Remove(reldir.Length - 1);
-                        var iassets = from a in assets
-                                      select new BuildResultFile
-                                      {
-                                          Data = File.ReadAllBytes(a),
-                                          Name = a.Replace(reldir, "").Remove(0, 1)
-                                      };
-                        Versions.AddVersion(rev, bin.library, bin.symbols, iassets);
+                        Versions.AddVersion(rev, bin);
                     }
                 }
             }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SourceControl.Build;
+using SourceControl.Ref;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,19 +53,17 @@ namespace SourceControl.Assemblys
         }
 
         //public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
-        public bool BuildProject(out AssemblyBinary bin, out string[] assetsPath, out string assetsRoot)
+        public bool BuildProject(out AssemblyBinaryBuildResult bin)
         {
             bool bresult;
-            assetsPath =  null;
-            assetsRoot = null;
             bin = null;
 
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
             if (bresult = builder.BuildProject())
             {
-                bin = AssemblyBinary.FromFile(builder.BuildResultDll, builder.BuildResultSymbols);
-                assetsRoot = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
-                assetsPath = builder.BuildResultAssets;
+                bin = AssemblyBinaryBuildResult.FromFile(builder.BuildResultDll, builder.BuildResultSymbols);
+                bin.assetsRoot = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
+                bin.assets = builder.BuildResultAssets;
             }
             else
             {

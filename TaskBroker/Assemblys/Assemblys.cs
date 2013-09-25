@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SourceControl.Build;
+using SourceControl.Containers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,16 +46,13 @@ namespace TaskBroker.Assemblys
 
         public void AddAssembly(string name)
         {
-            SourceControl.Assemblys.AssemblyBinVersions ver = new SourceControl.Assemblys.AssemblyBinVersions(
-                System.IO.Directory.GetCurrentDirectory(), name);
-            SourceControl.Assemblys.AssemblyBinary bin;
-            string rev;
-            ver.GetLatestVersion(out rev, out bin);
-            list.Add(new AssemblyModule(bin));
+            AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
+            AssemblyVersionPackage package = ver.GetLatestVersion();
+            list.Add(new AssemblyModule(package));
         }
-        public void AddAssembly(SourceControl.Assemblys.AssemblyBinary binary)
+        public void AddAssembly(AssemblyVersionPackage package)
         {
-            list.Add(new AssemblyModule(binary));
+            list.Add(new AssemblyModule(package));
         }
         public void LoadAssemblys(Broker b)
         {
@@ -68,7 +67,7 @@ namespace TaskBroker.Assemblys
                 //}
                 // TODO: use artefacts depot :: confilct checking exceptions
             }
-            
+
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
         {
@@ -91,8 +90,8 @@ namespace TaskBroker.Assemblys
         {
             Assembly assembly = null;
             if (a.SymbolsPresented)
-                assembly = Assembly.Load(a.binary.library, a.binary.symbols);
-            else assembly = Assembly.Load(a.binary.library);
+                assembly = Assembly.Load(a.package.ExtractLibrary(), a.package.ExtractLibrarySymbols());
+            else assembly = Assembly.Load(a.package.ExtractLibrary());
 
             string assemblyName = assembly.GetName().Name;
             AssemblyCard card = new AssemblyCard()
@@ -116,29 +115,29 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            string source;
-            source = Path.GetFileName(args.RequestingAssembly.ManifestModule.ScopeName);
+            //string source;
+            //source = Path.GetFileName(args.RequestingAssembly.ManifestModule.ScopeName);
 
-            if (CurrentLoadingAssemblyModule != null)
-            {
-                string[] Parts = args.Name.Split(',');
-                string File = Parts[0].Trim() + ".dll";
-                string FileSym = Parts[0].Trim() + ".pdb";
-                SourceControl.Assemblys.AssemblyAsset asset;
-                SourceControl.Assemblys.AssemblyAsset assetsym;
-                if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(File.ToLower(), out asset))
-                {
-                    Console.WriteLine("loading artefact {1} in {0} for {2}", CurrentLoadingAssemblyModule.PathName, asset.Name, source);
-                    if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
-                    {
-                        return Assembly.Load(asset.Data, assetsym.Data);
-                    }
-                    else
-                    {
-                        return Assembly.Load(asset.Data);
-                    }
-                }
-            }
+            //if (CurrentLoadingAssemblyModule != null)
+            //{
+            //    string[] Parts = args.Name.Split(',');
+            //    string File = Parts[0].Trim() + ".dll";
+            //    string FileSym = Parts[0].Trim() + ".pdb";
+            //    SourceControl.Assemblys.AssemblyAsset asset;
+            //    SourceControl.Assemblys.AssemblyAsset assetsym;
+            //    if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(File.ToLower(), out asset))
+            //    {
+            //        Console.WriteLine("loading artefact {1} in {0} for {2}", CurrentLoadingAssemblyModule.PathName, asset.Name, source);
+            //        if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
+            //        {
+            //            return Assembly.Load(asset.Data, assetsym.Data);
+            //        }
+            //        else
+            //        {
+            //            return Assembly.Load(asset.Data);
+            //        }
+            //    }
+            //}
             // TODO: use artefacts depot
             return null;
         }

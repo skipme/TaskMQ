@@ -1,4 +1,6 @@
 ﻿using SourceControl.Assemblys;
+using SourceControl.Build;
+using SourceControl.Containers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,15 +14,15 @@ namespace TaskBroker.Assemblys
     /// </summary>
     public class ArtefactsDepot
     {
-        public void RegisterAssets(AssemblyBinary assets)
+        public void RegisterAssets(AssemblyVersionPackage assets)
         {
 
         }
-        public AssemblyAsset ResolveAsset(string name)
+        public SourceControl.Build.BuildResultFile ResolveAsset(string name)
         {
             return null;
         }
-        public bool Library(string name, out AssemblyAsset asset, out AssemblyAsset assetSym)
+        public bool ResolveLibrary(string name, out BuildResultFile asset, out BuildResultFile assetSym)
         {
             asset = assetSym = null;
             return false;

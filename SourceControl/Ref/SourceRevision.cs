@@ -6,7 +6,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace SourceControl
+namespace SourceControl.Ref
 {
     public class VersionRevision
     {
