@@ -82,10 +82,24 @@ namespace QueueService
             TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(m);
             bool result = false;
             if (tm.MType != null)
-                result = QueueService.ModProducer.broker.PushMessage(tm);
+            {
+                try
+                {
+                    result = QueueService.ModProducer.broker.PushMessage(tm);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("error while message processing: {0} '{1}'", e.Message, e.StackTrace);
+                    return new ServiceStack.Common.Web.HttpResult()
+                    {
+                        StatusCode =  HttpStatusCode.InternalServerError
+                    };
+                }
+            }
             return new ServiceStack.Common.Web.HttpResult()
             {
-                StatusCode = result ? HttpStatusCode.Created : HttpStatusCode.InternalServerError
+                StatusCode = result ? HttpStatusCode.Created :
+                HttpStatusCode.NotAcceptable
             };
         }
         public object Get(ConfigRequest request)
@@ -174,7 +188,7 @@ namespace QueueService
 					{ "Access-Control-Allow-Origin", "*" },
 					{ "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS" },
 				},
-                WsdlServiceNamespace = "http://localhost:82/"
+                //WsdlServiceNamespace = "http://localhost:82/"
             });
 
             Routes

@@ -59,6 +59,10 @@
       <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>
     </ProjectReference>
+    <ProjectReference Include="..\QueueService\QueueService.csproj">
+      <Project>{9ca84f01-7a31-4037-8c46-c9a9e958ab6a}</Project>
+      <Name>QueueService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharpZipLib\ICSharpCode.SharpZLib.csproj">
       <Project>{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}</Project>
       <Name>ICSharpCode.SharpZLib</Name>

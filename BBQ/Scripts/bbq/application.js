@@ -1,6 +1,6 @@
 ﻿var bbq_tmq = {};
 (function ($) {
-    var url_host = "http://localhost:82/";
+    var url_host = "http://127.0.0.1:82/";
     var url_c = url_host + "tmq/c";
     var url_stat = url_host + "tmq/s";
     var url_c_pxy = "/bbq/" + "PxySet";

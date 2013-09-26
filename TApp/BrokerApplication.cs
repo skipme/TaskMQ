@@ -28,7 +28,7 @@ namespace TaskBroker
         public void Run(ManualResetEvent signal)
         {
             broker = new Broker(Restart);
-            //QueueService.ModProducer m;// todo: force loading local dep's
+            QueueService.ModProducer m;// todo: force loading local dep's
             //EmailConsumer.ModConsumer ec;
 
 
