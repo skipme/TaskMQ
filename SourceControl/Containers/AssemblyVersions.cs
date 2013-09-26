@@ -56,7 +56,7 @@ namespace SourceControl.Containers
             {
                 string fileName = System.IO.Path.GetFileName(artPath);
                 versionContainer.AddVersionData(revision + "/artefacts/" + fileName, System.IO.File.ReadAllBytes(artPath));
-                pv.AddArtefact(fileName, artPath);
+                pv.AddArtefact("artefacts/" + fileName, artPath);
             }
             setPackageInfo(p);
         }
@@ -121,6 +121,7 @@ namespace SourceControl.Containers
             VersionData[] files = versionContainer.GetSpecificVersion(revision).ToArray();
             if (files.Length == 0)
                 return false;
+
             asset.Data = (from f in files
                           where f.Name == artefactName
                           select f.data).First();
@@ -132,7 +133,10 @@ namespace SourceControl.Containers
             {
                 //return versionContainer.key_most_fresh;
                 Ref.PackageInfo pinfo = getPackageInfo();
-                return pinfo.FindLatestVersion().Tag;
+                if (pinfo == null)
+                    return null;
+                Ref.PackageVersion pv = pinfo.FindLatestVersion();
+                return pv.Tag;
             }
         }
         public List<VersionRevision> GetVersions()

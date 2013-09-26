@@ -37,17 +37,24 @@ namespace TaskBroker.Assemblys
             list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             //loadedInterfaces = new Dictionary<string, string>();
-            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+            SharedManagedLibraries = new ArtefactsDepot();
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
-        private AssemblyModule CurrentLoadingAssemblyModule;
+        //private AssemblyModule CurrentLoadingAssemblyModule;
+        private ArtefactsDepot SharedManagedLibraries;
 
         public void AddAssembly(string name)
         {
             AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
             AssemblyVersionPackage package = ver.GetLatestVersion();
+            if (package == null)
+            {
+                Console.WriteLine("module not well formated, package info xml not present: {0}", name);
+                return;
+            }
             list.Add(new AssemblyModule(package));
         }
         public void AddAssembly(AssemblyVersionPackage package)
@@ -67,13 +74,13 @@ namespace TaskBroker.Assemblys
                 //}
                 // TODO: use artefacts depot :: confilct checking exceptions
             }
-
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
         {
             try
             {
-                CurrentLoadingAssemblyModule = a;
+                //CurrentLoadingAssemblyModule = a;
+                SharedManagedLibraries.RegisterAssets(a.package);
                 AddAssemblyUnsafe(b, a);
             }
             catch (Exception e)
@@ -82,7 +89,7 @@ namespace TaskBroker.Assemblys
                 Console.WriteLine("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
                 return false;
             }
-            CurrentLoadingAssemblyModule = null;
+            //CurrentLoadingAssemblyModule = null;
             return true;
         }
 
@@ -115,9 +122,6 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            //string source;
-            //source = Path.GetFileName(args.RequestingAssembly.ManifestModule.ScopeName);
-
             //if (CurrentLoadingAssemblyModule != null)
             //{
             //    string[] Parts = args.Name.Split(',');
@@ -138,6 +142,26 @@ namespace TaskBroker.Assemblys
             //        }
             //    }
             //}
+
+            string[] Parts = args.Name.Split(',');
+            BuildResultFile asset;
+            BuildResultFile assetsym;
+            if (SharedManagedLibraries.ResolveLibrary(Parts[0], out asset, out assetsym))
+            {
+                if (assetsym != null)
+                {
+                    return Assembly.Load(asset.Data, assetsym.Data);
+                }
+                else
+                {
+                    return Assembly.Load(asset.Data);
+                }
+            }
+            else
+            {
+                Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+            }
+
             // TODO: use artefacts depot
             return null;
         }

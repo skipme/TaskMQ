@@ -31,8 +31,7 @@ namespace TaskBroker.Assemblys
         {
             get
             {
-                throw new Exception();
-                //return package.Version.;
+                return package.Version.FileLibarary;
             }
         }
         public readonly AssemblyVersionPackage package;

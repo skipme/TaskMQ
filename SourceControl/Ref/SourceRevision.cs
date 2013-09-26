@@ -18,24 +18,33 @@ namespace SourceControl.Ref
 
         public byte[] Serialise()
         {
-            XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                XmlWriterSettings settings = new XmlWriterSettings { Encoding = Encoding.Unicode, Indent = true };
-                using (XmlWriter xmlTextWriter = XmlWriter.Create(memoryStream, settings))
-                {
-                    xs.Serialize(xmlTextWriter, this);
-                }
-                return memoryStream.GetBuffer();
-            }
+            string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
+            return Encoding.Unicode.GetBytes(v);
         }
         public static VersionRevision DeSerialise(byte[] data)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
-            using (MemoryStream memoryStream = new MemoryStream(data))
-            {
-                return xs.Deserialize(memoryStream) as VersionRevision;
-            }
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<VersionRevision>(Encoding.Unicode.GetString(data));
         }
+        //public byte[] Serialise()
+        //{
+        //    XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
+        //    using (MemoryStream memoryStream = new MemoryStream())
+        //    {
+        //        XmlWriterSettings settings = new XmlWriterSettings { Encoding = Encoding.Unicode, Indent = true };
+        //        using (XmlWriter xmlTextWriter = XmlWriter.Create(memoryStream, settings))
+        //        {
+        //            xs.Serialize(xmlTextWriter, this);
+        //        }
+        //        return memoryStream.GetBuffer();
+        //    }
+        //}
+        //public static VersionRevision DeSerialise(byte[] data)
+        //{
+        //    XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
+        //    using (MemoryStream memoryStream = new MemoryStream(data))
+        //    {
+        //        return xs.Deserialize(memoryStream) as VersionRevision;
+        //    }
+        //}
     }
 }

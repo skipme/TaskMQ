@@ -10,7 +10,6 @@ using TaskQueue;
 
 namespace TaskBroker.Configuration
 {
-    [Serializable]
     public class RepresentedConfiguration
     {
         public RepresentedConfiguration()

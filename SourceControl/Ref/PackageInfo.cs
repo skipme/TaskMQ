@@ -40,7 +40,6 @@ namespace SourceControl.Ref
         public static PackageVersionArtefact Get(string file)
         {
             PackageVersionArtefact art = new PackageVersionArtefact();
-            art.File = System.IO.Path.GetFileName(file);
             if (file.EndsWith(".dll"))
             {
                 try
@@ -71,6 +70,7 @@ namespace SourceControl.Ref
         public void AddArtefact(string name, string relatedFile)
         {
             PackageVersionArtefact dllInfo = PackageVersionArtefact.Get(relatedFile);
+            dllInfo.File = name;
             Artefacts.Add(dllInfo);
         }
     }
@@ -104,24 +104,12 @@ namespace SourceControl.Ref
         }
         public byte[] Serialise()
         {
-            XmlSerializer xs = new XmlSerializer(typeof(PackageInfo));
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                XmlWriterSettings settings = new XmlWriterSettings { Encoding = Encoding.Unicode, Indent = true };
-                using (XmlWriter xmlTextWriter = XmlWriter.Create(memoryStream, settings))
-                {
-                    xs.Serialize(xmlTextWriter, this);
-                }
-                return memoryStream.GetBuffer();
-            }
+            string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
+            return Encoding.Unicode.GetBytes(v);
         }
         public static PackageInfo DeSerialise(byte[] data)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(PackageInfo));
-            using (MemoryStream memoryStream = new MemoryStream(data))
-            {
-                return xs.Deserialize(memoryStream) as PackageInfo;
-            }
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<PackageInfo>(Encoding.Unicode.GetString(data));
         }
     }
 }

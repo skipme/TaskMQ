@@ -8,7 +8,7 @@ namespace SourceControl.Containers
     /// <summary>
     /// PackageInfo ref meta+ Container
     /// </summary>
-    public class AssemblyVersionPackage 
+    public class AssemblyVersionPackage
     {
         public AssemblyVersionPackage(Ref.PackageVersion meta, Containers.AssemblyBinVersions archive)
         {
@@ -17,7 +17,14 @@ namespace SourceControl.Containers
         }
         public readonly Ref.PackageVersion Version;
         private readonly Containers.AssemblyBinVersions Container;
-        
+
+        public Ref.PackageVersionArtefact FindArtefactByName(string fileName)
+        {
+            var art = (from a in Version.Artefacts
+                       where a.File == fileName
+                       select a).FirstOrDefault();
+            return art;
+        }
         public byte[] ExtractArtefact(Ref.PackageVersionArtefact art)
         {
             int i;
@@ -25,7 +32,7 @@ namespace SourceControl.Containers
             if ((i = Version.Artefacts.IndexOf(art)) < 0)
                 throw new Exception("artefact not present");
 
-            if (Container.GetSpecificVersionArtefact(Version.Tag, art.Name, out res))
+            if (Container.GetSpecificVersionArtefact(Version.Tag, art.File, out res))
             {
 
             }

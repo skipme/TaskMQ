@@ -122,7 +122,8 @@ namespace TApp
             //}
             SourceControl.Assemblys.AssemblySource src = new SourceControl.Assemblys.AssemblySource(
                 System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
-                "QueueService/QueueService.csproj",
+                "EmailConsumer/EmailConsumer.csproj",
+                //"QueueService/QueueService.csproj",
                  //"SourceControl/SourceControl.csproj",
                 "https://github.com/skipme/TaskMQ.git");
             SourceControl.Assemblys.AssemblyProject p = new SourceControl.Assemblys.AssemblyProject(
@@ -147,11 +148,13 @@ namespace TApp
         {
             //TestStat();
             //TesMtStat();
-            TesGit();
+            
             //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
             //a.BuildProject();
             //            ZipDir();
-            return;
+
+            //TesGit();
+            //return;
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
