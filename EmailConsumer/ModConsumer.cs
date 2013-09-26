@@ -31,7 +31,6 @@ namespace EmailConsumer
 
         public void Initialise(Broker context, ModMod thisModule)
         {
-            //thisModule.Role = TaskBroker.ExecutionType.Consumer;
         }
 
         public string Name
