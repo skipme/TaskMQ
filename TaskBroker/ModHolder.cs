@@ -105,6 +105,7 @@ namespace TaskBroker
             }
             Modules.Add(mod.UniqueName, mod);
 
+            // TODO: Extract to broker context
             mod.MI.Initialise(b, mod);
             ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
             if (tasks != null)

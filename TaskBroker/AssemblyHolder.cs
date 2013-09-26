@@ -36,8 +36,8 @@ namespace TaskBroker.Assemblys
         }
         public readonly AssemblyVersionPackage package;
 
-        public bool RuntimeLoaded { get; private set; }
-        public string RutimeLoadException { get; private set; }
+        public bool RuntimeLoaded { get; set; }
+        public string RutimeLoadException { get; set; }
     }
     public class AssemblyCard
     {

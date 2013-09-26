@@ -11,39 +11,18 @@ namespace TaskBroker.Assemblys
 {
     public class Assemblys
     {
-        //public static void ForceReferencedLoad()// because JIT
-        //{
-        //    var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-        //    var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
-
-        //    var referencedPaths = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
-        //    var toLoad = referencedPaths.Where(r => !loadedPaths.Contains(r, StringComparer.InvariantCultureIgnoreCase)).ToList();
-
-        //    foreach (var path in toLoad)
-        //    {
-        //        try
-        //        {
-        //            loadedAssemblies.Add(AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(path)));
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Console.WriteLine("assembly force load exception: {0}", e.Message);
-        //        }
-        //    }
-        //}
         public string ModulesFolder { get; private set; }
         public Assemblys()
         {
             list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
-            //loadedInterfaces = new Dictionary<string, string>();
             SharedManagedLibraries = new ArtefactsDepot();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
-        //private AssemblyModule CurrentLoadingAssemblyModule;
+
         private ArtefactsDepot SharedManagedLibraries;
 
         public void AddAssembly(string name)
@@ -52,7 +31,7 @@ namespace TaskBroker.Assemblys
             AssemblyVersionPackage package = ver.GetLatestVersion();
             if (package == null)
             {
-                Console.WriteLine("module not well formated, package info xml not present: {0}", name);
+                Console.WriteLine("module not well formated, package info not present: {0}", name);
                 return;
             }
             list.Add(new AssemblyModule(package));
@@ -64,33 +43,26 @@ namespace TaskBroker.Assemblys
         public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
-            //loadedInterfaces.Clear();
             // in order to reject only new modules -if depconflict persist-
             foreach (AssemblyModule a in list.OrderBy(am => am.package.Version.AddedAt))
             {
-                LoadAssembly(b, a);
-                //if (!(a.IsLoaded = LoadAssembly(b, a)))
-                //{
-                //    Console.WriteLine("assembly not loaded....");// specific error channel
-                //}
+                 LoadAssembly(b, a);
             }
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
         {
             try
             {
-                //CurrentLoadingAssemblyModule = a;
                 SharedManagedLibraries.RegisterAssets(a.package);
                 AddAssemblyUnsafe(b, a);
             }
             catch (Exception e)
             {
-                // diagnostic error channel
-                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
-                return false;
+                a.RutimeLoadException = string.Format("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
+                Console.WriteLine(a.RutimeLoadException);
+                return a.RuntimeLoaded = false;
             }
-            //CurrentLoadingAssemblyModule = null;
-            return true;
+            return a.RuntimeLoaded = true;
         }
 
         private void AddAssemblyUnsafe(Broker b, AssemblyModule a)
@@ -113,7 +85,6 @@ namespace TaskBroker.Assemblys
             {
                 b.Modules.RegisterInterface(item, assemblyName);
                 b.RegisterSelfValuedModule(item);
-                //loadedInterfaces.Add(item.FullName, a.PathName);
             }
             card.Interfaces = (from t in types
                                select t.FullName).ToArray();
@@ -122,27 +93,6 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            //if (CurrentLoadingAssemblyModule != null)
-            //{
-            //    string[] Parts = args.Name.Split(',');
-            //    string File = Parts[0].Trim() + ".dll";
-            //    string FileSym = Parts[0].Trim() + ".pdb";
-            //    SourceControl.Assemblys.AssemblyAsset asset;
-            //    SourceControl.Assemblys.AssemblyAsset assetsym;
-            //    if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(File.ToLower(), out asset))
-            //    {
-            //        Console.WriteLine("loading artefact {1} in {0} for {2}", CurrentLoadingAssemblyModule.PathName, asset.Name, source);
-            //        if (CurrentLoadingAssemblyModule.binary.assets.TryGetValue(FileSym.ToLower(), out assetsym))
-            //        {
-            //            return Assembly.Load(asset.Data, assetsym.Data);
-            //        }
-            //        else
-            //        {
-            //            return Assembly.Load(asset.Data);
-            //        }
-            //    }
-            //}
-
             string[] Parts = args.Name.Split(',');
             BuildResultFile asset;
             BuildResultFile assetsym;
@@ -161,8 +111,6 @@ namespace TaskBroker.Assemblys
             {
                 Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
             }
-
-            // TODO: use artefacts depot
             return null;
         }
 
