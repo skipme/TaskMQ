@@ -29,8 +29,8 @@ namespace TaskClient.Clients
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="flatMessageData">required MType key as channel name</param>
-        /// <returns></returns>
+        /// <param name="flatMessageData">required MType key for routing to channel name on service side</param>
+        /// <returns>rejected: if message type not well configured with channel and queue(check platform configuration)<br/> ok: message enqueued<br/> other: service error</returns>
         public ApiResult ApiEnqueue(Dictionary<string, object> flatMessageData)
         {
             if (flatMessageData == null || !flatMessageData.ContainsKey("MType"))
@@ -60,7 +60,7 @@ namespace TaskClient.Clients
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="flatMessageData">required MType key as channel name</param>
+        /// <param name="flatMessageData">required MType key for routing to channel name on service side</param>
         /// <returns></returns>
         public bool Enqueue(Dictionary<string, object> flatMessageData)
         {

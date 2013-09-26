@@ -6,27 +6,27 @@ using System.Text;
 namespace TaskQueue
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class TQModelProp : Attribute
+    public class FieldDescription : Attribute
     {
         public string Description;
         public bool Ignore { get; set; }
 
-        public TQModelProp(string Description)
+        public FieldDescription(string Description)
         {
             this.Description = Description;
         }
-        public TQModelProp(bool ignore)
+        public FieldDescription(bool ignore)
         {
             this.Ignore = ignore;
         }
     }
-    public class QueueItemModelValue
+    public class RepresentedModelValue
     {
-        public QueueItemModelValue(TItemValue_Type VType)
+        public RepresentedModelValue(FieldType VType)
         {
             this.VType = VType;
         }
-        public TItemValue_Type VType { get; set; }
+        public FieldType VType { get; set; }
         public string Description { get; set; }
     }
 }

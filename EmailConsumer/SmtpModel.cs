@@ -21,14 +21,14 @@ namespace EmailConsumer
         public string Login { get; set; }
         public string Password { get; set; }
 
-        [TaskQueue.TQModelProp("Use secure connection over ssl layer")]
+        [TaskQueue.FieldDescription("Use secure connection over ssl layer")]
         public bool UseSSL { get; set; }
-        [TaskQueue.TQModelProp("Use custom secure certificate checking by serial number only(ssl)")]
+        [TaskQueue.FieldDescription("Use custom secure certificate checking by serial number only(ssl)")]
         public bool OverrideCertificateSecurity { get; set; }
-        [TaskQueue.TQModelProp("See OverrideCertificateSecurity prop")]
+        [TaskQueue.FieldDescription("See OverrideCertificateSecurity prop")]
         public string OverrideX509CertificateSerial { get; set; }
 
-        [TaskQueue.TQModelProp(true)]
+        [TaskQueue.FieldDescription(true)]
         public override string ItemTypeName
         {
             get

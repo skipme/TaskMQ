@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TaskQueue
 {
-    public enum TItemValue_Type
+    public enum FieldType
     {
         text = 0x11,
         num_int,
@@ -14,9 +14,9 @@ namespace TaskQueue
         datetime
     }
 
-    public class TItemValue
+    public class RepresentedValueType
     {
-        public TItemValue_Type Type { get; set; }
+        public FieldType Type { get; set; }
         public object Value { get; set; }
     }
 }

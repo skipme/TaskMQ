@@ -68,6 +68,7 @@
     <Compile Include="Clients\HttpRest.cs" />
     <Compile Include="Clients\Result.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

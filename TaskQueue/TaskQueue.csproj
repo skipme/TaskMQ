@@ -45,9 +45,9 @@
     <Compile Include="Providers\Message.cs" />
     <Compile Include="Providers\MemQueue.cs" />
     <Compile Include="Providers\QueueConnectionParameters.cs" />
-    <Compile Include="QueueItemModelValue.cs" />
-    <Compile Include="QueueItemModel.cs" />
-    <Compile Include="TItemValue.cs" />
+    <Compile Include="RepresentedModelValue.cs" />
+    <Compile Include="RepresentedModel.cs" />
+    <Compile Include="RepresentedValueType.cs" />
     <Compile Include="ITQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TQItemSelector.cs" />

@@ -21,23 +21,23 @@ namespace MSSQLQueue
             public SqlColumnDataType DataType { get; set; }
             public bool UniqueId { get; set; }
 
-            public SqlColumn(string name, TaskQueue.TItemValue_Type vt, bool unique = false)
+            public SqlColumn(string name, TaskQueue.FieldType vt, bool unique = false)
             {
                 switch (vt)
                 {
-                    case TaskQueue.TItemValue_Type.text:
+                    case TaskQueue.FieldType.text:
                         DataType = SqlColumnDataType.nvarchar;
                         break;
-                    case TaskQueue.TItemValue_Type.num_int:
+                    case TaskQueue.FieldType.num_int:
                         DataType = SqlColumnDataType.n_integer;
                         break;
-                    case TaskQueue.TItemValue_Type.num_double:
+                    case TaskQueue.FieldType.num_double:
                         DataType = SqlColumnDataType.n_decimal;
                         break;
-                    case TaskQueue.TItemValue_Type.boolean:
+                    case TaskQueue.FieldType.boolean:
                         DataType = SqlColumnDataType.bit;
                         break;
-                    case TaskQueue.TItemValue_Type.datetime:
+                    case TaskQueue.FieldType.datetime:
                         DataType = SqlColumnDataType.datetime;
                         break;
                     default:
@@ -57,7 +57,7 @@ namespace MSSQLQueue
             TableName = tableName;
 
             Columns = new List<SqlColumn>();
-            Columns.Add(new SqlColumn(TableName + "_ID", TaskQueue.TItemValue_Type.num_int, true));
+            Columns.Add(new SqlColumn(TableName + "_ID", TaskQueue.FieldType.num_int, true));
             foreach (var clm in model.schema.ALL())
             {
                 //Columns.Add(new SqlColumn(clm.Value1, clm.Value2));

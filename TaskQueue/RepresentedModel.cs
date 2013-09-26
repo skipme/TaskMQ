@@ -8,7 +8,7 @@ namespace TaskQueue
 {
     public class RepresentedModel
     {
-        public ValueMap<string, QueueItemModelValue> schema = new ValueMap<string, QueueItemModelValue>();
+        public ValueMap<string, RepresentedModelValue> schema = new ValueMap<string, RepresentedModelValue>();
         public static RepresentedModel Empty
         {
             get
@@ -29,10 +29,10 @@ namespace TaskQueue
                 if (prop.CanRead && prop.CanWrite)
                 {
                     bool isnull;
-                    TItemValue_Type itv = GetRType(prop.PropertyType, out isnull);
-                    QueueItemModelValue sch_v = new QueueItemModelValue(itv);
+                    FieldType itv = GetRType(prop.PropertyType, out isnull);
+                    RepresentedModelValue sch_v = new RepresentedModelValue(itv);
 
-                    TQModelProp[] attrs = (TQModelProp[])prop.GetCustomAttributes(typeof(TQModelProp), false);
+                    FieldDescription[] attrs = (FieldDescription[])prop.GetCustomAttributes(typeof(FieldDescription), false);
                     if (attrs.Length > 0)
                     {
                         sch_v.Description = attrs[0].Description;
@@ -44,32 +44,32 @@ namespace TaskQueue
             }
         }
 
-        public static TItemValue_Type GetRType(Type t, out bool nullable)
+        public static FieldType GetRType(Type t, out bool nullable)
         {
             nullable = Nullable.GetUnderlyingType(t) != null;
             if (nullable)
                 t = Nullable.GetUnderlyingType(t);
             if (t == typeof(int))
             {
-                return TItemValue_Type.num_int;
+                return FieldType.num_int;
             }
             if (t == typeof(double))
             {
-                return TItemValue_Type.num_double;
+                return FieldType.num_double;
             }
             if (t == typeof(string))
             {
-                return TItemValue_Type.text;
+                return FieldType.text;
             }
             if (t == typeof(DateTime))
             {
-                return TItemValue_Type.datetime;
+                return FieldType.datetime;
             }
             if (t == typeof(bool))
             {
-                return TItemValue_Type.boolean;
+                return FieldType.boolean;
             }
-            return TItemValue_Type.text;
+            return FieldType.text;
         }
     }
 }
