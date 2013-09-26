@@ -17,7 +17,13 @@ namespace SourceControl.Containers
         }
         public readonly Ref.PackageVersion Version;
         private readonly Containers.AssemblyBinVersions Container;
-
+        public string ContainerName
+        {
+            get
+            {
+                return Container.name;
+            }
+        }
         public Ref.PackageVersionArtefact FindArtefactByName(string fileName)
         {
             var art = (from a in Version.Artefacts

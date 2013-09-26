@@ -35,7 +35,7 @@ namespace TaskScheduler
                 foreach (ThreadItem t in threads)
                 {
                     /* IsAlive checking if appdomain unloaded(forced stopping)*/
-                    if (t.hThread.IsAlive && 
+                    if (t.hThread.IsAlive &&
                         !t.StoppedThread)
                         return true;
                 }
@@ -63,6 +63,7 @@ namespace TaskScheduler
             for (int i = 0; threads.Count < maxThreads; i++)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(ThreadEntry));
+                thread.Name = "TaskScheduler Thread#" + i;
                 ThreadItem ti = new ThreadItem()
                 {
                     hThread = thread,

@@ -65,14 +65,14 @@ namespace TaskBroker.Assemblys
         {
             loadedAssemblys.Clear();
             //loadedInterfaces.Clear();
-            foreach (AssemblyModule a in list)
+            // in order to reject only new modules -if depconflict persist-
+            foreach (AssemblyModule a in list.OrderBy(am => am.package.Version.AddedAt))
             {
                 LoadAssembly(b, a);
                 //if (!(a.IsLoaded = LoadAssembly(b, a)))
                 //{
                 //    Console.WriteLine("assembly not loaded....");// specific error channel
                 //}
-                // TODO: use artefacts depot :: confilct checking exceptions
             }
         }
         private bool LoadAssembly(Broker b, AssemblyModule a)
