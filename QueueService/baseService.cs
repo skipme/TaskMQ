@@ -1,13 +1,10 @@
 ﻿using Funq;
-using ServiceStack.ServiceClient.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.WebHost.Endpoints;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace QueueService
 {
@@ -178,11 +175,14 @@ namespace QueueService
                 ConfigCommitID = null
             };
         }
-        public ValidationResponse Post(ValidationRequest request)
+        public object Post(ValidationRequest request)
         {
             TaskQueue.RepresentedModel model;
             if (request.MType == null)
-                throw new WebServiceException { StatusCode = (int)HttpStatusCode.NotAcceptable };
+                return new ServiceStack.Common.Web.HttpResult()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable
+                };
             else if (request.ChannelName == null)
             {
                 // MType
@@ -193,6 +193,11 @@ namespace QueueService
                 // channel + MType
                 model = QueueService.ModProducer.broker.GetValidationModel(request.MType, request.ChannelName);
             }
+            if (model == null)
+                return new ServiceStack.Common.Web.HttpResult()
+                {
+                    StatusCode = HttpStatusCode.NotAcceptable
+                };
             Dictionary<string, TaskQueue.RepresentedModelValue> d = new Dictionary<string, TaskQueue.RepresentedModelValue>();
             foreach (TaskQueue.ValueMapItem<string, TaskQueue.RepresentedModelValue> mv in model.schema.ToList())
             {

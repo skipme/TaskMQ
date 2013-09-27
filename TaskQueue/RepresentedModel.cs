@@ -9,11 +9,11 @@ namespace TaskQueue
     public class RepresentedModel
     {
         public ValueMap<string, RepresentedModelValue> schema;
-        public static RepresentedModel FromSchema(Dictionary<string , RepresentedModelValue> schema)
+        public static RepresentedModel FromSchema(Dictionary<string, RepresentedModelValue> schema)
         {
             return new RepresentedModel
             {
-                 schema = new ValueMap<string,RepresentedModelValue>(schema)
+                schema = new ValueMap<string, RepresentedModelValue>(schema)
             };
         }
         public static RepresentedModel Empty
@@ -22,7 +22,7 @@ namespace TaskQueue
             {
                 return new RepresentedModel()
                 {
-                     schema = new ValueMap<string,RepresentedModelValue>()
+                    schema = new ValueMap<string, RepresentedModelValue>()
                 };
             }
         }
@@ -40,11 +40,12 @@ namespace TaskQueue
                     FieldType itv = GetRType(prop.PropertyType, out isnull);
                     RepresentedModelValue sch_v = new RepresentedModelValue(itv);
 
-                    FieldDescription[] attrs = (FieldDescription[])prop.GetCustomAttributes(typeof(FieldDescription), false);
+                    FieldDescription[] attrs = (FieldDescription[])prop.GetCustomAttributes(typeof(FieldDescription), true);
                     if (attrs.Length > 0)
                     {
                         sch_v.Description = attrs[0].Description;
                         sch_v.Required = attrs[0].Required;
+                        sch_v.Inherited = attrs[0].Inherited;
                         if (attrs[0].Ignore)
                             continue;
                     }
@@ -79,6 +80,25 @@ namespace TaskQueue
                 return FieldType.boolean;
             }
             return FieldType.text;
+        }
+        public static string GetLTypeString(FieldType ft)
+        {
+            switch (ft)
+            {
+                case FieldType.text:
+                    return "string";
+                case FieldType.num_int:
+                    return "int";
+                case FieldType.num_double:
+                    return "double";
+                case FieldType.boolean:
+                    return "bool";
+                case FieldType.datetime:
+                    return "DateTime";
+                default:
+                    break;
+            }
+            return "string";
         }
     }
 }

@@ -70,6 +70,9 @@ namespace TaskClient.Clients
         public TaskQueue.RepresentedModel GetValidationInfo(string MType, string channelName = null)
         {
             Validation.ValidationResponse result = client.Post<Validation.ValidationResponse>("/tmq/v", new Validation.ValidationRequest { MType = MType, ChannelName = channelName });
+            if (result == null)
+                throw new Exception(string.Format("Message type '{0}' not routed to worker module {1}", 
+                    MType, channelName == null ? "" : string.Format("or '{1}' channel absent", channelName)));
             return TaskQueue.RepresentedModel.FromSchema(result.ModelScheme);
         }
     }

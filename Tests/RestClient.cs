@@ -25,6 +25,7 @@ namespace Tests
         {
             TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest();
             TaskQueue.RepresentedModel result = restService.GetValidationInfo("EMail");// assume this default plugin initiated
+    //result.schema.val2[0].Inherited
             Assert.IsTrue(result.schema.val1.Contains("To"));
             Assert.IsTrue(result.schema.val2[result.schema.val1.IndexOf("To")].Required);
         }

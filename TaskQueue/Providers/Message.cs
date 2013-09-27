@@ -9,9 +9,16 @@ namespace TaskQueue.Providers
 {
     public class TaskMessage : TItemModel
     {
+        [FieldDescription(Ignore = false, Inherited = true, Required = true)]
         public string MType { get; set; }
+        
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public bool Processed { get; set; }
+        
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public DateTime AddedTime { get; set; }
+        
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public DateTime? ProcessedTime { get; set; }
 
         public TaskMessage(Dictionary<string, object> holder)
@@ -22,7 +29,7 @@ namespace TaskQueue.Providers
         {
             MType = mtype;
         }
-
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public override string ItemTypeName
         {
             get

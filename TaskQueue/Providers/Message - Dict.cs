@@ -10,6 +10,7 @@ namespace TaskQueue.Providers
     public abstract class TItemModel : ITItem
     {
         public Dictionary<string, object> Holder = new Dictionary<string, object>();
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public abstract string ItemTypeName { get; set; }
 
         public TItemModel()
