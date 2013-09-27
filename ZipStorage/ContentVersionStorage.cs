@@ -98,8 +98,8 @@ namespace FileContentArchive
                 if (v.IsDir) continue;
                 yield return new VersionData
                 {
-                    Key = key_most_fresh,
-                    Name = v.Location.Remove(0, key_most_fresh.Length + 1),
+                    Key = key,
+                    Name = v.Location.Remove(0, key.Length + 1),
                     Created = v.Created,
                     data = storage.GetContentRaw(v.Location)
                 };

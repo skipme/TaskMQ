@@ -37,7 +37,7 @@ namespace QueueService
     {
         public bool GetHeartbit { get; set; }
     }
-    [Route("/tmq/v", Verbs = "GET")]
+    [Route("/tmq/v", Verbs = "POST")]
     public class ValidationRequest
     {
         public string MType { get; set; }
@@ -178,7 +178,7 @@ namespace QueueService
                 ConfigCommitID = null
             };
         }
-        public ValidationResponse Get(ValidationRequest request)
+        public ValidationResponse Post(ValidationRequest request)
         {
             TaskQueue.RepresentedModel model;
             if (request.MType == null)

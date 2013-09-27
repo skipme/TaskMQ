@@ -15,7 +15,15 @@ namespace TaskQueue
         public List<T> val1;
         public List<LT> val2;
         public ValueMap() { val1 = new List<T>(); val2 = new List<LT>(); }
-
+        public ValueMap(Dictionary<T, LT> bdict)
+            : this()
+        {
+            foreach (KeyValuePair<T, LT> bdictItem in bdict)
+            {
+                val1.Add(bdictItem.Key);
+                val2.Add(bdictItem.Value);
+            }
+        }
         public void Add(T a, LT b)
         {
             val1.Add(a);

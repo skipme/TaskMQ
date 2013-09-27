@@ -8,20 +8,28 @@ namespace TaskQueue
 {
     public class RepresentedModel
     {
-        public ValueMap<string, RepresentedModelValue> schema = new ValueMap<string, RepresentedModelValue>();
+        public ValueMap<string, RepresentedModelValue> schema;
+        public static RepresentedModel FromSchema(Dictionary<string , RepresentedModelValue> schema)
+        {
+            return new RepresentedModel
+            {
+                 schema = new ValueMap<string,RepresentedModelValue>(schema)
+            };
+        }
         public static RepresentedModel Empty
         {
             get
             {
                 return new RepresentedModel()
                 {
-
+                     schema = new ValueMap<string,RepresentedModelValue>()
                 };
             }
         }
         private RepresentedModel() { }
         public RepresentedModel(Type classWithProps)
         {
+            schema = new ValueMap<string, RepresentedModelValue>();
             PropertyInfo[] props = classWithProps.GetProperties();
 
             foreach (PropertyInfo prop in props)

@@ -66,5 +66,11 @@ namespace TaskClient.Clients
         {
             return ApiEnqueue(flatMessageData) == ApiResult.OK;
         }
+
+        public TaskQueue.RepresentedModel GetValidationInfo(string MType, string channelName = null)
+        {
+            Validation.ValidationResponse result = client.Post<Validation.ValidationResponse>("/tmq/v", new Validation.ValidationRequest { MType = MType, ChannelName = channelName });
+            return TaskQueue.RepresentedModel.FromSchema(result.ModelScheme);
+        }
     }
 }
