@@ -94,14 +94,15 @@ namespace TaskBroker
         }
         public ChannelAnteroom GetAnteroom(string name)
         {
-            if (Anterooms.ContainsKey(name))
+            ChannelAnteroom anteroom = null;
+            if (Anterooms.TryGetValue(name, out anteroom))
             {
-                return Anterooms[name];
+                return anteroom;
             }
             else
             {
                 MessageChannel mc = GetChannelByName(name);
-                ChannelAnteroom anteroom = new ChannelAnteroom(mc.consumerSelector);
+                anteroom = new ChannelAnteroom(mc.consumerSelector);
                 anteroom.ChannelName = name;
 
                 TaskQueue.Providers.QueueConnectionParameters qparams = Connections[mc.ConnectionName];

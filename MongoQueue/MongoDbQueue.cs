@@ -29,14 +29,13 @@ namespace MongoQueue
 
         public void Push(TaskMessage item)
         {
-            if (item is TItemModel)
-            {
-                CheckConnection();
+            CheckConnection();
 
-                WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
-                if (!result.Ok)
-                    throw new Exception("error in push to mongo queue: " + result.ToJson());
-            }
+            //WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+            //WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() }, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+            WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() });
+            if (!result.Ok)
+                throw new Exception("error in push to mongo queue: " + result.ToJson());
         }
         public T GetItemFifo<T>()
             where T : TaskMessage
@@ -80,7 +79,7 @@ namespace MongoQueue
             object id = holder["_id"];
             if (id == null || !(id is ObjectId))
                 throw new Exception("_id of queue element is missing");
-            
+
             BsonObjectId objid = new BsonObjectId((ObjectId)id);
             holder.Remove("_id");
 

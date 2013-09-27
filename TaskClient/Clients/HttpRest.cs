@@ -3,6 +3,7 @@ using ServiceStack.ServiceClient.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace TaskClient.Clients
@@ -39,14 +40,14 @@ namespace TaskClient.Clients
             System.Net.HttpStatusCode returnCode;
             try
             {
-                HttpResult result = client.Put<HttpResult>("/tmq/q", flatMessageData);
+                HttpWebResponse result = client.Put<HttpWebResponse>("/tmq/q", flatMessageData);
                 returnCode = result.StatusCode;
             }
             catch (WebServiceException webEx)
             {
                 returnCode = (System.Net.HttpStatusCode)webEx.StatusCode;
             }
-            if (returnCode == System.Net.HttpStatusCode.OK)
+            if (returnCode == System.Net.HttpStatusCode.Created)
                 return ApiResult.OK;
 
             if (returnCode == System.Net.HttpStatusCode.InternalServerError)
@@ -66,12 +67,17 @@ namespace TaskClient.Clients
         {
             return ApiEnqueue(flatMessageData) == ApiResult.OK;
         }
-
+        public void Enqueue(TaskQueue.Providers.TaskMessage message)
+        {
+            ApiResult result = ApiEnqueue(message.GetSendEnvelope());
+            if (result != ApiResult.OK)
+                throw new Exception("Message rejected. Check platform configuration, perhaps message type doesn't have any channel");
+        }
         public TaskQueue.RepresentedModel GetValidationInfo(string MType, string channelName = null)
         {
             Validation.ValidationResponse result = client.Post<Validation.ValidationResponse>("/tmq/v", new Validation.ValidationRequest { MType = MType, ChannelName = channelName });
             if (result == null)
-                throw new Exception(string.Format("Message type '{0}' not routed to worker module {1}", 
+                throw new Exception(string.Format("Message type '{0}' not routed to worker module {1}",
                     MType, channelName == null ? "" : string.Format("or '{1}' channel absent", channelName)));
             return TaskQueue.RepresentedModel.FromSchema(result.ModelScheme);
         }

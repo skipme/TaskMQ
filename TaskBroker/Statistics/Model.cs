@@ -8,7 +8,7 @@ namespace TaskBroker.Statistics
     public class StatRange
     {
         public StatRange(StatRange prev)
-            : this(prev.secondsInterval, prev.Left)
+            : this(prev.secondsInterval, prev.NextLeft)
         {
         }
         public StatRange(int secondsRange)
@@ -17,10 +17,10 @@ namespace TaskBroker.Statistics
             Left = DateTime.UtcNow;
             NextLeft = Left.AddSeconds(secondsInterval);
         }
-        public StatRange(int secondsRange, DateTime prevLeft)
+        public StatRange(int secondsRange, DateTime Left)
         {
             secondsInterval = secondsRange;
-            Left = prevLeft.AddSeconds(secondsInterval);
+            this.Left = Left;// prevLeft.AddSeconds(secondsInterval);
             NextLeft = Left.AddSeconds(secondsInterval);
         }
 

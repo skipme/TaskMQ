@@ -10,7 +10,7 @@ namespace TaskQueue
     {
         public string Description;
         /// <summary>
-        /// don't include to scheme (MType) -ignore for any validation
+        /// don't include to scheme (MType) -ignore for any validation and persistent
         /// </summary>
         public bool Ignore { get; set; }
         /// <summary>

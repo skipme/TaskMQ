@@ -11,14 +11,14 @@ namespace TaskQueue.Providers
     {
         [FieldDescription(Ignore = false, Inherited = true, Required = true)]
         public string MType { get; set; }
-        
-        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
+
+        [FieldDescription(Ignore = false, Inherited = true, Required = false)]
         public bool Processed { get; set; }
-        
-        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
+
+        [FieldDescription(Ignore = false, Inherited = true, Required = false)]
         public DateTime AddedTime { get; set; }
-        
-        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
+
+        [FieldDescription(Ignore = false, Inherited = true, Required = false)]
         public DateTime? ProcessedTime { get; set; }
 
         public TaskMessage(Dictionary<string, object> holder)
@@ -40,6 +40,23 @@ namespace TaskQueue.Providers
             {
                 MType = value;// !!!
             }
+        }
+        public Dictionary<string, object> GetSendEnvelope()
+        {
+            Dictionary<string, object> di = new Dictionary<string, object>();
+            Type t = this.GetType();
+            TaskQueue.RepresentedModel m = new RepresentedModel(t);
+            for (int i = 0; i < m.schema.val1.Count; i++)
+            {
+                string k = m.schema.val1[i];
+                if (!m.schema.val2[i].Inherited || k == "MType")
+                {
+                    PropertyInfo pi = t.GetProperty(k);
+                    object val = pi.GetValue(this, null);
+                    di.Add(k, val);
+                }
+            }
+            return di;
         }
     }
 }

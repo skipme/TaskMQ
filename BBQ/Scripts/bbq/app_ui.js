@@ -44,7 +44,7 @@
 
         // * statistic
         var heartbeatInterval = null;
-        $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22] }];
+        $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22], throughput: [12, 14, 155, 144] }];
         function updateHeartbeat() {
 
             //var applyGraphs = function (){$('span.channel-sparkline').each(function (index) {
@@ -72,20 +72,20 @@
                         }
                     }
                     if (ref === null) {
-                        ref = { name: c.Name, heartbeat: [], lastLeft: null };
+                        ref = { name: c.Name, heartbeat: [], lastLeftHB: null };
                         $scope.stat_channels.push(ref);
                     }
 
-                    if (ref.lastLeft != c.Left) {
-                        ref.lastLeft = c.Left;
+                    if (ref.lastLeftHB != c.Left) {
+                        ref.lastLeftHB = c.Left;
                         ref.heartbeat.push(c.Count);
                         if (ref.heartbeat.length > 30)
                             ref.heartbeat.splice(0, 1);
 
-                        $('span.channel-sparkline[statsel="' + c.Name + '"]').sparkline(ref.heartbeat, {
+                        $('span.channel-sparkline-heartbeat[statsel="' + c.Name + '"]').sparkline(ref.heartbeat, {
                             width: 70, //type: 'line',
                             lineColor: '#34495e',
-                            fillColor: '#1abc9c', tooltipSuffix: ' messages per !!!'
+                            fillColor: '#1abc9c', tooltipSuffix: ' messages'
                         });
                     }
 
@@ -93,7 +93,38 @@
             }, function () {
 
             });
+            bbq_tmq.throughput(function (resp) {
+                resp.Channels.forEach(function (c) {
 
+                    var ref = null;
+                    for (var i = 0; i < $scope.stat_channels.length; i++) {
+                        if ($scope.stat_channels[i].name == c.Name) {
+                            ref = $scope.stat_channels[i];
+                            break;
+                        }
+                    }
+                    if (ref === null) {
+                        ref = { name: c.Name, throughput: [], lastLeftTP: null };
+                        $scope.stat_channels.push(ref);
+                    }
+
+                    if (ref.lastLeftTP != c.Left) {
+                        ref.lastLeftTP = c.Left;
+                        ref.throughput.push(c.Count);
+                        if (ref.throughput.length > 30)
+                            ref.throughput.splice(0, 1);
+
+                        $('span.channel-sparkline-throughput[statsel="' + c.Name + '"]').sparkline(ref.throughput, {
+                            width: 70, //type: 'line',
+                            lineColor: '#34495e',
+                            fillColor: '#1abc9c', tooltipSuffix: ' messages/min'
+                        });
+                    }
+
+                });
+            }, function () {
+
+            });
             tryKillHeartbeat();
             heartbeatInterval = setTimeout(updateHeartbeat, 1000 * 5);
         }

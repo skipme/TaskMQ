@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
+//using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -9,7 +9,7 @@ namespace TaskQueue.Providers
 {
     public abstract class TItemModel : ITItem
     {
-        public Dictionary<string, object> Holder = new Dictionary<string, object>();
+        public Dictionary<string, object> Holder;
         [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public abstract string ItemTypeName { get; set; }
 
@@ -48,10 +48,12 @@ namespace TaskQueue.Providers
 
                 pi.SetValue(this, v.Value, null);
             }
-            Holder = msgDict;
+            Holder = new Dictionary<string, object>(msgDict);
         }
         void ReverseSetProps()
         {
+            if (Holder == null)
+                return;
             Type t = this.GetType();
             foreach (KeyValuePair<string, object> v in Holder)
             {
@@ -64,10 +66,13 @@ namespace TaskQueue.Providers
 
         void SetProps()
         {
+            if (Holder == null)
+                Holder = new Dictionary<string, object>();
             Type t = this.GetType();
             RepresentedModel model = new RepresentedModel(t);
-            foreach (string k in model.schema.val1)
+            for (int i = 0; i < model.schema.val1.Count; i++)
             {
+                string k = model.schema.val1[i];
                 PropertyInfo pi = t.GetProperty(k);
                 object val = pi.GetValue(this, null);
 

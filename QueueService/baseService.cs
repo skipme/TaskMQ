@@ -33,6 +33,7 @@ namespace QueueService
     public class StatisticRequest
     {
         public bool GetHeartbit { get; set; }
+        public bool GetThroughput { get; set; }
     }
     [Route("/tmq/v", Verbs = "POST")]
     public class ValidationRequest
@@ -68,7 +69,6 @@ namespace QueueService
 
         public object Get(StatisticRequest r)
         {
-
             StatisticResponseHeartbit h = new StatisticResponseHeartbit();
             h.Channels = new List<ItemCounter>();
             foreach (TaskBroker.Statistics.BrokerStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
@@ -77,7 +77,7 @@ namespace QueueService
                 h.Channels.Add(new ItemCounter()
                 {
                     Name = sm.Name,
-                    Count = (int)range.PerMinute,
+                    Count = r.GetThroughput ? (int)range.PerMinute : (int)range.Counter,
                     Left = range.Left.ToString()
                 });
             }
@@ -89,6 +89,7 @@ namespace QueueService
             // save to db
             TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(m);
             bool result = false;
+               //result = true;
             if (tm.MType != null)
             {
                 try
