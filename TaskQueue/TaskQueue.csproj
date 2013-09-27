@@ -39,7 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Hashmap.cs" />
+    <Compile Include="ValueMap.cs" />
     <Compile Include="ITItem.cs" />
     <Compile Include="Providers\Message - Dict.cs" />
     <Compile Include="Providers\Message.cs" />

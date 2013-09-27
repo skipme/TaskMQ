@@ -9,7 +9,7 @@ namespace SourceControl.Containers
 {
     public class AssemblyBinVersions
     {
-        const string packageInfo = "package.xml";
+        const string packageInfo = "package.json";
         public ContentVersionStorage versionContainer;
         public string Path { get; private set; }
         public string name { get; private set; }

@@ -58,7 +58,7 @@ namespace MSSQLQueue
 
             Columns = new List<SqlColumn>();
             Columns.Add(new SqlColumn(TableName + "_ID", TaskQueue.FieldType.num_int, true));
-            foreach (var clm in model.schema.ALL())
+            foreach (var clm in model.schema.ToList())
             {
                 //Columns.Add(new SqlColumn(clm.Value1, clm.Value2));
             }

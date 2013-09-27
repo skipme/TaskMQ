@@ -53,7 +53,7 @@ namespace TaskBroker.Configuration
                              Name = mm.Key,
                              Description = mm.Value.Description,
                              Role = mm.Value.Role,
-                             ParametersModel = mm.Value.ParametersModel.schema.ALL().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString())
+                             ParametersModel = mm.Value.ParametersModel.schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString())
                          }).ToArray();
 
             return c;

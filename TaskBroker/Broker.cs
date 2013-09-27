@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
-using TaskBroker.Assemblys;
+
 using TaskBroker.Configuration;
 using TaskBroker.Statistics;
 using TaskQueue.Providers;
@@ -58,7 +55,7 @@ namespace TaskBroker
                 LoadAssemblys();
             }
             ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
-            
+
             if (cmain != null)
                 cmain.Apply(this);
         }
@@ -246,7 +243,7 @@ namespace TaskBroker
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
             {
-                Thread.Sleep(100);
+                System.Threading.Thread.Sleep(100);
             }
             ((IModIsolatedProducer)task.Module.MI).IsolatedProducerStop();
         }
@@ -309,6 +306,31 @@ namespace TaskBroker
         {
             Console.WriteLine("producer: {0}", task.ChannelName);
         }
+        public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
+        {
+            // find all modules with messageType and channelname
+            ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(MessageType);
+            if (ch == null)
+                return null;
+            if (ChannelName != null && ch.ChannelName != ChannelName)
+            {
+                return null;
+            }
+            TItemModel modelModel = null;
+            foreach (QueueTask t in from t in Tasks
+                                    where t.ChannelName == ch.ChannelName
+                                    select t)
+            {
+                if (t.Module.MI is IModConsumer)
+                {
+                    TItemModel m = ((IModConsumer)t.Module.MI).AcceptsModel;
+                    if (modelModel != null)
+                        throw new Exception("MessageType have multiple validation models ");
+                    modelModel = m;
+                }
+            }
+            return new TaskQueue.RepresentedModel(modelModel.GetType());
+        }
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
             ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(msg.MType);
@@ -358,7 +380,7 @@ namespace TaskBroker
             Scheduler.SuspendAll();
             while (Scheduler.Activity)
             {
-                Thread.Sleep(100);
+                System.Threading.Thread.Sleep(100);
             }
             //stop isolated threads...
             Scheduler.CloseIsolatedThreads();

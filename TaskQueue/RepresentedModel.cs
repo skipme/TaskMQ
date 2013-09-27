@@ -36,6 +36,7 @@ namespace TaskQueue
                     if (attrs.Length > 0)
                     {
                         sch_v.Description = attrs[0].Description;
+                        sch_v.Required = attrs[0].Required;
                         if (attrs[0].Ignore)
                             continue;
                     }

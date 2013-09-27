@@ -1,4 +1,5 @@
 ﻿using Funq;
+using ServiceStack.ServiceClient.Web;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.WebHost.Endpoints;
@@ -35,6 +36,16 @@ namespace QueueService
     public class StatisticRequest
     {
         public bool GetHeartbit { get; set; }
+    }
+    [Route("/tmq/v", Verbs = "GET")]
+    public class ValidationRequest
+    {
+        public string MType { get; set; }
+        public string ChannelName { get; set; }
+    }
+    public class ValidationResponse
+    {
+        public Dictionary<string, TaskQueue.RepresentedModelValue> ModelScheme { get; set; }
     }
 
     public class ItemCounter
@@ -92,7 +103,7 @@ namespace QueueService
                     Console.WriteLine("error while message processing: {0} '{1}'", e.Message, e.StackTrace);
                     return new ServiceStack.Common.Web.HttpResult()
                     {
-                        StatusCode =  HttpStatusCode.InternalServerError
+                        StatusCode = HttpStatusCode.InternalServerError
                     };
                 }
             }
@@ -165,6 +176,31 @@ namespace QueueService
             {
                 Result = errors, // OR SOME ERROR DESCRIPTION
                 ConfigCommitID = null
+            };
+        }
+        public ValidationResponse Get(ValidationRequest request)
+        {
+            TaskQueue.RepresentedModel model;
+            if (request.MType == null)
+                throw new WebServiceException { StatusCode = (int)HttpStatusCode.NotAcceptable };
+            else if (request.ChannelName == null)
+            {
+                // MType
+                model = QueueService.ModProducer.broker.GetValidationModel(request.MType);
+            }
+            else
+            {
+                // channel + MType
+                model = QueueService.ModProducer.broker.GetValidationModel(request.MType, request.ChannelName);
+            }
+            Dictionary<string, TaskQueue.RepresentedModelValue> d = new Dictionary<string, TaskQueue.RepresentedModelValue>();
+            foreach (TaskQueue.ValueMapItem<string, TaskQueue.RepresentedModelValue> mv in model.schema.ToList())
+            {
+                d.Add(mv.Value1, mv.Value2);
+            }
+            return new ValidationResponse()
+            {
+                ModelScheme = d
             };
         }
     }

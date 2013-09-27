@@ -27,7 +27,7 @@ namespace TaskQueue
             val2.Clear();
         }
 
-        public IEnumerable<ValueMapItem<T, LT>> ALL()
+        public List<ValueMapItem<T, LT>> ToList()
         {
             List<ValueMapItem<T, LT>> result = new List<ValueMapItem<T, LT>>();
             for (int i = 0; i < val1.Count; i++)
@@ -40,5 +40,14 @@ namespace TaskQueue
             }
             return result;
         }
+        //public Dictionary<T, LT> ToDictionary()
+        //{
+        //    Dictionary<T, LT> result = new Dictionary<T, LT>();
+        //    for (int i = 0; i < val1.Count; i++)
+        //    {
+        //        result.Add(val1[i], val2[i]);
+        //    }
+        //    return result;
+        //}
     }
 }

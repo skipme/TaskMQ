@@ -25,7 +25,9 @@ namespace EmailConsumer
         }
         public string From { get; set; }
         public string FromAlias { get; set; }
+        [TaskQueue.FieldDescription("send to @", true)]
         public string To { get; set; }
+        [TaskQueue.FieldDescription("some text to send", true)]
         public string Body { get; set; }
         public string Subject { get; set; }
 
