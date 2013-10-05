@@ -45,6 +45,8 @@ namespace TaskBroker
                 //     NameAndDescription="channel throughput tune",
                 //     planEntry = (ThreadItem ti, PlanItem pi)=>{  }
                 //}
+                // with 10sec interval->update quilifier
+                // with 30sec with quilifier data do recommendations from recommedationsHub
             };
 
             MessageChannels = new MessageTypeClassificator();
