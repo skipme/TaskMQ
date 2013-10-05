@@ -12,7 +12,6 @@ namespace TaskBroker
         {
             this.UniqueName = uniqueName;
             this.ConnectionName = connectionParamsName;
-            //this.QueueName = queueName;
 
             if (selector == null)
                 this.consumerSelector = TaskQueue.TQItemSelector.DefaultFifoSelector;
@@ -25,11 +24,15 @@ namespace TaskBroker
         }
 
         public string UniqueName { get; set; }
-        //public TaskQueue.Providers.TItemModel MessageModel { get; set; }
-        public string MessageType { get; set; }
-        public TaskQueue.ITQueue QueueInstance { get; set; }
-        public TaskQueue.TQItemSelector consumerSelector { get; set; }
+
+        public TaskQueue.ITQueue QueueInstance;
+        public TaskQueue.TQItemSelector consumerSelector;
+
         public string ConnectionName { get; set; }
+
+        public string AssignedMessageType;
+        public TItemModel AssignedMessageModel;
+        public string FirstModuleNameAssigned;
     }
     public class MessageType
     {

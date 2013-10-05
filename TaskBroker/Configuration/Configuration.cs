@@ -99,7 +99,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public string connectionName { get; set; }
-        public string MType { get; set; }
+        //public string MType { get; set; }
     }
     [Serializable]
     public class cModel

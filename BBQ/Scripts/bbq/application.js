@@ -102,7 +102,7 @@
                 succ(data);
             }).fail(function () {
                 //console.log("error at: " + url_c);
-                bbq_tmq.toastr_error(" jsonp unavailable: " + url_c);
+                bbq_tmq.toastr_error(" jsonp unavailable: " + url);
                 if (err)
                     err();
             });
@@ -114,7 +114,7 @@
                succ(cresp);
            }).fail(function () {
                //console.log("error at: " + url_c);
-               bbq_tmq.toastr_error(" json proxy unavailable: " + url_c);
+               bbq_tmq.toastr_error(" json proxy unavailable: " + url_c_pxy);
                if (err)
                    err();
            });

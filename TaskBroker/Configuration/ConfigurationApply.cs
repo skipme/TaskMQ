@@ -20,7 +20,7 @@ namespace TaskBroker
             }
             foreach (var channel in con.Channels)
             {
-                broker.RegisterChannel(channel.connectionName, channel.Name, channel.MType);
+                broker.RegisterChannel(channel.connectionName, channel.Name);
             }
             foreach (var task in con.Tasks)
             {

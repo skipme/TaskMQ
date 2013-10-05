@@ -37,7 +37,7 @@ namespace TaskBroker
                 }
             };
 
-            MessageChannels = new QueueMTClassificator();
+            MessageChannels = new MessageTypeClassificator();
 
             Modules = new ModHolder(this);
             AssemblyHolder = new Assemblys.Assemblys();
@@ -61,7 +61,7 @@ namespace TaskBroker
         }
 
         public ConfigurationDepot Configurations;
-        public QueueMTClassificator MessageChannels;
+        public MessageTypeClassificator MessageChannels;
         public List<QueueTask> Tasks;
         public List<PlanItem> OtherTasks;
 
@@ -83,27 +83,28 @@ namespace TaskBroker
 
         // channels 
         // bunch [model, queue, +channel]
-        public void RegisterChannel<T>(string connectionName, string channelName)
-            where T : TaskQueue.Providers.TItemModel
-        {
-            MessageChannels.AddMessageChannel<T>(new TaskBroker.MessageChannel()
-            {
-                ConnectionName = connectionName,
-                UniqueName = channelName
-            });
-        }
-        public void RegisterChannel(string connectionName, string channelName, string MType)
+        //public void RegisterChannel<T>(string connectionName, string channelName)
+        //    where T : TaskQueue.Providers.TItemModel
+        //{
+        //    MessageChannels.AddMessageChannel<T>(new TaskBroker.MessageChannel()
+        //    {
+        //        ConnectionName = connectionName,
+        //        UniqueName = channelName
+        //    });
+        //}
+        // bunch [queue, +channel]
+        public void RegisterChannel(string connectionName, string channelName)
         {
             MessageChannels.AddMessageChannel(new TaskBroker.MessageChannel()
             {
                 ConnectionName = connectionName,
                 UniqueName = channelName,
-                MessageType = MType
+                //MessageType = MType
             });
         }
-        // bunch [channel, module, +executionContext]
+        // bunch [channel~[message model], module[message model], +executionContext]
         // note: this is configure which channel is selected for custom module
-        public void RegisterTask(string Channel, string moduleName,
+        public void RegisterTask(string ChannelName, string moduleName,
             IntervalType it = IntervalType.intervalMilliseconds,
             long intervalValue = 100,
             Dictionary<string, object> parameters = null, string Description = "-")
@@ -111,7 +112,7 @@ namespace TaskBroker
             ModMod module = Modules.GetByName(moduleName);
 
             if (module == null)
-                throw new Exception("task+: required qmodule not found: " + moduleName);
+                throw new Exception("-> error: RegisterTask: required module not found: " + moduleName);
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
             if (it == TaskScheduler.IntervalType.isolatedThread)
             {
@@ -123,8 +124,8 @@ namespace TaskBroker
                 ModuleName = moduleName,
 
                 //Description = Description,
-                ChannelName = Channel,
-                Anteroom = Channel == null ? null : MessageChannels.GetAnteroom(Channel),
+                ChannelName = ChannelName,
+                Anteroom = ChannelName == null ? null : MessageChannels.GetAnteroom(ChannelName),
                 Parameters = parameters,
 
                 intervalType = it,
@@ -133,9 +134,22 @@ namespace TaskBroker
 
                 NameAndDescription = Description
             };
-            if (t.Anteroom != null)
+            // task not required a channel only if module not implement consumer interface
+            if (module.Role == ExecutionType.Consumer)
             {
-                t.Anteroom.ChannelStatistic = Statistics.FindModel(new BrokerStat("channel", Channel));
+                if (!typeof(IModConsumer).IsAssignableFrom(module.MI.GetType()))
+                {
+                    throw new Exception("-> error: Consumer module required a consumer interface");
+                }
+                if (ChannelName == null)
+                {
+                    throw new Exception("-> error: Consumer module required a channel");
+                }
+                else
+                {
+                    t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", ChannelName));
+                    MessageChannels.AssignMessageTypeToChannel(ChannelName, ((IModConsumer)module.MI).AcceptsModel, moduleName);
+                }
             }
             Tasks.Add(t);
             UpdatePlan();
@@ -159,7 +173,7 @@ namespace TaskBroker
             };
             if (t.Anteroom != null)
             {
-                t.Anteroom.ChannelStatistic = Statistics.FindModel(new BrokerStat("channel", mst.ChannelName));
+                t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", mst.ChannelName));
             }
             //ModMod module = Modules.GetByName(t.ModuleName);
             //if (module == null)
@@ -309,27 +323,33 @@ namespace TaskBroker
         public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
         {
             // find all modules with messageType and channelname
-            ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(MessageType);
-            if (ch == null)
+            //ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(MessageType);
+            //if (ch == null)
+            //    return null;
+            //if (ChannelName != null && ch.ChannelName != ChannelName)
+            //{
+            //    return null;
+            //}
+            //TItemModel modelModel = null;
+            //foreach (QueueTask t in from t in Tasks
+            //                        where t.ChannelName == ch.ChannelName
+            //                        select t)
+            //{
+            //    if (t.Module.MI is IModConsumer)
+            //    {
+            //        TItemModel m = ((IModConsumer)t.Module.MI).AcceptsModel;
+            //        if (modelModel != null)
+            //            throw new Exception("MessageType have multiple validation models ");
+            //        modelModel = m;
+            //    }
+            //}
+            //return new TaskQueue.RepresentedModel(modelModel.GetType());
+
+            //
+            MessageChannel channel = MessageChannels.GetChannelForMessage(MessageType);
+            if (channel == null || channel.AssignedMessageModel == null)
                 return null;
-            if (ChannelName != null && ch.ChannelName != ChannelName)
-            {
-                return null;
-            }
-            TItemModel modelModel = null;
-            foreach (QueueTask t in from t in Tasks
-                                    where t.ChannelName == ch.ChannelName
-                                    select t)
-            {
-                if (t.Module.MI is IModConsumer)
-                {
-                    TItemModel m = ((IModConsumer)t.Module.MI).AcceptsModel;
-                    if (modelModel != null)
-                        throw new Exception("MessageType have multiple validation models ");
-                    modelModel = m;
-                }
-            }
-            return new TaskQueue.RepresentedModel(modelModel.GetType());
+            return new TaskQueue.RepresentedModel(channel.AssignedMessageModel.GetType());
         }
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {

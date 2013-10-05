@@ -89,7 +89,7 @@ namespace QueueService
             // save to db
             TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(m);
             bool result = false;
-               //result = true;
+            //result = true;
             if (tm.MType != null)
             {
                 try
@@ -199,14 +199,9 @@ namespace QueueService
                 {
                     StatusCode = HttpStatusCode.NotAcceptable
                 };
-            Dictionary<string, TaskQueue.RepresentedModelValue> d = new Dictionary<string, TaskQueue.RepresentedModelValue>();
-            foreach (TaskQueue.ValueMapItem<string, TaskQueue.RepresentedModelValue> mv in model.schema.ToList())
-            {
-                d.Add(mv.Value1, mv.Value2);
-            }
             return new ValidationResponse()
             {
-                ModelScheme = d
+                ModelScheme = model.schema.ToDictionary()
             };
         }
     }

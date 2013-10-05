@@ -69,11 +69,11 @@ namespace TaskBroker.Statistics
             //Console.WriteLine("stat ch saved: {0}", match.Values.FirstOrDefault());
         }
 
-        public BrokerStat FindModel(BrokerStat instanceMatch)
+        public BrokerStat InitialiseModel(BrokerStat instanceMatch)
         {
-            return FindModel<BrokerStat>(instanceMatch);
+            return InitialiseModel<BrokerStat>(instanceMatch);
         }
-        private T FindModel<T>(T match)
+        private T InitialiseModel<T>(T match)
             where T : StatMatchModel
         {
             // restore from persistent component

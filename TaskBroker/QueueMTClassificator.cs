@@ -7,9 +7,9 @@ using TaskQueue.Providers;
 
 namespace TaskBroker
 {
-    public class QueueMTClassificator
+    public class MessageTypeClassificator
     {
-        public QueueMTClassificator()
+        public MessageTypeClassificator()
         {
             MChannelsList = new List<MessageChannel>();
             MessageChannels = new Dictionary<string, int>();
@@ -22,33 +22,56 @@ namespace TaskBroker
         {
             Connections.Add(conParameters.Name, conParameters);
         }
-        public void AddMessageChannel<T>(MessageChannel mc)
-            where T : TaskQueue.Providers.TItemModel
+        /// <summary>
+        /// assume now for message type we have only one channel
+        /// </summary>
+        /// <param name="channelName"></param>
+        /// <param name="m"></param>
+        /// <param name="moduleName">For exception information if occured model conflicts</param>
+        public void AssignMessageTypeToChannel(string channelName, TItemModel m, string moduleName)
         {
-            TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
-            mc.MessageType = tim.ItemTypeName;
-            lock (MChannelsList)
+            int v;
+            if (MessageChannels.TryGetValue(channelName, out v))
             {
-                MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
-                MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
-                MChannelsList.Add(mc);
+                MessageChannel channel = MChannelsList[v];
+                channel.FirstModuleNameAssigned = moduleName;
+                channel.AssignedMessageType = m.ItemTypeName;
+                channel.AssignedMessageModel = m;
+                MessageChannelsModels.Add(m.ItemTypeName, v);
             }
-            ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
-            try
+            else
             {
-                ante.Queue.OptimiseForSelector(mc.consumerSelector);
+                throw new Exception("-> Error: assign message type model to channel: channel name " + channelName + "not exists");
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
-            }
+
         }
+        //public void AddMessageChannel<T>(MessageChannel mc)
+        //    where T : TaskQueue.Providers.TItemModel
+        //{
+        //    TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
+        //    //mc.MessageType = tim.ItemTypeName;
+        //    lock (MChannelsList)
+        //    {
+        //        MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
+        //        //MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
+        //        MChannelsList.Add(mc);
+        //    }
+        //    ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
+        //    try
+        //    {
+        //        ante.Queue.OptimiseForSelector(mc.consumerSelector);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine("-> error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
+        //    }
+        //}
         public void AddMessageChannel(MessageChannel mc)
         {
             lock (MChannelsList)
             {
                 MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
-                MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
+                //MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
                 MChannelsList.Add(mc);
             }
             ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
@@ -58,13 +81,11 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
+                Console.WriteLine("-> error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
             }
         }
         public MessageChannel GetChannelForMessage(string mtName)
         {
-            // first only // ballancer to do
-            //return MChannelsList[MessageChannelsModels[mtName]];
             int v;
             if (MessageChannelsModels.TryGetValue(mtName, out v))
             {
@@ -117,7 +138,7 @@ namespace TaskBroker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("anteroom initialisation error: {0}, {1}", e.Message, e.StackTrace);
+                    Console.WriteLine("-> anteroom initialisation error: {0}, {1}", e.Message, e.StackTrace);
                 }
             }
 
