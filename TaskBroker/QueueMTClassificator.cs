@@ -13,7 +13,7 @@ namespace TaskBroker
         {
             MChannelsList = new List<MessageChannel>();
             MessageChannels = new Dictionary<string, int>();
-            MessageChannelsModels = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            MessageTypes = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
             Anterooms = new Dictionary<string, ChannelAnteroom>();
             Connections = new Dictionary<string, QueueConnectionParameters>();
@@ -34,10 +34,14 @@ namespace TaskBroker
             if (MessageChannels.TryGetValue(channelName, out v))
             {
                 MessageChannel channel = MChannelsList[v];
-                channel.FirstModuleNameAssigned = moduleName;
-                channel.AssignedMessageType = m.ItemTypeName;
-                channel.AssignedMessageModel = m;
-                MessageChannelsModels.Add(m.ItemTypeName, v);
+                if (channel.AssignedMessageModel == null)
+                {
+                    channel.FirstModuleNameAssigned = moduleName;
+                    channel.AssignedMessageType = m.ItemTypeName;
+                    channel.AssignedMessageModel = m;
+                    //if (!MessageTypes.ContainsKey(m.ItemTypeName))
+                    MessageTypes.Add(m.ItemTypeName, v);
+                }
             }
             else
             {
@@ -87,7 +91,7 @@ namespace TaskBroker
         public MessageChannel GetChannelForMessage(string mtName)
         {
             int v;
-            if (MessageChannelsModels.TryGetValue(mtName, out v))
+            if (MessageTypes.TryGetValue(mtName, out v))
             {
                 return MChannelsList[v];
             }
@@ -156,7 +160,7 @@ namespace TaskBroker
 
         public List<MessageChannel> MChannelsList;
         public Dictionary<string, int> MessageChannels;
-        public Dictionary<string, int> MessageChannelsModels;
+        public Dictionary<string, int> MessageTypes;
 
         public Dictionary<string, QueueConnectionParameters> Connections;
     }

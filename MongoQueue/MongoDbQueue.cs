@@ -89,7 +89,8 @@ namespace MongoQueue
                 id = objid
             };
 
-            var result = Collection.Save(msg, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+            //var result = Collection.Save(msg, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
+            var result = Collection.Save(msg);
             if (!result.Ok)
                 throw new Exception("error in update to mongo queue: " + result.ToJson());
         }

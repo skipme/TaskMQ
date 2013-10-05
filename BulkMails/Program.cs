@@ -23,8 +23,11 @@ namespace BulkMails
 
             Stopwatch w = Stopwatch.StartNew();
             TaskClient.Clients.HttpRest rest = new TaskClient.Clients.HttpRest();
-            for (int i = 0; i < 1000; i++)
+            //for (int i = 0; i < 1000; i++)
+            int i = 0;
+            while(true)
             {
+                i++;
                 EMail mail = new EMail
                 {
                     To = "example@localhost",
@@ -38,6 +41,7 @@ namespace BulkMails
                 {
                     //Console.WriteLine("E: {0}", e.Message);
                 }
+                
             }
             w.Stop();
             Console.WriteLine("total {0}ms for 1000 items", w.ElapsedMilliseconds);

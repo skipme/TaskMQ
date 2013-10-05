@@ -28,6 +28,16 @@ namespace TaskScheduler
         List<ThreadItem> threads = new List<ThreadItem>();
         ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool() { Revoke(); }
+        // Throughput tune
+        public void IncrementWorkingThreads()
+        {
+
+        }
+        public void DecrementWorkingThreads()
+        {
+
+        }
+        // ~Throughput tune
         public bool Activity
         {
             get
@@ -143,7 +153,6 @@ namespace TaskScheduler
             lock (ti.rootPlan)
             {
                 if (ti.HasJob && ti.JobComplete)
-                //if (ti.ExecutionContext != null)
                 {
                     ti.ExecutionContext.ExucutingNow = false;
                 }

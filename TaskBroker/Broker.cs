@@ -31,10 +31,20 @@ namespace TaskBroker
                 // include statistic flush task
                 new PlanItem(){
                      intervalType = IntervalType.intervalSeconds,
-                     intervalValue = StatRange.seconds30,
+                     intervalValue = 30,
                      NameAndDescription="statistic maintenance task",
                      planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
-                }
+                },
+                // TODO:
+                // performance tune
+                // by channel level growing -> increment tasks for channel -> increment working threads
+                // check for throughput if doesn't change -> rollback to default execution plan
+                //new PlanItem(){
+                //     intervalType = IntervalType.intervalSeconds,
+                //     intervalValue = 10,
+                //     NameAndDescription="channel throughput tune",
+                //     planEntry = (ThreadItem ti, PlanItem pi)=>{  }
+                //}
             };
 
             MessageChannels = new MessageTypeClassificator();

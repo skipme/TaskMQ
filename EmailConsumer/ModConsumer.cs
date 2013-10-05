@@ -11,7 +11,7 @@ namespace EmailConsumer
     {
         public bool Push(Dictionary<string, object> parameters, ref TaskMessage q_parameter)
         {
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(10);
             return true;
             //Send
             SmtpModel smtp_p = new SmtpModel(parameters);
