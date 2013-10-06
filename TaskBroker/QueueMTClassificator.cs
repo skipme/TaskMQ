@@ -49,27 +49,7 @@ namespace TaskBroker
             }
 
         }
-        //public void AddMessageChannel<T>(MessageChannel mc)
-        //    where T : TaskQueue.Providers.TItemModel
-        //{
-        //    TaskQueue.Providers.TItemModel tim = Activator.CreateInstance<T>();
-        //    //mc.MessageType = tim.ItemTypeName;
-        //    lock (MChannelsList)
-        //    {
-        //        MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
-        //        //MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);
-        //        MChannelsList.Add(mc);
-        //    }
-        //    ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
-        //    try
-        //    {
-        //        ante.Queue.OptimiseForSelector(mc.consumerSelector);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine("-> error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
-        //    }
-        //}
+
         public void AddMessageChannel(MessageChannel mc)
         {
             lock (MChannelsList)
@@ -81,7 +61,7 @@ namespace TaskBroker
             ChannelAnteroom ante = GetAnteroom(mc.UniqueName);
             try
             {
-                ante.Queue.OptimiseForSelector(mc.consumerSelector);
+                ante.Queue.OptimiseForSelector();
             }
             catch (Exception e)
             {
@@ -106,10 +86,6 @@ namespace TaskBroker
         }
         public MessageChannel GetChannelByName(string name)
         {
-            //MessageChannel mc = (from mm in MessageChannels
-            //                     where mm.UniqueName.Equals(name, StringComparison.OrdinalIgnoreCase)
-            //                     select mm).FirstOrDefault();
-            //return mc;
             int chId = 0;
             if (MessageChannels.TryGetValue(name, out chId))
             {
@@ -127,7 +103,7 @@ namespace TaskBroker
             else
             {
                 MessageChannel mc = GetChannelByName(name);
-                anteroom = new ChannelAnteroom(mc.consumerSelector);
+                anteroom = new ChannelAnteroom();
                 anteroom.ChannelName = name;
 
                 TaskQueue.Providers.QueueConnectionParameters qparams = Connections[mc.ConnectionName];
@@ -135,7 +111,7 @@ namespace TaskBroker
                 try
                 {
                     //anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
-                    anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams);// schema free only queue providers (exclude sql server)
+                    anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams, mc.consumerSelector);// schema free only queue providers (exclude sql server)
                     Anterooms.Add(name, anteroom);
 
                     return anteroom;

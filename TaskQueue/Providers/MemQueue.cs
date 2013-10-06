@@ -43,12 +43,12 @@ namespace TaskQueue.Providers
             return baseQueue.Dequeue();
         }
 
-        public Providers.TaskMessage GetItem(TQItemSelector selector)
+        public Providers.TaskMessage GetItem()
         {
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector selector = null)
         {
             this.m = model;
             CollectionName = connection.Collection;
@@ -72,19 +72,19 @@ namespace TaskQueue.Providers
         }
 
 
-        public void OptimiseForSelector(TQItemSelector selector)
+        public void OptimiseForSelector()
         {
             throw new NotImplementedException();
         }
 
 
-        public Providers.TaskMessage[] GetItemTuple(TQItemSelector selector)
+        public Providers.TaskMessage[] GetItemTuple()
         {
             throw new NotImplementedException();
         }
 
 
-        public long GetQueueLength(TQItemSelector selector)
+        public long GetQueueLength()
         {
             return baseQueue.Count;
         }

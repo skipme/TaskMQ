@@ -11,14 +11,12 @@ namespace TaskBroker
     {
         public string ChannelName { get; set; }
         public BrokerStat ChannelStatistic;
-        public ChannelAnteroom(TaskQueue.TQItemSelector selector)
+        public ChannelAnteroom()
         {
-            this.selector = selector;
             anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
         }
         public Queue<TaskQueue.Providers.TaskMessage> anteroom { get; set; }
         public TaskQueue.ITQueue Queue { get; set; }
-        public TaskQueue.TQItemSelector  selector { get; set; }
 
         public bool Push(TaskMessage item)
         {
@@ -51,7 +49,7 @@ namespace TaskBroker
         {
             get
             {
-                return Queue.GetQueueLength(selector);
+                return Queue.GetQueueLength();
             }
         }
         public TaskQueue.Providers.TaskMessage Next()
@@ -64,7 +62,7 @@ namespace TaskBroker
                     TaskQueue.Providers.TaskMessage[] items = null;
                     try
                     {
-                        items = Queue.GetItemTuple(selector);
+                        items = Queue.GetItemTuple();
                     }
                     catch (Exception e)
                     {

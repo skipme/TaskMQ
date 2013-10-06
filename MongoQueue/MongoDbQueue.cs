@@ -14,15 +14,18 @@ namespace MongoQueue
     {
         const int TupleSize = 16;
         MongoCollection<MongoQueue.MongoMessage> Collection;
+        IMongoSortBy SortFeature;
+        IMongoQuery QueryFeature;
+        TQItemSelector selector;
 
-        public void OptimiseForSelector(TQItemSelector selector)
+        public void OptimiseForSelector()
         {
             Collection.EnsureIndex(MongoSelector.GetIndex(selector));
         }
 
-        public long GetQueueLength(TQItemSelector selector)
+        public long GetQueueLength()
         {
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector));
+            var cursor = Collection.Find(QueryFeature);
             long result = cursor.Count();
             return result;
         }
@@ -50,7 +53,7 @@ namespace MongoQueue
             CheckConnection();
 
             TaskQueue.TQItemSelector selector = TaskQueue.TQItemSelector.DefaultFifoSelector;
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
+            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder();
             cursor.Limit = 1;
             MongoMessage mms = cursor.FirstOrDefault();
             if (mms == null)//empty
@@ -60,11 +63,11 @@ namespace MongoQueue
             return msg;
         }
 
-        public TaskMessage GetItem(TQItemSelector selector)
+        public TaskMessage GetItem()
         {
             CheckConnection();
 
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector));
+            var cursor = Collection.Find(QueryFeature).SetSortOrder(SortFeature);
             cursor.Limit = 1;
             MongoMessage mms = cursor.FirstOrDefault();
             if (mms == null)//empty
@@ -94,33 +97,14 @@ namespace MongoQueue
             if (!result.Ok)
                 throw new Exception("error in update to mongo queue: " + result.ToJson());
         }
-        //public void UpdateItem(TaskMessage item)
-        //{
-        //    Dictionary<string, object> holder = item.GetHolder();
-        //    object id = holder["_id"];
-        //    if (id == null || !(id is ObjectId))
-        //        throw new Exception("_id of queue element is missing");
-        //    BsonObjectId objid = new BsonObjectId((ObjectId)id);
-        //    var doc = Collection.FindOne(Query.EQ("_id", objid));
-        //    if (doc == null)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        holder.Remove("_id");
-        //        doc.ExtraElements = holder;
-        //        var result = Collection.Save(doc, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
-        //        if (!result.Ok)
-        //            throw new Exception("error in update to mongo queue: " + result.ToJson());
-        //    }
-        //}
 
-        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector _selector = null)
         {
             this.model = model;
             this.connection = connection;
-
+            this.selector = _selector ?? TQItemSelector.DefaultFifoSelector;
+            this.QueryFeature = MongoSelector.GetQuery(this.selector);
+            this.SortFeature = MongoSelector.GetSort(this.selector);
             OpenConnection(connection);
         }
 
@@ -151,9 +135,9 @@ namespace MongoQueue
             get { return "MongoDB queue"; }
         }
 
-        public TaskMessage[] GetItemTuple(TQItemSelector selector)
+        public TaskMessage[] GetItemTuple()
         {
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder(MongoSelector.GetSort(selector)).SetBatchSize(TupleSize);
+            var cursor = Collection.Find(QueryFeature).SetSortOrder(SortFeature).SetBatchSize(TupleSize);
             cursor.Limit = TupleSize;
             List<TaskMessage> tma = new List<TaskMessage>();
             foreach (var mms in cursor)
