@@ -31,9 +31,9 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
 
     public class EMail : TaskQueue.Providers.TaskMessage
     {
-		public const string Name = "<#= MessageType #>";
+		const string MType = "<#= MessageType #>";
         public EMail()
-            : base(Name)
+            : base(MType)
         {
 
         }
@@ -43,7 +43,7 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
             this.SetHolder(holder.GetHolder());
         }
         public EMail(Dictionary<string, object> holder)
-            : base(Name)
+            : base(MType)
         {
             this.SetHolder(holder);
         }

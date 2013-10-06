@@ -17,9 +17,9 @@ namespace BulkMails
 
     public class EMail : TaskQueue.Providers.TaskMessage
     {
-		public const string Name = "EMail";
+		const string MType = "EMail";
         public EMail()
-            : base(Name)
+            : base(MType)
         {
 
         }
@@ -29,7 +29,7 @@ namespace BulkMails
             this.SetHolder(holder.GetHolder());
         }
         public EMail(Dictionary<string, object> holder)
-            : base(Name)
+            : base(MType)
         {
             this.SetHolder(holder);
         }
