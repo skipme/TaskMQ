@@ -24,7 +24,7 @@ namespace TaskScheduler
 
     public class ThreadPool
     {
-        const int maxThreads = 4;
+        const int maxThreads = 8;
         List<ThreadItem> threads = new List<ThreadItem>();
         ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool() { Revoke(); }

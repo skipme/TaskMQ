@@ -13,7 +13,7 @@ namespace TaskBroker
         Consumer = 0x11,
         Producer
     }
-
+    // utilisation between module interface and broker
     public class ModuleSelfTask
     {
         public string ChannelName;
@@ -24,15 +24,17 @@ namespace TaskBroker
     }
     public class QueueTask : TaskScheduler.PlanItem 
     {
-        //public string Description;
-
         public string ChannelName;
         public ChannelAnteroom Anteroom;
-        public bool MinChannelOccupancyDirection;
+
         public Dictionary<string, object> Parameters;
         public ModMod Module;
         public string ModuleName { get; set; }
-        public bool Temp;
+        public bool Temp; // remove after restart/reset (this task used for autoconfigure and autoscale)
+        
+        // automatically change interval(0ms-60sec) by service a queue (away from blocking lag)
+        // can be used it - if you don't know how a queue must serviced
+        public bool ExecutionPlanSpecifiedByChannel;
 
         public DateTime NextExecution
         {

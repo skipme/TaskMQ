@@ -17,6 +17,8 @@ namespace TaskBroker
             {
                 sync.Reset();
                 // create appdomain
+                Console.WriteLine("domain starting.");
+
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 AppDomain Domain = AppDomain.CreateDomain("ApplicationKeeper", null, setup);
                 //
@@ -30,6 +32,8 @@ namespace TaskBroker
 
                 // unload appdomain
                 AppDomain.Unload(Domain);
+                
+                Console.WriteLine("domain unloaded.");
 
                 GC.Collect(); // collects all unused memory
                 GC.WaitForPendingFinalizers(); // wait until GC has finished its work

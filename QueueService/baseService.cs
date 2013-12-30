@@ -156,10 +156,12 @@ namespace QueueService
                 if (request.Reset)
                 {
                     // delay reset....
+                    QueueService.ModProducer.broker.resetBroker();
                 }
                 else if (request.Restart)
                 {
                     // delay restart....
+                    QueueService.ModProducer.broker.restartApp();
                 }
             }
             else

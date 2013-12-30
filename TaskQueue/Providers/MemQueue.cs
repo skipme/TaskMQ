@@ -7,21 +7,8 @@ namespace TaskQueue.Providers
 {
     public class MemQueue : ITQueue
     {
-        //public static Dictionary<string, Queue<ITItem>> collections = new Dictionary<string, Queue<ITItem>>();
-
         RepresentedModel m { get; set; }
         string CollectionName { get; set; }
-
-        //Queue<ITItem> baseQueue
-        //{
-        //    get
-        //    {
-        //        if (collections.ContainsKey(CollectionName))
-        //            return collections[CollectionName];
-        //        collections.Add(CollectionName, new Queue<ITItem>());
-        //        return collections[CollectionName];
-        //    }
-        //}
         Queue<Providers.TaskMessage> baseQueue;
 
         public MemQueue()
@@ -40,12 +27,16 @@ namespace TaskQueue.Providers
 
         public Providers.TaskMessage GetItemFifo()
         {
+            if (baseQueue.Count == 0)
+                return null;
             return baseQueue.Dequeue();
         }
 
         public Providers.TaskMessage GetItem()
         {
-            throw new NotImplementedException();
+            if (baseQueue.Count == 0)
+                return null;
+            return baseQueue.Dequeue();
         }
 
         public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector selector = null)
@@ -74,13 +65,21 @@ namespace TaskQueue.Providers
 
         public void OptimiseForSelector()
         {
-            throw new NotImplementedException();
         }
 
 
         public Providers.TaskMessage[] GetItemTuple()
         {
-            throw new NotImplementedException();
+            if (baseQueue.Count >= 1)
+            {
+                return new TaskMessage[]{
+                    baseQueue.Dequeue()
+                };
+            }
+            else
+            {
+                return null;
+            }
         }
 
 

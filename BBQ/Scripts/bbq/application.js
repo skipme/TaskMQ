@@ -178,7 +178,7 @@
                 if (err)
                     err(data.Result);
             }
-        }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id }), urlpostfix: "/commit" });
+        }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }), urlpostfix: "/commit" });
     }
     //=========
     resetModels();

@@ -32,7 +32,11 @@ namespace SourceControl.Build
                         bin.SymbolsPath = locationSymbols;
                     }
                 }
-
+                if (assets.Length > 0)
+                {
+                    bin.assets = assets;
+                    bin.assetsRoot = Path.GetPathRoot(assets[0]);
+                }
             }
             catch (Exception e)
             {

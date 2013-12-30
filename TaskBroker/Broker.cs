@@ -12,19 +12,23 @@ namespace TaskBroker
     public class Broker
     {
         public delegate void RestartApplication();
-        RestartApplication restartApp;
+        public RestartApplication restartApp;
+        public RestartApplication resetBroker;
+
         /*
          * consumer stub throughput ratings
                 10000 at 940 ms. tp 1 at ,09ms :: internal module throughput (same appdomain)
                 10000 at 3722 ms. tp 1 at ,37 :: external module throughput (cross appdomain)
          * 
          */
-        public Broker(RestartApplication restartApp = null)
+        public Broker(RestartApplication restartApp = null, RestartApplication resetBroker = null)
         {
             this.restartApp = restartApp;
-            Statistics = new StatHub();
+            this.resetBroker = resetBroker;
 
-            Tasks = new List<QueueTask>();
+            ClearConfiguration();
+
+            Statistics = new StatHub();
             Scheduler = new TaskScheduler.ThreadPool();
             OtherTasks = new List<PlanItem>()
             {
@@ -34,7 +38,7 @@ namespace TaskBroker
                      intervalValue = 30,
                      NameAndDescription="statistic maintenance task",
                      planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
-                },
+                }
                 // TODO:
                 // performance tune
                 // by channel level growing -> increment tasks for channel -> increment working threads
@@ -49,23 +53,40 @@ namespace TaskBroker
                 // with 30sec with quilifier data do recommendations from recommedationsHub
             };
 
-            MessageChannels = new MessageTypeClassificator();
-
             Modules = new ModHolder(this);
             AssemblyHolder = new Assemblys.Assemblys();
             QueueInterfaces = new QueueClassificator();
 
             Configurations = new ConfigurationDepot();
         }
-
-        private void LoadLatestConfiguration()
+        private void ClearConfiguration()
         {
-            ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
-            if (casm != null)
+            MessageChannels = new MessageTypeClassificator();
+            Tasks = new List<QueueTask>();
+            if (Modules != null)
+                foreach (var mod in Modules.Modules.Values)
+                {
+                    ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
+                    if (tasks != null)
+                        foreach (ModuleSelfTask t in tasks)
+                        {
+                            this.RegisterTempTask(t, mod);
+                        }
+                }
+        }
+        private void LoadLatestConfiguration(bool tasksOnly = false)
+        {
+            if (!tasksOnly)
             {
-                casm.Apply(this);
-                LoadAssemblys();
+                ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
+                if (casm != null)
+                {
+                    casm.Apply(this);
+                    LoadAssemblys();
+                }
             }
+
+            ClearConfiguration();
             ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
 
             if (cmain != null)
@@ -94,6 +115,11 @@ namespace TaskBroker
         }
 
         // channels 
+        public long GetChannelLevel(string messageType)
+        {
+            ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(messageType);
+            return ch.Queue.GetQueueLength();
+        }
         // bunch [model, queue, +channel]
         //public void RegisterChannel<T>(string connectionName, string channelName)
         //    where T : TaskQueue.Providers.TItemModel
@@ -265,7 +291,14 @@ namespace TaskBroker
         private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
-            ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
+            try
+            {
+                ((IModIsolatedProducer)task.Module.MI).IsolatedProducer(task.Parameters);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("exception occured in module in isolated call procedure: '{0}', module '{1}' will be turn off", e.Message, task.ModuleName);
+            }
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
             {
@@ -399,6 +432,7 @@ namespace TaskBroker
         public void ReloadAssemblys()
         {
             // just restart application
+            // delay restart...
             if (restartApp != null)
                 restartApp();
             else
@@ -424,10 +458,10 @@ namespace TaskBroker
             AssemblyHolder.LoadAssemblys(this);
             //Modules.AssemblyHolder.LoadAssemblys(this);
         }
-        public void RevokeBroker(bool reconfigureFromStorage = false)
+        public void RevokeBroker(bool reconfigureFromStorage = false, bool reconfigureOnlyTasks = false)
         {
             if (reconfigureFromStorage)
-                LoadLatestConfiguration();
+                LoadLatestConfiguration(reconfigureOnlyTasks);
             Scheduler.Revoke();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks

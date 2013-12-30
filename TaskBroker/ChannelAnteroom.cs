@@ -15,8 +15,8 @@ namespace TaskBroker
         {
             anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
         }
-        public Queue<TaskQueue.Providers.TaskMessage> anteroom { get; set; }
-        public TaskQueue.ITQueue Queue { get; set; }
+        public Queue<TaskQueue.Providers.TaskMessage> anteroom;
+        public TaskQueue.ITQueue Queue;
 
         public bool Push(TaskMessage item)
         {
@@ -70,7 +70,7 @@ namespace TaskBroker
                         return null;
                     }
 
-                    if (items.Length > 0)
+                    if (items != null && items.Length > 0)
                     {
                         for (int i = 1; i < items.Length; i++)
                         {

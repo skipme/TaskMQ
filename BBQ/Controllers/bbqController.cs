@@ -11,7 +11,7 @@ namespace BBQ.Controllers
 {
     public class bbqController : Controller
     {
-        const string tmq_host = "http://localhost:82/";
+        const string tmq_host = "http://127.0.0.1:82/";
         //
         // GET: /bbq/
 

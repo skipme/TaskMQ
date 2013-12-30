@@ -124,7 +124,7 @@ namespace TApp
                 System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
                 "EmailConsumer/EmailConsumer.csproj",
                 //"QueueService/QueueService.csproj",
-                 //"SourceControl/SourceControl.csproj",
+                //"SourceControl/SourceControl.csproj",
                 "https://github.com/skipme/TaskMQ.git");
             SourceControl.Assemblys.AssemblyProject p = new SourceControl.Assemblys.AssemblyProject(
                 System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "scm"),
@@ -146,16 +146,6 @@ namespace TApp
         }
         static void Main(string[] args)
         {
-            //TestStat();
-            //TesMtStat();
-            
-            //SourceControl.AssemblyBuilder a = new SourceControl.AssemblyBuilder();
-            //a.BuildProject();
-            //            ZipDir();
-
-            //TesGit();
-            //return;
-
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);
@@ -167,9 +157,28 @@ namespace TApp
             {
                 ApplicationKeeper.AppdomainLoop();
             }
-            Console.WriteLine("ok, done");
+            Console.WriteLine("Application Main entry exit.");
             Console.ReadLine();
             return;
+        }
+        static void CreateZBVAFromDebugDir(string path, string dll)
+        {
+            SourceControl.Containers.AssemblyBinVersions v = new SourceControl.Containers.AssemblyBinVersions(path, System.IO.Path.GetFileNameWithoutExtension(dll));
+            string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(dll), System.IO.Path.GetFileNameWithoutExtension(dll) + ".pdb");
+            List<string> files = new List<string>();
+            foreach (string F in System.IO.Directory.GetFiles(path))// TODO: not recursive! not now...
+            {
+                if (F != dll && F != pdb && F != v.Path)
+                {
+                    files.Add(F);
+                }
+            }
+            SourceControl.Build.AssemblyBinaryBuildResult r = SourceControl.Build.AssemblyBinaryBuildResult.FromFile(dll, pdb, files.ToArray());
+            
+            v.AddVersion(new SourceControl.Ref.VersionRevision()
+                {
+                    Revision = Guid.NewGuid().ToString()
+                }, r);
         }
     }
 }

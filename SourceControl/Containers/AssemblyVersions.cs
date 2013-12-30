@@ -14,9 +14,9 @@ namespace SourceControl.Containers
         public string Path { get; private set; }
         public string name { get; private set; }
 
-        public AssemblyBinVersions(string dirContainer, string name)
+        public AssemblyBinVersions(string directoryScope, string name)
         {
-            this.Path = System.IO.Path.Combine(dirContainer, name + ".zip");
+            this.Path = System.IO.Path.Combine(directoryScope, name + ".zip");
             this.name = name;
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
