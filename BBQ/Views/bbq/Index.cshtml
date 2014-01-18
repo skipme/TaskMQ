@@ -3,15 +3,47 @@
     Layout = "~/Views/Shared/_L.cshtml";
 }
 @section scripts {
-    <script src="@Url.Content("Scripts/bbq/angular.js")"></script>
+    @*<script src="@Url.Content("Scripts/bbq/angular.js")"></script>*@
+     <script src="http://code.angularjs.org/1.2.9/angular.min.js"></script>
+
     <script src="@Url.Content("Scripts/bbq/application.js")"></script>
     <script src="@Url.Content("Scripts/bbq/app_ui.js")"></script>
     <script src="@Url.Content("Scripts/bbq/toastr.js")"></script>
     <script src="@Url.Content("Scripts/jquery.sparkline.min.js")"></script>
+
+    <script src="http://code.angularjs.org/1.2.9/angular-animate.min.js"></script>
 }
 
 @section styles {
     <link rel="stylesheet" href="@Url.Content("Content/toastr.css")">
+    <style>
+        .animate-repeat {
+        line-height:40px;
+        list-style:none;
+        box-sizing:border-box;
+        }
+ 
+        .animate-repeat.ng-move,
+        .animate-repeat.ng-enter,
+        .animate-repeat.ng-leave {
+        -webkit-transition:all linear 0.5s;
+        transition:all linear 0.5s;
+        }
+ 
+        .animate-repeat.ng-leave.ng-leave-active,
+        .animate-repeat.ng-move,
+        .animate-repeat.ng-enter {
+        opacity:0;
+        max-height:0;
+        }
+ 
+        .animate-repeat.ng-leave,
+        .animate-repeat.ng-move.ng-move-active,
+        .animate-repeat.ng-enter.ng-enter-active {
+        opacity:1;
+        max-height:40px;
+        }
+    </style>
 }
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
@@ -122,9 +154,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="m in m_main.Tasks">
-                                <td><a class="btn-link" ng-click="task_edit(m)" ng-hide="m.Auto9"><i class="icon-pencil"></i></a></td>
-                                <td>{{m.Description}}
+                            <tr ng-repeat="m in m_main.Tasks | orderBy:'Auto':false">
+                                <td><a class="btn-link" ng-click="task_edit(m)" ng-hide="m.Auto"><i class="icon-pencil"></i></a>
+                                    <a ng-show="m.Auto"><i class="icon-lock"></i></a></td><!-- means it reassignable -->
+                                <td class="animate-repeat">{{m.Description}}
                                 </td>
                                 <td>{{m.intervalType | intervt}}/{{m.intervalValue}}
                                 </td>
@@ -324,17 +357,26 @@
                         <span class="error" ng-show="newTaskForm.desc.$error.pattern">No spaces at start and only one between words!</span>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="chan">Channel</label>
-                    <div class="controls">
-                        <select class="customselect" name="chan" ng-model="newtask.channel" ng-options="c.Name as c.Name for c in m_main.Channels">
-                        </select>
-                    </div>
-                </div>
+                
                 <div class="control-group">
                     <label class="control-label" for="mod">Module</label>
                     <div class="controls">
                         <select name="mod" class="customselect" ng-change="newtask.module=newtask.mpxy.Name" ng-model="newtask.mpxy" ng-options="c as c.Name for c in m_mods.Modules | filter:c.Role=17">
+                        </select>
+                    </div>
+                </div>
+                 <div class="control-group">
+                    @*<label class="control-label" for="params">Module parameters (json)</label>*@
+                     <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%" placeholder="Module parameters (json)"></textarea>
+                    <div class="controls">
+                        @*<textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%"></textarea>*@
+                        <a class="btn btn-small btn-info" ng-click="task_represent(newtask.mpxy)"><i class="icon-leaf icon-white"></i>Represent</a>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="chan">Channel</label>
+                    <div class="controls">
+                        <select class="customselect" name="chan" ng-model="newtask.channel" ng-options="c.Name as c.Name for c in m_main.Channels">
                         </select>
                     </div>
                 </div>
@@ -350,13 +392,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="params">Module parameters (json)</label>
-                    <div class="controls">
-                        <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%"></textarea>
-                        <a class="btn btn-small" ng-click="task_represent(newtask.mpxy)"><i class="icon-leaf icon-white"></i>Represent</a>
-                    </div>
-                </div>
+               
             </form>
         </div>
         <div class="modal-footer"><!--              FOOTER -->
@@ -369,7 +405,8 @@
     <div id="modal-edit-task" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="edittaskModal" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="edittaskModal">Edit Task</h3>
+            <h3 id="edittaskModal"><button class="btn btn-danger" data-dismiss="modal" aria-hidden="true" ng-click="task_edit_del()">Delete</button> 
+                &nbsp; Edit Task</h3>
         </div>
         <div class="modal-body">
             <form name="editTaskForm" class="form-horizontal">
@@ -382,19 +419,29 @@
                         <span class="error" ng-show="editTaskForm.desc.$error.pattern">No spaces at start and only one between words!</span>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="chan">Channel</label>
-                    <div class="controls">
-                        <select class="customselect" name="chan" ng-options="c.Name as c.Name for c in m_main.Channels" ng-model="edit_task.ChannelName">
-                        </select>
-                    </div>
-                </div>
+
                 <div class="control-group">
                     <label class="control-label" for="mod">Module</label>
                     <div class="controls">
                         @*<select name="mod" class="customselect" ng-model="edit_task.ModuleName" ng-options="c.Name as c.Name for c in m_mods.Modules | filter:c.Role=17">
                         </select>*@
                         <select name="mod" class="customselect" ng-change="edit_task.ModuleName=newtask.mpxyz.Name" ng-model="newtask.mpxyz" ng-options="c.Name for c in m_mods.Modules | filter:c.Role=17">
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    @*<label class="control-label" for="params">Module parameters (json)</label>*@
+                     <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%" placeholder="Module parameters (json)"></textarea>
+                    <div class="controls">
+                       
+                        <a class="btn btn-small btn-info" ng-click="task_represent(newtask.mpxyz)"><i class="icon-leaf icon-white"></i>Represent</a>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="chan">Channel</label>
+                    <div class="controls">
+                        <select class="customselect" name="chan" ng-options="c.Name as c.Name for c in m_main.Channels" ng-model="edit_task.ChannelName">
                         </select>
                     </div>
                 </div>
@@ -410,16 +457,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label class="control-label" for="params">Module parameters (json)</label>
-                    <div class="controls">
-                        <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%"></textarea>
-                        <a class="btn btn-small" ng-click="task_represent(newtask.mpxyz)"><i class="icon-leaf icon-white"></i>Represent</a>
-                    </div>
-                </div>
             </form>
         </div>
         <div class="modal-footer"><!--              FOOTER -->
+            
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             <button class="btn btn-primary" ng-click="task_edit_cpy()">Save and close</button>
         </div>

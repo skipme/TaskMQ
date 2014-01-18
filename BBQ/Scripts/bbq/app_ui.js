@@ -23,7 +23,7 @@
         function resetNewTaskForm() {
             $scope.newtask = {
                 description: '', channel: '', module: '',
-                parametersStr: '', intervalType: $scope.intervals[0].t,
+                parametersStr: '{}', intervalType: $scope.intervals[0].t,
                 intervalValue: 0,
                 itpxy: $scope.intervals[0],
                 mpxy: null,
@@ -32,7 +32,7 @@
         }
         function resetTaskForms() {
             resetNewTaskForm();
-            $scope.edit_task = { ChannelName: '' };
+            $scope.edit_task = { ChannelName: '', parametersStr: '' };
         }
         function resetNewForms() {
             resetTaskForms();
@@ -47,86 +47,82 @@
         $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22], throughput: [12, 14, 155, 144] }];
         function updateHeartbeat() {
 
-            //var applyGraphs = function (){$('span.channel-sparkline').each(function (index) {
-            //    var n = $(this).attr('statsel');
-            //    var that = this;
-            //    $scope.stat_channels.forEach(function (e) {
-            //        if (e.name == n) {
-            //            $(that).sparkline(e.heartbeat, {
-            //                width: 70, //type: 'line',
-            //                lineColor: '#34495e',
-            //                fillColor: '#1abc9c', tooltipSuffix: ' messages per !!!'
-            //            });
-            //        }
-            //    });
-            //});
-            //}
-            bbq_tmq.heartbeat(function (resp) {
-                resp.Channels.forEach(function (c) {
+            aftermath(function (actx) {
+                bbq_tmq.heartbeat(function (resp) {
+                    resp.Channels.forEach(function (c) {
 
-                    var ref = null;
-                    for (var i = 0; i < $scope.stat_channels.length; i++) {
-                        if ($scope.stat_channels[i].name == c.Name) {
-                            ref = $scope.stat_channels[i];
-                            break;
+                        var ref = null;
+                        for (var i = 0; i < $scope.stat_channels.length; i++) {
+                            if ($scope.stat_channels[i].name == c.Name) {
+                                ref = $scope.stat_channels[i];
+                                break;
+                            }
                         }
-                    }
-                    if (ref === null) {
-                        ref = { name: c.Name, heartbeat: [], lastLeftHB: null };
-                        $scope.stat_channels.push(ref);
-                    }
-
-                    if (ref.lastLeftHB != c.Left) {
-                        ref.lastLeftHB = c.Left;
-                        ref.heartbeat.push(c.Count);
-                        if (ref.heartbeat.length > 30)
-                            ref.heartbeat.splice(0, 1);
-
-                        $('span.channel-sparkline-heartbeat[statsel="' + c.Name + '"]').sparkline(ref.heartbeat, {
-                            width: 70, //type: 'line',
-                            lineColor: '#34495e',
-                            fillColor: '#1abc9c', tooltipSuffix: ' messages'
-                        });
-                    }
-
-                });
-            }, function () {
-
-            });
-            bbq_tmq.throughput(function (resp) {
-                resp.Channels.forEach(function (c) {
-
-                    var ref = null;
-                    for (var i = 0; i < $scope.stat_channels.length; i++) {
-                        if ($scope.stat_channels[i].name == c.Name) {
-                            ref = $scope.stat_channels[i];
-                            break;
+                        if (ref === null) {
+                            ref = { name: c.Name, heartbeat: [], lastLeftHB: null, throughput: [] };
+                            $scope.stat_channels.push(ref);
                         }
-                    }
-                    if (ref === null) {
-                        ref = { name: c.Name, throughput: [], lastLeftTP: null };
-                        $scope.stat_channels.push(ref);
-                    }
 
-                    if (ref.lastLeftTP != c.Left) {
-                        ref.lastLeftTP = c.Left;
-                        ref.throughput.push(c.Count);
-                        if (ref.throughput.length > 30)
-                            ref.throughput.splice(0, 1);
+                        if (ref.lastLeftHB != c.Left) {
+                            ref.lastLeftHB = c.Left;
+                            ref.heartbeat.push(c.Count);
+                            if (ref.heartbeat.length > 30)
+                                ref.heartbeat.splice(0, 1);
 
-                        $('span.channel-sparkline-throughput[statsel="' + c.Name + '"]').sparkline(ref.throughput, {
-                            width: 70, //type: 'line',
-                            lineColor: '#34495e',
-                            fillColor: '#1abc9c', tooltipSuffix: ' messages/min'
-                        });
-                    }
+                            $('span.channel-sparkline-heartbeat[statsel="' + c.Name + '"]').sparkline(ref.heartbeat, {
+                                width: 70, //type: 'line',
+                                lineColor: '#34495e',
+                                fillColor: '#1abc9c', tooltipSuffix: ' messages'
+                            });
+                        }
+                    });
 
+                    actx.ok();
+
+                }, function () {
+                    actx.ok();
                 });
-            }, function () {
+            }, function (actx) {
+                bbq_tmq.throughput(function (resp) {
+                    resp.Channels.forEach(function (c) {
 
+                        var ref = null;
+                        for (var i = 0; i < $scope.stat_channels.length; i++) {
+                            if ($scope.stat_channels[i].name == c.Name) {
+                                ref = $scope.stat_channels[i];
+                                break;
+                            }
+                        }
+                        if (ref === null) {
+                            ref = { name: c.Name, throughput: [], lastLeftTP: null, heartbeat: [] };
+                            $scope.stat_channels.push(ref);
+                        }
+
+                        if (ref.lastLeftTP != c.Left) {
+                            ref.lastLeftTP = c.Left;
+                            ref.throughput.push(c.Count);
+                            if (ref.throughput.length > 30)
+                                ref.throughput.splice(0, 1);
+
+                            $('span.channel-sparkline-throughput[statsel="' + c.Name + '"]').sparkline(ref.throughput, {
+                                width: 70, //type: 'line',
+                                lineColor: '#34495e',
+                                fillColor: '#1abc9c', tooltipSuffix: ' messages/min'
+                            });
+                        }
+
+                    });
+                    actx.ok();
+
+                }, function () {
+                    actx.ok();
+                });
+            }).ondone(function () {
+                tryKillHeartbeat();
+                heartbeatInterval = setTimeout(updateHeartbeat, 1000 * 5);
             });
-            tryKillHeartbeat();
-            heartbeatInterval = setTimeout(updateHeartbeat, 1000 * 5);
+
+            
         }
         function tryKillHeartbeat() {
             if (heartbeatInterval !== null)
@@ -224,8 +220,10 @@
                 alert('the state is not synced...');
                 return;
             }
-            $scope.newtask.mpxy = $scope.m_mods.Modules[0];
-            $scope.newtask.module = $scope.m_mods.Modules[0].Name;
+            //$scope.newtask.mpxy = $scope.m_mods.Modules[0];
+            //$scope.newtask.module = $scope.m_mods.Modules[0].Name;
+            //$scope.newtask.parametersStr = '{}';
+            resetNewTaskForm();
 
             $('div#modal-new-task').modal('show');
         }
@@ -282,6 +280,17 @@
             angular.copy($scope.edit_task, $scope.ref_task);
             $scope.ref_task.parameters = obj;
 
+            bbq_tmq.mainPartChanged();
+            $scope.triggers.wReset = true;
+
+            $('div#modal-edit-task').modal('hide');
+        }
+
+        $scope.task_edit_del = function (t_index) {
+
+            $scope.m_main.Tasks.splice(
+                $scope.m_main.Tasks.indexOf($scope.ref_task), 1);
+            
             bbq_tmq.mainPartChanged();
             $scope.triggers.wReset = true;
 

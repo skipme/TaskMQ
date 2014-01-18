@@ -297,7 +297,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("exception occured in module in isolated call procedure: '{0}', module '{1}' will be turn off", e.Message, task.ModuleName);
+                Console.WriteLine("exception occured in module in isolated call procedure: '{0}', module '{1}' will be turned off", e.Message, task.ModuleName);
             }
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
