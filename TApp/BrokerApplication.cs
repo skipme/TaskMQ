@@ -47,14 +47,14 @@ namespace TaskBroker
             
             broker.RevokeBroker(true);
             this.Signal = signal;
-            exportConfiguration();
+            //exportConfiguration();
         }
 
-        public void exportConfiguration()
-        {
-            File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());
-            File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).SerialiseJson());
-            File.WriteAllBytes("assemblys.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).SerialiseJson());
-        }
+        //public void exportConfiguration()
+        //{
+        //    File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());
+        //    File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).SerialiseJson());
+        //    File.WriteAllBytes("assemblys.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).SerialiseJson());
+        //}
     }
 }

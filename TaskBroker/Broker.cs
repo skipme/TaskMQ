@@ -326,13 +326,7 @@ namespace TaskBroker
                 return;
             }
             ch.ChannelStatistic.inc();
-            //System.Diagnostics.Stopwatch w = System.Diagnostics.Stopwatch.StartNew();
-            //for (int i = 0; i < 10000; i++)
-            //{
-            //    ((IModConsumer)mod.MI).Push(task.Parameters, ref item);
-            //}
-            //w.Stop();
-            //Console.WriteLine("10000 at {0} ms. tp 1 at {1:.00}", w.ElapsedMilliseconds, w.ElapsedMilliseconds / 10000.0);
+
             TaskQueue.Providers.TaskMessage item = message;
 
             bool updated = ((IModConsumer)mod.MI).Push(task.Parameters, ref message);

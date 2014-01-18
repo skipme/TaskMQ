@@ -23,9 +23,9 @@ namespace BulkMails
 
             Stopwatch w = Stopwatch.StartNew();
             TaskClient.Clients.HttpRest rest = new TaskClient.Clients.HttpRest();
-            //for (int i = 0; i < 1000; i++)
-            int i = 0;
-            while(true)
+            for (int i = 0; i < 1000; i++)
+            //int i = 0;
+            //while(true)
             {
                 i++;
                 EMail mail = new EMail

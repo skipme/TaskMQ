@@ -1,0 +1,1 @@
+﻿test example client pushing 1000 messages without delay

@@ -14,7 +14,7 @@ namespace EmailConsumer
         public static bool Send(MailModel model, SmtpModel con)
         {
             MailMessage msg = new MailMessage();
-            try
+            try// common validation - prevent major configuration errors
             {
                 msg.To.Add(new MailAddress(model.To));
                 if (model.From != null)
