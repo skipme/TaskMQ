@@ -30,7 +30,9 @@ namespace TaskBroker
 
             Statistics = new StatHub();
             Scheduler = new TaskScheduler.ThreadPool();
-            OtherTasks = new List<PlanItem>()
+            AssemblyHolder = new Assemblys.Assemblys();
+
+            MaintenanceTasks = new List<PlanItem>()
             {
                 // include statistic flush task
                 new PlanItem(){
@@ -38,6 +40,13 @@ namespace TaskBroker
                      intervalValue = 30,
                      NameAndDescription="statistic maintenance task",
                      planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
+                },
+                // 
+                new PlanItem(){
+                     intervalType = IntervalType.intervalSeconds,
+                     intervalValue = 30,
+                     NameAndDescription="assemblies maintenance task",
+                     planEntry = (ThreadItem ti, PlanItem pi)=>{ AssemblyHolder.assemblySources.FetchUpdateAllIfRequired(); }
                 }
                 // TODO:
                 // performance tune
@@ -54,7 +63,7 @@ namespace TaskBroker
             };
 
             Modules = new ModHolder(this);
-            AssemblyHolder = new Assemblys.Assemblys();
+            
             QueueInterfaces = new QueueClassificator();
 
             Configurations = new ConfigurationDepot();
@@ -96,7 +105,7 @@ namespace TaskBroker
         public ConfigurationDepot Configurations;
         public MessageTypeClassificator MessageChannels;
         public List<QueueTask> Tasks;
-        public List<PlanItem> OtherTasks;
+        public List<PlanItem> MaintenanceTasks;
 
         public ModHolder Modules;
         public Assemblys.Assemblys AssemblyHolder;
@@ -268,7 +277,7 @@ namespace TaskBroker
             {
                 plan.Add(t);
             }
-            foreach (PlanItem p in OtherTasks)
+            foreach (PlanItem p in MaintenanceTasks)
             {
                 plan.Add(p);
             }

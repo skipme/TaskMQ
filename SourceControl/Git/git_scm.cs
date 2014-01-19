@@ -13,7 +13,7 @@ namespace SourceControl.Git
             base(localRepositoryPath, cloneUri)
         { }
 
-        private SCM.Status status = Status.none;
+        private SCM.Status status = Status.none;// this means to determine status by UpdateStatus
 
         public override bool Fetch()
         {
@@ -70,7 +70,10 @@ namespace SourceControl.Git
                 }
             }
             catch (Exception e)
-            { return false; }
+            {
+                Console.WriteLine("git-scm '{0}' local copy error: {1}", this.cloneUri, e.Message);
+                return false; 
+            }
             return true;
         }
 

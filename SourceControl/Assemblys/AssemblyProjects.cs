@@ -21,6 +21,21 @@ namespace SourceControl.Assemblys
         {
             hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
         }
+        public void FetchUpdateAllIfRequired()
+        {
+            foreach (AssemblyProject item in hostedProjects)
+            {
+                if (item.State == AssemblyProject.ProjectState.build_deferred)
+                {
+                    string stub = "";
+                    item.StoreNewIfRequired(out stub);
+                }
+                else
+                {
+                    item.SetUpSourceToDate();
+                }
+            }
+        }
         private void CheckDirectory()
         {
             if (!System.IO.Directory.Exists(DiretoryContainer))

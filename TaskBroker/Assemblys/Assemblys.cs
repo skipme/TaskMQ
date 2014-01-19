@@ -9,6 +9,26 @@ using System.Text;
 
 namespace TaskBroker.Assemblys
 {
+    public class AssemblyStatus
+    {
+        public string revision { get; set; }
+        public string revisionDate { get; set; }
+        public string activeRevision { get; set; }
+        public string activeRevisionDate { get; set; }
+
+        public string State { get; set; }
+
+        public AssemblyStatus(SourceControl.Assemblys.AssemblyProject prj)
+        {
+            State = prj.State.ToString();
+
+            revision = prj.sourceVersionRevision.Revision;
+            revisionDate = prj.sourceVersionRevision.CommitTime.ToString();
+            activeRevision = prj.edgeStoredVersionRevision.Tag;
+            activeRevisionDate = "not implemented";
+        }
+    }
+
     public class Assemblys
     {
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
@@ -23,7 +43,25 @@ namespace TaskBroker.Assemblys
             // build, update packages: 
             assemblySources = new SourceControl.Assemblys.AssemblyProjects(Directory.GetCurrentDirectory());
         }
-
+        public IEnumerable<KeyValuePair<string, AssemblyStatus>> GetSourceStatuses()
+        {
+            foreach (SourceControl.Assemblys.AssemblyProject item in assemblySources.hostedProjects)
+            {
+                yield return new KeyValuePair<string, AssemblyStatus>(item.moduleName, new AssemblyStatus(item));
+            }
+        }
+        public void UpdatePackage(string Name)
+        {
+            for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
+			{
+                if (assemblySources.hostedProjects[i].moduleName == Name)
+                {
+                    assemblySources.hostedProjects[i].SetBuildDeferredFlag();
+                    return;
+                }
+			}
+            
+        }
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
 

@@ -67,7 +67,10 @@ namespace SourceControl.Containers
         {
             Ref.PackageInfo pinfo = getPackageInfo();
             if (pinfo == null)
+            {
+                Console.WriteLine("packageInfo absent in package {0}", this.Path);
                 return null;
+            }
 
             Ref.PackageVersion pv = pinfo.FindLatestVersion();
             AssemblyVersionPackage pckg = new AssemblyVersionPackage(pv, this);
@@ -127,7 +130,7 @@ namespace SourceControl.Containers
                           select f.data).First();
             return true;
         }
-        public string LatestRevision
+        public Ref.PackageVersion LatestRevision
         {
             get
             {
@@ -136,7 +139,7 @@ namespace SourceControl.Containers
                 if (pinfo == null)
                     return null;
                 Ref.PackageVersion pv = pinfo.FindLatestVersion();
-                return pv.Tag;
+                return pv;
             }
         }
         public List<VersionRevision> GetVersions()

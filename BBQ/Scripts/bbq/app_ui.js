@@ -130,10 +130,43 @@
                 clearTimeout(heartbeatInterval);
         }
         //~statistic
+        // assemblies
+        var assembliesInterval = null;
+        function updateAssemblies() {
+
+            aftermath(function (actx) {
+                bbq_tmq.assemblies.takeAdvanceInfo(
+                    function (data) {
+                        data.forEach(function (asm) {
+                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="status"]').text(asm.state);
+                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"]').text(
+                                asm.revisionTag + " / " + asm.revisionSourceTag);
+                        }); 
+                        actx.ok();
+                    },
+                    function () { actx.ok(); }
+                    );
+            }
+            //, function (actx) {
+            //}
+            ).ondone(function () {
+                tryKillAssembliesUpdate();
+                assembliesInterval = setTimeout(updateAssemblies, 1000 * 15);
+            });
+        }
+        function tryKillAssembliesUpdate() {
+            if (assembliesInterval !== null)
+                clearTimeout(assembliesInterval);
+        }
+        $scope.package_assembly = function (asm) {
+            bbq_tmq.assemblies.updateAssemblyPackage(asm.Name);
+        }
+        // ~assemblies
         $scope.triggers = null;
         function resetTriggers() {
             $scope.triggers = { Info: false, wReset: false, wRestart: false };
         }
+        //////////////////
         function aftermath() {
             var aftermath_context = {
                 num: arguments.length,
@@ -166,12 +199,13 @@
             }
             return aftermath_context;
         }
+        //////////////////////
         function ResyncAll() {
             aftermath(function (actx) {
                 bbq_tmq.syncFrom(function (d) {
                     $scope.m_main = d;
                     //$scope.newtask.channel = d.Channels[0].Name;
-                    $scope.$apply();
+                    //$scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced main conf ");
                     actx.ok();
@@ -181,7 +215,7 @@
                     $scope.m_mods = d;
                     //$scope.newtask.module = d.Modules[0].Name;
 
-                    $scope.$apply();
+                    //$scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced modules conf ");
                     actx.ok();
@@ -189,26 +223,30 @@
             }, function (actx) {
                 bbq_tmq.syncFromAssemblys(function (d) {
                     $scope.m_assemblys = d;
-                    console.log(d);
-                    $scope.$apply();
+
+                    //$scope.$apply();
 
                     //bbq_tmq.toastr_success(" Synced assemblys conf ");
                     actx.ok();
                 }, function () { actx.ok(); })
             }
             ).ondone(function () {
+                //$scope.$apply();
+
                 $scope.triggers.Info = !bbq_tmq.check_synced();
                 if (!$scope.triggers.Info) {
                     bbq_tmq.toastr_info(" Configuration synced ", true);
                     updateHeartbeat();
+                    updateAssemblies();
                 }
                 else {
-                    bbq_tmq.toastr_error(" Erorr in configuration sync.", true);
+                    bbq_tmq.toastr_error(" Error in configuration sync.", true);
                     bbq_tmq.rollbackAppC();
                 }
                 $scope.$apply();
             });
         }
+        
         $scope.sync = function () {
             resetTriggers();
             resetNewForms();

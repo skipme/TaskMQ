@@ -187,6 +187,7 @@
     <Content Include="Scripts\bbq\application-info.js" />
     <Content Include="Scripts\bbq\application.js" />
     <Content Include="Scripts\bbq\app_ui.js" />
+    <Content Include="Scripts\bbq\assemblies.js" />
     <Content Include="Scripts\bbq\statistic.js" />
     <Content Include="Scripts\bbq\toastr.js" />
     <Content Include="Scripts\bootstrap-select.js" />

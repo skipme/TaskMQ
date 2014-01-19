@@ -4,6 +4,7 @@
     var url_c = url_host + "tmq/c";
     var url_stat = url_host + "tmq/s";
     var url_c_pxy = "/bbq/" + "PxySet";
+    var url_assemblies = url_host + "tmq/assemblies";
 
     var main_cmodel = null;
     var mods_cmodel = null;
@@ -205,6 +206,8 @@
     bbq_tmq = {
         jsonp: jsonpu,
         url_stat: url_stat,
+        url_assemblies: url_assemblies,
+
         check_synced: function () { return main_synced && mods_synced; },
         check_commit: function () { return config_commit_ok; },
 
@@ -238,12 +241,15 @@
         // Return the jqXHR object so we can chain callbacks
         return jQuery.ajax(options);
     };
-    // Usage
+    // Extends
     $.cachedScript("Scripts/bbq/application-info.js").done(function (script, textStatus) {
-        console.log(textStatus);
+        console.log(textStatus === "success");
     });
     $.cachedScript("Scripts/bbq/statistic.js").done(function (script, textStatus) {
-        console.log(textStatus);
+        console.log(textStatus === "success");
+    });
+    $.cachedScript("Scripts/bbq/assemblies.js").done(function (script, textStatus) {
+        console.log(textStatus === "success");
     });
 })(jQuery);
 

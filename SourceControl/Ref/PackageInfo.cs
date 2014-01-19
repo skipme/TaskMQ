@@ -80,6 +80,7 @@ namespace SourceControl.Ref
         public string Name { get; set; }
         public List<PackageVersion> Versions;
 
+        // TODO: add scm revision to package version
         public PackageVersion AddRevision(string tag, string dllName, string pdbName, string dllPath)
         {
             PackageVersionArtefact dllInfo = PackageVersionArtefact.Get(dllPath);

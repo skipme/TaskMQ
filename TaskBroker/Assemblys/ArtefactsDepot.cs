@@ -103,7 +103,7 @@ namespace TaskBroker.Assemblys
                             throw new Exception(string.Format("The module {0} has incosistent dependency '{1}'({2}) with other modules - '{3}'({4}): {5}",
                                 binPackage.ContainerName, art.Name, art.Version,
                                 AssemblyControlList[art.Name].art.Name, AssemblyControlList[art.Name].art.Version, 
-                                AssemblyControlList[art.Name].IsLocalDependency ? "WorkingDir Dependecy" : "Module dependency"));
+                                AssemblyControlList[art.Name].IsLocalDependency ? "WorkingDir Dependency" : "Module dependency"));
                     }
                     else
                     {

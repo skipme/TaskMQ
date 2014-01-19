@@ -46,6 +46,22 @@ namespace QueueService
         public Dictionary<string, TaskQueue.RepresentedModelValue> ModelScheme { get; set; }
     }
 
+    [Route("/tmq/assemblies", Verbs = "GET")]
+    public class AssembliesRequest
+    {
+        public bool Statuses { get; set; }
+        public bool UpToDateAll { get; set; }
+        public bool UpToDate { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class AssemblyStatus
+    {
+        public string Name { get; set; }
+        public string state { get; set; }
+        public string revisionTag { get; set; }
+        public string revisionSourceTag { get; set; }
+    }
     public class ItemCounter
     {
         public string Name { get; set; }
@@ -66,7 +82,35 @@ namespace QueueService
     public class ngService : Service
     {
         string _lock = "lock";
-
+        public object Get(AssembliesRequest r)
+        {
+            if (r.Statuses)
+            {
+                lock (_lock)
+                {
+                    List<AssemblyStatus> resp = new List<AssemblyStatus>();
+                    foreach (var asm in QueueService.ModProducer.broker.AssemblyHolder.GetSourceStatuses())
+                    {
+                        resp.Add(new AssemblyStatus
+                        {
+                            Name = asm.Key,
+                            state = asm.Value.State,
+                            revisionTag = asm.Value.activeRevision,
+                            revisionSourceTag = asm.Value.revision
+                        });
+                    }
+                    return resp;
+                }
+            }
+            else if(r.UpToDate)
+            {
+                QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
+            }
+            return new ServiceStack.Common.Web.HttpResult()
+            {
+                StatusCode = HttpStatusCode.OK
+            };
+        }
         public object Get(StatisticRequest r)
         {
             StatisticResponseHeartbit h = new StatisticResponseHeartbit();
@@ -119,7 +163,7 @@ namespace QueueService
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             else if (request.ModulesPart)
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            else if(request.AssemblysPart)
+            else if (request.AssemblysPart)
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             return null;
         }

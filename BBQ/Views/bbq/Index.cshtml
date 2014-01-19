@@ -122,7 +122,7 @@
                 <a href="#servp" data-toggle="tab">Entities</a>
             </li>
             <li>
-                <a href="#assemblys" data-toggle="tab">Assemblys</a>
+                <a href="#assemblys" data-toggle="tab">Assemblies</a>
             </li>
             <li>
                 <a href="#configurations" data-toggle="tab">Configurations</a>
@@ -286,7 +286,7 @@
             </div>
             <div id="assemblys" class="tab-pane span11">
                 <div style="" class="well tab-pane active">
-                    <h4>Assembly paths
+                    <h4>Assemblies, repositories
                 <br>
                     </h4>
                     <h4></h4>
@@ -303,13 +303,13 @@
                                 <th>project location
                       <br>
                                 </th>
-                                <th>git repo
+                                <th>git repository
                       <br>
                                 </th>
                                 <th>current version / timestamp / wh
                       <br>
                                 </th>
-                                <th>auto rebuild
+                                <th>State
                       <br>
                                 </th>
                             </tr>
@@ -325,10 +325,11 @@
                                 <td>{{assembly.RepositoryUrl}}
                                     <br>
                                 </td>
-                                <td>-
+                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"></span>
                       <br>
                                 </td>
-                                <td>-</td>
+                                <td><span assembly_sel="{{assembly.Name}}" app_role="status"></span></td>
+                                <td> <a class="btn-link" ng-click="package_assembly(assembly)" title="build package"><i class="icon-filter"></i></a></td>
                             </tr>
 
                         </tbody>
