@@ -2750,3 +2750,8 @@ body.vjs-full-window {
 .btn-small [class^="icon-"], .btn-small [class*=" icon-"] {
     margin-top: 4px;
 }
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  /*background-color: #f5f5f5;*/
+  background-color: #ecf0f1;
+}

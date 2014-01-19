@@ -11,19 +11,36 @@ namespace TaskBroker.Assemblys
 {
     public class Assemblys
     {
-        public string ModulesFolder { get; private set; }
+        public SourceControl.Assemblys.AssemblyProjects assemblySources;
         public Assemblys()
         {
+            // host packages, modules
             list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             SharedManagedLibraries = new ArtefactsDepot();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
+            // build, update packages: 
+            assemblySources = new SourceControl.Assemblys.AssemblyProjects(Directory.GetCurrentDirectory());
         }
 
         public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
 
         private ArtefactsDepot SharedManagedLibraries;
+
+        public void AddAssemblySource(string name, string projectRelativePath, string scmUrl)
+        {
+            assemblySources.Add(name, projectRelativePath, scmUrl);
+            AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
+            AssemblyVersionPackage package = ver.GetLatestVersion();
+            if (package == null)
+            {
+                Console.WriteLine("module not well formated, package info not present: {0}", name);
+                return;
+            }
+            list.Add(new AssemblyModule(package));
+        }
 
         public void AddAssembly(string name)
         {

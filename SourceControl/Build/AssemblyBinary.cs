@@ -40,7 +40,7 @@ namespace SourceControl.Build
             }
             catch (Exception e)
             {
-                Console.WriteLine("unhandled exception while packaging build result: lib:'{0}'; msg: {1}", locationLib, e.Message);
+                Console.WriteLine("unhandled exception while gathering build result: lib:'{0}'; msg: {1}", locationLib, e.Message);
                 return null;
             }
             return bin;

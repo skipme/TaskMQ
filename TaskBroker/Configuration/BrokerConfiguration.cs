@@ -62,10 +62,12 @@ namespace TaskBroker.Configuration
         {
             ConfigurationAssemblys c = new ConfigurationAssemblys();
 
-            c.Assemblys = (from mm in b.AssemblyHolder.list
+            c.Assemblys = (from mm in b.AssemblyHolder.assemblySources.hostedProjects
                            select new cAssembly()
                            {
-                               Name = mm.PathName
+                               Name = mm.moduleName,
+                               ProjectRelativePath = mm.projectRelativePath,
+                               RepositoryUrl = mm.scmUrl
                            }).ToArray();
 
             return c;

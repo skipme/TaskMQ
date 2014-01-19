@@ -17,6 +17,10 @@ namespace SourceControl.Assemblys
 
             hostedProjects = new List<AssemblyProject>();
         }
+        public void Add(string name, string projectPath, string scmUrl)
+        {
+            hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
+        }
         private void CheckDirectory()
         {
             if (!System.IO.Directory.Exists(DiretoryContainer))

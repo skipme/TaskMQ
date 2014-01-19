@@ -41,7 +41,8 @@
 
         $scope.m_main = null;
         $scope.m_mods = null;
-
+        $scope.m_assemblys = null;
+        
         // * statistic
         var heartbeatInterval = null;
         $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22], throughput: [12, 14, 155, 144] }];
@@ -185,6 +186,15 @@
                     //bbq_tmq.toastr_success(" Synced modules conf ");
                     actx.ok();
                 }, function () { actx.ok(); })
+            }, function (actx) {
+                bbq_tmq.syncFromAssemblys(function (d) {
+                    $scope.m_assemblys = d;
+                    console.log(d);
+                    $scope.$apply();
+
+                    //bbq_tmq.toastr_success(" Synced assemblys conf ");
+                    actx.ok();
+                }, function () { actx.ok(); })
             }
             ).ondone(function () {
                 $scope.triggers.Info = !bbq_tmq.check_synced();
@@ -220,9 +230,7 @@
                 alert('the state is not synced...');
                 return;
             }
-            //$scope.newtask.mpxy = $scope.m_mods.Modules[0];
-            //$scope.newtask.module = $scope.m_mods.Modules[0].Name;
-            //$scope.newtask.parametersStr = '{}';
+
             resetNewTaskForm();
 
             $('div#modal-new-task').modal('show');
@@ -232,7 +240,7 @@
             //validation
             if (!$scope.newTaskForm.$valid || $scope.m_main === null || $scope.m_mods === null
                 || $scope.m_main.Channels.length === 0
-                || $scope.m_mods.Modules.length === 0) { return; }
+                || $scope.m_mods.Modules.length === 0) { bbq_tmq.toastr_info(" Not enough channels/modules on platform "); return; }
             //
             bbq_tmq.createTask($scope.newtask);
             $('div#modal-new-task').modal('hide');
@@ -341,6 +349,7 @@
         {
             $scope.m_main = bbq_tmq.m_main;
             $scope.m_mods = bbq_tmq.m_mods;
+            $scope.m_assemblys = bbq_tmq.m_assemblys;
         }
     });// ~controller
 

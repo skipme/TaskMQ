@@ -42,7 +42,7 @@ namespace TaskBroker.Configuration
         {
 
 #if MONO
-            // json.net use biginteger parse method what not implemented in mono runtime
+            // json.net use biginteger parse method that not implemented in mono runtime
             T obj = ServiceStack.Text.JsonSerializer.DeserializeFromString<T>(data);
 #else
             T obj = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(data);
@@ -130,7 +130,7 @@ namespace TaskBroker.Configuration
     public class cAssembly
     {
         public string Name { get; set; }
-        public string RepositoryUrl { get; set; }// null if !useSCM
-        public bool useSCM { get; set; }// clone and update from remote repo
+        public string RepositoryUrl { get; set; }
+        public string ProjectRelativePath { get; set; }
     }
 }

@@ -7,12 +7,16 @@
 
     var main_cmodel = null;
     var mods_cmodel = null;
+    var assm_cmodel = null;
 
     var main_cmodel_id = null;
     var mods_cmodel_id = null;
+    var assm_cmodel_id = null;
 
     var main_synced = false;
     var mods_synced = false;
+    var assm_synced = false;
+
     var config_commit_ok = false;
 
     uuid = (function () {
@@ -61,8 +65,13 @@
             "Modules": [
             ],
         };
+        assm_cmodel = bbq_tmq.m_assemblys = {
+            "Assemblys": [
+            ]
+        };
         main_cmodel_id = null;
         mods_cmodel_id = null;
+        assm_cmodel_id = null;
     }
     
     function url_cb_js(url) {
@@ -85,6 +94,15 @@
             succ(mods_cmodel);
         }, err, { ModulesPart: true });
     }
+    function getAssemblysModel(succ, err) {
+        assm_synced = false; assm_cmodel_id = null;
+        jsonp(function (data) {// success
+            assm_synced = true; assm_cmodel_id = null;
+            assm_cmodel = bbq_tmq.m_assemblys = data;
+            succ(assm_cmodel);
+        }, err, { AssemblysPart: true });
+    }
+    //----------------------------------------------------------------------------===========================
     function jsonp(succ, err, data) {
         $.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000, cache: false })
             .done(function (data) {
@@ -192,11 +210,14 @@
 
         m_main: main_cmodel,
         m_mods: mods_cmodel,
+        m_assemblys: assm_cmodel,
+
         rollbackAppC: resetModels, // reset models
         commitandReset: stub,
         commitandRestart: stub,
         syncFrom: getServiceModel,
         syncFromMods: getModsModel,
+        syncFromAssemblys: getAssemblysModel,
 
         createTask: createTask,
         mainPartChanged: mainPartChanged,

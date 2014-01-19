@@ -418,6 +418,15 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
+        public void AddAssembly(string name, string projectRelativePath, string scmUrl)
+        {
+            //Modules.AddAssembly(path);
+            AssemblyHolder.AddAssemblySource(name, projectRelativePath, scmUrl);
+        }
+        /// <summary>
+        /// deprecated
+        /// </summary>
+        /// <param name="name"></param>
         public void AddAssemblyByName(string name)
         {
             //Modules.AddAssembly(path);

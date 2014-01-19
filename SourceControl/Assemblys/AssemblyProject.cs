@@ -14,6 +14,10 @@ namespace SourceControl.Assemblys
         private AssemblySource Source;
         private AssemblyBinVersions Versions;
 
+        public string projectRelativePath { get; private set; }
+        public string scmUrl { get; private set; }
+        public string moduleName { get; private set; }
+
         public List<VersionRevision> GetStoredVersions()
         {
             return Versions.GetVersions();
@@ -21,7 +25,11 @@ namespace SourceControl.Assemblys
 
         public AssemblyProject(string workingDirectory, string projectRelativePath, string scmUrl, string moduleName)
         {
-            this.Source = new SourceControl.Assemblys.AssemblySource(workingDirectory, projectRelativePath, scmUrl);
+            this.projectRelativePath = projectRelativePath;
+            this.scmUrl = scmUrl;
+            this.moduleName = moduleName;
+            if (scmUrl != null)
+                this.Source = new SourceControl.Assemblys.AssemblySource(workingDirectory, projectRelativePath, scmUrl);
             Versions = new AssemblyBinVersions(workingDirectory, moduleName);
         }
         public bool IsSourceUpToDate
@@ -33,6 +41,8 @@ namespace SourceControl.Assemblys
         }
         public bool SetUpSourceToDate()
         {
+            if (Source == null)
+                return false;
             bool result = Source.SetUpToDate();
             Console.WriteLine("source '{0}' update: {1}", Source.Name, result ? "ok" : "fail");
             return result;
@@ -52,6 +62,11 @@ namespace SourceControl.Assemblys
         public bool StoreNewIfRequired(out string buildLog)
         {
             buildLog = string.Empty;
+            if (Source == null)
+            {
+                buildLog = "sourceScm not initiated.";
+                return false;
+            }
             VersionRevision rev = sourceVersionRevision;
             if (rev == null)
                 return false;
@@ -67,7 +82,7 @@ namespace SourceControl.Assemblys
                         Versions.AddVersion(rev, bin);
                         result = true;
                     }
-                }                
+                }
             }
             buildLog = Source.lastBuildLog;
             return result;
@@ -76,6 +91,9 @@ namespace SourceControl.Assemblys
         {
             get
             {
+                if (Source == null)
+                    return null;
+
                 return Source.Version;
             }
         }

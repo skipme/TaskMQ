@@ -34,9 +34,10 @@ namespace TaskBroker
         {
             Console.WriteLine("trying to apply assembly's configuration with datetime stamp: {0}", con.CreationDate);
 
-            foreach (var asem in con.Assemblys)
+            foreach (var assemblyProject in con.Assemblys)
             {
-                broker.AddAssemblyByName(asem.Name);
+                //broker.AddAssemblyByName(asem.Name);
+                broker.AddAssembly(assemblyProject.Name, assemblyProject.ProjectRelativePath, assemblyProject.RepositoryUrl);
             }
 
         }
