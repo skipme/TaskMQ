@@ -19,6 +19,10 @@ namespace TaskBroker.Configuration
         {
             versions = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(conf_archive));
         }
+        public void ClearConfigurationsForCommit()
+        {
+            jsonConfigurations.Clear();
+        }
 
         public Configuration.ConfigurationBroker GetNewestMainConfiguration()
         {
@@ -75,6 +79,7 @@ namespace TaskBroker.Configuration
                 try
                 {
                     versions.AddVersion(key_main, json);
+                    jsonConfigurations.Remove(id);
                 }
                 catch (Exception e)
                 {

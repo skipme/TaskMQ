@@ -32,7 +32,7 @@ namespace SourceControl.Build
                         bin.SymbolsPath = locationSymbols;
                     }
                 }
-                if (assets.Length > 0)
+                if (assets != null && assets.Length > 0)
                 {
                     bin.assets = assets;
                     bin.assetsRoot = Path.GetPathRoot(assets[0]);
@@ -40,7 +40,7 @@ namespace SourceControl.Build
             }
             catch (Exception e)
             {
-                Console.WriteLine("unhandled exception while loading assembly: {0}: {1}", locationLib, e.Message);
+                Console.WriteLine("unhandled exception while packaging build result: lib:'{0}'; msg: {1}", locationLib, e.Message);
                 return null;
             }
             return bin;

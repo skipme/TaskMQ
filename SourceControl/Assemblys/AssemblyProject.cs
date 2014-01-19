@@ -18,15 +18,11 @@ namespace SourceControl.Assemblys
         {
             return Versions.GetVersions();
         }
-        //public AssemblyProject(string rootDirectory, string relativeProjectPath, string remoteUri)
-        //{
-        // git only
-        //Source = new AssemblySource(rootDirectory, relativeProjectPath, remoteUri);+
-        public AssemblyProject(string rootDirectory, AssemblySource source)
+
+        public AssemblyProject(string workingDirectory, string projectRelativePath, string scmUrl, string moduleName)
         {
-            string Name = System.IO.Path.GetFileNameWithoutExtension(source.ProjectFilePath);
-            Versions = new AssemblyBinVersions(rootDirectory, Name);
-            this.Source = source;
+            this.Source = new SourceControl.Assemblys.AssemblySource(workingDirectory, projectRelativePath, scmUrl);
+            Versions = new AssemblyBinVersions(workingDirectory, moduleName);
         }
         public bool IsSourceUpToDate
         {
@@ -53,23 +49,28 @@ namespace SourceControl.Assemblys
         //        return false;
         //    }
         //}
-        public void StoreNewIfRequired()
+        public bool StoreNewIfRequired(out string buildLog)
         {
+            buildLog = string.Empty;
             VersionRevision rev = sourceVersionRevision;
             if (rev == null)
-                return;
+                return false;
 
+            bool result = false;
             if (rev.Revision != edgeStoredVersionRevision)
             {
                 if (Source.SetUpToDate())
                 {
                     AssemblyBinaryBuildResult bin;
-                    if (Source.BuildProject(out bin))
+                    if (result = Source.BuildProject(out bin))
                     {
                         Versions.AddVersion(rev, bin);
+                        result = true;
                     }
-                }
+                }                
             }
+            buildLog = Source.lastBuildLog;
+            return result;
         }
         public VersionRevision sourceVersionRevision
         {

@@ -93,8 +93,9 @@ namespace SourceControl.Git
                     return false;
                 }
             }
-            catch
+            catch(Exception e)
             {
+                Console.WriteLine("git scm: Clone failure at '{0}, msg: {1}", cloneUri, e.Message);
                 status = Status.cloneFailure;
                 return false;
             }

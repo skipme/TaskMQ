@@ -85,6 +85,11 @@ namespace TaskBroker.Assemblys
             }
         }
 
+        /// <summary>
+        /// This check for conflicts between all modules references <br/>
+        ///     this thing about that you don't have isolation to make sure all modules are up to date
+        /// </summary>
+        /// <param name="binPackage"></param>
         public void RegisterAssets(AssemblyVersionPackage binPackage)
         {
             for (int i = 0; i < binPackage.Version.Artefacts.Count; i++)

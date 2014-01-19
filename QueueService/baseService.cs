@@ -73,7 +73,7 @@ namespace QueueService
             h.Channels = new List<ItemCounter>();
             foreach (TaskBroker.Statistics.BrokerStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
             {
-                if (sm == null)// TODO: means channel not owns by any task
+                if (sm == null)// TODO: means channel not owned by any task
                     continue;
                 TaskBroker.Statistics.StatRange range = sm.GetFlushedMinRange();
                 h.Channels.Add(new ItemCounter()
@@ -151,6 +151,9 @@ namespace QueueService
 
                 if (resp && request.ModulesPart != null)
                     resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
+
+                if (resp)
+                    QueueService.ModProducer.broker.Configurations.ClearConfigurationsForCommit();// drop all pending commits
             }
             if (resp)
             {

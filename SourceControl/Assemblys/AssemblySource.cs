@@ -34,15 +34,20 @@ namespace SourceControl.Assemblys
                 return scm.LocalVersion;
             }
         }
-
-        public AssemblySource(string root, string projFileRelativePath, string remoteUri)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workingDir">dir where to save all source and package</param>
+        /// <param name="projFileRelativePath">project file</param>
+        /// <param name="remoteUri">scm URL </param>
+        public AssemblySource(string workingDir, string projFileRelativePath, string remoteUri)
         {
             SourceUriOrigin = remoteUri;
             //Name = System.IO.Path.GetFileNameWithoutExtension(projFileRelativePath);
             Uri u = new Uri(remoteUri);
             Name = System.IO.Path.GetFileNameWithoutExtension(u.AbsolutePath);
-            ProjectFilePath = System.IO.Path.Combine(root, Name, projFileRelativePath);
-            string dir = System.IO.Path.Combine(root, Name);
+            ProjectFilePath = System.IO.Path.Combine(workingDir, Name, projFileRelativePath);
+            string dir = System.IO.Path.Combine(workingDir, Name);
             if (!System.IO.Directory.Exists(dir))
             {
                 System.IO.Directory.CreateDirectory(dir);
@@ -61,9 +66,7 @@ namespace SourceControl.Assemblys
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
             if (bresult = builder.BuildProject())
             {
-                bin = AssemblyBinaryBuildResult.FromFile(builder.BuildResultDll, builder.BuildResultSymbols);
-                bin.assetsRoot = System.IO.Path.GetDirectoryName(builder.BuildResultDll);
-                bin.assets = builder.BuildResultAssets;
+                bin = AssemblyBinaryBuildResult.FromFile(builder.BuildResultDll, builder.BuildResultSymbols, builder.BuildResultAssets);
             }
             else
             {

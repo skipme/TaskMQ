@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyHolder.cs" />
+    <Compile Include="Assemblys\AssemblyModule.cs" />
     <Compile Include="Assemblys\ArtefactsDepot.cs" />
     <Compile Include="Assemblys\Assemblys.cs" />
     <Compile Include="Broker.cs" />
