@@ -9,6 +9,7 @@ namespace MSSQLQueue
 {
     public class MsSqlQueue : ITQueue
     {
+
         public void Push(TaskMessage item)
         {
             throw new NotImplementedException();
@@ -19,7 +20,17 @@ namespace MSSQLQueue
             throw new NotImplementedException();
         }
 
-        public TaskMessage GetItem(TQItemSelector selector)
+        public TaskMessage GetItem()
+        {
+            throw new NotImplementedException();
+        }
+
+        public TaskMessage[] GetItemTuple()
+        {
+            throw new NotImplementedException();
+        }
+
+        public long GetQueueLength()
         {
             throw new NotImplementedException();
         }
@@ -29,7 +40,7 @@ namespace MSSQLQueue
             throw new NotImplementedException();
         }
 
-        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector selector = null)
         {
             throw new NotImplementedException();
         }
@@ -44,20 +55,7 @@ namespace MSSQLQueue
             get { return "Mssql server simple queue, CollectionName is tableName, schema table generated automatically"; }
         }
 
-
-        public void OptimiseForSelector(TQItemSelector selector)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public TaskMessage[] GetItemTuple(TQItemSelector selector)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public long GetQueueLength(TQItemSelector selector)
+        public void OptimiseForSelector()
         {
             throw new NotImplementedException();
         }
