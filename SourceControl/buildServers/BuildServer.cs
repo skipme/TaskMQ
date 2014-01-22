@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
 
-namespace SourceControl.buildServers
+namespace SourceControl.BuildServers
 {
     public interface BuildServer
     {
-        public string Name;
-        public string Description;
+        string Name { get; }
+        string Description { get; }
 
-        public TaskMessage GetParametersModel();
-        public void SetParameters(TaskMessage parameters);
+        TItemModel GetParametersModel();
+        void SetParameters(TItemModel parameters);
 
-        public byte[] GetArtifacts();
+        byte[] GetArtifacts();
     }
 }

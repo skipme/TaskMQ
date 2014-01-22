@@ -28,7 +28,7 @@ namespace EmailConsumer
         [TaskQueue.FieldDescription("See OverrideCertificateSecurity prop")]
         public string OverrideX509CertificateSerial { get; set; }
 
-        [TaskQueue.FieldDescription(true)]
+        [TaskQueue.FieldDescription(ignore: true)]
         public override string ItemTypeName
         {
             get
