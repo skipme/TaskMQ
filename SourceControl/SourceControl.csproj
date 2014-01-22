@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildServers\BuildServer.cs" />
-    <Compile Include="BuildServers\TeamCity.cs" />
+    <Compile Include="BuildServers\TeamCityBS.cs" />
     <Compile Include="BuildServers\TeamCity\artifacts.cs" />
     <Compile Include="BuildServers\TeamCity\build.cs" />
     <Compile Include="BuildServers\TeamCity\builds.cs" />
