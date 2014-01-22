@@ -19,7 +19,7 @@ namespace TaskBroker.Assemblys
         internal class PackageAndArtefactLibLinked
         {
             public AssemblyVersionPackage pckg;
-            public PackageVersionArtefact art;
+            public AssemblyArtifact art;
 
             public bool IsLocalDependency { get; set; }
             public string LocalDependencyPath { get; set; }
@@ -28,9 +28,9 @@ namespace TaskBroker.Assemblys
             {
                 if (IsLocalDependency)
                 {
-                    return new BuildResultFile { Name = art.File, Data = File.ReadAllBytes(LocalDependencyPath) };
+                    return new BuildResultFile { Name = art.FileName, Data = File.ReadAllBytes(LocalDependencyPath) };
                 }
-                return new BuildResultFile { Name = art.File, Data = pckg.ExtractArtefact(art) };
+                return new BuildResultFile { Name = art.FileName, Data = pckg.ExtractArtefact(art) };
             }
             public BuildResultFile ExtractSymbolsFile()
             {
@@ -39,8 +39,8 @@ namespace TaskBroker.Assemblys
                     string LocalDependencyPathSym = ToSymbolsPathFromLibraryPath(LocalDependencyPath);
                     return new BuildResultFile { Name = Path.GetFileName(LocalDependencyPathSym), Data = File.ReadAllBytes(LocalDependencyPathSym) };
                 }
-                string prefile = ToSymbolsPathFromLibraryPath(art.File);
-                PackageVersionArtefact symart = pckg.FindArtefactByName(prefile);
+                string prefile = ToSymbolsPathFromLibraryPath(art.FileName);
+                AssemblyArtifact symart = pckg.FindArtefactByName(prefile);
                 if (symart == null)
                     return null;
                 return new BuildResultFile { Name = prefile, Data = pckg.ExtractArtefact(symart) };
@@ -62,7 +62,7 @@ namespace TaskBroker.Assemblys
             string[] files = Directory.GetFiles(Environment.CurrentDirectory);
             foreach (string fpath in files)
             {
-                PackageVersionArtefact art = PackageVersionArtefact.Get(fpath);
+                AssemblyArtifact art = AssemblyArtifact.Get(fpath);
                 if (art.IsAssembly)
                 {
                     if (AssemblyControlList.ContainsKey(art.Name))
@@ -94,7 +94,7 @@ namespace TaskBroker.Assemblys
         {
             for (int i = 0; i < binPackage.Version.Artefacts.Count; i++)
             {
-                PackageVersionArtefact art = binPackage.Version.Artefacts[i];
+                AssemblyArtifact art = binPackage.Version.Artefacts[i];
                 if (art.IsAssembly)
                 {
                     if (AssemblyControlList.ContainsKey(art.Name))

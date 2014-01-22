@@ -21,28 +21,28 @@ namespace SourceControl.Containers
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
         }
 
-        private PackageInfo getPackageInfo()
+        private AssemblyPackage getPackageInfo()
         {
             byte[] p = versionContainer.GetRootFileData(packageInfo);
             if (p == null)
                 return null;
-            return PackageInfo.DeSerialise(p);
+            return AssemblyPackage.DeSerialise(p);
         }
-        private void setPackageInfo(PackageInfo p)
+        private void setPackageInfo(AssemblyPackage p)
         {
             byte[] data = p.Serialise();
             versionContainer.SetRootFileData(packageInfo, data);
         }
 
-        public void AddVersion(VersionRevision assemblyRev, Build.AssemblyBinaryBuildResult files)
+        public void AddVersion(SCMRevision assemblyRev, Build.AssemblyBinaryBuildResult files)
         {
-            PackageInfo p = getPackageInfo();
+            AssemblyPackage p = getPackageInfo();
             if (p == null)
-                p = new PackageInfo();
+                p = new AssemblyPackage();
 
             string revision = assemblyRev.Revision;
 
-            PackageVersion pv = p.AddRevision(revision,
+            AssemblyArtifacts pv = p.AddRevision(revision,
                 System.IO.Path.GetFileName(files.LibraryPath),
                 files.SymbolsPath == null ? null : System.IO.Path.GetFileName(files.SymbolsPath), files.LibraryPath);
 
@@ -65,14 +65,14 @@ namespace SourceControl.Containers
         //public bool GetLatestVersion(out string revision, out AssemblyBinaryBuildResult bin)
         public AssemblyVersionPackage GetLatestVersion()
         {
-            Ref.PackageInfo pinfo = getPackageInfo();
+            Ref.AssemblyPackage pinfo = getPackageInfo();
             if (pinfo == null)
             {
                 Console.WriteLine("packageInfo absent in package {0}", this.Path);
                 return null;
             }
 
-            Ref.PackageVersion pv = pinfo.FindLatestVersion();
+            Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
             AssemblyVersionPackage pckg = new AssemblyVersionPackage(pv, this);
             return pckg;
 
@@ -130,21 +130,21 @@ namespace SourceControl.Containers
                           select f.data).First();
             return true;
         }
-        public Ref.PackageVersion LatestRevision
+        public Ref.AssemblyArtifacts LatestRevision
         {
             get
             {
                 //return versionContainer.key_most_fresh;
-                Ref.PackageInfo pinfo = getPackageInfo();
+                Ref.AssemblyPackage pinfo = getPackageInfo();
                 if (pinfo == null)
                     return null;
-                Ref.PackageVersion pv = pinfo.FindLatestVersion();
+                Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
                 return pv;
             }
         }
-        public List<VersionRevision> GetVersions()
+        public List<SCMRevision> GetVersions()
         {
-            List<VersionRevision> vers = new List<VersionRevision>();
+            List<SCMRevision> vers = new List<SCMRevision>();
             foreach (string f in versionContainer.GetVersions())
             {
                 VersionData vd = versionContainer.GetSpecificVersionData(f + "/.revision");
@@ -153,7 +153,7 @@ namespace SourceControl.Containers
                     Console.WriteLine("binary version {0} unannotated with revision data in {1}", f, Path);
                     continue;
                 }
-                VersionRevision vr = VersionRevision.DeSerialise(vd.data);
+                SCMRevision vr = SCMRevision.DeSerialise(vd.data);
                 vr.CreateAt = vd.Created;
                 vers.Add(vr);
             }

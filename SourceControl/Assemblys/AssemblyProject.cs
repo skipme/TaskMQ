@@ -41,7 +41,7 @@ namespace SourceControl.Assemblys
         public string scmUrl { get; private set; }
         public string moduleName { get; private set; }
 
-        public List<VersionRevision> GetStoredVersions()
+        public List<SCMRevision> GetStoredVersions()
         {
             return Versions.GetVersions();
         }
@@ -97,14 +97,14 @@ namespace SourceControl.Assemblys
             Console.WriteLine("source '{0}' update: {1}", Source.Name, result ? "ok" : "fail");
             if (result)
             {
-                VersionRevision rev = sourceVersionRevision;
+                SCMRevision rev = sourceVersionRevision;
                 if (rev == null)
                 {
                     State = ProjectState.major_error;
                 }
                 else
                 {
-                    if (rev.Revision != edgeStoredVersionRevision.Tag)
+                    if (rev.Revision != edgeStoredVersionRevision.VersionTag)
                     {
                         State = ProjectState.build_required;
                     }
@@ -138,7 +138,7 @@ namespace SourceControl.Assemblys
                 buildLog = "sourceScm not initiated.";
                 return false;
             }
-            VersionRevision rev = sourceVersionRevision;
+            SCMRevision rev = sourceVersionRevision;
             if (rev == null)
             {
                 State = ProjectState.major_error;
@@ -146,7 +146,7 @@ namespace SourceControl.Assemblys
             }
 
             bool result = false;
-            if (rev.Revision != edgeStoredVersionRevision.Tag)
+            if (rev.Revision != edgeStoredVersionRevision.VersionTag)
             {
                 State = ProjectState.fetch;
                 if (Source.SetUpToDate())
@@ -173,7 +173,7 @@ namespace SourceControl.Assemblys
             buildLog = Source.lastBuildLog;
             return result;
         }
-        public VersionRevision sourceVersionRevision
+        public SCMRevision sourceVersionRevision
         {
             get
             {
@@ -183,7 +183,7 @@ namespace SourceControl.Assemblys
                 return Source.Version;
             }
         }
-        public Ref.PackageVersion edgeStoredVersionRevision
+        public Ref.AssemblyArtifacts edgeStoredVersionRevision
         {
             get
             {

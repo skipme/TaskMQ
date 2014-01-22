@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SourceControl.Ref;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,6 @@ namespace SourceControl.BuildServers
         TItemModel GetParametersModel();
         void SetParameters(TItemModel parameters);
 
-        byte[] GetArtifacts();
+        AssemblyArtifacts GetArtifacts();
     }
 }

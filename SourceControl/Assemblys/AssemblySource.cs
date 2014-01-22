@@ -25,7 +25,7 @@ namespace SourceControl.Assemblys
             }
         }
 
-        public VersionRevision Version
+        public SCMRevision Version
         {
             get
             {

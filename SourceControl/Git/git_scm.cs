@@ -123,7 +123,7 @@ namespace SourceControl.Git
             return name;
         }
 
-        public override VersionRevision LocalVersion
+        public override SCMRevision LocalVersion
         {
             get
             {
@@ -134,7 +134,7 @@ namespace SourceControl.Git
                     if (focusBranch == null)
                         return null;
                     Commit commit = focusBranch.Commits.First();
-                    return new VersionRevision
+                    return new SCMRevision
                     {
                         CommitMessage = commit.Message,
                         CommitTime = commit.Committer.When.LocalDateTime,

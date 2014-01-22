@@ -27,10 +27,6 @@ namespace SourceControl.BuildServers.TeamCity
             parameters = new TeamCityBSParams(parameters);
         }
 
-        public byte[] GetArtifacts()
-        {
-            throw new NotImplementedException();
-        }
 
         private BuildsRootObject GetBuilds()
         {
@@ -75,6 +71,12 @@ namespace SourceControl.BuildServers.TeamCity
         {
             get { return "TeamCity artifacts access interface"; }
         }
+
+
+        public Ref.AssemblyArtifacts GetArtifacts()
+        {
+            throw new NotImplementedException();
+        }
     }
     public class TeamCityBSParams : TItemModel
     {
@@ -89,7 +91,7 @@ namespace SourceControl.BuildServers.TeamCity
         [TaskQueue.FieldDescription("password", Required: true)]
         public string Password { get; set; }
 
-        [TaskQueue.FieldDescription("artifact name make sure artifcat path configuration is ok, for example(QueueService/bin/Debug/* => debug.zip) there debug.zip artifact name", Required: true)]
+        [TaskQueue.FieldDescription("artifact name, make sure artifact path configuration is ok, for example(QueueService/bin/Debug/* => debug.zip) there debug.zip is artifact name", Required: true)]
         public string ArtifactName { get; set; }
         [TaskQueue.FieldDescription("Build Type name (Build configuration ID)", Required: true)]
         public string BuildType { get; set; }

@@ -24,7 +24,7 @@ namespace TaskBroker.Assemblys
 
             revision = prj.sourceVersionRevision.Revision;
             revisionDate = prj.sourceVersionRevision.CommitTime.ToString();
-            activeRevision = prj.edgeStoredVersionRevision.Tag;
+            activeRevision = prj.edgeStoredVersionRevision.VersionTag;
             activeRevisionDate = "not implemented";
         }
     }

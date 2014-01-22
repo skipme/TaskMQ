@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace SourceControl.Ref
 {
-    public class VersionRevision
+    public class SCMRevision
     {
         public string Commiter { get; set; }
         public string Revision { get; set; }
@@ -21,10 +21,11 @@ namespace SourceControl.Ref
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
             return Encoding.Unicode.GetBytes(v);
         }
-        public static VersionRevision DeSerialise(byte[] data)
+        public static SCMRevision DeSerialise(byte[] data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<VersionRevision>(Encoding.Unicode.GetString(data));
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<SCMRevision>(Encoding.Unicode.GetString(data));
         }
+
         //public byte[] Serialise()
         //{
         //    XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
