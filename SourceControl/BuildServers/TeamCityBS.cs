@@ -8,7 +8,7 @@ using SourceControl.BuildServers.TeamCity;
 
 namespace SourceControl.BuildServers
 {
-    public class TeamCityBS : BuildServer
+    public class TeamCityBS : IBuildServer
     {
         // required parameters: build type, artifact name
         // required connection parameters: host, user, password
@@ -24,9 +24,9 @@ namespace SourceControl.BuildServers
             return this.parameters;
         }
 
-        public void SetParameters(TItemModel m_parameters)
+        public void SetParameters(Dictionary<string, object> m_parameters)
         {
-            this.parameters.SetHolder(m_parameters.GetHolder());
+            this.parameters.SetHolder(m_parameters);
         }
 
 

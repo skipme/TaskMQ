@@ -36,8 +36,7 @@ namespace TaskBroker
 
             foreach (var assemblyProject in con.Assemblys)
             {
-                //broker.AddAssemblyByName(asem.Name);
-                broker.AddAssembly(assemblyProject.Name, assemblyProject.ProjectRelativePath, assemblyProject.RepositoryUrl);
+                broker.AddAssembly(assemblyProject.Name, assemblyProject.BuildServerType, assemblyProject.BSParameters);
             }
 
         }

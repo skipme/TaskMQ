@@ -19,13 +19,13 @@ namespace SourceControl.BuildServers
         build_ok,
         major_error
     }
-    public interface BuildServer
+    public interface IBuildServer
     {
         string Name { get; }
         string Description { get; }
 
         TItemModel GetParametersModel();
-        void SetParameters(TItemModel Mparameters);
+        void SetParameters(Dictionary<string, object> Mparameters);
 
         BuildArtifacts GetArtifacts();
         bool CheckParameters(out string explanation);

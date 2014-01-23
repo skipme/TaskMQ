@@ -34,7 +34,33 @@ namespace SourceControl.Containers
             versionContainer.SetRootFileData(packageInfo, data);
         }
 
-        public void AddVersion(SCMRevision assemblyRev, Build.AssemblyBinaryBuildResult files)
+        //public void AddVersion(SCMRevision assemblyRev, Build.AssemblyBinaryBuildResult files)
+        //{
+        //    AssemblyPackage p = getPackageInfo();
+        //    if (p == null)
+        //        p = new AssemblyPackage();
+
+        //    string revision = assemblyRev.Revision;
+
+        //    AssemblyArtifacts pv = p.AddRevision(revision,
+        //        System.IO.Path.GetFileName(files.LibraryPath),
+        //        files.SymbolsPath == null ? null : System.IO.Path.GetFileName(files.SymbolsPath), files.LibraryPath);
+
+        //    versionContainer.AddVersionData(revision + "/" + pv.FileLibarary, files.library);
+        //    versionContainer.AddVersionData(revision + "/" + pv.FileSymbols, files.symbols);
+
+        //    assemblyRev.CreateAt = DateTime.Now;
+        //    byte[] revdata = assemblyRev.Serialise();
+        //    versionContainer.AddVersionData(revision + "/.revision", revdata);
+        //    foreach (var artPath in files.assets)
+        //    {
+        //        string fileName = System.IO.Path.GetFileName(artPath);
+        //        versionContainer.AddVersionData(revision + "/artefacts/" + fileName, System.IO.File.ReadAllBytes(artPath));
+        //        pv.AddArtefact("artefacts/" + fileName, artPath);
+        //    }
+        //    setPackageInfo(p);
+        //}
+        public void AddVersion(SCMRevision assemblyRev, BuildServers.BuildArtifacts files)
         {
             AssemblyPackage p = getPackageInfo();
             if (p == null)
@@ -42,25 +68,18 @@ namespace SourceControl.Containers
 
             string revision = assemblyRev.Revision;
 
-            AssemblyArtifacts pv = p.AddRevision(revision,
-                System.IO.Path.GetFileName(files.LibraryPath),
-                files.SymbolsPath == null ? null : System.IO.Path.GetFileName(files.SymbolsPath), files.LibraryPath);
-
-            versionContainer.AddVersionData(revision + "/" + pv.FileLibarary, files.library);
-            versionContainer.AddVersionData(revision + "/" + pv.FileSymbols, files.symbols);
+            AssemblyArtifacts pv = p.AddRevision(files);
 
             assemblyRev.CreateAt = DateTime.Now;
             byte[] revdata = assemblyRev.Serialise();
             versionContainer.AddVersionData(revision + "/.revision", revdata);
-            foreach (var artPath in files.assets)
+            foreach (var artF in files.Artefacts)
             {
-                string fileName = System.IO.Path.GetFileName(artPath);
-                versionContainer.AddVersionData(revision + "/artefacts/" + fileName, System.IO.File.ReadAllBytes(artPath));
-                pv.AddArtefact("artefacts/" + fileName, artPath);
+                versionContainer.AddVersionData(revision + "/" + artF.FileName, artF.Data);
+                pv.AddArtefact(artF.FileName, artF);
             }
             setPackageInfo(p);
         }
-
         //public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
         //public bool GetLatestVersion(out string revision, out AssemblyBinaryBuildResult bin)
         public AssemblyVersionPackage GetLatestVersion()

@@ -27,6 +27,21 @@ namespace SourceControl.Ref
             Versions.Add(v);
             return v;
         }
+        public AssemblyArtifacts AddRevision(BuildServers.BuildArtifacts artRef)
+        {
+            BuildServers.BuildArtifact assemart = artRef.GetArtifact(artRef.AssemblyArtefactName);
+            AssemblyArtifacts v = new AssemblyArtifacts()
+            {
+                VersionTag = artRef.VersionTag,
+                FileLibarary = artRef.AssemblyArtefactName,
+                FileSymbols = artRef.AssemblyArtefactNameSym,
+                AssemblyVersion = assemart.Version,
+                AddedAt = DateTime.UtcNow
+            };
+            Name = artRef.AssemblyArtefactName;
+            Versions.Add(v);
+            return v;
+        }
         public AssemblyArtifacts FindLatestVersion()
         {
             AssemblyArtifacts pv = (from v in Versions

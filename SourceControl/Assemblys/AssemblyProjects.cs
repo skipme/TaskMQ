@@ -9,6 +9,7 @@ namespace SourceControl.Assemblys
     {
         public string DiretoryContainer { get; set; }
         public List<AssemblyProject> hostedProjects;
+        public AssemblyArtifacts artifacts;
 
         public AssemblyProjects(string path)
         {
@@ -16,25 +17,48 @@ namespace SourceControl.Assemblys
             CheckDirectory();
 
             hostedProjects = new List<AssemblyProject>();
+            artifacts = new AssemblyArtifacts();
         }
-        public void Add(string name, string projectPath, string scmUrl)
+        public void Add(string name, string buildServerType, Dictionary<string, object> parameters)
         {
+            BuildServers.IBuildServer bs = artifacts.GetNewInstance(buildServerType);
+            bs.SetParameters(parameters);
+            hostedProjects.Add(new AssemblyProject(DiretoryContainer, name, bs));
             //hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
         }
-        public void FetchUpdateAllIfRequired()
+        public IEnumerable<SourceControl.Containers.AssemblyVersionPackage> TakeLoadTime()
         {
-            //foreach (AssemblyProject item in hostedProjects)
-            //{
-            //    if (item.State == AssemblyProject.ProjectState.build_deferred)
-            //    {
-            //        string stub = "";
-            //        item.StoreNewIfRequired(out stub);
-            //    }
-            //    else
-            //    {
-            //        item.SetUpSourceToDate();
-            //    }
-            //}
+            foreach (AssemblyProject p in hostedProjects)
+            {
+                yield return p.Versions.GetLatestVersion();
+            }
+        }
+        public void FetchAllIfRequired()
+        {
+            foreach (AssemblyProject ap in hostedProjects)
+            {
+                ap.Fetch();
+            }
+        }
+        public void BuildAllIfRequired()
+        {
+            foreach (AssemblyProject ap in hostedProjects)
+            {
+                if (ap.BuildDeferred)
+                {
+                    ap.Build();
+                }
+            }
+        }
+        public void UpdateAllIfRequired()
+        {
+            foreach (AssemblyProject ap in hostedProjects)
+            {
+                if (ap.BuildDeferred)
+                {
+                    ap.UpdatePackage();
+                }
+            }
         }
         private void CheckDirectory()
         {

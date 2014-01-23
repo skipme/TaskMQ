@@ -75,6 +75,17 @@ namespace SourceControl.Ref
 
         public List<AssemblyArtifact> Artefacts;
 
+        public void AddArtefact(string path, BuildServers.BuildArtifact ba)
+        {
+            AssemblyArtifact dllInfo = new AssemblyArtifact
+            {
+                FileName = path,
+                IsAssembly = ba.IsAssembly,
+                Name = ba.Name,
+                Version = ba.Version
+            };
+            Artefacts.Add(dllInfo);
+        }
         public void AddArtefact(string name, string relatedFile)
         {
             AssemblyArtifact dllInfo = AssemblyArtifact.Get(relatedFile);

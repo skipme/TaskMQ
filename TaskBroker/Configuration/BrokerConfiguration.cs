@@ -66,8 +66,8 @@ namespace TaskBroker.Configuration
                            select new cAssembly()
                            {
                                Name = mm.moduleName,
-                               ProjectRelativePath = mm.projectRelativePath,
-                               RepositoryUrl = mm.scmUrl
+                               BSParameters = mm.BuildServer.GetParametersModel().GetHolder(),
+                               BuildServerType = mm.BuildServer.Name
                            }).ToArray();
 
             return c;

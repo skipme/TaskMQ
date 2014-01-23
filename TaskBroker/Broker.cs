@@ -46,7 +46,12 @@ namespace TaskBroker
                      intervalType = IntervalType.intervalSeconds,
                      intervalValue = 30,
                      NameAndDescription="assemblies maintenance task",
-                     planEntry = (ThreadItem ti, PlanItem pi)=>{ AssemblyHolder.assemblySources.FetchUpdateAllIfRequired(); }
+                     planEntry = (ThreadItem ti, PlanItem pi)=>
+                     { 
+                         AssemblyHolder.assemblySources.FetchAllIfRequired();
+                         AssemblyHolder.assemblySources.BuildAllIfRequired();
+                         AssemblyHolder.assemblySources.UpdateAllIfRequired();
+                     }
                 }
                 // TODO:
                 // performance tune
@@ -63,7 +68,7 @@ namespace TaskBroker
             };
 
             Modules = new ModHolder(this);
-            
+
             QueueInterfaces = new QueueClassificator();
 
             Configurations = new ConfigurationDepot();
@@ -427,20 +432,19 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroom(channelName);
             return ch.CountNow;
         }
-        public void AddAssembly(string name, string projectRelativePath, string scmUrl)
+        public void AddAssembly(string name, string buildServer, Dictionary<string, object> parameters)
         {
-            //Modules.AddAssembly(path);
-            AssemblyHolder.AddAssemblySource(name, projectRelativePath, scmUrl);
+            AssemblyHolder.AddAssemblySource(name, buildServer, parameters);
         }
         /// <summary>
         /// deprecated
         /// </summary>
         /// <param name="name"></param>
-        public void AddAssemblyByName(string name)
-        {
-            //Modules.AddAssembly(path);
-            AssemblyHolder.AddAssembly(name);
-        }
+        //public void AddAssemblyByName(string name)
+        //{
+        //    //Modules.AddAssembly(path);
+        //    AssemblyHolder.AddAssembly(name);
+        //}
         public void ReloadAssemblys()
         {
             // just restart application
@@ -468,7 +472,6 @@ namespace TaskBroker
         public void LoadAssemblys()
         {
             AssemblyHolder.LoadAssemblys(this);
-            //Modules.AssemblyHolder.LoadAssemblys(this);
         }
         public void RevokeBroker(bool reconfigureFromStorage = false, bool reconfigureOnlyTasks = false)
         {

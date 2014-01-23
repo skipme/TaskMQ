@@ -50,8 +50,23 @@ namespace SourceControl.BuildServers
     public class BuildArtifacts
     {
         public BuildArtifacts() { Artefacts = new List<BuildArtifact>(); }
+
+        public BuildArtifact GetArtifact(string name)
+        {
+            if (name == null)
+                return null;
+
+            for (int i = 0; i < Artefacts.Count; i++)
+            {
+                if (Artefacts[i].Name == name)
+                    return Artefacts[i];
+            }
+            return null;
+        }
+
         public string VersionTag { get; set; }
         public string AssemblyArtefactName { get; set; }
+        public string AssemblyArtefactNameSym { get; set; }
         public DateTime AddedAt { get; set; }
 
         public List<BuildArtifact> Artefacts;
@@ -67,11 +82,14 @@ namespace SourceControl.BuildServers
 
         public static BuildArtifacts FromZipArchive(string AssemblyArtefactName, string versionTag, byte[] data)
         {
+            string AssemblyArtefactNameSym = pathWithoutExtension(AssemblyArtefactName) + ".pdb";
+
             BuildArtifacts result = new BuildArtifacts();
             FileContentArchive.ZipStream zipArch = new FileContentArchive.ZipStream(data);
             FileContentArchive.FileStorageEntry[] entrys = zipArch.GetAllEntrys();
 
             bool artefactAssemblyFound = false;
+            bool artefactAssemblySymFound = false;
             for (int i = 0; i < entrys.Length; i++)
             {
                 if (entrys[i].IsDir)
@@ -79,6 +97,8 @@ namespace SourceControl.BuildServers
 
                 if (entrys[i].Location == AssemblyArtefactName)
                     artefactAssemblyFound = true;
+                if (entrys[i].Location == AssemblyArtefactNameSym)
+                    artefactAssemblySymFound = true;
 
                 result.AddArtefact(entrys[i].Location, zipArch.GetContentRaw(entrys[i].Location));
             }
@@ -86,6 +106,7 @@ namespace SourceControl.BuildServers
             zipArch.Close();
 
             result.AssemblyArtefactName = AssemblyArtefactName;
+            result.AssemblyArtefactNameSym = artefactAssemblySymFound ? AssemblyArtefactNameSym : null;
 
             result.AddedAt = DateTime.UtcNow;
             result.VersionTag = versionTag;
@@ -118,6 +139,7 @@ namespace SourceControl.BuildServers
             }
 
             result.AssemblyArtefactName = System.IO.Path.GetFileName(AssemblyArtefactAbsPath);
+            result.AssemblyArtefactNameSym = assemblyAbsSym == null ? null : System.IO.Path.GetFileName(assemblyAbsSym);
 
             result.AddedAt = DateTime.UtcNow;
             result.VersionTag = versionTag;

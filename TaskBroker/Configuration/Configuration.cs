@@ -130,7 +130,7 @@ namespace TaskBroker.Configuration
     public class cAssembly
     {
         public string Name { get; set; }
-        public string RepositoryUrl { get; set; }
-        public string ProjectRelativePath { get; set; }
+        public string BuildServerType { get; set; }
+        public Dictionary<string, object> BSParameters { get; set; }
     }
 }

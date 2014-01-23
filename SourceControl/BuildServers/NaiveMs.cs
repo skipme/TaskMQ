@@ -8,7 +8,7 @@ using SourceControl.BuildServers.TeamCity;
 
 namespace SourceControl.BuildServers
 {
-    public class NaiveMSfromGit : BuildServer
+    public class NaiveMSfromGit : IBuildServer
     {
         public NaiveMSfromGit()
         {
@@ -33,9 +33,9 @@ namespace SourceControl.BuildServers
             return parameters;
         }
 
-        public void SetParameters(TItemModel Mparameters)
+        public void SetParameters(Dictionary<string, object> Mparameters)
         {
-            this.parameters.SetHolder(Mparameters.GetHolder());
+            this.parameters.SetHolder(Mparameters);
             scm = new Assemblys.AssemblySCM(System.IO.Directory.GetCurrentDirectory(),
                 parameters.ProjectPath, parameters.SCM_URL);
         }

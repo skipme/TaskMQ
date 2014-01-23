@@ -20,12 +20,12 @@ namespace TaskBroker.Assemblys
 
         public AssemblyStatus(SourceControl.Assemblys.AssemblyProject prj)
         {
-            State = prj.State.ToString();
+            //State = prj.State.ToString();
 
-            revision = prj.sourceVersionRevision.Revision;
-            revisionDate = prj.sourceVersionRevision.CommitTime.ToString();
-            activeRevision = prj.edgeStoredVersionRevision.VersionTag;
-            activeRevisionDate = "not implemented";
+            //revision = prj.sourceVersionRevision.Revision;
+            //revisionDate = prj.sourceVersionRevision.CommitTime.ToString();
+            //activeRevision = prj.edgeStoredVersionRevision.VersionTag;
+            //activeRevisionDate = "not implemented";
         }
     }
 
@@ -35,7 +35,7 @@ namespace TaskBroker.Assemblys
         public Assemblys()
         {
             // host packages, modules
-            list = new List<AssemblyModule>();
+            //list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             SharedManagedLibraries = new ArtefactsDepot();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
@@ -53,79 +53,83 @@ namespace TaskBroker.Assemblys
         public void UpdatePackage(string Name)
         {
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
-			{
+            {
                 if (assemblySources.hostedProjects[i].moduleName == Name)
                 {
                     assemblySources.hostedProjects[i].SetBuildDeferredFlag();
                     return;
                 }
-			}
-            
+            }
+
         }
-        public List<AssemblyModule> list;
+        //public List<AssemblyModule> list;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
 
         private ArtefactsDepot SharedManagedLibraries;
 
-        public void AddAssemblySource(string name, string projectRelativePath, string scmUrl)
+        public void AddAssemblySource(string name, string buildServerType, Dictionary<string, object> parameters)
         {
-            assemblySources.Add(name, projectRelativePath, scmUrl);
-            AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
-            AssemblyVersionPackage package = ver.GetLatestVersion();
-            if (package == null)
-            {
-                Console.WriteLine("module not well formated, package info not present: {0}", name);
-                return;
-            }
-            list.Add(new AssemblyModule(package));
+            //assemblySources.Add(name, projectRelativePath, scmUrl);
+            assemblySources.Add(name, buildServerType, parameters);
+            //AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
+            //AssemblyVersionPackage package = ver.GetLatestVersion();
+            //if (package == null)
+            //{
+            //    Console.WriteLine("module not well formated, package info not present: {0}", name);
+            //    return;
+            //}
+            //list.Add(new AssemblyModule(package));
         }
 
-        public void AddAssembly(string name)
-        {
-            AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
-            AssemblyVersionPackage package = ver.GetLatestVersion();
-            if (package == null)
-            {
-                Console.WriteLine("module not well formated, package info not present: {0}", name);
-                return;
-            }
-            list.Add(new AssemblyModule(package));
-        }
-        public void AddAssembly(AssemblyVersionPackage package)
-        {
-            list.Add(new AssemblyModule(package));
-        }
+        //public void AddAssembly(string name)
+        //{
+        //    AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
+        //    AssemblyVersionPackage package = ver.GetLatestVersion();
+        //    if (package == null)
+        //    {
+        //        Console.WriteLine("module not well formated, package info not present: {0}", name);
+        //        return;
+        //    }
+        //    list.Add(new AssemblyModule(package));
+        //}
+        //public void AddAssembly(AssemblyVersionPackage package)
+        //{
+        //    list.Add(new AssemblyModule(package));
+        //}
         public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
             // in order to reject only new modules -if depconflict persist-
-            foreach (AssemblyModule a in list.OrderBy(am => am.package.Version.AddedAt))
+            List<SourceControl.Containers.AssemblyVersionPackage> mods = assemblySources.TakeLoadTime().ToList();
+            foreach (AssemblyVersionPackage a in mods.OrderBy(am => am.Version.AddedAt))
             {
-                 LoadAssembly(b, a);
+                LoadAssembly(b, a);
             }
         }
-        private bool LoadAssembly(Broker b, AssemblyModule a)
+        private bool LoadAssembly(Broker b, AssemblyVersionPackage a)
         {
             try
             {
-                SharedManagedLibraries.RegisterAssets(a.package);
+                SharedManagedLibraries.RegisterAssets(a);
                 AddAssemblyUnsafe(b, a);
             }
             catch (Exception e)
             {
-                a.RutimeLoadException = string.Format("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
-                Console.WriteLine(a.RutimeLoadException);
-                return a.RuntimeLoaded = false;
+                //a.RutimeLoadException = string.Format("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
+                //Console.WriteLine(a.RutimeLoadException);
+                //return a.RuntimeLoaded = false;
+                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.ContainerName, e.Message);
+                return false;
             }
-            return a.RuntimeLoaded = true;
+            return true;
         }
 
-        private void AddAssemblyUnsafe(Broker b, AssemblyModule a)
+        private void AddAssemblyUnsafe(Broker b, AssemblyVersionPackage a)
         {
             Assembly assembly = null;
-            if (a.SymbolsPresented)
-                assembly = Assembly.Load(a.package.ExtractLibrary(), a.package.ExtractLibrarySymbols());
-            else assembly = Assembly.Load(a.package.ExtractLibrary());
+            if (a.Version.FileSymbols != null)
+                assembly = Assembly.Load(a.ExtractLibrary(), a.ExtractLibrarySymbols());
+            else assembly = Assembly.Load(a.ExtractLibrary());
 
             string assemblyName = assembly.GetName().Name;
             AssemblyCard card = new AssemblyCard()
