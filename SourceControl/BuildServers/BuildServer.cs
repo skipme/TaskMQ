@@ -15,7 +15,7 @@ namespace SourceControl.BuildServers
         TItemModel GetParametersModel();
         void SetParameters(TItemModel parameters);
 
-        AssemblyArtifacts GetArtifacts();
+        BuildArtifacts GetArtifactsZip();
         bool CheckParameters(out string explanation);
 
         SCMRevision GetVersion();

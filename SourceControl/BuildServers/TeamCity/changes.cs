@@ -14,7 +14,7 @@ namespace SourceControl.BuildServers.TeamCity
             get { return _url; }
             set
             {
-                _url = value;
+                _url = value.StartsWith("/") ? value.Remove(0, 1) : value;
             }
         }
     }

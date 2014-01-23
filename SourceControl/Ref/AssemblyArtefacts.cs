@@ -17,20 +17,28 @@ namespace SourceControl.Ref
         public string Version { get; set; }
         public string HashCode { get; set; }
 
-        public static AssemblyArtifact Get(byte[] data)
-        {
-            AssemblyArtifact art = new AssemblyArtifact();
-            using (MemoryStream ms = new MemoryStream(data))
-            {
-                Mono.Cecil.AssemblyDefinition def = Mono.Cecil.AssemblyDefinition.ReadAssembly(ms);
-                Mono.Cecil.AssemblyNameReference defn  = Mono.Cecil.AssemblyNameDefinition.Parse(def.FullName);
+        //public static AssemblyArtifact Get(byte[] data)
+        //{
+        //    AssemblyArtifact art = new AssemblyArtifact();
+        //    using (MemoryStream ms = new MemoryStream(data))
+        //    {
+        //        try
+        //        {
+        //            Mono.Cecil.AssemblyDefinition def = Mono.Cecil.AssemblyDefinition.ReadAssembly(ms);
+        //            Mono.Cecil.AssemblyNameReference defn = Mono.Cecil.AssemblyNameDefinition.Parse(def.FullName);
 
-                art.Version = defn.Version.ToString();
-                art.Name = defn.Name;
-            }
+        //            art.Version = defn.Version.ToString();
+        //            art.Name = defn.Name;
+        //            art.IsAssembly = true;
+        //        }
+        //        catch
+        //        {
 
-            return art;
-        }
+        //        }
+        //    }
+
+        //    return art;
+        //}
 
         public static AssemblyArtifact Get(string file)
         {
@@ -64,13 +72,23 @@ namespace SourceControl.Ref
         public string FileSymbols { get; set; }
         public string AssemblyVersion { get; set; }
         public DateTime AddedAt { get; set; }
+
         public List<AssemblyArtifact> Artefacts;
+
         public void AddArtefact(string name, string relatedFile)
         {
             AssemblyArtifact dllInfo = AssemblyArtifact.Get(relatedFile);
             dllInfo.FileName = name;
             Artefacts.Add(dllInfo);
         }
+        //public void AddArtefact(string name, byte[] relatedFile)
+        //{
+        //    AssemblyArtifact dllInfo = AssemblyArtifact.Get(relatedFile);
+        //    dllInfo.FileName = name;
+        //    if (!dllInfo.IsAssembly)
+        //        dllInfo.Name = name;
+        //    Artefacts.Add(dllInfo);
+        //}
     }
-   
+
 }

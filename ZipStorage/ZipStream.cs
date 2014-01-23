@@ -212,7 +212,7 @@ namespace FileContentArchive
                     });
             }
 
-            zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
 
             this.zipArchive.Position = 0;
             return es.ToArray();

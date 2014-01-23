@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
+using SourceControl.BuildServers.TeamCity;
 
-namespace SourceControl.BuildServers.TeamCity
+namespace SourceControl.BuildServers
 {
     public class TeamCityBS : BuildServer
     {
@@ -20,12 +21,12 @@ namespace SourceControl.BuildServers.TeamCity
         TeamCityBSParams parameters = new TeamCityBSParams();
         public TItemModel GetParametersModel()
         {
-            return parameters;
+            return this.parameters;
         }
 
-        public void SetParameters(TItemModel parameters)
+        public void SetParameters(TItemModel m_parameters)
         {
-            parameters = new TeamCityBSParams(parameters);
+            this.parameters = new TeamCityBSParams(m_parameters);
         }
 
 
@@ -49,10 +50,8 @@ namespace SourceControl.BuildServers.TeamCity
             {
                 client.SetCredentials(parameters.User, parameters.Password);
                 client.AlwaysSendBasicAuthHeader = true;
-                BuildRootObject b = client.Get<BuildRootObject>(new BuildRequest
-                {
-                    url = id.href
-                });
+                BuildRequest br = new BuildRequest { url = id.href };
+                BuildRootObject b = client.Get<BuildRootObject>(br);
                 return b;
             }
         }
@@ -106,7 +105,7 @@ namespace SourceControl.BuildServers.TeamCity
         }
 
 
-        public Ref.AssemblyArtifacts GetArtifacts()
+        public BuildArtifacts GetArtifactsZip()
         {
             BuildsRootObject builds = GetBuilds();
             if (builds.count == 0)
@@ -118,13 +117,29 @@ namespace SourceControl.BuildServers.TeamCity
             {
                 if (arts.files[i].name.Equals(parameters.ArtifactName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                   //
+                    //
+                    //arts.files[i].href
+
+                    System.Net.WebClient cl = new System.Net.WebClient();
+                    Uri uri = new Uri(new Uri(parameters.Host), arts.files[i].content.href);
+                    cl.Headers.Add("Authorization", "Basic " +
+                        Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", parameters.User, parameters.Password))));
+                    byte[] zip = cl.DownloadData(uri);
+                    BuildArtifacts result = BuildArtifacts.FromZipArchive(zip);
+                    result.VersionTag = build.revisions.revision[0].version;
+                    result.AddedAt = DateTime.UtcNow;
+                    return result;
                 }
             }
             return null;
         }
         public bool CheckParameters(out string explanation)
         {
+            if (!parameters.ArtifactName.EndsWith(".zip"))
+            {
+                explanation = "zip archives supported only";
+                return false;
+            }
             using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
             {
                 client.SetCredentials(parameters.User, parameters.Password);
@@ -168,7 +183,7 @@ namespace SourceControl.BuildServers.TeamCity
     public class TeamCityBSParams : TItemModel
     {
         public TeamCityBSParams() { }
-        public TeamCityBSParams(TItemModel tm) : base(tm.Holder) { }
+        public TeamCityBSParams(TItemModel tm) : base(tm.GetHolder()) { }
 
         [TaskQueue.FieldDescription("host address (hostname:port)", Required: true)]
         public string Host { get; set; }
@@ -191,7 +206,7 @@ namespace SourceControl.BuildServers.TeamCity
             }
             set
             {
-                throw new NotImplementedException();
+                
             }
         }
     }

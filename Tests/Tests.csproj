@@ -35,9 +35,6 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Text">
-      <HintPath>..\packages\ServiceStack.Text.3.9.63\lib\net35\ServiceStack.Text.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TeamCity.cs" />
     <Compile Include="ZipStream.cs" />
     <Compile Include="RestClient.cs" />
     <Compile Include="MongoDBQ.cs" />
@@ -59,6 +57,10 @@
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
       <Project>{c250a799-20af-494d-ba51-32ad41a376bb}</Project>
       <Name>MongoQueue</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SourceControl\SourceControl.csproj">
+      <Project>{b0afee79-b1af-48c4-9ffd-638f638c2c00}</Project>
+      <Name>SourceControl</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskClient\TaskClient.csproj">
       <Project>{a2a2559d-7309-417d-964b-7e3e65554791}</Project>

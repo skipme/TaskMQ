@@ -88,6 +88,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildServers\BuildArtefacts.cs" />
     <Compile Include="BuildServers\BuildServer.cs" />
     <Compile Include="BuildServers\TeamCityBS.cs" />
     <Compile Include="BuildServers\TeamCity\artifacts.cs" />
