@@ -96,7 +96,7 @@ namespace SourceControl.BuildServers
         }
         public string Name
         {
-            get { return "TeamCity Artifacts"; }
+            get { return "TeamCityArtifacts"; }
         }
 
         public string Description

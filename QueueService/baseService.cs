@@ -1,7 +1,5 @@
 ﻿using Funq;
-using ServiceStack.ServiceHost;
-using ServiceStack.ServiceInterface;
-using ServiceStack.WebHost.Endpoints;
+using ServiceStack;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -106,7 +104,7 @@ namespace QueueService
             {
                 QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
             }
-            return new ServiceStack.Common.Web.HttpResult()
+            return new ServiceStack.HttpResult()
             {
                 StatusCode = HttpStatusCode.OK
             };
@@ -145,13 +143,13 @@ namespace QueueService
                 catch (Exception e)
                 {
                     Console.WriteLine("error while message processing: {0} '{1}'", e.Message, e.StackTrace);
-                    return new ServiceStack.Common.Web.HttpResult()
+                    return new ServiceStack.HttpResult()
                     {
                         StatusCode = HttpStatusCode.InternalServerError
                     };
                 }
             }
-            return new ServiceStack.Common.Web.HttpResult()
+            return new ServiceStack.HttpResult()
             {
                 StatusCode = result ? HttpStatusCode.Created :
                 HttpStatusCode.NotAcceptable
@@ -233,7 +231,7 @@ namespace QueueService
         {
             TaskQueue.RepresentedModel model;
             if (request.MType == null)
-                return new ServiceStack.Common.Web.HttpResult()
+                return new ServiceStack.HttpResult()
                 {
                     StatusCode = HttpStatusCode.NotAcceptable
                 };
@@ -248,7 +246,7 @@ namespace QueueService
                 model = QueueService.ModProducer.broker.GetValidationModel(request.MType, request.ChannelName);
             }
             if (model == null)
-                return new ServiceStack.Common.Web.HttpResult()
+                return new ServiceStack.HttpResult()
                 {
                     StatusCode = HttpStatusCode.NotAcceptable
                 };
@@ -271,15 +269,15 @@ namespace QueueService
         /// <param name="container">The built-in IoC used with ServiceStack.</param>
         public override void Configure(Container container)
         {
-            base.SetConfig(new EndpointHostConfig
-            {
-                GlobalResponseHeaders =
-				{
-					{ "Access-Control-Allow-Origin", "*" },
-					{ "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS" },
-				},
-                //WsdlServiceNamespace = "http://localhost:82/"
-            });
+            //base.SetConfig(new EndpointHostConfig
+            //{
+            //    GlobalResponseHeaders =
+            //    {
+            //        { "Access-Control-Allow-Origin", "*" },
+            //        { "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS" },
+            //    },
+            //    //WsdlServiceNamespace = "http://localhost:82/"
+            //});
 
             Routes
               .Add<Dictionary<string, object>>("/tmq/q", "GET,PUT");

@@ -69,16 +69,7 @@ namespace TaskBroker.Assemblys
 
         public void AddAssemblySource(string name, string buildServerType, Dictionary<string, object> parameters)
         {
-            //assemblySources.Add(name, projectRelativePath, scmUrl);
             assemblySources.Add(name, buildServerType, parameters);
-            //AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
-            //AssemblyVersionPackage package = ver.GetLatestVersion();
-            //if (package == null)
-            //{
-            //    Console.WriteLine("module not well formated, package info not present: {0}", name);
-            //    return;
-            //}
-            //list.Add(new AssemblyModule(package));
         }
 
         //public void AddAssembly(string name)
@@ -118,7 +109,7 @@ namespace TaskBroker.Assemblys
                 //a.RutimeLoadException = string.Format("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
                 //Console.WriteLine(a.RutimeLoadException);
                 //return a.RuntimeLoaded = false;
-                Console.WriteLine("assembly loading error: '{0}' :: {1}", a.ContainerName, e.Message);
+                Console.WriteLine("assembly loading error: '{0}' :: {1} :: {2}", a.ContainerName, e.Message, e.StackTrace);
                 return false;
             }
             return true;
