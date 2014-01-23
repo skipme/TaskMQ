@@ -154,12 +154,23 @@ namespace SourceControl.BuildServers
 
             BuildRootObject build = GetBuild(builds.build[0]);
             ChangeRootObject change = GetChange(build);
-            if (change.count == 0)
+            if (change.count == 0)// no changes --> trail for build with changes
             {
-                return new SCMRevision
+                bool changesFound = false;
+                for (int i = 1; i < builds.build.Count; i++)
                 {
-                    Revision = build.revisions.revision[0].version
-                };
+                    build = GetBuild(builds.build[i]);
+                    change = GetChange(build);
+                    if (change.count > 0)
+                    {
+                        changesFound = true;
+                    }
+                } 
+                if (!changesFound)
+                    return new SCMRevision
+                    {
+                        Revision = build.revisions.revision[0].version
+                    };
             }
             ChangesRootObject changes = GetChanges(change);
 
