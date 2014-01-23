@@ -7,17 +7,14 @@ using System.Text;
 
 namespace FileContentArchive
 {
-    public class ZipStorage : FileContentArchive.IFileStorage
+    public class ZipStream : FileContentArchive.IFileStorage
     {
-        // not thread-safe 
+        Stream zipArchive;
 
-        //ZipFile zipFile;
-        string FileLoc;
-
-        public ZipStorage(string fileloc)
+        public ZipStream(Stream stream)
         {
-            this.FileLoc = fileloc;
-            if (!CheckFile())
+            this.zipArchive = stream;
+            if (!CheckArchive())
             {
                 if (ResetFile())
                 {
@@ -25,10 +22,19 @@ namespace FileContentArchive
                 }
             }
         }
+        public ZipStream(byte[] zipdata)
+            : this(new MemoryStream(zipdata))
+        {
+
+        }
+        public void Close()
+        {
+            zipArchive.Close();
+        }
         public byte[] GetContentRaw(string loc)
         {
             byte[] cont = null;
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
             int i = zipFile.FindEntry(loc, false);
             if (i >= 0)
             {
@@ -38,13 +44,14 @@ namespace FileContentArchive
                 s.Read(buff, 0, buff.Length);
                 cont = buff;
             }
-            zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
+            this.zipArchive.Position = 0;
             return cont;
         }
         public byte[] GetContentRaw(string loc, out DateTime CreationTime)
         {
             byte[] cont = null; CreationTime = DateTime.MinValue;
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
 
             int i = zipFile.FindEntry(loc, false);
             if (i >= 0)
@@ -56,8 +63,9 @@ namespace FileContentArchive
                 s.Read(buff, 0, buff.Length);
                 cont = buff;
             }
-            zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
 
+            this.zipArchive.Position = 0;
             return cont;
         }
         public string GetContent(string loc)
@@ -70,13 +78,6 @@ namespace FileContentArchive
         }
         public void UpdateContent(string loc, byte[] content)
         {
-            //string c = GetContent(loc);
-            //if (c != null)
-            //{
-            //    //DeleteContent(loc);
-            //    // actually not required but just leave it
-            //}
-
             SetContent(loc, content);
         }
         void SetContent(string loc, string content)
@@ -85,18 +86,20 @@ namespace FileContentArchive
         }
         void AddDirectory(string loc)
         {
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
 
             // Must call BeginUpdate to start, and CommitUpdate at the end.
             zipFile.BeginUpdate();
             zipFile.AddDirectory(loc);
             // Both CommitUpdate and Close must be called.
             zipFile.CommitUpdate();
-            zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
+
+            this.zipArchive.Position = 0;
         }
         void SetContent(string loc, byte[] content)
         {
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
 
             // Must call BeginUpdate to start, and CommitUpdate at the end.
             zipFile.BeginUpdate();
@@ -117,41 +120,41 @@ namespace FileContentArchive
 
             // Both CommitUpdate and Close must be called.
             zipFile.CommitUpdate();
-            zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
+
+            this.zipArchive.Position = 0;
         }
         void DeleteContent(string loc)
         {
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
 
             // Must call BeginUpdate to start, and CommitUpdate at the end.
             zipFile.BeginUpdate();
             zipFile.Delete(loc);
             // Both CommitUpdate and Close must be called.
             zipFile.CommitUpdate();
-            zipFile.Close();
-        }
-        bool CheckFile()
-        {
-            if (File.Exists(FileLoc))
-            {
-                try
-                {
-                    ZipFile zipFile = new ZipFile(FileLoc);
-                    bool v = zipFile.TestArchive(false);
-                    // Must call BeginUpdate to start, and CommitUpdate at the end.
-                    //zipFile.BeginUpdate();
-                    zipFile.Close();
+            zipFile.IsStreamOwner = false; zipFile.Close();
 
-                    return v;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("zip corrupted...");
-                    return false;
-                }
-            }
-            else
+
+            this.zipArchive.Position = 0;
+        }
+        bool CheckArchive()
+        {
+            try
             {
+                ZipFile zipFile = new ZipFile(this.zipArchive);
+                bool v = zipFile.TestArchive(false);
+                // Must call BeginUpdate to start, and CommitUpdate at the end.
+                //zipFile.BeginUpdate();
+                zipFile.IsStreamOwner = false; zipFile.Close();
+
+                this.zipArchive.Position = 0;
+
+                return v;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("zip corrupted...");
                 return false;
             }
         }
@@ -159,15 +162,15 @@ namespace FileContentArchive
         {
             try
             {
-                FileStream fsOut = File.Create(FileLoc);
-                ZipOutputStream zipStream = new ZipOutputStream(fsOut);
+                this.zipArchive.SetLength(0);
+                ZipOutputStream zipStream = new ZipOutputStream(this.zipArchive);
 
                 zipStream.SetLevel(2); //0-9, 9 being the highest level of compression
 
+                //zipStream.IsStreamOwner = true; // Makes the Close also Close the underlying stream
+                zipStream.IsStreamOwner = false; zipStream.Close();
 
-
-                zipStream.IsStreamOwner = true; // Makes the Close also Close the underlying stream
-                zipStream.Close();
+                this.zipArchive.Position = 0;
             }
             catch (Exception e)
             {
@@ -198,7 +201,7 @@ namespace FileContentArchive
         public FileStorageEntry[] GetAllEntrys()
         {
             List<FileStorageEntry> es = new List<FileStorageEntry>();
-            ZipFile zipFile = new ZipFile(FileLoc);
+            ZipFile zipFile = new ZipFile(this.zipArchive);
             foreach (ZipEntry e in zipFile)
             {
                 es.Add(new FileStorageEntry()
@@ -211,6 +214,7 @@ namespace FileContentArchive
 
             zipFile.Close();
 
+            this.zipArchive.Position = 0;
             return es.ToArray();
         }
     }

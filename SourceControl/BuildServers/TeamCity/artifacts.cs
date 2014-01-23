@@ -38,7 +38,7 @@ namespace SourceControl.BuildServers.TeamCity
         public string href { get; set; }
     }
 
-    public class File
+    public class ArtFile
     {
         public int size { get; set; }
         public string modificationTime { get; set; }
@@ -50,6 +50,6 @@ namespace SourceControl.BuildServers.TeamCity
 
     public class ArtifcatsRootObject
     {
-        public List<File> files { get; set; }
+        public List<ArtFile> files { get; set; }
     }
 }

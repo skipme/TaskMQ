@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ZipStream.cs" />
     <Compile Include="RestClient.cs" />
     <Compile Include="MongoDBQ.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,6 +67,10 @@
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
       <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
       <Name>TaskQueue</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
+      <Project>{5c45cdba-1aac-4349-8d42-28b7ad794ba0}</Project>
+      <Name>FileContentArchive</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

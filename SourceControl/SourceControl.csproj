@@ -93,6 +93,8 @@
     <Compile Include="BuildServers\TeamCity\artifacts.cs" />
     <Compile Include="BuildServers\TeamCity\build.cs" />
     <Compile Include="BuildServers\TeamCity\builds.cs" />
+    <Compile Include="BuildServers\TeamCity\change.cs" />
+    <Compile Include="BuildServers\TeamCity\changes.cs" />
     <Compile Include="Build\AssemblyBinary.cs" />
     <Compile Include="Build\AssemblyBuilder.cs" />
     <Compile Include="Assemblys\AssemblyProject.cs" />

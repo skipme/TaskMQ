@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentVersionStorage.cs" />
+    <Compile Include="ZipStream.cs" />
     <Compile Include="ZipStorage.cs" />
     <Compile Include="IFileStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
