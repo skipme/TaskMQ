@@ -398,6 +398,13 @@
             return str.length > 60 ? str.substr(0, 60) + '...' : str;
         };
     });
+    bbqmvc.filter('jsonshort', function () {
+        return function (json) {
+            if (!json) { return '-'; }
+            var str = JSON.stringify(json);
+            return str.length > 30 ? str.substr(0, 30) + '...' : str;
+        };
+    });
     bbqmvc.filter('intervt', function () {
         return function (num) {
             switch (num) {

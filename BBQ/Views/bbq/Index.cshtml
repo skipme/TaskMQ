@@ -300,10 +300,10 @@
                                 <th>strong name
                       <br>
                                 </th>
-                                <th>project location
+                                <th>Build Server Type
                       <br>
                                 </th>
-                                <th>git repository
+                                <th>parameters
                       <br>
                                 </th>
                                 <th>current version / timestamp / wh
@@ -319,10 +319,10 @@
                                 <td>{{assembly.Name}}
                       <br>
                                 </td>
-                                <td>{{assembly.ProjectRelativePath}}
+                                <td>{{assembly.BuildServerType}}
                       <br>
                                 </td>
-                                <td>{{assembly.RepositoryUrl}}
+                                <td>{{assembly.BSParameters | jsonshort}}
                                     <br>
                                 </td>
                                 <td><span assembly_sel="{{assembly.Name}}" app_role="desc"></span>

@@ -154,6 +154,13 @@ namespace SourceControl.BuildServers
 
             BuildRootObject build = GetBuild(builds.build[0]);
             ChangeRootObject change = GetChange(build);
+            if (change.count == 0)
+            {
+                return new SCMRevision
+                {
+                    Revision = build.revisions.revision[0].version
+                };
+            }
             ChangesRootObject changes = GetChanges(change);
 
             DateTime at = DateTime.ParseExact(changes.date, "yyyyMMddThhmmsszzzz", System.Globalization.CultureInfo.InvariantCulture);
