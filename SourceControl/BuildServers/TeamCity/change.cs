@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceStack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 namespace SourceControl.BuildServers.TeamCity
 {
     [ServiceStack.Route("{url}")]
-    public class ChangeRequest
+    public class ChangeRequest //: IReturn<ChangeRootObject>
     {
         string _url;
         public string url

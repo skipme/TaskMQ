@@ -58,12 +58,23 @@ namespace SourceControl.BuildServers
 
             for (int i = 0; i < Artefacts.Count; i++)
             {
+                if (Artefacts[i].FileName == name)
+                    return Artefacts[i];
+            }
+            return null;
+        }
+        public BuildArtifact GetArtifactByName(string name)
+        {
+            if (name == null)
+                return null;
+
+            for (int i = 0; i < Artefacts.Count; i++)
+            {
                 if (Artefacts[i].Name == name)
                     return Artefacts[i];
             }
             return null;
         }
-
         public string VersionTag { get; set; }
         public string AssemblyArtefactName { get; set; }
         public string AssemblyArtefactNameSym { get; set; }
@@ -112,7 +123,10 @@ namespace SourceControl.BuildServers
             result.VersionTag = versionTag;
 
             if (!artefactAssemblyFound)
+            {
                 Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactName);
+                return null;
+            }
 
             return result;
         }
@@ -145,7 +159,10 @@ namespace SourceControl.BuildServers
             result.VersionTag = versionTag;
 
             if (!artefactAssemblyFound)
+            {
                 Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactAbsPath);
+                return null;
+            }
 
             return result;
         }

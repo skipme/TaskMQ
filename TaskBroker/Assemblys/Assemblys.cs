@@ -20,12 +20,13 @@ namespace TaskBroker.Assemblys
 
         public AssemblyStatus(SourceControl.Assemblys.AssemblyProject prj)
         {
-            //State = prj.State.ToString();
+            State = prj.BuildServer.GetState().ToString();
 
-            //revision = prj.sourceVersionRevision.Revision;
-            //revisionDate = prj.sourceVersionRevision.CommitTime.ToString();
-            //activeRevision = prj.edgeStoredVersionRevision.VersionTag;
-            //activeRevisionDate = "not implemented";
+            revision = prj.BuildServerRevision.Revision;
+            revisionDate = "";
+
+            activeRevision = prj.PackageRevision.Revision;
+            activeRevisionDate = "";
         }
     }
 

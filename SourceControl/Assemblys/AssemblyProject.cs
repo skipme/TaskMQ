@@ -40,14 +40,35 @@ namespace SourceControl.Assemblys
         }
         public void Build()
         {
-
+            SCMRevision buildVersion = BuildServer.GetVersion();
+            if (Versions.LatestVersion.VersionTag != buildVersion.Revision)
+            {
+                BuildServer.BuildSource();
+            }
         }
+        public SCMRevision PackageRevision
+        {
+            get
+            {
+                return Versions.LatestRevision;
+            }
+        }
+        public SCMRevision BuildServerRevision
+        {
+            get
+            {
+                return BuildServer.GetVersion();
+            }
+        }
+
         public void UpdatePackage()
         {
             SCMRevision buildVersion = BuildServer.GetVersion();
-            if (Versions.LatestRevision.VersionTag != buildVersion.Revision)
+            if (Versions.LatestVersion.VersionTag != buildVersion.Revision)
             {
                 BuildArtifacts arts = BuildServer.GetArtifacts();
+                if (arts == null)
+                    return;
                 Versions.AddVersion(buildVersion, arts);
             }
         }

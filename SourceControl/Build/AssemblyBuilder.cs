@@ -100,11 +100,12 @@ namespace SourceControl.Build
                 using (bLogger logger = new bLogger())
                 {
                     Project p = new Project(ProjectLocation);
+
                     string path = p.GetPropertyValue("TargetPath");
                     string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".pdb");
 
                     Console.WriteLine("building project: {0}", ProjectLocation);
-                    
+
                     buildResultOK = p.Build(logger);
                     Log = logger.Result();
 
@@ -122,6 +123,7 @@ namespace SourceControl.Build
                         }
                         BuildResultAssets = files.ToArray();
                     }
+                    ProjectCollection.GlobalProjectCollection.UnloadProject(p);
                 }
             }
             catch (Exception e)

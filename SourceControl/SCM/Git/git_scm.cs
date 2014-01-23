@@ -80,7 +80,7 @@ namespace SourceControl.Git
         private Branch CheckoutRemoteBranch(Repository rep)
         {
             // set to remote branch
-            return rep.Checkout(GetRemoteBranch(rep));
+            return rep.Checkout(GetRemoteBranch(rep));// TODO: if lock error raised: version take methods(assemblys part) not thread-save
         }
         public override bool Clone()
         {

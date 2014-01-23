@@ -50,8 +50,8 @@ namespace SourceControl.BuildServers
             {
                 client.SetCredentials(parameters.User, parameters.Password);
                 client.AlwaysSendBasicAuthHeader = true;
-                BuildRequest br = new BuildRequest { url = id.href };
-                BuildRootObject b = client.Get<BuildRootObject>(br);
+
+                BuildRootObject b = client.Get<BuildRootObject>(id.href);
                 return b;
             }
         }
@@ -61,10 +61,7 @@ namespace SourceControl.BuildServers
             {
                 client.SetCredentials(parameters.User, parameters.Password);
                 client.AlwaysSendBasicAuthHeader = true;
-                ArtifcatsRootObject b = client.Get<ArtifcatsRootObject>(new ArtifactsRequest
-                {
-                    url = id.artifacts.href
-                });
+                ArtifcatsRootObject b = client.Get<ArtifcatsRootObject>(id.artifacts.href);
                 return b;
             }
         }
@@ -74,10 +71,7 @@ namespace SourceControl.BuildServers
             {
                 client.SetCredentials(parameters.User, parameters.Password);
                 client.AlwaysSendBasicAuthHeader = true;
-                ChangeRootObject b = client.Get<ChangeRootObject>(new ChangeRequest
-                {
-                    url = id.changes.href
-                });
+                ChangeRootObject b = client.Get<ChangeRootObject>(id.changes.href);
                 return b;
             }
         }
@@ -87,10 +81,7 @@ namespace SourceControl.BuildServers
             {
                 client.SetCredentials(parameters.User, parameters.Password);
                 client.AlwaysSendBasicAuthHeader = true;
-                ChangesRootObject b = client.Get<ChangesRootObject>(new ChangesRequest
-                {
-                    url = id.change[0].href
-                });
+                ChangesRootObject b = client.Get<ChangesRootObject>(id.change[0].href);
                 return b;
             }
         }
@@ -123,7 +114,7 @@ namespace SourceControl.BuildServers
                         cl.Headers.Add("Authorization", "Basic " +
                             Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", parameters.User, parameters.Password))));
                         byte[] zip = cl.DownloadData(uri);
-                        BuildArtifacts result = BuildArtifacts.FromZipArchive( parameters.Assembly, build.revisions.revision[0].version, zip);
+                        BuildArtifacts result = BuildArtifacts.FromZipArchive(parameters.Assembly, build.revisions.revision[0].version, zip);
 
                         return result;
                     }
@@ -165,7 +156,7 @@ namespace SourceControl.BuildServers
             ChangeRootObject change = GetChange(build);
             ChangesRootObject changes = GetChanges(change);
 
-            DateTime at = DateTime.Parse(changes.date);
+            DateTime at = DateTime.ParseExact(changes.date, "yyyyMMddThhmmsszzzz", System.Globalization.CultureInfo.InvariantCulture);
             SCMRevision ver = new SCMRevision
             {
                 Commiter = changes.username,
@@ -186,12 +177,12 @@ namespace SourceControl.BuildServers
 
         public void FetchSource()
         {
-            
+
         }
 
         public void BuildSource()
         {
-            
+
         }
     }
     public class TeamCityBSParams : TItemModel
@@ -223,7 +214,7 @@ namespace SourceControl.BuildServers
             }
             set
             {
-                
+
             }
         }
     }

@@ -149,7 +149,7 @@ namespace SourceControl.Containers
                           select f.data).First();
             return true;
         }
-        public Ref.AssemblyArtifacts LatestRevision
+        public Ref.AssemblyArtifacts LatestVersion
         {
             get
             {
@@ -159,6 +159,19 @@ namespace SourceControl.Containers
                     return null;
                 Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
                 return pv;
+            }
+        }
+        public SCMRevision LatestRevision
+        {
+            get
+            {
+                Ref.AssemblyPackage pinfo = getPackageInfo();
+                if (pinfo == null)
+                    return null;
+                Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
+                VersionData vd = versionContainer.GetSpecificVersionData(pv.VersionTag + "/.revision");
+                SCMRevision vr = SCMRevision.DeSerialise(vd.data);
+                return vr;
             }
         }
         public List<SCMRevision> GetVersions()
