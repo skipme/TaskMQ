@@ -174,7 +174,7 @@ namespace SourceControl.BuildServers
             }
             ChangesRootObject changes = GetChanges(change);
 
-            DateTime at = DateTime.ParseExact(changes.date, "yyyyMMddThhmmsszzzz", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime at = DateTime.ParseExact(changes.date, "yyyyMMddTHHmmsszzzz", System.Globalization.CultureInfo.InvariantCulture);
             SCMRevision ver = new SCMRevision
             {
                 Commiter = changes.username,

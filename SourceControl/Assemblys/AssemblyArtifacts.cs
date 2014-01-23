@@ -18,6 +18,16 @@ namespace SourceControl.Assemblys
             BuildServers.Add(netgit.Name, netgit);
         }
 
+        public List<object> GetExtraConfigurationData()
+        {
+            List<object> conf = new List<object>();
+            foreach (KeyValuePair<string, BuildServers.IBuildServer> bs in BuildServers)
+            {
+                conf.Add(new { Name = bs.Key, Parameters = bs.Value.GetParametersModel().GetHolder() });
+            }
+            return conf;
+        }
+
         public TaskQueue.Providers.TItemModel GetParametersModel(string buildServerType)
         {
             return BuildServers[buildServerType].GetParametersModel();

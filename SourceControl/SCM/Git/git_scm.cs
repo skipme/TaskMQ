@@ -11,7 +11,7 @@ namespace SourceControl.Git
     {
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)
-        { }
+        { UpdateStatus(); }
 
         private SCM.Status status = Status.none;// this means to determine status by UpdateStatus
 
@@ -127,6 +127,8 @@ namespace SourceControl.Git
         {
             get
             {
+                if (this.status == Status.cloneRequired || this.status == Status.cloneFailure)
+                    return null;
                 Branch focusBranch = null;
                 using (var repo = new Repository(base.LocalContainerDirectory))
                 {

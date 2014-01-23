@@ -13,6 +13,8 @@ namespace QueueService
         public bool ModulesPart { get; set; }
         public bool AssemblysPart { get; set; }
 
+        public bool ConfigurationExtra { get; set; } // registered message queue types, build server types
+
         public string Body { get; set; }
         public string ConfigId { get; set; }
     }
@@ -163,6 +165,13 @@ namespace QueueService
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             else if (request.AssemblysPart)
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
+            else if (request.ConfigurationExtra)
+            {
+                return new
+                {
+                    BuildServerTypes = QueueService.ModProducer.broker.AssemblyHolder.GetBuildServersConfiguration()
+                };
+            }
             return null;
         }
         public ConfigResponse Post(ConfigRequest request)

@@ -22,7 +22,7 @@ namespace TaskBroker.Assemblys
         {
             State = prj.BuildServer.GetState().ToString();
 
-            revision = prj.BuildServerRevision.Revision;
+            revision = prj.BuildServerRevision == null ? "unavialable" : prj.BuildServerRevision.Revision;
             revisionDate = "";
 
             activeRevision = prj.PackageRevision.Revision;
@@ -33,6 +33,10 @@ namespace TaskBroker.Assemblys
     public class Assemblys
     {
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
+        public List<object> GetBuildServersConfiguration()
+        {
+            return assemblySources.artifacts.GetExtraConfigurationData();
+        }
         public Assemblys()
         {
             // host packages, modules

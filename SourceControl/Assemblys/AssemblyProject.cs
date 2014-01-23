@@ -37,6 +37,7 @@ namespace SourceControl.Assemblys
         public void Fetch()
         {
             BuildServer.FetchSource();
+            _BuildServerRevision = BuildServer.GetVersion();
         }
         public void Build()
         {
@@ -44,20 +45,27 @@ namespace SourceControl.Assemblys
             if (Versions.LatestVersion.VersionTag != buildVersion.Revision)
             {
                 BuildServer.BuildSource();
+                _BuildServerRevision = BuildServer.GetVersion();
             }
         }
+        SCMRevision _PackageRevision;
         public SCMRevision PackageRevision
         {
             get
             {
-                return Versions.LatestRevision;
+                if (_PackageRevision == null)
+                    _PackageRevision = Versions.LatestRevision;
+                return _PackageRevision;
             }
         }
+        SCMRevision _BuildServerRevision;
         public SCMRevision BuildServerRevision
         {
             get
             {
-                return BuildServer.GetVersion();
+                if (_BuildServerRevision == null)
+                    _BuildServerRevision = BuildServer.GetVersion();
+                return _BuildServerRevision;
             }
         }
 
@@ -70,6 +78,7 @@ namespace SourceControl.Assemblys
                 if (arts == null)
                     return;
                 Versions.AddVersion(buildVersion, arts);
+                _PackageRevision = Versions.LatestRevision;
             }
         }
     }
