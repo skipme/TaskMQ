@@ -117,18 +117,16 @@ namespace SourceControl.BuildServers
             {
                 if (arts.files[i].name.Equals(parameters.ArtifactName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    //
-                    //arts.files[i].href
+                    using (System.Net.WebClient cl = new System.Net.WebClient())
+                    {
+                        Uri uri = new Uri(new Uri(parameters.Host), arts.files[i].content.href);
+                        cl.Headers.Add("Authorization", "Basic " +
+                            Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", parameters.User, parameters.Password))));
+                        byte[] zip = cl.DownloadData(uri);
+                        BuildArtifacts result = BuildArtifacts.FromZipArchive( parameters.Assembly, build.revisions.revision[0].version, zip);
 
-                    System.Net.WebClient cl = new System.Net.WebClient();
-                    Uri uri = new Uri(new Uri(parameters.Host), arts.files[i].content.href);
-                    cl.Headers.Add("Authorization", "Basic " +
-                        Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", parameters.User, parameters.Password))));
-                    byte[] zip = cl.DownloadData(uri);
-                    BuildArtifacts result = BuildArtifacts.FromZipArchive(zip);
-                    result.VersionTag = build.revisions.revision[0].version;
-                    result.AddedAt = DateTime.UtcNow;
-                    return result;
+                        return result;
+                    }
                 }
             }
             return null;
@@ -184,6 +182,9 @@ namespace SourceControl.BuildServers
     {
         public TeamCityBSParams() { }
         public TeamCityBSParams(TItemModel tm) : base(tm.GetHolder()) { }
+
+        [TaskQueue.FieldDescription("assembly path in artifacts zip archive", Required: true)]
+        public string Assembly { get; set; }
 
         [TaskQueue.FieldDescription("host address (hostname:port)", Required: true)]
         public string Host { get; set; }

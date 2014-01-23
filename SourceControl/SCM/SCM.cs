@@ -17,9 +17,6 @@ namespace SourceControl
             fetchRequied,
             allUpToDate
         }
-        //public string StatusExpalanation { get; set; }
-
-
 
         public string LocalContainerDirectory { get; private set; }
         public string cloneUri { get; private set; }
@@ -33,10 +30,7 @@ namespace SourceControl
         public abstract bool Fetch();
         public abstract bool Clone();
         public abstract SCMRevision LocalVersion { get; }
-        //public abstract string LocalVersion { get; }
-        //public abstract DateTimeOffset LocalCommitDate { get; }
-        //public abstract string LocalCommitMessage { get; }
-        //public abstract string LocalCommitCommiter { get; }
+
         public abstract Status CurrentStatus { get; }
     }
 }

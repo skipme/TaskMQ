@@ -47,7 +47,7 @@ namespace SourceControl.BuildServers
     {
         public BuildArtifacts() { Artefacts = new List<BuildArtifact>(); }
         public string VersionTag { get; set; }
-
+        public string AssemblyArtefactName { get; set; }
         public DateTime AddedAt { get; set; }
 
         public List<BuildArtifact> Artefacts;
@@ -61,20 +61,33 @@ namespace SourceControl.BuildServers
             Artefacts.Add(dllInfo);
         }
 
-        public static BuildArtifacts FromZipArchive(byte[] data)
+        public static BuildArtifacts FromZipArchive(string AssemblyArtefactName, string versionTag, byte[] data)
         {
             BuildArtifacts result = new BuildArtifacts();
             FileContentArchive.ZipStream zipArch = new FileContentArchive.ZipStream(data);
             FileContentArchive.FileStorageEntry[] entrys = zipArch.GetAllEntrys();
 
+            bool artefactAssemblyFound = false;
             for (int i = 0; i < entrys.Length; i++)
             {
                 if (entrys[i].IsDir)
                     continue;
+
+                if (entrys[i].Location == AssemblyArtefactName)
+                    artefactAssemblyFound = true;
+
                 result.AddArtefact(entrys[i].Location, zipArch.GetContentRaw(entrys[i].Location));
             }
 
             zipArch.Close();
+
+            result.AssemblyArtefactName = AssemblyArtefactName;
+
+            result.AddedAt = DateTime.UtcNow;
+            result.VersionTag = versionTag;
+
+            if (!artefactAssemblyFound)
+                Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactName);
 
             return result;
         }

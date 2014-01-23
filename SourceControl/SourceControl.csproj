@@ -103,11 +103,11 @@
     <Compile Include="Assemblys\AssemblySource.cs" />
     <Compile Include="Containers\AssemblyVersionPackage.cs" />
     <Compile Include="Containers\AssemblyVersions.cs" />
-    <Compile Include="Git\git_scm.cs" />
+    <Compile Include="SCM\Git\git_scm.cs" />
     <Compile Include="Ref\AssemblyArtefacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ref\AssemblyPackage.cs" />
-    <Compile Include="SCM.cs" />
+    <Compile Include="SCM\SCM.cs" />
     <Compile Include="Ref\SCMRevision.cs" />
   </ItemGroup>
   <ItemGroup>
