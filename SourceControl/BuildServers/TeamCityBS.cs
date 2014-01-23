@@ -26,7 +26,7 @@ namespace SourceControl.BuildServers
 
         public void SetParameters(TItemModel m_parameters)
         {
-            this.parameters = new TeamCityBSParams(m_parameters);
+            this.parameters.SetHolder(m_parameters.GetHolder());
         }
 
 
@@ -105,7 +105,7 @@ namespace SourceControl.BuildServers
         }
 
 
-        public BuildArtifacts GetArtifactsZip()
+        public BuildArtifacts GetArtifacts()
         {
             BuildsRootObject builds = GetBuilds();
             if (builds.count == 0)
@@ -176,6 +176,22 @@ namespace SourceControl.BuildServers
             };
 
             return ver;
+        }
+
+
+        public BuildServerState GetState()
+        {
+            return BuildServerState.build_ok;
+        }
+
+        public void FetchSource()
+        {
+            
+        }
+
+        public void BuildSource()
+        {
+            
         }
     }
     public class TeamCityBSParams : TItemModel

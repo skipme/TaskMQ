@@ -19,22 +19,22 @@ namespace SourceControl.Assemblys
         }
         public void Add(string name, string projectPath, string scmUrl)
         {
-            hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
+            //hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
         }
         public void FetchUpdateAllIfRequired()
         {
-            foreach (AssemblyProject item in hostedProjects)
-            {
-                if (item.State == AssemblyProject.ProjectState.build_deferred)
-                {
-                    string stub = "";
-                    item.StoreNewIfRequired(out stub);
-                }
-                else
-                {
-                    item.SetUpSourceToDate();
-                }
-            }
+            //foreach (AssemblyProject item in hostedProjects)
+            //{
+            //    if (item.State == AssemblyProject.ProjectState.build_deferred)
+            //    {
+            //        string stub = "";
+            //        item.StoreNewIfRequired(out stub);
+            //    }
+            //    else
+            //    {
+            //        item.SetUpSourceToDate();
+            //    }
+            //}
         }
         private void CheckDirectory()
         {

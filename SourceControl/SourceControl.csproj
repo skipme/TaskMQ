@@ -88,8 +88,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assemblys\AssemblyArtifacts.cs" />
     <Compile Include="BuildServers\BuildArtefacts.cs" />
     <Compile Include="BuildServers\BuildServer.cs" />
+    <Compile Include="BuildServers\NaiveMs.cs" />
     <Compile Include="BuildServers\TeamCityBS.cs" />
     <Compile Include="BuildServers\TeamCity\artifacts.cs" />
     <Compile Include="BuildServers\TeamCity\build.cs" />

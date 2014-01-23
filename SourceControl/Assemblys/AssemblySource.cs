@@ -8,13 +8,14 @@ using System.Text;
 
 namespace SourceControl.Assemblys
 {
-    public class AssemblySource
+    public class AssemblySCM
     {
         public string SourceUriOrigin { get; private set; }// repository url
         public string ProjectFilePath { get; private set; }
         public string Name { get; set; }
         private bool IsUpToDate { get; set; }
         public string lastBuildLog { get; private set; }
+        public string WorkingDir { get; set; }
 
         private SCM scm;
         public SCM.Status Status
@@ -40,21 +41,22 @@ namespace SourceControl.Assemblys
         /// <param name="workingDir">dir where to save all source and package</param>
         /// <param name="projFileRelativePath">project file</param>
         /// <param name="remoteUri">scm URL </param>
-        public AssemblySource(string workingDir, string projFileRelativePath, string remoteUri)
+        public AssemblySCM(string workingDir, string projFileRelativePath, string remoteUri)
         {
             SourceUriOrigin = remoteUri;
-            //Name = System.IO.Path.GetFileNameWithoutExtension(projFileRelativePath);
+
             Uri u = new Uri(remoteUri);
             Name = System.IO.Path.GetFileNameWithoutExtension(u.AbsolutePath);
-            ProjectFilePath = System.IO.Path.Combine(workingDir, Name, projFileRelativePath);
-            string dir = System.IO.Path.Combine(workingDir, Name);
-            if (!System.IO.Directory.Exists(dir))
+
+            this.ProjectFilePath = System.IO.Path.Combine(workingDir, Name, projFileRelativePath);
+            this.WorkingDir = System.IO.Path.Combine(workingDir, Name);
+            if (!System.IO.Directory.Exists(this.WorkingDir))
             {
-                System.IO.Directory.CreateDirectory(dir);
+                System.IO.Directory.CreateDirectory(this.WorkingDir);
             }
 
             Type T = typeof(Git.git_scm);
-            scm = (SCM)Activator.CreateInstance(T, new object[] { dir, remoteUri });
+            scm = (SCM)Activator.CreateInstance(T, new object[] { this.WorkingDir, remoteUri });
         }
 
         //public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
@@ -76,6 +78,31 @@ namespace SourceControl.Assemblys
 
             return bresult;
         }
+        public bool BuildProject()
+        {
+            bool bresult;
+
+            AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
+            if (!(bresult = builder.BuildProject()))
+            {
+                Console.WriteLine("build project failure: {0}", builder.Log);
+            }
+            lastBuildLog = builder.Log;
+
+            return bresult;
+        }
+        public BuildServers.BuildArtifacts GetArtifacts(string assemblyLocation)
+        {
+            string assemblyAbs = System.IO.Path.Combine(this.WorkingDir, assemblyLocation);
+            if (!File.Exists(assemblyAbs))
+            {
+                Console.WriteLine("can't find output assembly");
+                return null;
+            }
+
+            return BuildServers.BuildArtifacts.FromDirectory(assemblyAbs, Version.Revision);
+        }
+       
         public bool SetUpToDate()
         {
             return IsUpToDate = lSetUpToDate();

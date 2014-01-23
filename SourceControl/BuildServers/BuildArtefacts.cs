@@ -11,6 +11,8 @@ namespace SourceControl.BuildServers
 {
     public class BuildArtifact
     {
+        public byte[] Data;
+
         public string Name { get; set; }
         public string FileName { get; set; }
         public bool IsAssembly { get; set; }
@@ -36,6 +38,8 @@ namespace SourceControl.BuildServers
 
                 }
             }
+
+            art.Data = data;
 
             return art;
         }
@@ -90,6 +94,48 @@ namespace SourceControl.BuildServers
                 Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactName);
 
             return result;
+        }
+        public static BuildArtifacts FromDirectory(string AssemblyArtefactAbsPath, string versionTag)
+        {
+            BuildArtifacts result = new BuildArtifacts();
+            string Dir = System.IO.Path.GetDirectoryName(AssemblyArtefactAbsPath);
+            string assemblyAbsSym = pathWithoutExtension(AssemblyArtefactAbsPath);
+
+            if (File.Exists(assemblyAbsSym + ".pdb"))
+            {
+                assemblyAbsSym = assemblyAbsSym + ".pdb";
+            }
+            else assemblyAbsSym = null;
+            string[] Files = System.IO.Directory.GetFiles(Dir);
+
+            bool artefactAssemblyFound = false;
+            for (int i = 0; i < Files.Length; i++)
+            {
+                if (Files[i] == AssemblyArtefactAbsPath)
+                    artefactAssemblyFound = true;
+
+                result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));
+            }
+
+            result.AssemblyArtefactName = System.IO.Path.GetFileName(AssemblyArtefactAbsPath);
+
+            result.AddedAt = DateTime.UtcNow;
+            result.VersionTag = versionTag;
+
+            if (!artefactAssemblyFound)
+                Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactAbsPath);
+
+            return result;
+        }
+
+        static string pathWithoutExtension(string path)
+        {
+            int index = path.LastIndexOf('.');
+            if (index >= 0)
+            {
+                return path.Remove(index, path.Length - index);
+            }
+            return path;
         }
     }
 
