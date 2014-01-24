@@ -44,5 +44,4 @@ Default access module implemented with service stack and self-hosted within appl
 BBQ web interface: 
 <br />![BBQ TaskMQ](doc/bbq2sparkline.png "TaskMQ :: BBQ")
 <br />![BBQ TaskMQ](doc/buildServers.png "TaskMQ :: BBQ")
-
-
+<br />![BBQ TaskMQ](doc/assembly-info.png "TaskMQ :: BBQ")
