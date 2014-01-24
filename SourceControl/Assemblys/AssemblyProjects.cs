@@ -26,11 +26,11 @@ namespace SourceControl.Assemblys
             hostedProjects.Add(new AssemblyProject(DiretoryContainer, name, bs));
             //hostedProjects.Add(new AssemblyProject(DiretoryContainer, projectPath, scmUrl, name));
         }
-        public IEnumerable<SourceControl.Containers.AssemblyVersionPackage> TakeLoadTime()
+        public IEnumerable<AssemblyProject> TakeLoadTime()
         {
-            foreach (AssemblyProject p in hostedProjects)
+            foreach (AssemblyProject p in hostedProjects.OrderBy(o => o.Versions.LastPackagedDate))
             {
-                yield return p.Versions.GetLatestVersion();
+                yield return p;
             }
         }
         public void FetchAllIfRequired()

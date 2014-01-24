@@ -61,6 +61,11 @@ namespace QueueService
         public string state { get; set; }
         public string revisionTag { get; set; }
         public string revisionSourceTag { get; set; }
+
+        public DateTime packaged { get; set; }
+        public bool loaded { get; set; }
+        public string loadedRevision { get; set; }
+        public string loadedRemarks { get; set; }
     }
     public class ItemCounter
     {
@@ -96,13 +101,18 @@ namespace QueueService
                             Name = asm.Key,
                             state = asm.Value.State,
                             revisionTag = asm.Value.activeRevision,
-                            revisionSourceTag = asm.Value.revision
+                            revisionSourceTag = asm.Value.revision,
+                            loaded = asm.Value.Loaded,
+                            packaged = asm.Value.packagedDate,
+                            loadedRevision = asm.Value.LoadedRevision,
+                            loadedRemarks = asm.Value.LoadedRemarks
+
                         });
                     }
                     return resp;
                 }
             }
-            else if(r.UpToDate)
+            else if (r.UpToDate)
             {
                 QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
             }
@@ -290,6 +300,7 @@ namespace QueueService
 
             Routes
               .Add<Dictionary<string, object>>("/tmq/q", "GET,PUT");
+            ServiceStack.Text.JsConfig.DateHandler = ServiceStack.Text.DateHandler.ISO8601;
         }
     }
 }

@@ -12,21 +12,35 @@ namespace TaskBroker.Assemblys
     public class AssemblyStatus
     {
         public string revision { get; set; }
-        public string revisionDate { get; set; }
+        public DateTime revisionDate { get; set; }
         public string activeRevision { get; set; }
-        public string activeRevisionDate { get; set; }
+        public DateTime activeRevisionDate { get; set; }
 
         public string State { get; set; }
+
+        public bool Loaded { get; set; }
+        public string LoadedRevision { get; set; }
+        public string LoadedRemarks { get; set; }
+
+        public DateTime packagedDate { get; set; }
 
         public AssemblyStatus(SourceControl.Assemblys.AssemblyProject prj)
         {
             State = prj.BuildServer.GetState().ToString();
 
-            revision = prj.BuildServerRevision == null ? "unavialable" : prj.BuildServerRevision.Revision;
-            revisionDate = "";
+            SourceControl.Ref.SCMRevision scmBS = prj.BuildServerRevision;
+            SourceControl.Ref.SCMRevision scmPck = prj.PackageRevision;
 
-            activeRevision = prj.PackageRevision.Revision;
-            activeRevisionDate = "";
+            revision = scmBS == null ? "unavialable" : scmPck.Revision;
+            revisionDate = scmBS == null ? DateTime.MinValue : scmPck.CommitTime;
+
+            activeRevision = scmPck.Revision;
+            activeRevisionDate = scmPck.CommitTime;
+
+            packagedDate = prj.Versions.LastPackagedDate;
+            Loaded = prj.RuntimeLoaded;
+            LoadedRevision = prj.RuntimeLoadedRevision;
+            LoadedRemarks = prj.RuntimeLoadedRemark;
         }
     }
 
@@ -50,9 +64,9 @@ namespace TaskBroker.Assemblys
         }
         public IEnumerable<KeyValuePair<string, AssemblyStatus>> GetSourceStatuses()
         {
-            foreach (SourceControl.Assemblys.AssemblyProject item in assemblySources.hostedProjects)
+            foreach (SourceControl.Assemblys.AssemblyProject proj in assemblySources.hostedProjects)
             {
-                yield return new KeyValuePair<string, AssemblyStatus>(item.moduleName, new AssemblyStatus(item));
+                yield return new KeyValuePair<string, AssemblyStatus>(proj.moduleName, new AssemblyStatus(proj));
             }
         }
         public void UpdatePackage(string Name)
@@ -96,14 +110,19 @@ namespace TaskBroker.Assemblys
         {
             loadedAssemblys.Clear();
             // in order to reject only new modules -if depconflict persist-
-            List<SourceControl.Containers.AssemblyVersionPackage> mods = assemblySources.TakeLoadTime().ToList();
-            foreach (AssemblyVersionPackage a in mods.OrderBy(am => am.Version.AddedAt))
+            IEnumerable<SourceControl.Assemblys.AssemblyProject> mods = assemblySources.TakeLoadTime();
+            foreach (SourceControl.Assemblys.AssemblyProject a in mods)
             {
-                LoadAssembly(b, a);
+                AssemblyVersionPackage pckg = a.Versions.GetLatestVersion();
+                string remarks;
+                bool loaded = a.RuntimeLoaded = LoadAssembly(b, pckg, out remarks);
+                a.RuntimeLoadedRevision = pckg.Version.VersionTag;
+                a.RuntimeLoadedRemark = remarks;
             }
         }
-        private bool LoadAssembly(Broker b, AssemblyVersionPackage a)
+        private bool LoadAssembly(Broker b, AssemblyVersionPackage a, out string remarks)
         {
+            remarks = string.Empty;
             try
             {
                 SharedManagedLibraries.RegisterAssets(a);
@@ -111,10 +130,8 @@ namespace TaskBroker.Assemblys
             }
             catch (Exception e)
             {
-                //a.RutimeLoadException = string.Format("assembly loading error: '{0}' :: {1}", a.PathName, e.Message);
-                //Console.WriteLine(a.RutimeLoadException);
-                //return a.RuntimeLoaded = false;
-                Console.WriteLine("assembly loading error: '{0}' :: {1} :: {2}", a.ContainerName, e.Message, e.StackTrace);
+                remarks = string.Format("assembly loading error: '{0}' :: {1} :: {2}", a.ContainerName, e.Message, e.StackTrace);
+                Console.WriteLine(remarks);
                 return false;
             }
             return true;

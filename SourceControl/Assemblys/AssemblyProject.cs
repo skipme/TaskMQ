@@ -22,6 +22,10 @@ namespace SourceControl.Assemblys
         public string moduleName { get; private set; }
         public BuildServers.IBuildServer BuildServer;
 
+        public bool RuntimeLoaded { get; set; }
+        public string RuntimeLoadedRevision { get; set; }
+        public string RuntimeLoadedRemark { get; set; }
+
         public List<SCMRevision> GetStoredVersions()
         {
             return Versions.GetVersions();

@@ -14,11 +14,22 @@ namespace SourceControl.Containers
         public string Path { get; private set; }
         public string name { get; private set; }
 
+        public DateTime LastPackagedDate
+        {
+            get
+            {
+                return GetLatestVersion().Version.AddedAt;
+            }
+        }
+        public AssemblyPackage PackageInfo { get; private set; }
+
         public AssemblyBinVersions(string directoryScope, string name)
         {
             this.Path = System.IO.Path.Combine(directoryScope, name + ".zip");
             this.name = name;
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
+
+            PackageInfo = getPackageInfo();
         }
 
         private AssemblyPackage getPackageInfo()
@@ -34,41 +45,15 @@ namespace SourceControl.Containers
             versionContainer.SetRootFileData(packageInfo, data);
         }
 
-        //public void AddVersion(SCMRevision assemblyRev, Build.AssemblyBinaryBuildResult files)
-        //{
-        //    AssemblyPackage p = getPackageInfo();
-        //    if (p == null)
-        //        p = new AssemblyPackage();
-
-        //    string revision = assemblyRev.Revision;
-
-        //    AssemblyArtifacts pv = p.AddRevision(revision,
-        //        System.IO.Path.GetFileName(files.LibraryPath),
-        //        files.SymbolsPath == null ? null : System.IO.Path.GetFileName(files.SymbolsPath), files.LibraryPath);
-
-        //    versionContainer.AddVersionData(revision + "/" + pv.FileLibarary, files.library);
-        //    versionContainer.AddVersionData(revision + "/" + pv.FileSymbols, files.symbols);
-
-        //    assemblyRev.CreateAt = DateTime.Now;
-        //    byte[] revdata = assemblyRev.Serialise();
-        //    versionContainer.AddVersionData(revision + "/.revision", revdata);
-        //    foreach (var artPath in files.assets)
-        //    {
-        //        string fileName = System.IO.Path.GetFileName(artPath);
-        //        versionContainer.AddVersionData(revision + "/artefacts/" + fileName, System.IO.File.ReadAllBytes(artPath));
-        //        pv.AddArtefact("artefacts/" + fileName, artPath);
-        //    }
-        //    setPackageInfo(p);
-        //}
         public void AddVersion(SCMRevision assemblyRev, BuildServers.BuildArtifacts files)
         {
-            AssemblyPackage p = getPackageInfo();
-            if (p == null)
-                p = new AssemblyPackage();
+            PackageInfo = getPackageInfo(); // make sure we have actual version
+            if (PackageInfo == null)
+                PackageInfo = new AssemblyPackage();
 
             string revision = assemblyRev.Revision;
 
-            AssemblyArtifacts pv = p.AddRevision(files);
+            AssemblyArtifacts pv = PackageInfo.AddRevision(files);
 
             assemblyRev.CreateAt = DateTime.Now;
             byte[] revdata = assemblyRev.Serialise();
@@ -78,13 +63,12 @@ namespace SourceControl.Containers
                 versionContainer.AddVersionData(revision + "/" + artF.FileName, artF.Data);
                 pv.AddArtefact(artF.FileName, artF);
             }
-            setPackageInfo(p);
+            setPackageInfo(PackageInfo);// write to container
         }
-        //public bool GetLatestVersion(out string revision, out byte[] library, out byte[] symbols)
-        //public bool GetLatestVersion(out string revision, out AssemblyBinaryBuildResult bin)
+
         public AssemblyVersionPackage GetLatestVersion()
         {
-            Ref.AssemblyPackage pinfo = getPackageInfo();
+            Ref.AssemblyPackage pinfo = PackageInfo;
             if (pinfo == null)
             {
                 Console.WriteLine("packageInfo absent in package {0}", this.Path);
@@ -94,48 +78,8 @@ namespace SourceControl.Containers
             Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
             AssemblyVersionPackage pckg = new AssemblyVersionPackage(pv, this);
             return pckg;
-
-            //bin = new AssemblyBinary();
-            //List<VersionData> files = versionContainer.GetLatestVersion(out revision);
-            //if (revision == null)
-            //    return false;
-            //VersionData vdl = (from f in files
-            //                   where !f.Name.Contains("artefacts") && f.Name.EndsWith(".dll")
-            //                   select f).First();
-            //bin.library = vdl.data;
-            //bin.Name = System.IO.Path.GetFileNameWithoutExtension(vdl.Name);
-            //bin.symbols = (from f in files
-            //               where !f.Name.Contains("artefacts") && f.Name.EndsWith(".pdb")
-            //               select f.data).First();
-            //foreach (var item in (from f in files
-            //                      where f.Name.Contains("artefacts/")
-            //                      select f))
-            //{
-            //    AssemblyAsset at = new AssemblyAsset
-            //           {
-            //               Data = item.data,
-            //               Name = System.IO.Path.GetFileName(item.Name)
-            //           };
-            //    bin.AddAsset(at);
-            //}
-            //return true;
         }
-        //public bool GetSpecificVersion(string revision, out byte[] library, out byte[] symbols)
-        //public bool GetSpecificVersion(string revision, out AssemblyBinaryBuildResult bin)
-        //{
-        //    bin = new AssemblyBinaryBuildResult();
 
-        //    VersionData[] files = versionContainer.GetSpecificVersion(revision).ToArray();
-        //    if (files.Length == 0)
-        //        return false;
-        //    bin.library = (from f in files
-        //                   where !f.Name.Contains("artefacts") && f.Name.EndsWith(".dll")
-        //                   select f.data).First();
-        //    bin.symbols = (from f in files
-        //                   where !f.Name.Contains("artefacts") && f.Name.EndsWith(".pdb")
-        //                   select f.data).First();
-        //    return true;
-        //}
         public bool GetSpecificVersionArtefact(string revision, string artefactName, out Build.BuildResultFile asset)
         {
             asset = new Build.BuildResultFile { Name = artefactName };
@@ -154,7 +98,7 @@ namespace SourceControl.Containers
             get
             {
                 //return versionContainer.key_most_fresh;
-                Ref.AssemblyPackage pinfo = getPackageInfo();
+                Ref.AssemblyPackage pinfo = PackageInfo;
                 if (pinfo == null)
                     return null;
                 Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
@@ -165,7 +109,7 @@ namespace SourceControl.Containers
         {
             get
             {
-                Ref.AssemblyPackage pinfo = getPackageInfo();
+                Ref.AssemblyPackage pinfo = PackageInfo;
                 if (pinfo == null)
                     return null;
                 Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();

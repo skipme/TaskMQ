@@ -296,7 +296,7 @@
                     </p>
                     <table class="table">
                         <thead>
-                            <tr>
+                            <tr><th></th>
                                 <th>strong name
                       <br>
                                 </th>
@@ -306,7 +306,7 @@
                                 <th>parameters
                       <br>
                                 </th>
-                                <th>current version / timestamp / wh
+                                <th>current version
                       <br>
                                 </th>
                                 <th>State
@@ -316,6 +316,7 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="assembly in m_assemblys.Assemblys">
+                                <td><a class="btn-link" ng-click="assembly_edit(assembly)"><i class="icon-pencil"></i></a></td>
                                 <td>{{assembly.Name}}
                       <br>
                                 </td>
@@ -325,7 +326,7 @@
                                 <td>{{assembly.BSParameters | jsonshort}}
                                     <br>
                                 </td>
-                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"></span>
+                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"> <a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-filter"></i></a></span>
                       <br>
                                 </td>
                                 <td><span assembly_sel="{{assembly.Name}}" app_role="status"></span></td>
@@ -464,6 +465,35 @@
             
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
             <button class="btn btn-primary" ng-click="task_edit_cpy()">Save and close</button>
+        </div>
+    </div>
+
+    <!-- Assembly info Modal -->
+    <div id="modal-info-assembly" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="assemblyInfoModal" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="asm-name">{{mi_cassembly.Name}}<small>assembly info</small></h3>
+        </div>
+        <div class="modal-body">
+                <dl class="dl-horizontal">
+                    <dt>Revision</dt>
+                    <dd>{{mi_cassembly.revisionTag}}</dd>
+                     <dt>Build Server Revision</dt>
+                    <dd>{{mi_cassembly.revisionSourceTag}}</dd>
+
+                    <dt>PackageDate</dt>
+                    <dd>{{mi_cassembly.packaged | date:'MMM d, y HH:mm:ss'}}</dd>
+                    <br />
+                    <dt>IsLoaded</dt>
+                    <dd><a ng-show="mi_cassembly.loaded" title="loaded"><i class="icon-ok"></i></a><a ng-hide="mi_cassembly.loaded" title="not loaded"><i class="icon-warning-sign"></i></a></dd>
+                    <dt>Load Revision</dt>
+                    <dd>{{mi_cassembly.loadedRevision}}</dd>
+                    <dt>Load Info</dt>
+                    <dd>{{mi_cassembly.loadedRemarks}}</dd>
+                </dl>
+        </div>
+        <div class="modal-footer"><!--              FOOTER -->
+            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
         </div>
     </div>
 </div>
