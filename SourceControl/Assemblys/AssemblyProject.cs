@@ -12,10 +12,16 @@ namespace SourceControl.Assemblys
 {
     public class AssemblyProject
     {
-        public bool BuildDeferred { get; set; }
+        public bool BuildDeferred { get; private set; }
+        public bool FetchDeferred { get; private set; }
+
         public void SetBuildDeferredFlag()
         {
             BuildDeferred = true;
+        }
+        public void SetFetchDeferredFlag()
+        {
+            FetchDeferred = true;
         }
 
         public AssemblyBinVersions Versions;

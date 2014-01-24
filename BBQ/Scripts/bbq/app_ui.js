@@ -141,7 +141,10 @@
                             $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="status"]').text(asm.state);
                             
                             $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"] a i').attr("class", 
-                                asm.revisionTag == asm.revisionSourceTag ? "icon-ok-circle" : "icon-circle-arrow-up");
+                                asm.revisionTag == asm.revisionSourceTag ? "icon-ok" : "icon-chevron-up");
+
+                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc-loaded"] a i').attr("class",
+                               asm.loaded ? "icon-ok" : "icon-warning-sign");
                             //$('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"] a i').text(
                             //    asm.revisionTag + " / " + asm.revisionSourceTag);
                         }); 
@@ -162,7 +165,13 @@
                 clearTimeout(assembliesInterval);
         }
         $scope.package_assembly = function (asm) {
-            bbq_tmq.assemblies.updateAssemblyPackage(asm.Name);
+            //bbq_tmq.assemblies.updateAssemblyPackage(asm.Name);
+        }
+        $scope.fetch_assembly = function (asm) {
+            bbq_tmq.assemblies.fetchAssemblySource(asm.Name);
+        }
+        $scope.build_assembly = function (asm) {
+            bbq_tmq.assemblies.buildAssemblySource(asm.Name);
         }
         $scope.assembly_info = function (asm) {
             bbq_tmq.assemblies.takeAdvanceInfo(

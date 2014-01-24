@@ -37,7 +37,10 @@ namespace SourceControl.Assemblys
         {
             foreach (AssemblyProject ap in hostedProjects)
             {
-                ap.Fetch();
+                if (ap.FetchDeferred)
+                {
+                    ap.Fetch();
+                }
             }
         }
         public void BuildAllIfRequired()
@@ -54,10 +57,10 @@ namespace SourceControl.Assemblys
         {
             foreach (AssemblyProject ap in hostedProjects)
             {
-                if (ap.BuildDeferred)
-                {
-                    ap.UpdatePackage();
-                }
+                //if (ap.BuildDeferred)
+                //{
+                //    ap.UpdatePackage();
+                //}
             }
         }
         private void CheckDirectory()

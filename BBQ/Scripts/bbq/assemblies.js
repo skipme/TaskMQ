@@ -7,11 +7,14 @@
         }, err, { Statuses: true });
     }
 
-    bbq_tmq.assemblies.updateAssemblyPackage = function (name) {
+    bbq_tmq.assemblies.fetchAssemblySource = function (name) {
         bbq_tmq.jsonp(bbq_tmq.url_assemblies, function (data) {// success
-        }, function () { }, { UpToDate: true, Name: name });
+        }, function () { }, { Fetch: true, Name: name });
     }
-
+    bbq_tmq.assemblies.buildAssemblySource = function (name) {
+        bbq_tmq.jsonp(bbq_tmq.url_assemblies, function (data) {// success
+        }, function () { }, { Build: true, Name: name });
+    }
     bbq_tmq.assemblies.updateAllAssemblyPackages = null;
     bbq_tmq.assemblies.uploadAssemplyPackage = null;
 

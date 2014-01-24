@@ -51,7 +51,8 @@ namespace QueueService
     {
         public bool Statuses { get; set; }
         public bool UpToDateAll { get; set; }
-        public bool UpToDate { get; set; }
+        public bool Fetch { get; set; }
+        public bool Build { get; set; }
         public string Name { get; set; }
     }
 
@@ -61,6 +62,14 @@ namespace QueueService
         public string state { get; set; }
         public string revisionTag { get; set; }
         public string revisionSourceTag { get; set; }
+
+        public string revCommiter { get; set; }
+        public string revCommitComment { get; set; }
+        public DateTime revCommitTime { get; set; }
+
+        public string revSCommiter { get; set; }
+        public string revSCommitComment { get; set; }
+        public DateTime revSCommitTime { get; set; }
 
         public DateTime packaged { get; set; }
         public bool loaded { get; set; }
@@ -100,21 +109,33 @@ namespace QueueService
                         {
                             Name = asm.Key,
                             state = asm.Value.State,
-                            revisionTag = asm.Value.activeRevision,
-                            revisionSourceTag = asm.Value.revision,
+                            revisionTag = asm.Value.PackageRev.Revision,
+                            revisionSourceTag = asm.Value.BuildServerRev.Revision,
                             loaded = asm.Value.Loaded,
                             packaged = asm.Value.packagedDate,
                             loadedRevision = asm.Value.LoadedRevision,
-                            loadedRemarks = asm.Value.LoadedRemarks
+                            loadedRemarks = asm.Value.LoadedRemarks,
+
+                            revCommitComment = asm.Value.PackageRev.CommitMessage,
+                            revCommiter = asm.Value.PackageRev.Commiter,
+                            revCommitTime = asm.Value.PackageRev.CommitTime,
+
+                            revSCommitComment = asm.Value.BuildServerRev.CommitMessage,
+                            revSCommiter = asm.Value.BuildServerRev.Commiter,
+                            revSCommitTime = asm.Value.BuildServerRev.CommitTime
 
                         });
                     }
                     return resp;
                 }
             }
-            else if (r.UpToDate)
+            else if (r.Build)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
+                QueueService.ModProducer.broker.AssemblyHolder.BuildPackage(r.Name);
+            }
+            else if (r.Fetch)
+            {
+                QueueService.ModProducer.broker.AssemblyHolder.FetchPackage(r.Name);
             }
             return new ServiceStack.HttpResult()
             {

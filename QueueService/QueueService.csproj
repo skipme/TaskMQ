@@ -71,6 +71,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SourceControl\SourceControl.csproj">
+      <Project>{b0afee79-b1af-48c4-9ffd-638f638c2c00}</Project>
+      <Name>SourceControl</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TaskBroker\TaskBroker.csproj">
       <Project>{68afd08f-6cec-463c-83ad-737f30c2f40b}</Project>
       <Name>TaskBroker</Name>

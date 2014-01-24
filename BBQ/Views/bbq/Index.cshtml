@@ -301,17 +301,17 @@
                       <br>
                                 </th>
                                 <th>Build Server Type
-                      <br>
                                 </th>
                                 <th>parameters
                       <br>
                                 </th>
-                                <th>current version
-                      <br>
+                                <th>actual
+                                </th>
+                                <th>loaded
                                 </th>
                                 <th>State
                       <br>
-                                </th>
+                                </th><th></th><th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -326,11 +326,13 @@
                                 <td>{{assembly.BSParameters | jsonshort}}
                                     <br>
                                 </td>
-                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"> <a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-filter"></i></a></span>
-                      <br>
+                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"> <a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
+                                </td>
+                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc-loaded"> <a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
                                 </td>
                                 <td><span assembly_sel="{{assembly.Name}}" app_role="status"></span></td>
-                                <td> <a class="btn-link" ng-click="package_assembly(assembly)" title="build package"><i class="icon-filter"></i></a></td>
+                                <td> <a class="btn-link" ng-click="fetch_assembly(assembly)" title="fetch package"><i class="icon-refresh"></i></a></td>
+                                <td> <a class="btn-link" ng-click="build_assembly(assembly)" title="build package"><i class="icon-filter"></i></a></td>
                             </tr>
 
                         </tbody>
@@ -476,12 +478,17 @@
         </div>
         <div class="modal-body">
                 <dl class="dl-horizontal">
-                    <dt>Revision</dt>
-                    <dd>{{mi_cassembly.revisionTag}}</dd>
-                     <dt>Build Server Revision</dt>
+                    <dt>Build Server Revision</dt>
                     <dd>{{mi_cassembly.revisionSourceTag}}</dd>
-
-                    <dt>PackageDate</dt>
+                    <dt>Build Server SCM Commit</dt>
+                    <dd><blockquote>{{mi_cassembly.revSCommitComment}}<small>{{mi_cassembly.revSCommiter}} @@ {{mi_cassembly.revSCommitTime | date:'MMM d, y HH:mm:ss'}}</small></blockquote></dd>
+                    <br />
+                    <dt>Package Revision</dt>
+                    <dd>{{mi_cassembly.revisionTag}}</dd>
+                    <dt>Packaged SCM Commit</dt>
+                    @*<dd>{{mi_cassembly.revCommiter}}@@{{mi_cassembly.revCommitComment}} :: {{mi_cassembly.revCommitTime | date:'MMM d, y HH:mm:ss'}}</dd>*@
+                    <dd><blockquote>{{mi_cassembly.revCommitComment}}<small>{{mi_cassembly.revCommiter}} @@ {{mi_cassembly.revCommitTime | date:'MMM d, y HH:mm:ss'}}</small></blockquote></dd>
+                    <dt>Package Date</dt>
                     <dd>{{mi_cassembly.packaged | date:'MMM d, y HH:mm:ss'}}</dd>
                     <br />
                     <dt>IsLoaded</dt>

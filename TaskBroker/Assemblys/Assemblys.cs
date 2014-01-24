@@ -11,10 +11,8 @@ namespace TaskBroker.Assemblys
 {
     public class AssemblyStatus
     {
-        public string revision { get; set; }
-        public DateTime revisionDate { get; set; }
-        public string activeRevision { get; set; }
-        public DateTime activeRevisionDate { get; set; }
+        public SourceControl.Ref.SCMRevision BuildServerRev;
+        public SourceControl.Ref.SCMRevision PackageRev;
 
         public string State { get; set; }
 
@@ -31,11 +29,8 @@ namespace TaskBroker.Assemblys
             SourceControl.Ref.SCMRevision scmBS = prj.BuildServerRevision;
             SourceControl.Ref.SCMRevision scmPck = prj.PackageRevision;
 
-            revision = scmBS == null ? "unavialable" : scmPck.Revision;
-            revisionDate = scmBS == null ? DateTime.MinValue : scmPck.CommitTime;
-
-            activeRevision = scmPck.Revision;
-            activeRevisionDate = scmPck.CommitTime;
+            BuildServerRev = scmBS;
+            PackageRev = scmPck;
 
             packagedDate = prj.Versions.LastPackagedDate;
             Loaded = prj.RuntimeLoaded;
@@ -71,11 +66,34 @@ namespace TaskBroker.Assemblys
         }
         public void UpdatePackage(string Name)
         {
+            //for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
+            //{
+            //    if (assemblySources.hostedProjects[i].moduleName == Name)
+            //    {
+            //        assemblySources.hostedProjects[i].SetBuildDeferredFlag();
+            //        return;
+            //    }
+            //}
+        }
+        public void BuildPackage(string Name)
+        {
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
             {
                 if (assemblySources.hostedProjects[i].moduleName == Name)
                 {
                     assemblySources.hostedProjects[i].SetBuildDeferredFlag();
+                    return;
+                }
+            }
+
+        }
+        public void FetchPackage(string Name)
+        {
+            for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
+            {
+                if (assemblySources.hostedProjects[i].moduleName == Name)
+                {
+                    assemblySources.hostedProjects[i].SetFetchDeferredFlag();
                     return;
                 }
             }
