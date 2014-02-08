@@ -53,6 +53,7 @@ namespace QueueService
         public bool UpToDateAll { get; set; }
         public bool Fetch { get; set; }
         public bool Build { get; set; }
+        public bool Package { get; set; }
         public string Name { get; set; }
     }
 
@@ -98,6 +99,7 @@ namespace QueueService
         string _lock = "lock";
         public object Get(AssembliesRequest r)
         {
+            string _na = "not available";
             if (r.Statuses)
             {
                 lock (_lock)
@@ -105,12 +107,12 @@ namespace QueueService
                     List<AssemblyStatus> resp = new List<AssemblyStatus>();
                     foreach (var asm in QueueService.ModProducer.broker.AssemblyHolder.GetSourceStatuses())
                     {
-                        resp.Add(new AssemblyStatus
+                        AssemblyStatus expStat = new AssemblyStatus
                         {
                             Name = asm.Key,
                             state = asm.Value.State,
                             revisionTag = asm.Value.PackageRev.Revision,
-                            revisionSourceTag = asm.Value.BuildServerRev.Revision,
+
                             loaded = asm.Value.Loaded,
                             packaged = asm.Value.packagedDate,
                             loadedRevision = asm.Value.LoadedRevision,
@@ -120,22 +122,34 @@ namespace QueueService
                             revCommiter = asm.Value.PackageRev.Commiter,
                             revCommitTime = asm.Value.PackageRev.CommitTime,
 
-                            revSCommitComment = asm.Value.BuildServerRev.CommitMessage,
-                            revSCommiter = asm.Value.BuildServerRev.Commiter,
-                            revSCommitTime = asm.Value.BuildServerRev.CommitTime
-
-                        });
+                            revisionSourceTag = _na,
+                            revSCommitComment = _na,
+                            revSCommiter = _na,
+                            revSCommitTime = DateTime.MinValue
+                        };
+                        if (asm.Value.BuildServerRev != null)
+                        {
+                            expStat.revisionSourceTag = asm.Value.BuildServerRev.Revision;
+                            expStat.revSCommitComment = asm.Value.BuildServerRev.CommitMessage;
+                            expStat.revSCommiter = asm.Value.BuildServerRev.Commiter;
+                            expStat.revSCommitTime = asm.Value.BuildServerRev.CommitTime;
+                        }
+                        resp.Add(expStat);
                     }
                     return resp;
                 }
             }
             else if (r.Build)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.BuildPackage(r.Name);
+                QueueService.ModProducer.broker.AssemblyHolder.BuildSource(r.Name);
             }
             else if (r.Fetch)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.FetchPackage(r.Name);
+                QueueService.ModProducer.broker.AssemblyHolder.FetchSource(r.Name);
+            }
+            else if (r.Package)
+            {
+                QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
             }
             return new ServiceStack.HttpResult()
             {

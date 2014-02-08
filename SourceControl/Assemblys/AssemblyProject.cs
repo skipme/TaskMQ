@@ -14,6 +14,7 @@ namespace SourceControl.Assemblys
     {
         public bool BuildDeferred { get; private set; }
         public bool FetchDeferred { get; private set; }
+        public bool UpdateDeferred { get; private set; }
 
         public void SetBuildDeferredFlag()
         {
@@ -22,6 +23,10 @@ namespace SourceControl.Assemblys
         public void SetFetchDeferredFlag()
         {
             FetchDeferred = true;
+        }
+        public void SetUpdateDeferredFlag()
+        {
+            UpdateDeferred = true;
         }
 
         public AssemblyBinVersions Versions;
@@ -74,7 +79,9 @@ namespace SourceControl.Assemblys
             get
             {
                 if (_BuildServerRevision == null)
+                {
                     _BuildServerRevision = BuildServer.GetVersion();
+                }
                 return _BuildServerRevision;
             }
         }

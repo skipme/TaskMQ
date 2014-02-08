@@ -66,16 +66,16 @@ namespace TaskBroker.Assemblys
         }
         public void UpdatePackage(string Name)
         {
-            //for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
-            //{
-            //    if (assemblySources.hostedProjects[i].moduleName == Name)
-            //    {
-            //        assemblySources.hostedProjects[i].SetBuildDeferredFlag();
-            //        return;
-            //    }
-            //}
+            for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
+            {
+                if (assemblySources.hostedProjects[i].moduleName == Name)
+                {
+                    assemblySources.hostedProjects[i].SetUpdateDeferredFlag();
+                    return;
+                }
+            }
         }
-        public void BuildPackage(string Name)
+        public void BuildSource(string Name)
         {
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
             {
@@ -87,7 +87,7 @@ namespace TaskBroker.Assemblys
             }
 
         }
-        public void FetchPackage(string Name)
+        public void FetchSource(string Name)
         {
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
             {

@@ -3,7 +3,8 @@
     function reviewMainModel() {
 
     }
-    var bbqmvc = angular.module('bbq', []);
+    var bbqmvc = angular.module('bbq', ['ngAnimate']);
+   
     bbqmvc.run(function () {
         // Do post-load initialization stuff here
         $("select.customselect").selectpicker({ style: 'btn-primary', menuStyle: 'dropdown-inverse' });
@@ -20,6 +21,8 @@
         $scope.newtask = null;
         $scope.ref_task = null;
         $scope.edit_task = null;
+        $scope.edit_task_index = -1;
+
         function resetNewTaskForm() {
             $scope.newtask = {
                 description: '', channel: '', module: '',
@@ -165,7 +168,7 @@
                 clearTimeout(assembliesInterval);
         }
         $scope.package_assembly = function (asm) {
-            //bbq_tmq.assemblies.updateAssemblyPackage(asm.Name);
+            bbq_tmq.assemblies.UpdatePackage(asm.Name);
         }
         $scope.fetch_assembly = function (asm) {
             bbq_tmq.assemblies.fetchAssemblySource(asm.Name);
@@ -317,7 +320,8 @@
             $scope.triggers.wReset = true;
         }
 
-        $scope.task_edit = function (model_e) {
+        $scope.task_edit = function (model_e, r_index) {
+            
             //check sync state
             if (!bbq_tmq.check_synced()) {
                 alert('the state is not synced...');
@@ -339,6 +343,7 @@
 
             angular.copy(model_e, $scope.edit_task);
 
+            $scope.edit_task_index = r_index;
             $('div#modal-edit-task').modal('show');
         }
 
@@ -358,10 +363,16 @@
             bbq_tmq.mainPartChanged();
             $scope.triggers.wReset = true;
 
+            animateChangeElement($("#t-tasks tr.animchange")[$scope.edit_task_index]);
             $('div#modal-edit-task').modal('hide');
         }
-
-        $scope.task_edit_del = function (t_index) {
+        function animateChangeElement(elt) {
+            if (typeof elt === "undefined" || elt === null || elt.classList.contains("rchange"))
+                return;
+            elt.classList.add("rchange");
+            setTimeout(function () { elt.classList.remove("rchange"); }, 1000);
+        }
+        $scope.task_edit_del = function () {
 
             $scope.m_main.Tasks.splice(
                 $scope.m_main.Tasks.indexOf($scope.ref_task), 1);
@@ -447,4 +458,15 @@
             }
         };
     });
+    bbqmvc.directive('animateOnChange', function ($animate) {
+        return function (scope, elem, attr) {
+            var elemrow = elem[0].parentElement;
+            scope.$watch(attr.animateOnChange, function (nv, ov) {
+                if (elemrow.classList.contains("rchange"))
+                    return;
+                elemrow.classList.add("rchange");
+                setTimeout(function () { elemrow.classList.remove("rchange"); }, 1000);
+            })
+        }
+    })
 })(jQuery);

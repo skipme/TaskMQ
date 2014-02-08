@@ -57,10 +57,10 @@ namespace SourceControl.Assemblys
         {
             foreach (AssemblyProject ap in hostedProjects)
             {
-                //if (ap.BuildDeferred)
-                //{
-                //    ap.UpdatePackage();
-                //}
+                if (ap.UpdateDeferred)
+                {
+                    ap.UpdatePackage();
+                }
             }
         }
         private void CheckDirectory()

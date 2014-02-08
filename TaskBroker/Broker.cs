@@ -335,8 +335,9 @@ namespace TaskBroker
 
             if (message == null)
             {
-                //Console.WriteLine("consumer empty: {0}", task.ChannelName);
-                //task.Suspended = true;
+                // this must be replaced with better way communication with message bus
+                Console.WriteLine("consumer empty: {0}", task.ChannelName);
+                task.Suspended = true;
                 return;
             }
             ch.ChannelStatistic.inc();
@@ -416,13 +417,13 @@ namespace TaskBroker
             bool status = ch.Push(msg);
 
             // TODO: replace with suspend interface
-            //var x = from t in Tasks
-            //        where t.ChannelName == ch.ChannelName
-            //        select t;
-            //foreach (QueueTask t in x)
-            //{
-            //    t.Suspended = false;
-            //}
+            var x = from t in Tasks
+                    where t.ChannelName == ch.ChannelName
+                    select t;
+            foreach (QueueTask t in x)
+            {
+                t.Suspended = false;
+            }
             // ~
 
             return status;

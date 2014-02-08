@@ -32,57 +32,97 @@ namespace SourceControl.BuildServers
 
         private BuildsRootObject GetBuilds()
         {
-            using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+            try
             {
-                client.SetCredentials(parameters.User, parameters.Password);
-                client.AlwaysSendBasicAuthHeader = true;
-                BuildsRootObject b = client.Get<BuildsRootObject>(new BuildsRequest
+                using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
                 {
-                    buildType = parameters.BuildType,
-                    status = "SUCCESS"
-                });
-                return b;
+                    client.SetCredentials(parameters.User, parameters.Password);
+                    client.AlwaysSendBasicAuthHeader = true;
+                    BuildsRootObject b = client.Get<BuildsRootObject>(new BuildsRequest
+                    {
+                        buildType = parameters.BuildType,
+                        status = "SUCCESS"
+                    });
+                    return b;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
             }
         }
         private BuildRootObject GetBuild(TeamCity.Build id)
         {
-            using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+            try
             {
-                client.SetCredentials(parameters.User, parameters.Password);
-                client.AlwaysSendBasicAuthHeader = true;
+                using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+                {
+                    client.SetCredentials(parameters.User, parameters.Password);
+                    client.AlwaysSendBasicAuthHeader = true;
 
-                BuildRootObject b = client.Get<BuildRootObject>(id.href);
-                return b;
+                    BuildRootObject b = client.Get<BuildRootObject>(id.href);
+                    return b;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
             }
         }
         private ArtifcatsRootObject GetArtifact(TeamCity.BuildRootObject id)
         {
-            using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+            try
             {
-                client.SetCredentials(parameters.User, parameters.Password);
-                client.AlwaysSendBasicAuthHeader = true;
-                ArtifcatsRootObject b = client.Get<ArtifcatsRootObject>(id.artifacts.href);
-                return b;
+                using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+                {
+                    client.SetCredentials(parameters.User, parameters.Password);
+                    client.AlwaysSendBasicAuthHeader = true;
+                    ArtifcatsRootObject b = client.Get<ArtifcatsRootObject>(id.artifacts.href);
+                    return b;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
             }
         }
         private ChangeRootObject GetChange(TeamCity.BuildRootObject id)
         {
-            using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+            try
             {
-                client.SetCredentials(parameters.User, parameters.Password);
-                client.AlwaysSendBasicAuthHeader = true;
-                ChangeRootObject b = client.Get<ChangeRootObject>(id.changes.href);
-                return b;
+                using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+                {
+                    client.SetCredentials(parameters.User, parameters.Password);
+                    client.AlwaysSendBasicAuthHeader = true;
+                    ChangeRootObject b = client.Get<ChangeRootObject>(id.changes.href);
+                    return b;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
             }
         }
         private ChangesRootObject GetChanges(TeamCity.ChangeRootObject id)
         {
-            using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+            try
             {
-                client.SetCredentials(parameters.User, parameters.Password);
-                client.AlwaysSendBasicAuthHeader = true;
-                ChangesRootObject b = client.Get<ChangesRootObject>(id.change[0].href);
-                return b;
+                using (ServiceStack.JsonServiceClient client = new ServiceStack.JsonServiceClient(parameters.Host))
+                {
+                    client.SetCredentials(parameters.User, parameters.Password);
+                    client.AlwaysSendBasicAuthHeader = true;
+                    ChangesRootObject b = client.Get<ChangesRootObject>(id.change[0].href);
+                    return b;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
             }
         }
         public string Name
@@ -98,12 +138,12 @@ namespace SourceControl.BuildServers
 
         public BuildArtifacts GetArtifacts()
         {
-            BuildsRootObject builds = GetBuilds();
-            if (builds.count == 0)
+            BuildsRootObject builds = this.GetBuilds();
+            if (builds == null || builds.count == 0)
                 return null;
 
-            BuildRootObject build = GetBuild(builds.build[0]);
-            ArtifcatsRootObject arts = GetArtifact(build);
+            BuildRootObject build = this.GetBuild(builds.build[0]);
+            ArtifcatsRootObject arts = this.GetArtifact(build);
             for (int i = 0; i < arts.files.Count; i++)
             {
                 if (arts.files[i].name.Equals(parameters.ArtifactName, StringComparison.InvariantCultureIgnoreCase))
@@ -148,8 +188,8 @@ namespace SourceControl.BuildServers
         }
         public SCMRevision GetVersion()
         {
-            BuildsRootObject builds = GetBuilds();
-            if (builds.count == 0)
+            BuildsRootObject builds = this.GetBuilds();
+            if (builds == null || builds.count == 0)
                 return null;
 
             BuildRootObject build = GetBuild(builds.build[0]);
@@ -164,8 +204,9 @@ namespace SourceControl.BuildServers
                     if (change.count > 0)
                     {
                         changesFound = true;
+                        break;
                     }
-                } 
+                }
                 if (!changesFound)
                     return new SCMRevision
                     {
