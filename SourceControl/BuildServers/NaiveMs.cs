@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
 using SourceControl.BuildServers.TeamCity;
+using TaskQueue;
 
 namespace SourceControl.BuildServers
 {
@@ -107,6 +108,7 @@ namespace SourceControl.BuildServers
         //[TaskQueue.FieldDescription("password", Required: false)]
         //public string Password { get; set; }
 
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public override string ItemTypeName
         {
             get

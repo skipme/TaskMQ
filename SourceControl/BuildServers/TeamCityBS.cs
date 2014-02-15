@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
 using SourceControl.BuildServers.TeamCity;
+using TaskQueue;
 
 namespace SourceControl.BuildServers
 {
@@ -265,6 +266,7 @@ namespace SourceControl.BuildServers
         [TaskQueue.FieldDescription("Build Type name (Build configuration ID)", Required: true)]
         public string BuildType { get; set; }
 
+        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public override string ItemTypeName
         {
             get

@@ -524,18 +524,30 @@
         <div class="modal-body">
             <form name="editAssemblyForm" class="form-horizontal">
                 <div class="control-group">
-                    <label class="control-label" for="desc">Name</label>
+                    <label class="control-label" for="name">Name</label>
                     <div class="controls">
-                        <input type="text" name="desc" ng-model="edit_assembly.Name" style="font-size: 11pt; width: 80%" ng-pattern="textp" required></input>
+                        <input type="text" name="name" ng-model="edit_assembly.Name" style="font-size: 11pt; width: 80%" ng-pattern="textp" required></input>
                         <span class="error" ng-show="editAssemblyForm.desc.$error.required">Required!</span>
                         <span class="error" ng-show="editAssemblyForm.desc.$error.pattern">No spaces at start and only one between words!</span>
                     </div>
                 </div>
                 <div class="control-group">
-                     <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%" placeholder="Build Server parameters (json)"></textarea>
+                    <label class="control-label" for="bs">BuildServer</label>
                     <div class="controls">
-                       
-                        <a class="btn btn-small btn-info" ng-click="task_represent(newtask.mpxyz)"><i class="icon-leaf icon-white"></i>Represent</a>
+                        <select name="bs" class="customselect" @*ng-change="edit_task.ModuleName=newtask.mpxyz.Name"*@ ng-model="edit_assembly.BuildServerType" ng-options="bs.Name as bs.Name for bs in m_extra.BuildServerTypes">
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <textarea name="params" ng-model="newtask.parametersStr" rows="8" style="font-size: 11pt; width: 80%" placeholder="Build Server parameters (json)"></textarea>
+                    <div class="controls">
+                        <a class="btn btn-small btn-info" ng-click="assembly_represent(edit_assembly.BuildServerType)"><i class="icon-leaf icon-white"></i>Represent</a>
+                    </div>
+                </div>
+                <div class="control-group">
+                   
+                    <div class="controls">
+                        <a class="btn btn-small btn-warning btn-lg" ng-click=""><i class="icon-thumbs-up icon-white"></i>Check connection</a>
                     </div>
                 </div>
             </form>

@@ -49,7 +49,8 @@
         $scope.m_main = null;
         $scope.m_mods = null;
         $scope.m_assemblys = null;
-        
+        $scope.m_extra = null;
+
         // * statistic
         var heartbeatInterval = null;
         $scope.stat_channels = [{ name: 'EmailC', heartbeat: [12, 14, 155, 144, 33, 55, 66, 77, 88, 33, 44, 55, 66, 33, 22], throughput: [12, 14, 155, 144] }];
@@ -220,6 +221,18 @@
             //$scope.edit_task_index = r_index;
             $('div#modal-edit-assembly').modal('show');
         }
+        $scope.assembly_represent = function (bsName) {
+            var reprobj = null;
+            for (var i = 0; i < $scope.m_extra.BuildServerTypes.length; i++) {
+                if ($scope.m_extra.BuildServerTypes[i].Name === bsName)
+                {
+                    reprobj = $scope.m_extra.BuildServerTypes[i].ParametersModel;
+                    break;
+                }
+            }
+            if (reprobj !== null)
+                $scope.newtask.parametersStr = angular.toJson(reprobj, true);
+        }
         // ~assemblies
         $scope.triggers = null;
         function resetTriggers() {
@@ -277,6 +290,7 @@
                 }, function () { actx.ok(); })
             }, function (actx) {
                 bbq_tmq.syncFromExtras(function (d) {
+                    $scope.m_extra = d;
                     actx.ok();
                 }, function () { actx.ok(); })
             }
