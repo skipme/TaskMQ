@@ -26,9 +26,14 @@ namespace SourceControl.Assemblys
         }
         public BuildServers.IBuildServer GetNewInstance(string buildServerType)
         {
-            Type t = BuildServers[buildServerType].GetType();
-            object obj = Activator.CreateInstance(t);
-            return obj as BuildServers.IBuildServer;
+            BuildServers.IBuildServer dicbs;
+            if (BuildServers.TryGetValue(buildServerType, out dicbs))
+            {
+                Type t = dicbs.GetType();
+                object obj = Activator.CreateInstance(t);
+                return obj as BuildServers.IBuildServer;
+            }
+            return null;
         }
     }
 }

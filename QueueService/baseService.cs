@@ -54,6 +54,11 @@ namespace QueueService
         public bool Fetch { get; set; }
         public bool Build { get; set; }
         public bool Package { get; set; }
+
+        public bool CheckBS { get; set; }
+        public string BSName { get; set; }
+        public Dictionary<string, object> BSParameters { get; set; }
+
         public string Name { get; set; }
     }
 
@@ -150,6 +155,21 @@ namespace QueueService
             else if (r.Package)
             {
                 QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
+            }
+            else if (r.CheckBS)
+            {
+                SourceControl.BuildServers.IBuildServer bs;
+                if ((bs = QueueService.ModProducer.broker.AssemblyHolder.assemblySources.artifacts.GetNewInstance(r.BSName)) != null)
+                {
+                    bs.SetParameters(r.BSParameters);
+                    string explain = null;
+                    bool result = bs.CheckParameters(out explain);
+                    return new
+                    {
+                        CheckResult = result,
+                        Remark = explain
+                    };
+                }
             }
             return new ServiceStack.HttpResult()
             {
