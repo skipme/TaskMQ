@@ -212,10 +212,7 @@ namespace QueueService
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             else if (request.ConfigurationExtra)
             {
-                return new
-                {
-                    BuildServerTypes = QueueService.ModProducer.broker.AssemblyHolder.GetBuildServersConfiguration()
-                };
+                return QueueService.ModProducer.broker.AssemblyHolder.GetBuildServersConfiguration().SerialiseJson();
             }
             return null;
         }

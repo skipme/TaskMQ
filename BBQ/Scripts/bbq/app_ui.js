@@ -11,6 +11,8 @@
     });
     bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
 
+        setTimeout(function () { $("div[ng-app='bbq']").fadeIn(); }, 500);
+
         $scope.intervals = [
             { t: 17, l: 'without', s: true, sv: false },
             { t: 18, l: 'ms', s: true, sv: true },
@@ -22,6 +24,7 @@
         $scope.ref_task = null;
         $scope.edit_task = null;
         $scope.edit_task_index = -1;
+        $scope.edit_assembly = null;
 
         function resetNewTaskForm() {
             $scope.newtask = {
@@ -36,6 +39,7 @@
         function resetTaskForms() {
             resetNewTaskForm();
             $scope.edit_task = { ChannelName: '', parametersStr: '' };
+            $scope.edit_assembly = {};
         }
         function resetNewForms() {
             resetTaskForms();
@@ -192,7 +196,30 @@
                    function () { bbq_tmq.toastr_warning("cant get assembly info"); }
                    );
         }
-        
+        $scope.assembly_edit = function (asm) {
+            if (!bbq_tmq.check_synced()) {
+                alert('the state is not synced...');
+                return;
+            }
+            //$scope.ref_task = asm;
+
+            //$scope.intervals.forEach(function (e) {
+            //    if (e.t == model_e.intervalType)
+            //        $scope.newtask.itpxy = e;
+            //});
+            //$scope.newtask.mpxy = null;
+            //$scope.m_mods.Modules.forEach(function (e) {
+            //    if (e.Name == model_e.ModuleName)
+            //        $scope.newtask.mpxyz = e;
+            //});
+
+            $scope.newtask.parametersStr = angular.toJson(asm.BSParameters, true);
+
+            angular.copy(asm, $scope.edit_assembly);
+
+            //$scope.edit_task_index = r_index;
+            $('div#modal-edit-assembly').modal('show');
+        }
         // ~assemblies
         $scope.triggers = null;
         function resetTriggers() {
@@ -236,35 +263,24 @@
             aftermath(function (actx) {
                 bbq_tmq.syncFrom(function (d) {
                     $scope.m_main = d;
-                    //$scope.newtask.channel = d.Channels[0].Name;
-                    //$scope.$apply();
-
-                    //bbq_tmq.toastr_success(" Synced main conf ");
                     actx.ok();
                 }, function () { actx.ok(); })
             }, function (actx) {
                 bbq_tmq.syncFromMods(function (d) {
                     $scope.m_mods = d;
-                    //$scope.newtask.module = d.Modules[0].Name;
-
-                    //$scope.$apply();
-
-                    //bbq_tmq.toastr_success(" Synced modules conf ");
                     actx.ok();
                 }, function () { actx.ok(); })
             }, function (actx) {
                 bbq_tmq.syncFromAssemblys(function (d) {
                     $scope.m_assemblys = d;
-
-                    //$scope.$apply();
-
-                    //bbq_tmq.toastr_success(" Synced assemblys conf ");
+                    actx.ok();
+                }, function () { actx.ok(); })
+            }, function (actx) {
+                bbq_tmq.syncFromExtras(function (d) {
                     actx.ok();
                 }, function () { actx.ok(); })
             }
             ).ondone(function () {
-                //$scope.$apply();
-
                 $scope.triggers.Info = !bbq_tmq.check_synced();
                 if (!$scope.triggers.Info) {
                     bbq_tmq.toastr_info(" Configuration synced ", true);

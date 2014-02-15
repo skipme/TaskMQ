@@ -9,6 +9,7 @@
     var main_cmodel = null;
     var mods_cmodel = null;
     var assm_cmodel = null;
+    var extra_cmodel = null;
 
     var main_cmodel_id = null;
     var mods_cmodel_id = null;
@@ -17,6 +18,7 @@
     var main_synced = false;
     var mods_synced = false;
     var assm_synced = false;
+    var extras_synced = false;
 
     var config_commit_ok = false;
 
@@ -102,6 +104,14 @@
             assm_cmodel = bbq_tmq.m_assemblys = data;
             succ(assm_cmodel);
         }, err, { AssemblysPart: true });
+    }
+    function getExtrasModel(succ, err) {
+        extras_synced = false;
+        jsonp(function (data) {// success
+            extras_synced = true;
+            extra_cmodel = bbq_tmq.m_extras = data;
+            succ(extra_cmodel);
+        }, err, { ConfigurationExtra: true });
     }
     //----------------------------------------------------------------------------===========================
     function jsonp(succ, err, data) {
@@ -208,7 +218,7 @@
         url_stat: url_stat,
         url_assemblies: url_assemblies,
 
-        check_synced: function () { return main_synced && mods_synced; },
+        check_synced: function () { return main_synced && mods_synced && assm_synced && extras_synced; },
         check_commit: function () { return config_commit_ok; },
 
         m_main: main_cmodel,
@@ -221,6 +231,7 @@
         syncFrom: getServiceModel,
         syncFromMods: getModsModel,
         syncFromAssemblys: getAssemblysModel,
+        syncFromExtras: getExtrasModel,
 
         createTask: createTask,
         mainPartChanged: mainPartChanged,
@@ -243,13 +254,16 @@
     };
     // Extends
     $.cachedScript("Scripts/bbq/application-info.js").done(function (script, textStatus) {
-        console.log(textStatus === "success");
+        if (textStatus != "success")
+            console.error("js information mod not loaded");
     });
     $.cachedScript("Scripts/bbq/statistic.js").done(function (script, textStatus) {
-        console.log(textStatus === "success");
+        if (textStatus != "success")
+            console.error("js stats mod not loaded");
     });
     $.cachedScript("Scripts/bbq/assemblies.js").done(function (script, textStatus) {
-        console.log(textStatus === "success");
+        if (textStatus != "success")
+            console.error("js assemblies mod not loaded");
     });
 })(jQuery);
 

@@ -42,10 +42,18 @@ namespace TaskBroker.Assemblys
     public class Assemblys
     {
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
-        public List<object> GetBuildServersConfiguration()
+        public TaskBroker.Configuration.ExtraParameters GetBuildServersConfiguration()
         {
-            return assemblySources.artifacts.GetExtraConfigurationData();
+            TaskBroker.Configuration.ExtraParameters p = new Configuration.ExtraParameters();
+            p.BuildServerTypes = new List<Configuration.ExtraParametersBS>();
+            foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServers)
+            {
+                TaskQueue.RepresentedModel rm = bs.Value.GetParametersModel().GetModel();
+                p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS { Name = bs.Key, ParametersModel = rm.ToDeclareDictionary() });
+            }
+            return p;
         }
+
         public Assemblys()
         {
             // host packages, modules

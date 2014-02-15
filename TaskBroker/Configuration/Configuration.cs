@@ -82,6 +82,15 @@ namespace TaskBroker.Configuration
             return obj;
         }
     }
+    public class ExtraParameters : RepresentedConfiguration
+    {
+        public List<ExtraParametersBS> BuildServerTypes { get; set; }
+    }
+    public class ExtraParametersBS : RepresentedConfiguration
+    {
+        public string Name { get; set; }
+        public Dictionary<string, string> ParametersModel { get; set; }
+    }
     [Serializable]
     public class cTask
     {

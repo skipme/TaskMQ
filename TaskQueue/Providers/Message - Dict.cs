@@ -21,6 +21,12 @@ namespace TaskQueue.Providers
             SetHolder(msgDict);
         }
 
+        public RepresentedModel GetModel()
+        {
+            Type t = this.GetType();
+            RepresentedModel model = new RepresentedModel(t);
+            return model;
+        }
         public void SetHolder(Dictionary<string, object> msgDict)
         {
             Type t = this.GetType();
@@ -82,7 +88,7 @@ namespace TaskQueue.Providers
                     Holder.Add(k, val);
             }
         }
-
+        
         public dynamic ToExpando()
         {
             SetProps();
