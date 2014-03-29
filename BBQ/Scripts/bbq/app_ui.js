@@ -236,13 +236,13 @@
             }
 
             angular.copy($scope.edit_assembly, $scope.ref_assembly);
-            $scope.ref_task.parameters = obj;
+            $scope.ref_assembly.BSParameters = obj;
 
             bbq_tmq.mainPartChanged();
             $scope.triggers.wRestart = true;
 
-            animateChangeElement($("#t-tasks tr.animchange")[$scope.edit_task_index]);
-            $('div#modal-edit-task').modal('hide');
+            //animateChangeElement($("#t-tasks tr.animchange")[$scope.edit_task_index]);
+            $('div#modal-edit-assembly').modal('hide');
         }
         $scope.assembly_checkParameters = function (bsName, params) {
             var obj = null;
