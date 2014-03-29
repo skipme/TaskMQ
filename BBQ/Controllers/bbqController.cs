@@ -11,10 +11,9 @@ namespace BBQ.Controllers
 {
     public class bbqController : Controller
     {
-        const string tmq_host = "http://127.0.0.1:82/";
         //
         // GET: /bbq/
-
+        const string tmq_host = "http://127.0.0.1:82/";
         public ActionResult Index()
         {
             return View();
@@ -25,9 +24,9 @@ namespace BBQ.Controllers
             string json = client.Get<string>("tmq/c?format=json");
             return new JsonResult() { Data = json };
         }
-        public JsonResult PxySet(string data, string urlpostfix = null)
+        public JsonResult PxySet(string data, string urlprefix = null, string urlpostfix = null)
         {
-            string urlbase = tmq_host + "tmq/c" + urlpostfix ?? "";
+            string urlbase = tmq_host + urlprefix ?? "tmq/c" + urlpostfix ?? "";
 
             var client = WebRequest.Create(urlbase + "?format=json");
             client.Method = "POST";

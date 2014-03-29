@@ -1,10 +1,21 @@
 ﻿var bbq_tmq = {};
 (function ($) {
-    var url_host = "http://127.0.0.1:82/";
-    var url_c = url_host + "tmq/c";
-    var url_stat = url_host + "tmq/s";
-    var url_c_pxy = "/bbq/" + "PxySet";
-    var url_assemblies = url_host + "tmq/assemblies";
+    var url_host;
+    var url_c;
+    var url_stat;
+    var url_c_pxy;
+    var url_assemblies;
+
+    setHostAddress("http://127.0.0.1:82/");
+
+    function setHostAddress(address)
+    {
+        url_host = address;
+        url_c = url_host + "tmq/c";
+        url_stat = url_host + "tmq/s";
+        url_c_pxy = "/bbq/" + "PxySet";
+        url_assemblies = url_host + "tmq/assemblies";
+    }
 
     var main_cmodel = null;
     var mods_cmodel = null;
@@ -215,6 +226,8 @@
     function stub() { }
     bbq_tmq = {
         jsonp: jsonpu,
+        json_proxy: json_proxy,
+
         url_stat: url_stat,
         url_assemblies: url_assemblies,
 
@@ -238,7 +251,9 @@
 
         syncToMain: setServiceModel,
         syncToMods: setModsModel,
-        CommitAndReset: CommitAndReset
+        CommitAndReset: CommitAndReset,
+
+        setHostAddress: setHostAddress
     };
     //
     jQuery.cachedScript = function (url, options) {

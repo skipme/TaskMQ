@@ -83,7 +83,9 @@
     <div class="alert alert-info hidden-phone" ng-show="triggers.Info">
         @*<a class="close" data-dismiss="alert">×</a>*@
         <span>
-            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint <button class="btn" ng-click="sync()">Connect</button></span>
+            <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint:<br />
+            <input type="text" id="txt-configurationhost" value="http://127.0.0.1:82/" />&nbsp;
+            <button class="btn" ng-click="sync()">Connect</button></span>
     </div>
 
     <div class="alert alert-block" ng-show="triggers.wReset">
@@ -547,14 +549,15 @@
                 <div class="control-group">
                    
                     <div class="controls">
-                        <a class="btn btn-small btn-warning btn-lg" ng-click=""><i class="icon-thumbs-up icon-white"></i>Check connection</a>
+                        <a class="btn btn-small btn-warning btn-lg" ng-click="assembly_checkParameters(edit_assembly.BuildServerType, newtask.parametersStr)"><i class="icon-thumbs-up icon-white"></i>Check connection</a>
+                        <div class="alert alert-block" id="checkBSresults"></div>
                     </div>
                 </div>
             </form>
         </div>
         <div class="modal-footer"><!--              FOOTER -->
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button class="btn btn-primary" ng-click="task_edit_cpy()">Save and close</button>
+            <button class="btn btn-primary" ng-click="assembly_edit_cpy()">Save and close</button>
         </div>
     </div>
 </div>

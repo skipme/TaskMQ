@@ -1,4 +1,5 @@
 ﻿using Funq;
+using Newtonsoft.Json;
 using ServiceStack;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace QueueService
 
         public bool CheckBS { get; set; }
         public string BSName { get; set; }
-        public Dictionary<string, object> BSParameters { get; set; }
+        public string BSParameters { get; set; }
 
         public string Name { get; set; }
     }
@@ -161,7 +162,8 @@ namespace QueueService
                 SourceControl.BuildServers.IBuildServer bs;
                 if ((bs = QueueService.ModProducer.broker.AssemblyHolder.assemblySources.artifacts.GetNewInstance(r.BSName)) != null)
                 {
-                    bs.SetParameters(r.BSParameters);
+                    //bs.SetParameters(r.BSParameters);
+                    bs.SetParameters(JsonConvert.DeserializeObject<Dictionary<string, object>>(r.BSParameters));
                     string explain = null;
                     bool result = bs.CheckParameters(out explain);
                     return new

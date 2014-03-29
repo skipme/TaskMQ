@@ -25,6 +25,7 @@
         $scope.edit_task = null;
         $scope.edit_task_index = -1;
         $scope.edit_assembly = null;
+        $scope.ref_assembly = null;
 
         function resetNewTaskForm() {
             $scope.newtask = {
@@ -202,23 +203,14 @@
                 alert('the state is not synced...');
                 return;
             }
-            //$scope.ref_task = asm;
-
-            //$scope.intervals.forEach(function (e) {
-            //    if (e.t == model_e.intervalType)
-            //        $scope.newtask.itpxy = e;
-            //});
-            //$scope.newtask.mpxy = null;
-            //$scope.m_mods.Modules.forEach(function (e) {
-            //    if (e.Name == model_e.ModuleName)
-            //        $scope.newtask.mpxyz = e;
-            //});
+            $scope.ref_assembly = asm;
 
             $scope.newtask.parametersStr = angular.toJson(asm.BSParameters, true);
 
             angular.copy(asm, $scope.edit_assembly);
 
             //$scope.edit_task_index = r_index;
+            $('div#checkBSresults').text('');
             $('div#modal-edit-assembly').modal('show');
         }
         $scope.assembly_represent = function (bsName) {
@@ -232,6 +224,40 @@
             }
             if (reprobj !== null)
                 $scope.newtask.parametersStr = angular.toJson(reprobj, true);
+        }
+        $scope.assembly_edit_cpy = function () {
+            if (!$scope.editAssemblyForm.$valid) { return; }
+            var obj = null;
+            try {
+                obj = angular.fromJson($scope.newtask.parametersStr);
+            } catch (e) {
+                bbq_tmq.toastr_warning(" check json syntax! " + e.message);
+                return;
+            }
+
+            angular.copy($scope.edit_assembly, $scope.ref_assembly);
+            $scope.ref_task.parameters = obj;
+
+            bbq_tmq.mainPartChanged();
+            $scope.triggers.wRestart = true;
+
+            animateChangeElement($("#t-tasks tr.animchange")[$scope.edit_task_index]);
+            $('div#modal-edit-task').modal('hide');
+        }
+        $scope.assembly_checkParameters = function (bsName, params) {
+            var obj = null;
+            try {
+                obj = angular.fromJson(params);
+            } catch (e) {
+                bbq_tmq.toastr_warning(" check json syntax! " + e.message);
+                return;
+            }
+            $('div#checkBSresults').html('<i class="icon-refresh"></i>')
+            bbq_tmq.assemblies.CheckBS(bsName, params, function (msg) {
+                $('div#checkBSresults').text(msg);
+            }, function (msg) {
+                $('div#checkBSresults').text(msg);
+            });
         }
         // ~assemblies
         $scope.triggers = null;
@@ -310,6 +336,9 @@
         }
         
         $scope.sync = function () {
+
+            bbq_tmq.setHostAddress($("#txt-configurationhost").val());
+
             resetTriggers();
             resetNewForms();
             ResyncAll();
