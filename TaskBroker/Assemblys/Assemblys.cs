@@ -7,13 +7,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using TaskUniversum;
+using TaskUniversum.Assembly;
 
 namespace TaskBroker.Assemblys
 {
-    public class AssemblyStatus
+    public class AssemblyStatus : IAssemblyStatus
     {
-        public SourceControl.Ref.SCMRevision BuildServerRev;
-        public SourceControl.Ref.SCMRevision PackageRev;
+        public IRevision BuildServerRev;
+        public IRevision PackageRev;
 
         public string State { get; set; }
 
@@ -27,8 +28,8 @@ namespace TaskBroker.Assemblys
         {
             State = prj.BuildServer.GetState().ToString();
 
-            SourceControl.Ref.SCMRevision scmBS = prj.BuildServerRevision;
-            SourceControl.Ref.SCMRevision scmPck = prj.PackageRevision;
+            IRevision scmBS = prj.BuildServerRevision;
+            IRevision scmPck = prj.PackageRevision;
 
             BuildServerRev = scmBS;
             PackageRev = scmPck;

@@ -111,7 +111,7 @@ namespace QueueService
                 lock (_lock)
                 {
                     List<AssemblyStatus> resp = new List<AssemblyStatus>();
-                    foreach (var asm in QueueService.ModProducer.broker.AssemblyHolder.GetSourceStatuses())
+                    foreach (var asm in QueueService.ModProducer.broker.GetSourceStatuses())
                     {
                         AssemblyStatus expStat = new AssemblyStatus
                         {

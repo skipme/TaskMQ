@@ -46,17 +46,13 @@
     <Compile Include="SmtpModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TaskBroker\TaskBroker.csproj">
-      <Project>{68afd08f-6cec-463c-83ad-737f30c2f40b}</Project>
-      <Name>TaskBroker</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
       <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TaskScheduler\TaskScheduler.csproj">
-      <Project>{71d36b0a-382d-4fcf-95af-67cfea21887d}</Project>
-      <Name>TaskScheduler</Name>
+    <ProjectReference Include="..\TaskUniversum\TaskUniversum.csproj">
+      <Project>{cb666077-a79e-403e-bc4e-6c7cf4a9742d}</Project>
+      <Name>TaskUniversum</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

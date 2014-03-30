@@ -40,10 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExecutionType.cs" />
+    <Compile Include="IAssemblyStatus.cs" />
     <Compile Include="IBroker.cs" />
     <Compile Include="IBrokerModule.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IntervalType.cs" />
+    <Compile Include="ISCMRevision.cs" />
     <Compile Include="TaskMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

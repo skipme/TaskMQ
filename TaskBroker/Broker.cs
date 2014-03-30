@@ -495,5 +495,11 @@ namespace TaskBroker
         {
             StopBroker();
         }
+
+
+        public IEnumerable<KeyValuePair<string, TaskUniversum.Assembly.IAssemblyStatus>> GetSourceStatuses()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using TaskUniversum;
 
 namespace SourceControl.Ref
 {
-    public class SCMRevision
+    public class SCMRevision : IRevision
     {
         public string Commiter { get; set; }
         public string Revision { get; set; }
@@ -25,27 +26,5 @@ namespace SourceControl.Ref
         {
             return Newtonsoft.Json.JsonConvert.DeserializeObject<SCMRevision>(Encoding.Unicode.GetString(data));
         }
-
-        //public byte[] Serialise()
-        //{
-        //    XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
-        //    using (MemoryStream memoryStream = new MemoryStream())
-        //    {
-        //        XmlWriterSettings settings = new XmlWriterSettings { Encoding = Encoding.Unicode, Indent = true };
-        //        using (XmlWriter xmlTextWriter = XmlWriter.Create(memoryStream, settings))
-        //        {
-        //            xs.Serialize(xmlTextWriter, this);
-        //        }
-        //        return memoryStream.GetBuffer();
-        //    }
-        //}
-        //public static VersionRevision DeSerialise(byte[] data)
-        //{
-        //    XmlSerializer xs = new XmlSerializer(typeof(VersionRevision));
-        //    using (MemoryStream memoryStream = new MemoryStream(data))
-        //    {
-        //        return xs.Deserialize(memoryStream) as VersionRevision;
-        //    }
-        //}
     }
 }

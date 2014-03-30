@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TaskBroker;
 using TaskQueue.Providers;
+using TaskUniversum;
+using TaskUniversum.Task;
 
 namespace EmailConsumer
 {
@@ -30,7 +31,7 @@ namespace EmailConsumer
 
         }
 
-        public void Initialise(Broker context, ModMod thisModule)
+        public void Initialise(IBroker context, IBrokerModule thisModule)
         {
         }
 
@@ -45,7 +46,7 @@ namespace EmailConsumer
         }
 
 
-        public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
+        public MetaTask[] RegisterTasks(IBrokerModule thisModule)
         {
             return null;
         }

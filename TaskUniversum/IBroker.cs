@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using TaskUniversum.Assembly;
 
 namespace TaskUniversum
 {
@@ -12,5 +12,6 @@ namespace TaskUniversum
         void RegisterTempTask(Task.MetaTask mst, IBrokerModule module);
         RestartApplication resetBroker { get; }
         RestartApplication restartApp { get; }
+        IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses();
     }
 }
