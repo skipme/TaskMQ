@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace TaskUniversum
+namespace TaskUniversum.Task
 {
     // utilisation between module interface and broker
-    public class Task
+    public class MetaTask
     {
         public string ChannelName;
         public string NameAndDescription;

@@ -11,7 +11,7 @@ namespace TaskUniversum
     {
         void Exit();
         void Initialise(IBroker context, IBrokerModule moduleInstance);
-        Task[] RegisterTasks(IBrokerModule moduleInstance);
+        Task.MetaTask[] RegisterTasks(IBrokerModule moduleInstance);
         
         string Name { get; }
         string Description { get; }

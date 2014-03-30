@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using TaskUniversum.Task;
 
 namespace TaskScheduler
 {
@@ -124,7 +125,7 @@ namespace TaskScheduler
         }
         public void CreateIsolatedThreadForPlan(PlanItem pi)
         {
-            if (pi.intervalType == TaskUniversum.IntervalType.isolatedThread)
+            if (pi.intervalType == IntervalType.isolatedThread)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(IsolatedThreadEntry));
                 thread.Name = "iso " + pi.NameAndDescription;

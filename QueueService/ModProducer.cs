@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TaskBroker;
 using TaskQueue.Providers;
+using TaskUniversum;
+using TaskUniversum.Task;
 
 namespace QueueService
 {
@@ -11,9 +12,9 @@ namespace QueueService
     {
         public const string ListeningOn = "http://*:82/";
         baseService appHost;
-        public static Broker broker;
+        public static IBroker broker;
 
-        public void Initialise(Broker context, TaskBroker.ModMod thisModule)
+        public void Initialise(IBroker context, IBrokerModule thisModule)
         {
             if (broker != null)
             {// except 
@@ -43,16 +44,16 @@ namespace QueueService
 
         }
 
-        public ModuleSelfTask[] RegisterTasks(ModMod thisModule)
+        public MetaTask[] RegisterTasks(IBrokerModule thisModule)
         {
-            ModuleSelfTask t = new ModuleSelfTask()
+            MetaTask t = new MetaTask()
             {
-                intervalType = TaskScheduler.IntervalType.isolatedThread,
+                intervalType = IntervalType.isolatedThread,
                 ModuleName = thisModule.UniqueName,
                 NameAndDescription = "Host for web service[REST main service]"
 
             };
-            return new ModuleSelfTask[] { t };
+            return new MetaTask[] { t };
         }
 
 

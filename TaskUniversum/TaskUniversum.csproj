@@ -44,7 +44,7 @@
     <Compile Include="IBrokerModule.cs" />
     <Compile Include="IMod.cs" />
     <Compile Include="IntervalType.cs" />
-    <Compile Include="ModuleTask.cs" />
+    <Compile Include="TaskMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

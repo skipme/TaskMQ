@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using TaskQueue;
 using TaskUniversum;
+using TaskUniversum.Task;
 
 namespace TaskBroker.Configuration
 {
@@ -96,7 +97,7 @@ namespace TaskBroker.Configuration
     public class cTask
     {
         public string Description { get; set; }
-        public TaskUniversum.IntervalType intervalType { get; set; }
+        public IntervalType intervalType { get; set; }
         public long intervalValue { get; set; }
         public Dictionary<string, object> parameters { get; set; }// equal with json object if configuration in json...
 

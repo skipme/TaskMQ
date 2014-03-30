@@ -7,14 +7,14 @@ using TaskBroker.Statistics;
 using TaskQueue.Providers;
 using TaskScheduler;
 using TaskUniversum;
+using TaskUniversum.Task;
 
 namespace TaskBroker
 {
     public class Broker : IBroker
     {
-        public delegate void RestartApplication();
-        public RestartApplication restartApp;
-        public RestartApplication resetBroker;
+        public RestartApplication restartApp { get; set; }
+        public RestartApplication resetBroker { get; set; }
 
         /*
          * consumer stub throughput ratings
@@ -81,9 +81,9 @@ namespace TaskBroker
             if (Modules != null)
                 foreach (var mod in Modules.Modules.Values)
                 {
-                    TaskUniversum.Task[] tasks = mod.MI.RegisterTasks(mod);
+                    MetaTask[] tasks = mod.MI.RegisterTasks(mod);
                     if (tasks != null)
-                        foreach (TaskUniversum.Task t in tasks)
+                        foreach (MetaTask t in tasks)
                         {
                             this.RegisterTempTask(t, mod);
                         }
@@ -158,7 +158,7 @@ namespace TaskBroker
         // bunch [channel~[message model], module[message model], +executionContext]
         // note: this is configure which channel is selected for custom module
         public void RegisterTask(string ChannelName, string moduleName,
-            TaskUniversum.IntervalType it = TaskUniversum.IntervalType.intervalMilliseconds,
+            IntervalType it = IntervalType.intervalMilliseconds,
             long intervalValue = 100,
             Dictionary<string, object> parameters = null, string Description = "-")
         {
@@ -167,7 +167,7 @@ namespace TaskBroker
             if (module == null)
                 throw new Exception("-> error: RegisterTask: required module not found: " + moduleName);
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
-            if (it == TaskUniversum.IntervalType.isolatedThread)
+            if (it == IntervalType.isolatedThread)
             {
                 ep = IsolatedTaskEntry;
             }
@@ -209,7 +209,7 @@ namespace TaskBroker
             //if (t.intervalType == TaskScheduler.IntervalType.isolatedThread)
             //    Scheduler.CreateIsolatedThreadForPlan(t);
         }
-        public void RegisterTempTask(TaskUniversum.Task mst, IBrokerModule module)
+        public void RegisterTempTask(MetaTask mst, IBrokerModule module)
         {
             QueueTask t = new QueueTask()
             {
@@ -232,7 +232,7 @@ namespace TaskBroker
             //if (module == null)
             //    throw new Exception("required qmodule not found.");
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
-            if (t.intervalType == TaskUniversum.IntervalType.isolatedThread)
+            if (t.intervalType == IntervalType.isolatedThread)
             {
                 ep = IsolatedTaskEntry;
             }

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using TaskBroker.Assemblys;
 using TaskUniversum;
+using TaskUniversum.Task;
 
 namespace TaskBroker
 {
@@ -108,9 +109,9 @@ namespace TaskBroker
 
             // TODO: Extract to broker context
             mod.MI.Initialise(b, mod);
-            TaskUniversum.Task[] tasks = mod.MI.RegisterTasks(mod);
+            MetaTask[] tasks = mod.MI.RegisterTasks(mod);
             if (tasks != null)
-                foreach (TaskUniversum.Task t in tasks)
+                foreach (MetaTask t in tasks)
                 {
                     b.RegisterTempTask(t, mod);
                 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum.Task;
 
 namespace TaskScheduler
 {
@@ -9,7 +10,7 @@ namespace TaskScheduler
     {
         public string NameAndDescription { get; set; }
 
-        public TaskUniversum.IntervalType intervalType { get; set; }
+        public IntervalType intervalType { get; set; }
         public long intervalValue { get; set; }
         public DateTime intervalTime { get; set; }
 
@@ -30,13 +31,13 @@ namespace TaskScheduler
                 //case IntervalType.withoutInterval:
                 //    ms = 0;
                 //    break;
-                case TaskUniversum.IntervalType.intervalMilliseconds:
+                case IntervalType.intervalMilliseconds:
                     ms = (long)(LastExecutionTime.AddMilliseconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case TaskUniversum.IntervalType.intervalSeconds:
+                case IntervalType.intervalSeconds:
                     ms = (long)(LastExecutionTime.AddSeconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case TaskUniversum.IntervalType.DayTime:
+                case IntervalType.DayTime:
                     if (LastExecutionTime.Date == DateTime.Now.Date)
                         ms = (long)(DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
                     else 
