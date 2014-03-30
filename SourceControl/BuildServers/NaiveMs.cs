@@ -16,7 +16,19 @@ namespace SourceControl.BuildServers
             State = BuildServerState.fetch_required;
         }
         NaiveMSfromGitParams parameters = new NaiveMSfromGitParams();
-        SourceControl.Assemblys.AssemblySCM scm;
+
+        SourceControl.Assemblys.AssemblySCM _scm;
+        SourceControl.Assemblys.AssemblySCM scm
+        {
+            get
+            {
+                if (_scm == null)
+                {
+                    _scm = new Assemblys.AssemblySCM(System.IO.Directory.GetCurrentDirectory(), parameters.ProjectPath, parameters.SCM_URL);
+                }
+                return _scm;
+            }
+        }
         BuildServerState State;
 
         public string Name
@@ -37,8 +49,6 @@ namespace SourceControl.BuildServers
         public void SetParameters(Dictionary<string, object> Mparameters)
         {
             this.parameters.SetHolder(Mparameters);
-            scm = new Assemblys.AssemblySCM(System.IO.Directory.GetCurrentDirectory(),
-                parameters.ProjectPath, parameters.SCM_URL);
         }
 
         public BuildArtifacts GetArtifacts()
@@ -48,6 +58,8 @@ namespace SourceControl.BuildServers
 
         public bool CheckParameters(out string explanation)
         {
+            if (!parameters.ValidateValues(out explanation))
+                return false;
             explanation = string.Empty;
             return true;
         }
@@ -119,6 +131,25 @@ namespace SourceControl.BuildServers
             {
 
             }
+        }
+
+        public bool ValidateValues(out string result)
+        {
+            result = string.Empty;
+            if (string.IsNullOrWhiteSpace(ProjectPath))
+            {
+                result += ";\n" + "parameter " + "ProjectPath" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(AssemblyPath))
+            {
+                result += ";\n" + "parameter " + "AssemblyPath" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(SCM_URL))
+            {
+                result += ";\n" + "parameter " + "SCM_URL" + " is empty";
+            }
+
+            return result == string.Empty;
         }
     }
 }

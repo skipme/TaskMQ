@@ -237,12 +237,18 @@
 
             angular.copy($scope.edit_assembly, $scope.ref_assembly);
             $scope.ref_assembly.BSParameters = obj;
-
-            bbq_tmq.mainPartChanged();
+            if (bbq_tmq.m_assemblys.Assemblys.indexOf($scope.ref_assembly)<0)
+                bbq_tmq.m_assemblys.Assemblys.push($scope.ref_assembly);
+            bbq_tmq.assmPartChanged();
             $scope.triggers.wRestart = true;
 
             //animateChangeElement($("#t-tasks tr.animchange")[$scope.edit_task_index]);
             $('div#modal-edit-assembly').modal('hide');
+        }
+        $scope.newassembly = function () {
+            var asm = { Name: "", BuildServerType: $scope.m_extra.BuildServerTypes[0].Name, BSParameters: {} };
+            
+            $scope.assembly_edit(asm);
         }
         $scope.assembly_checkParameters = function (bsName, params) {
             var obj = null;

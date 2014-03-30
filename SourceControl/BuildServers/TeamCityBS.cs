@@ -165,6 +165,9 @@ namespace SourceControl.BuildServers
         }
         public bool CheckParameters(out string explanation)
         {
+            if(!parameters.ValidateValues(out explanation))
+                return false;
+
             if (!parameters.ArtifactName.EndsWith(".zip"))
             {
                 explanation = "zip archives supported only";
@@ -277,6 +280,36 @@ namespace SourceControl.BuildServers
             {
 
             }
+        }
+
+        public bool ValidateValues(out string result)
+        {
+            result = string.Empty;
+            if (string.IsNullOrWhiteSpace(Host))
+            {
+                result += ";\n" + "parameter " + "Host" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(Assembly))
+            {
+                result += ";\n" + "parameter " + "Assembly" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(User))
+            {
+                result += ";\n" + "parameter " + "User" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(Password))
+            {
+                result += ";\n" + "parameter " + "Password" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(ArtifactName))
+            {
+                result += ";\n" + "parameter " + "ArtifactName" + " is empty";
+            }
+            if (string.IsNullOrWhiteSpace(BuildType))
+            {
+                result += ";\n" + "parameter " + "BuildType" + " is empty";
+            }
+            return result == string.Empty;
         }
     }
 }

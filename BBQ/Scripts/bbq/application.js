@@ -176,6 +176,10 @@
     function mainPartChanged() {
         main_cmodel_id = uuid();
     }
+    function assmPartChanged() {
+        assm_cmodel_id = uuid();
+    }
+    
     // ==============
     function setServiceModel(succ, err) {
         if (typeof main_cmodel === 'undefined' || main_cmodel === null) {
@@ -248,6 +252,7 @@
 
         createTask: createTask,
         mainPartChanged: mainPartChanged,
+        assmPartChanged: assmPartChanged,
 
         syncToMain: setServiceModel,
         syncToMods: setModsModel,
