@@ -5,23 +5,24 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using TaskBroker.Assemblys;
+using TaskUniversum;
 
 namespace TaskBroker
 {
-    public class ModMod
+    public class ModMod : IBrokerModule
     {
         public string UniqueName { get { return MI.Name; } }
         public string Description { get { return MI.Description; } }
 
         public string ModAssembly { get; set; }
-        public TaskBroker.ExecutionType Role { get; set; }
+        public ExecutionType Role { get; set; }
 
         public IMod MI { get; set; }
         public void ExitEntry()
         {
             MI.Exit();
         }
-        public void InitialiseEntry(Broker context, TaskBroker.ModMod thisModule)
+        public void InitialiseEntry(IBroker context, IBrokerModule thisModule)
         {
             MI.Initialise(context, thisModule);
         }
@@ -77,7 +78,7 @@ namespace TaskBroker
                 // error
             }
         }
-        public void HostModule(string interfaceName, ModMod mod, Broker b)
+        public void HostModule(string interfaceName, ModMod mod, IBroker b)
         {
             Type iface = null;
             if (ModInterfaces.ContainsKey(interfaceName))
@@ -107,9 +108,9 @@ namespace TaskBroker
 
             // TODO: Extract to broker context
             mod.MI.Initialise(b, mod);
-            ModuleSelfTask[] tasks = mod.MI.RegisterTasks(mod);
+            TaskUniversum.Task[] tasks = mod.MI.RegisterTasks(mod);
             if (tasks != null)
-                foreach (ModuleSelfTask t in tasks)
+                foreach (TaskUniversum.Task t in tasks)
                 {
                     b.RegisterTempTask(t, mod);
                 }

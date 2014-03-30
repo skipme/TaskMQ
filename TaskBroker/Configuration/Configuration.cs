@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using TaskQueue;
+using TaskUniversum;
 
 namespace TaskBroker.Configuration
 {
@@ -95,7 +96,7 @@ namespace TaskBroker.Configuration
     public class cTask
     {
         public string Description { get; set; }
-        public TaskScheduler.IntervalType intervalType { get; set; }
+        public TaskUniversum.IntervalType intervalType { get; set; }
         public long intervalValue { get; set; }
         public Dictionary<string, object> parameters { get; set; }// equal with json object if configuration in json...
 
@@ -122,7 +123,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public TaskBroker.ExecutionType Role { get; set; }
+        public ExecutionType Role { get; set; }
         public string TypeFullName { get; set; }
         public Dictionary<string, string> ParametersModel { get; set; }
     }

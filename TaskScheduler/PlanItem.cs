@@ -9,7 +9,7 @@ namespace TaskScheduler
     {
         public string NameAndDescription { get; set; }
 
-        public IntervalType intervalType { get; set; }
+        public TaskUniversum.IntervalType intervalType { get; set; }
         public long intervalValue { get; set; }
         public DateTime intervalTime { get; set; }
 
@@ -30,13 +30,13 @@ namespace TaskScheduler
                 //case IntervalType.withoutInterval:
                 //    ms = 0;
                 //    break;
-                case IntervalType.intervalMilliseconds:
+                case TaskUniversum.IntervalType.intervalMilliseconds:
                     ms = (long)(LastExecutionTime.AddMilliseconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case IntervalType.intervalSeconds:
+                case TaskUniversum.IntervalType.intervalSeconds:
                     ms = (long)(LastExecutionTime.AddSeconds(intervalValue) - DateTime.Now).TotalMilliseconds;
                     break;
-                case IntervalType.DayTime:
+                case TaskUniversum.IntervalType.DayTime:
                     if (LastExecutionTime.Date == DateTime.Now.Date)
                         ms = (long)(DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
                     else 

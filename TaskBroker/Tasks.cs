@@ -4,31 +4,17 @@ using System.Linq;
 using System.Text;
 using TaskQueue.Providers;
 using TaskScheduler;
+using TaskUniversum;
 
 namespace TaskBroker
 {
-
-    public enum ExecutionType
-    {
-        Consumer = 0x11,
-        Producer
-    }
-    // utilisation between module interface and broker
-    public class ModuleSelfTask
-    {
-        public string ChannelName;
-        public string NameAndDescription;
-        public string ModuleName { get; set; }
-        public IntervalType intervalType { get; set; }
-        public long intervalValue { get; set; }
-    }
     public class QueueTask : TaskScheduler.PlanItem 
     {
         public string ChannelName;
         public ChannelAnteroom Anteroom;
 
         public Dictionary<string, object> Parameters;
-        public ModMod Module;
+        public IBrokerModule Module;
         public string ModuleName { get; set; }
         public bool Temp; // remove after restart/reset (this task used for autoconfigure and autoscale)
         

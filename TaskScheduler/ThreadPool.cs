@@ -124,7 +124,7 @@ namespace TaskScheduler
         }
         public void CreateIsolatedThreadForPlan(PlanItem pi)
         {
-            if (pi.intervalType == IntervalType.isolatedThread)
+            if (pi.intervalType == TaskUniversum.IntervalType.isolatedThread)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(IsolatedThreadEntry));
                 thread.Name = "iso " + pi.NameAndDescription;

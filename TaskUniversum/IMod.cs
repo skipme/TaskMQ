@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TaskQueue.Providers;
 
-namespace TaskBroker
+namespace TaskUniversum
 {
     /// <summary>
     /// Absolute module interface, this interface skipped by broker while configuration, use IModConsumer, IModProducer or IModIsolatedProducer
@@ -10,8 +10,8 @@ namespace TaskBroker
     public interface IMod
     {
         void Exit();
-        void Initialise(Broker context, TaskBroker.ModMod thisModule);
-        ModuleSelfTask[] RegisterTasks(TaskBroker.ModMod thisModule);
+        void Initialise(IBroker context, IBrokerModule moduleInstance);
+        Task[] RegisterTasks(IBrokerModule moduleInstance);
         
         string Name { get; }
         string Description { get; }
