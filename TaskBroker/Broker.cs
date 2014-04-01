@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using TaskBroker.Configuration;
 using TaskBroker.Statistics;
 using TaskQueue.Providers;
 using TaskScheduler;
 using TaskUniversum;
+using TaskUniversum.Statistics;
 using TaskUniversum.Task;
 
 namespace TaskBroker
@@ -481,11 +481,23 @@ namespace TaskBroker
             throw new NotImplementedException();
         }
 
-
         public ISourceManager GetSourceManager()
         {
             return AssemblyHolder;
         }
-        
+
+        public StatisticContainer GetChannelsStatistic()
+        {
+            StatisticContainer statc = new StatisticContainer();
+            foreach (BrokerStat sm in MessageChannels.GetStatistics())
+            {
+                if (sm == null)
+                    continue;
+                StatRange range = sm.GetFlushedMinRange();
+
+                statc.FlushedMinRanges.Add(new MetaStatRange() { Name = sm.Name, range = range });
+            }
+            return statc;
+        }
     }
 }

@@ -47,6 +47,8 @@
     <Compile Include="IntervalType.cs" />
     <Compile Include="ISCMRevision.cs" />
     <Compile Include="ISourceManager.cs" />
+    <Compile Include="StatisticContainer.cs" />
+    <Compile Include="StatisticModel.cs" />
     <Compile Include="TaskMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

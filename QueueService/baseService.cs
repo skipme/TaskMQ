@@ -4,6 +4,7 @@ using ServiceStack;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using TaskUniversum.Statistics;
 
 namespace QueueService
 {
@@ -160,7 +161,6 @@ namespace QueueService
             }
             else if (r.CheckBS)
             {
-                
                 Dictionary<string, object> bsParameters = JsonConvert.DeserializeObject<Dictionary<string, object>>(r.BSParameters);
                 string explain = null;
                 bool result = sourceManager.CheckBuildServerParameters(r.BSName, bsParameters, out explain);
@@ -179,14 +179,14 @@ namespace QueueService
         {
             StatisticResponseHeartbit h = new StatisticResponseHeartbit();
             h.Channels = new List<ItemCounter>();
-            foreach (TaskBroker.Statistics.BrokerStat sm in QueueService.ModProducer.broker.MessageChannels.GetStatistics())
+
+            StatisticContainer statCont = QueueService.ModProducer.broker.GetChannelsStatistic();
+            foreach (MetaStatRange mrange in statCont.FlushedMinRanges)
             {
-                if (sm == null)// TODO: means channel not owned by any task
-                    continue;
-                TaskBroker.Statistics.StatRange range = sm.GetFlushedMinRange();
+                StatRange range = mrange.range;
                 h.Channels.Add(new ItemCounter()
                 {
-                    Name = sm.Name,
+                    Name = mrange.Name,
                     Count = r.GetThroughput ? (int)range.PerMinute : (int)range.Counter,
                     Left = range.Left.ToString()
                 });

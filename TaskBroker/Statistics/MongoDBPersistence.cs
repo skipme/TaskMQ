@@ -9,7 +9,7 @@ using System.Text;
 
 namespace TaskBroker.Statistics
 {
-    public class MongoRange
+    public class MongoRange : TaskUniversum.Statistics.IPersistRange
     {
         public MongoRange()
         {

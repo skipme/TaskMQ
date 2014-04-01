@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskUniversum.Assembly;
+using TaskUniversum.Statistics;
 
 namespace TaskUniversum
 {
@@ -18,5 +19,6 @@ namespace TaskUniversum
         bool PushMessage(TaskQueue.Providers.TaskMessage msg);
 
         ISourceManager GetSourceManager();
+        StatisticContainer GetChannelsStatistic();
     }
 }
