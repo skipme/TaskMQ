@@ -380,29 +380,6 @@ namespace TaskBroker
         public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
         {
             // find all modules with messageType and channelname
-            //ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(MessageType);
-            //if (ch == null)
-            //    return null;
-            //if (ChannelName != null && ch.ChannelName != ChannelName)
-            //{
-            //    return null;
-            //}
-            //TItemModel modelModel = null;
-            //foreach (QueueTask t in from t in Tasks
-            //                        where t.ChannelName == ch.ChannelName
-            //                        select t)
-            //{
-            //    if (t.Module.MI is IModConsumer)
-            //    {
-            //        TItemModel m = ((IModConsumer)t.Module.MI).AcceptsModel;
-            //        if (modelModel != null)
-            //            throw new Exception("MessageType have multiple validation models ");
-            //        modelModel = m;
-            //    }
-            //}
-            //return new TaskQueue.RepresentedModel(modelModel.GetType());
-
-            //
             MessageChannel channel = MessageChannels.GetChannelForMessage(MessageType);
             if (channel == null || channel.AssignedMessageModel == null)
                 return null;
@@ -509,5 +486,6 @@ namespace TaskBroker
         {
             return AssemblyHolder;
         }
+        
     }
 }

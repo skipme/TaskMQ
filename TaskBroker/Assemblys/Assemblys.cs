@@ -55,7 +55,18 @@ namespace TaskBroker.Assemblys
             }
             return p;
         }
+        public bool CheckBuildServerParameters(string BSTypeName, Dictionary<string, object> bsParameters, out string explain)
+        {
+            SourceControl.BuildServers.IBuildServer bs;
+            if ((bs = assemblySources.artifacts.GetNewInstance(BSTypeName)) != null)
+            {
+                bs.SetParameters(bsParameters);
 
+                bool result = bs.CheckParameters(out explain);
+            }
+            explain = string.Empty;
+            return false;
+        }
         public Assemblys()
         {
             // host packages, modules

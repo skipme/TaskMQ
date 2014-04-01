@@ -10,5 +10,7 @@ namespace TaskUniversum
         void BuildSource(string assemblyProjectName);
         void FetchSource(string assemblyProjectName);
         void UpdatePackage(string assemblyProjectName);
+
+        bool CheckBuildServerParameters(string BSTypeName, Dictionary<string, object> bsParameters, out string explain);
     }
 }

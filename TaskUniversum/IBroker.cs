@@ -14,6 +14,7 @@ namespace TaskUniversum
         RestartApplication restartApp { get; }
         IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses();
 
+        TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null);
         bool PushMessage(TaskQueue.Providers.TaskMessage msg);
 
         ISourceManager GetSourceManager();

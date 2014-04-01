@@ -160,19 +160,15 @@ namespace QueueService
             }
             else if (r.CheckBS)
             {
-                SourceControl.BuildServers.IBuildServer bs;
-                if ((bs = QueueService.ModProducer.broker.AssemblyHolder.assemblySources.artifacts.GetNewInstance(r.BSName)) != null)
+                
+                Dictionary<string, object> bsParameters = JsonConvert.DeserializeObject<Dictionary<string, object>>(r.BSParameters);
+                string explain = null;
+                bool result = sourceManager.CheckBuildServerParameters(r.BSName, bsParameters, out explain);
+                return new
                 {
-                    //bs.SetParameters(r.BSParameters);
-                    bs.SetParameters(JsonConvert.DeserializeObject<Dictionary<string, object>>(r.BSParameters));
-                    string explain = null;
-                    bool result = bs.CheckParameters(out explain);
-                    return new
-                    {
-                        CheckResult = result,
-                        Remark = explain
-                    };
-                }
+                    CheckResult = result,
+                    Remark = explain
+                };
             }
             return new ServiceStack.HttpResult()
             {
