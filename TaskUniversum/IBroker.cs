@@ -13,5 +13,7 @@ namespace TaskUniversum
         RestartApplication resetBroker { get; }
         RestartApplication restartApp { get; }
         IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses();
+
+        bool PushMessage(TaskQueue.Providers.TaskMessage msg);
     }
 }

@@ -7,7 +7,7 @@ using TaskUniversum.Task;
 
 namespace TaskScheduler
 {
-    public class ThreadItem
+    public class ThreadContext
     {
         public bool Isolated { get; set; }
         public Thread hThread { get; set; }
@@ -19,14 +19,14 @@ namespace TaskScheduler
 
         public int ManagedID { get; set; }
 
-        public PlanItem ExecutionContext { get; set; }
+        public PlanItem Job { get; set; }
         public ExecutionPlan rootPlan { get; set; }
     }
 
     public class ThreadPool
     {
         const int maxThreads = 8;
-        List<ThreadItem> threads = new List<ThreadItem>();
+        List<ThreadContext> threads = new List<ThreadContext>();
         ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool() { Revoke(); }
         // Throughput tune
@@ -43,7 +43,7 @@ namespace TaskScheduler
         {
             get
             {
-                foreach (ThreadItem t in threads)
+                foreach (ThreadContext t in threads)
                 {
                     /* IsAlive checking if appdomain unloaded(forced stopping)*/
                     if (t.hThread.IsAlive &&
@@ -75,7 +75,7 @@ namespace TaskScheduler
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(ThreadEntry));
                 thread.Name = "TaskScheduler Thread#" + i;
-                ThreadItem ti = new ThreadItem()
+                ThreadContext ti = new ThreadContext()
                 {
                     hThread = thread,
                     rootPlan = plan
@@ -111,7 +111,7 @@ namespace TaskScheduler
         }
         public void CloseIsolatedThreads()
         {
-            foreach (ThreadItem t in threads)
+            foreach (ThreadContext t in threads)
             {
                 if (t.Isolated)
                 {
@@ -128,12 +128,12 @@ namespace TaskScheduler
             if (pi.intervalType == IntervalType.isolatedThread)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(IsolatedThreadEntry));
-                thread.Name = "iso " + pi.NameAndDescription;
-                ThreadItem ti = new ThreadItem()
+                thread.Name = "TaskScheduler IsolatedThread#" + pi.NameAndDescription;
+                ThreadContext ti = new ThreadContext()
                 {
                     hThread = thread,
                     rootPlan = plan,
-                    ExecutionContext = pi,
+                    Job = pi,
                     Isolated = true
                 };
 
@@ -148,60 +148,68 @@ namespace TaskScheduler
                 threads[i].StopThread = true;
             }
         }
-
-        static void IntermediateThread(ThreadItem ti)
+        /// <summary>
+        /// Pull next job from execution plan
+        /// </summary>
+        /// <param name="ti"></param>
+        static void IntermediateThread(ThreadContext ti)
         {
             lock (ti.rootPlan)
             {
                 if (ti.HasJob && ti.JobComplete)
                 {
-                    ti.ExecutionContext.ExucutingNow = false;
+                    ti.Job.ExucutingNow = false;
                 }
                 PlanItem pi = ti.rootPlan.Next();
-                ti.ExecutionContext = pi;
+                ti.Job = pi;
                 if (ti.HasJob = pi != null)
                 {
-                    ti.ExecutionContext.ExucutingNow = true;
+                    ti.Job.ExucutingNow = true;
                 }
                 ti.JobComplete = false;
             }
             //Console.WriteLine("Intermediate {0} {1}", ti.ManagedID, ti.hThread.IsThreadPoolThread);
         }
-        static void ExitThread(ThreadItem ti)
+        static void ExitThread(ThreadContext ti)
         {
             ti.StoppedThread = true;
             //Console.WriteLine("Exit" + ti.ManagedID);
         }
-        static void ThreadEntry(object o)
+        /// <summary>
+        /// All threads do it ;
+        /// this implementation have bottleneck -> IntermediateThread
+        /// </summary>
+        /// <param name="threadCtx"></param>
+        static void ThreadEntry(object threadCtx)
         {
-            ThreadItem ti = o as ThreadItem;
-            ti.ManagedID = ti.hThread.ManagedThreadId;
-            while (!ti.StopThread)
+            ThreadContext threadContext = threadCtx as ThreadContext;
+            threadContext.ManagedID = threadContext.hThread.ManagedThreadId;
+            while (!threadContext.StopThread)
             {
-                if (ti.HasJob)
+                if (threadContext.HasJob)
                 {
-                    PlanItem pi = ti.ExecutionContext;
+                    PlanItem planned = threadContext.Job;
 
-                    pi.planEntry(ti, pi);
+                    planned.JobEntry(threadContext, planned);
 
-                    pi.LastExecutionTime = DateTime.Now;
-                    ti.JobComplete = true;
+                    planned.LastExecutionTime = DateTime.Now;
+                    threadContext.JobComplete = true;
                     Thread.Sleep(0000);
                 }
                 else
                 {
                     Thread.Sleep(10);
                 }
-                IntermediateThread(ti);
+                IntermediateThread(threadContext);
             }
-            ExitThread(ti);
+            ExitThread(threadContext);
         }
         static void IsolatedThreadEntry(object o)
         {
-            ThreadItem ti = o as ThreadItem;
+            ThreadContext ti = o as ThreadContext;
             ti.ManagedID = ti.hThread.ManagedThreadId;
-            PlanItem pi = ti.ExecutionContext;
-            pi.planEntry(ti, pi);
+            PlanItem pi = ti.Job;
+            pi.JobEntry(ti, pi);
 
             ExitThread(ti);
         }

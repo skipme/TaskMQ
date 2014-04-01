@@ -11,6 +11,7 @@ namespace TaskBroker
     {
         public string ChannelName { get; set; }
         public BrokerStat ChannelStatistic;
+
         public ChannelAnteroom()
         {
             anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
@@ -18,11 +19,18 @@ namespace TaskBroker
         public Queue<TaskQueue.Providers.TaskMessage> anteroom;
         public TaskQueue.ITQueue Queue;
 
+        public bool InternalEmptyFlag { get; private set; }
+        public void ResetEmptyFlag()
+        {
+            InternalEmptyFlag = false;
+        }
+
         public bool Push(TaskMessage item)
         {
             try
             {
                 Queue.Push(item);
+                InternalEmptyFlag = false;
             }
             catch (Exception e)
             {
@@ -56,6 +64,7 @@ namespace TaskBroker
         {
             lock (anteroom)
             {
+
                 // the internal tuple is empty
                 if (anteroom.Count == 0)
                 {
@@ -79,11 +88,14 @@ namespace TaskBroker
                         return items[0];
                     }
                     // the channel queue is empty
+                    InternalEmptyFlag = true;
                     return null;
                 }
                 else
                 {
-                    return anteroom.Dequeue();
+                    TaskQueue.Providers.TaskMessage result = anteroom.Dequeue();
+                    InternalEmptyFlag = result == null;
+                    return result;
                 }
             }
         }

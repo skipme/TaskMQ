@@ -40,14 +40,14 @@ namespace TaskBroker
                      intervalType = IntervalType.intervalSeconds,
                      intervalValue = 30,
                      NameAndDescription="statistic maintenance task",
-                     planEntry = (ThreadItem ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
+                     JobEntry = (ThreadContext ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
                 },
                 // 
                 new PlanItem(){
                      intervalType = IntervalType.intervalSeconds,
                      intervalValue = 30,
                      NameAndDescription="assemblies maintenance task",
-                     planEntry = (ThreadItem ti, PlanItem pi)=>
+                     JobEntry = (ThreadContext ti, PlanItem pi)=>
                      { 
                          AssemblyHolder.assemblySources.FetchAllIfRequired();
                          AssemblyHolder.assemblySources.BuildAllIfRequired();
@@ -183,7 +183,7 @@ namespace TaskBroker
 
                 intervalType = it,
                 intervalValue = intervalValue,
-                planEntry = ep,
+                JobEntry = ep,
 
                 NameAndDescription = Description
             };
@@ -236,7 +236,7 @@ namespace TaskBroker
             {
                 ep = IsolatedTaskEntry;
             }
-            t.planEntry = ep;
+            t.JobEntry = ep;
             t.Module = module;
             t.Temp = true;
 
@@ -290,7 +290,7 @@ namespace TaskBroker
             Scheduler.SetPlan(plan);
         }
 
-        private void TaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
+        private void TaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
             switch (task.Module.Role)
@@ -303,7 +303,7 @@ namespace TaskBroker
                     break;
             }
         }
-        private void IsolatedTaskEntry(TaskScheduler.ThreadItem ti, TaskScheduler.PlanItem pi)
+        private void IsolatedTaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
             try
@@ -330,17 +330,19 @@ namespace TaskBroker
 
             // Pop item from queue
             ChannelAnteroom ch = task.Anteroom;//MessageChannels.GetAnteroom(task.ChannelName);
-
+            
+            if (ch.InternalEmptyFlag)
+                return;
 
             TaskQueue.Providers.TaskMessage message = ch.Next();
 
-            if (message == null)
-            {
-                // this must be replaced with better way communication with message bus
-                Console.WriteLine("consumer empty: {0}", task.ChannelName);
-                task.Suspended = true;
-                return;
-            }
+            //if (message == null)
+            //{
+            //    // this must be replaced with better way communication with message bus
+            //    Console.WriteLine("Consumer empty, suspended: {0}", task.ChannelName);
+            //    task.Suspended = true;
+            //    return;
+            //}
             ch.ChannelStatistic.inc();
 
             TaskQueue.Providers.TaskMessage item = message;
@@ -418,13 +420,13 @@ namespace TaskBroker
             bool status = ch.Push(msg);
 
             // TODO: replace with suspend interface
-            var x = from t in Tasks
-                    where t.ChannelName == ch.ChannelName
-                    select t;
-            foreach (QueueTask t in x)
-            {
-                t.Suspended = false;
-            }
+            //var x = from t in Tasks
+            //        where t.ChannelName == ch.ChannelName
+            //        select t;
+            //foreach (QueueTask t in x)
+            //{
+            //    t.Suspended = false;
+            //}
             // ~
 
             return status;

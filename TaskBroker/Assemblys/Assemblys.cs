@@ -13,8 +13,8 @@ namespace TaskBroker.Assemblys
 {
     public class AssemblyStatus : IAssemblyStatus
     {
-        public IRevision BuildServerRev;
-        public IRevision PackageRev;
+        public IRevision BuildServerRev { get; set; }
+        public IRevision PackageRev { get; set; }
 
         public string State { get; set; }
 

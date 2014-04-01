@@ -14,7 +14,7 @@ namespace TaskScheduler
         public long intervalValue { get; set; }
         public DateTime intervalTime { get; set; }
 
-        public PlanItemEntryPoint planEntry;
+        public PlanItemEntryPoint JobEntry;
 
         public DateTime LastExecutionTime { get; set; }
         public bool ExucutingNow { get; set; }
