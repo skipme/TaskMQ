@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LibGit2Sharp">
-      <HintPath>..\packages\LibGit2Sharp.0.13.0.0\lib\net35\LibGit2Sharp.dll</HintPath>
+    <Reference Include="LibGit2Sharp, Version=0.16.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\LibGit2Sharp.0.16.0.0\lib\net35\LibGit2Sharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
@@ -138,7 +139,12 @@ if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y "$(ProjectDir)..\packages\LibGit2Sharp.0.13.0.0\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
-xcopy /s /y "$(ProjectDir)..\packages\LibGit2Sharp.0.13.0.0\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
+xcopy /s /y "$(ProjectDir)..\packages\LibGit2Sharp.0.13.0.0\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"
+if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
+if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
+xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.16.0.0\lib\net35\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
+if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
+xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.16.0.0\lib\net35\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

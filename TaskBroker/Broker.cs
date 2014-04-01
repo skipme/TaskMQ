@@ -336,6 +336,10 @@ namespace TaskBroker
 
             TaskQueue.Providers.TaskMessage message = ch.Next();
 
+            if (message == null)
+            {
+                return;
+            }
             //if (message == null)
             //{
             //    // this must be replaced with better way communication with message bus
@@ -346,7 +350,7 @@ namespace TaskBroker
             ch.ChannelStatistic.inc();
 
             TaskQueue.Providers.TaskMessage item = message;
-
+     
             bool updated = ((IModConsumer)mod.MI).Push(task.Parameters, ref message);
             if (updated)
             {

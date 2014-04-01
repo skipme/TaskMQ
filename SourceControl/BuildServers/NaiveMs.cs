@@ -50,7 +50,10 @@ namespace SourceControl.BuildServers
         {
             this.parameters.SetHolder(Mparameters);
         }
-
+        public void SetParameters(NaiveMSfromGitParams parameters)
+        {
+            this.parameters = parameters;
+        }
         public BuildArtifacts GetArtifacts()
         {
             return scm.GetArtifacts(parameters.AssemblyPath);

@@ -1,1 +1,0 @@
-updateModulePackage https://github.com/skipme/TaskMQ QueueService/QueueService.csproj QueueService
