@@ -223,23 +223,24 @@ namespace QueueService
         }
         public object Get(ConfigRequest request)
         {
-            if (request.MainPart)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            else if (request.ModulesPart)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            else if (request.AssemblysPart)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            else if (request.ConfigurationExtra)
-            {
-                return QueueService.ModProducer.broker.AssemblyHolder.GetBuildServersConfiguration().SerialiseJson();
-            }
-            return null;
+            return QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
+            //if (request.MainPart)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
+            //else if (request.ModulesPart)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
+            //else if (request.AssemblysPart)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
+            //else if (request.ConfigurationExtra)
+            //{
+            //    return QueueService.ModProducer.broker.GetSourceManager().GetJsonBuildServersConfiguration();
+            //}
+            //return null;
         }
         public ConfigResponse Post(ConfigRequest request)
         {
             if (request.MainPart)
             {
-                QueueService.ModProducer.broker.Configurations.RegisterConfiguration(request.ConfigId, request.Body);
+                QueueService.ModProducer.broker.RegisterNewConfiguration(request.ConfigId, request.Body);
                 //Console.Write("conf main part set: {0}", request.Body);
             }
             else if (request.ModulesPart)
@@ -258,30 +259,10 @@ namespace QueueService
             string errors = "";
             bool resp = false;
 
-            lock (_lock)
-            {
-                if (request.MainPart != null)
-                    resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMain(request.MainPart, out errors);
-
-                if (resp && request.ModulesPart != null)
-                    resp = QueueService.ModProducer.broker.Configurations.ValidateAndCommitMods(request.ModulesPart, out errors);
-
-                if (resp)
-                    QueueService.ModProducer.broker.Configurations.ClearConfigurationsForCommit();// drop all pending commits
-            }
+            resp = QueueService.ModProducer.broker.ValidateAndCommitConfigurations(request.MainPart, request.ModulesPart, out errors, request.Reset, request.Restart);
             if (resp)
             {
                 errors = "OK";
-                if (request.Reset)
-                {
-                    // delay reset....
-                    QueueService.ModProducer.broker.resetBroker();
-                }
-                else if (request.Restart)
-                {
-                    // delay restart....
-                    QueueService.ModProducer.broker.restartApp();
-                }
             }
             else
             {

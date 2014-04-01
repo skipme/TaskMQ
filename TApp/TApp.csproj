@@ -83,6 +83,10 @@
       <Project>{71D36B0A-382D-4FCF-95AF-67CFEA21887D}</Project>
       <Name>TaskScheduler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TaskUniversum\TaskUniversum.csproj">
+      <Project>{cb666077-a79e-403e-bc4e-6c7cf4a9742d}</Project>
+      <Name>TaskUniversum</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
       <Project>{5C45CDBA-1AAC-4349-8D42-28B7AD794BA0}</Project>
       <Name>FileContentArchive</Name>

@@ -20,5 +20,10 @@ namespace TaskUniversum
 
         ISourceManager GetSourceManager();
         StatisticContainer GetChannelsStatistic();
+
+        void RegisterNewConfiguration(string id, string body);
+        bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false);
+
+        string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
     }
 }

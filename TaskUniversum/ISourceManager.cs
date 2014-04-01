@@ -12,5 +12,6 @@ namespace TaskUniversum
         void UpdatePackage(string assemblyProjectName);
 
         bool CheckBuildServerParameters(string BSTypeName, Dictionary<string, object> bsParameters, out string explain);
+        string GetJsonBuildServersConfiguration();
     }
 }

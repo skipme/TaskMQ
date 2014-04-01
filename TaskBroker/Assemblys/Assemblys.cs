@@ -44,6 +44,10 @@ namespace TaskBroker.Assemblys
     public class Assemblys : ISourceManager
     {
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
+        public string GetJsonBuildServersConfiguration()
+        {
+            return GetBuildServersConfiguration().SerialiseJsonString();
+        }
         public TaskBroker.Configuration.ExtraParameters GetBuildServersConfiguration()
         {
             TaskBroker.Configuration.ExtraParameters p = new Configuration.ExtraParameters();

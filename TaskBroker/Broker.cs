@@ -499,5 +499,57 @@ namespace TaskBroker
             }
             return statc;
         }
+
+        public void RegisterNewConfiguration(string id, string body)
+        {
+            Configurations.RegisterConfiguration(id, body);
+        }
+
+
+        public bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false)
+        {
+            bool result = false;
+            errors = string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(MainID))
+                result = Configurations.ValidateAndCommitMain(MainID, out errors);
+
+            if (result && !string.IsNullOrWhiteSpace(ModulesID))
+                result = Configurations.ValidateAndCommitMods(ModulesID, out errors);
+
+            if (result)
+                Configurations.ClearConfigurationsForCommit();// drop all pending commits
+
+            if (result)
+            {
+                if (Reset)
+                {
+                    // delay reset....
+                    resetBroker();
+                }
+                else if (Restart)
+                {
+                    // delay restart....
+                    restartApp();
+                }
+            }
+
+            return result;
+        }
+        public string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra)
+        {
+            if (Main)
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(this).SerialiseJsonString();
+            else if (Modules)
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(this).SerialiseJsonString();
+            else if (Assemblys)
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(this).SerialiseJsonString();
+            else if (Extra)
+            {
+                return GetSourceManager().GetJsonBuildServersConfiguration();
+            }
+
+            return string.Empty;
+        }
     }
 }
