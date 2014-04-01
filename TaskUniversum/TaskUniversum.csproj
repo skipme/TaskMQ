@@ -46,6 +46,7 @@
     <Compile Include="IMod.cs" />
     <Compile Include="IntervalType.cs" />
     <Compile Include="ISCMRevision.cs" />
+    <Compile Include="ISourceManager.cs" />
     <Compile Include="TaskMeta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

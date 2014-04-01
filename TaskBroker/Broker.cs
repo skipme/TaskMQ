@@ -330,7 +330,7 @@ namespace TaskBroker
 
             // Pop item from queue
             ChannelAnteroom ch = task.Anteroom;//MessageChannels.GetAnteroom(task.ChannelName);
-            
+
             if (ch.InternalEmptyFlag)
                 return;
 
@@ -502,6 +502,12 @@ namespace TaskBroker
         public IEnumerable<KeyValuePair<string, TaskUniversum.Assembly.IAssemblyStatus>> GetSourceStatuses()
         {
             throw new NotImplementedException();
+        }
+
+
+        public ISourceManager GetSourceManager()
+        {
+            return AssemblyHolder;
         }
     }
 }

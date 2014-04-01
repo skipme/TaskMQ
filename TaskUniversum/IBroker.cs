@@ -15,5 +15,7 @@ namespace TaskUniversum
         IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses();
 
         bool PushMessage(TaskQueue.Providers.TaskMessage msg);
+
+        ISourceManager GetSourceManager();
     }
 }

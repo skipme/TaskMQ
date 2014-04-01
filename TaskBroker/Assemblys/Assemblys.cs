@@ -41,7 +41,7 @@ namespace TaskBroker.Assemblys
         }
     }
 
-    public class Assemblys
+    public class Assemblys : ISourceManager
     {
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
         public TaskBroker.Configuration.ExtraParameters GetBuildServersConfiguration()

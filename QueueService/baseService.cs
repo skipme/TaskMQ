@@ -105,6 +105,7 @@ namespace QueueService
         string _lock = "lock";
         public object Get(AssembliesRequest r)
         {
+            TaskUniversum.ISourceManager sourceManager = QueueService.ModProducer.broker.GetSourceManager();
             string _na = "not available";
             if (r.Statuses)
             {
@@ -147,15 +148,15 @@ namespace QueueService
             }
             else if (r.Build)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.BuildSource(r.Name);
+                sourceManager.BuildSource(r.Name);
             }
             else if (r.Fetch)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.FetchSource(r.Name);
+                sourceManager.FetchSource(r.Name);
             }
             else if (r.Package)
             {
-                QueueService.ModProducer.broker.AssemblyHolder.UpdatePackage(r.Name);
+                sourceManager.UpdatePackage(r.Name);
             }
             else if (r.CheckBS)
             {
