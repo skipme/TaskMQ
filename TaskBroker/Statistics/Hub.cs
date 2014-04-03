@@ -6,6 +6,7 @@ using TaskUniversum.Statistics;
 
 namespace TaskBroker.Statistics
 {
+    public delegate void FlushCB(StatRange range, Dictionary<string, object> match);
     public class StatHub
     {
         public static int[] useRanges = new int[] { StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
@@ -15,19 +16,32 @@ namespace TaskBroker.Statistics
         private MongoDBPersistence PersistenceChunks;
         public StatHub()
         {
-            PersistenceChunks = new MongoDBPersistence("mongodb://user:1234@localhost:27017/Messages", "Messages");
-            OptimisePerformance();
+            string cc = System.Configuration.ConfigurationManager.AppSettings["statConnectionString"];
+            string ccc = System.Configuration.ConfigurationManager.AppSettings["statConnectionDatabase"];
+            if (string.IsNullOrWhiteSpace(cc) || string.IsNullOrWhiteSpace(ccc))
+            {
+                Console.WriteLine("checkout app.config, set statistic mongodb connection parameters!");
+            }
+            PersistenceChunks = new MongoDBPersistence(cc,ccc);
         }
-        private void OptimisePerformance()
+        public void Clear()
+        {
+            RetrievedModels.Clear();
+        }
+        private void OptimisePerformance(BrokerStat matchData)
         {
             try
             {
-                PersistenceChunks.EnsureIndex(new BrokerStat("", "").MatchData);
+                OptimisePerformance(matchData.MatchData);
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't ensure statistic collection index");
+                Console.WriteLine("can't ensure statistic collection index for: {0}:{1} '{2}'", matchData.Role, matchData.Name, e.Message);
             }
+        }
+        private void OptimisePerformance(Dictionary<string, object> matchData)
+        {
+            PersistenceChunks.EnsureIndex(matchData);
         }
         public void FlushRetairedChunks()
         {
@@ -45,11 +59,9 @@ namespace TaskBroker.Statistics
                 int secAlive = aliveCount * useRanges[i];
                 PersistenceChunks.PurgeExcessive(useRanges[i], secAlive);
             }
-            //PersistenceChunks.PurgeExcessive();
         }
         public List<StatMatchModel> RetrievedModels = new List<StatMatchModel>();
 
-        public delegate void FlushCB(StatRange range, Dictionary<string, object> match);
         private void FlushCallBack(StatRange range, Dictionary<string, object> match)
         {
             MongoRange r = new MongoRange
@@ -65,30 +77,30 @@ namespace TaskBroker.Statistics
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't save statistic collection index");
+                Console.WriteLine("can't save statistic chunk: {0}", e.Message);
             }
-            //Console.WriteLine("stat ch saved: {0}", match.Values.FirstOrDefault());
         }
 
         public BrokerStat InitialiseModel(BrokerStat instanceMatch)
         {
+            OptimisePerformance(instanceMatch);
             return InitialiseModel<BrokerStat>(instanceMatch);
         }
         private T InitialiseModel<T>(T match)
             where T : StatMatchModel
         {
-            // restore from persistent component
             MongoRange[] pranges = null;
+
+            // restore from persistent component
             if (match.MatchData.Count != 0)
             {
                 try
                 {
                     pranges = PersistenceChunks.GetNewest(match.MatchData).ToArray();
-
                 }
                 catch (Exception e)
                 {
-
+                    // TODO: connection exception
                 }
             }
             if (pranges != null)

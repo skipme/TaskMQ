@@ -10,9 +10,9 @@ namespace TaskBroker.Statistics
         StatRange[] currentRanges;
         StatRange[] lastRanges;
 
-        StatHub.FlushCB flushCallback;
+        FlushCB flushCallback;
 
-        public void CreateRanges(int[] secRanges, StatHub.FlushCB f = null)
+        public void CreateRanges(int[] secRanges, FlushCB f = null)
         {
             currentRanges = new StatRange[secRanges.Length];
             lastRanges = new StatRange[secRanges.Length];
@@ -23,7 +23,7 @@ namespace TaskBroker.Statistics
 
             flushCallback = f;
         }
-        public void CreateRanges(int[] secRanges, MongoRange[] pranges, StatHub.FlushCB f = null)
+        public void CreateRanges(int[] secRanges, MongoRange[] pranges, FlushCB f = null)
         {
             currentRanges = new StatRange[secRanges.Length];
             lastRanges = new StatRange[secRanges.Length];

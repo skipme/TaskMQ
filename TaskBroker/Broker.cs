@@ -78,6 +78,10 @@ namespace TaskBroker
         {
             MessageChannels = new MessageTypeClassificator();
             Tasks = new List<QueueTask>();
+
+            if (Modules != null)
+                Statistics.Clear();
+
             if (Modules != null)
                 foreach (var mod in Modules.Modules.Values)
                 {
@@ -350,7 +354,7 @@ namespace TaskBroker
             ch.ChannelStatistic.inc();
 
             TaskQueue.Providers.TaskMessage item = message;
-     
+
             bool updated = ((IModConsumer)mod.MI).Push(task.Parameters, ref message);
             if (updated)
             {

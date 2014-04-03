@@ -12,6 +12,7 @@ namespace TaskBroker.Statistics
         public BrokerStat(string role, string name)
         {
             this.Name = name;
+            this.Role = role;
             match = new Dictionary<string, object>
             {
                 {"_role", role},
@@ -20,6 +21,8 @@ namespace TaskBroker.Statistics
         }
 
         public string Name { get; private set; }
+        public string Role { get; private set; }
+
         public override Dictionary<string, object> MatchData
         {
             get
