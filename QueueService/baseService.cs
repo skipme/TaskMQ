@@ -4,6 +4,7 @@ using ServiceStack;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
 using TaskUniversum.Statistics;
 
 namespace QueueService
@@ -223,7 +224,10 @@ namespace QueueService
         }
         public object Get(ConfigRequest request)
         {
-            return QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
+            Encoding enc = Encoding.UTF8;
+            string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
+            byte[] jsonUtf8 = enc.GetBytes(conf);
+            return jsonUtf8;
             //if (request.MainPart)
             //    return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
             //else if (request.ModulesPart)

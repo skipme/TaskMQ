@@ -67,6 +67,7 @@ namespace TaskBroker.Assemblys
                 bs.SetParameters(bsParameters);
 
                 bool result = bs.CheckParameters(out explain);
+                return result;
             }
             explain = string.Empty;
             return false;
@@ -82,11 +83,11 @@ namespace TaskBroker.Assemblys
             // build, update packages: 
             assemblySources = new SourceControl.Assemblys.AssemblyProjects(Directory.GetCurrentDirectory());
         }
-        public IEnumerable<KeyValuePair<string, AssemblyStatus>> GetSourceStatuses()
+        public IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses()
         {
             foreach (SourceControl.Assemblys.AssemblyProject proj in assemblySources.hostedProjects)
             {
-                yield return new KeyValuePair<string, AssemblyStatus>(proj.moduleName, new AssemblyStatus(proj));
+                yield return new KeyValuePair<string, IAssemblyStatus>(proj.moduleName, new AssemblyStatus(proj));
             }
         }
         public void UpdatePackage(string Name)

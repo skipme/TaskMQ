@@ -486,7 +486,7 @@ namespace TaskBroker
 
         public IEnumerable<KeyValuePair<string, TaskUniversum.Assembly.IAssemblyStatus>> GetSourceStatuses()
         {
-            throw new NotImplementedException();
+            return AssemblyHolder.GetSourceStatuses();
         }
 
         public ISourceManager GetSourceManager()

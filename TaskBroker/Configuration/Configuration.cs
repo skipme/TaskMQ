@@ -24,18 +24,14 @@ namespace TaskBroker.Configuration
         {
             if (enc == null)
                 enc = Encoding.UTF8;
-            string v = SerialiseJsonString(enc);
+            string v = SerialiseJsonString();
 
             return enc.GetBytes(v);
         }
-        public string SerialiseJsonString(Encoding enc = null)
+        public string SerialiseJsonString()
         {
-            if (enc == null)
-                enc = Encoding.UTF8;
-
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
-            //string v = ServiceStack.Text.JsonSerializer.SerializeToString(this, this.GetType());
-            //v = ServiceStack.Text.JsvFormatter.Format(v); not clever!
+
             return v;
         }
 
