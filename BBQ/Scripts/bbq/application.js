@@ -183,7 +183,12 @@
     // ==============
     function setServiceModel(succ, err) {
         if (typeof main_cmodel === 'undefined' || main_cmodel === null) {
-            succ("mods model not changed since last sync...");
+            succ("service model not changed since last sync...");
+            return;
+        }
+        if (main_cmodel_id === null)
+        {
+            succ("service model not changed...");
             return;
         }
         json_proxy(function (data) {
@@ -196,9 +201,12 @@
         }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
     }
     function setModsModel(succ, err) {
-        //succ({Result:'OK', ConfigCommitID: uuid()});
         if (typeof mods_cmodel_id === 'undefined' || mods_cmodel_id === null) {
             succ("mods model not changed since last sync...");
+            return;
+        }
+        if (mods_cmodel_id === null) {
+            succ("mods model not changed...");
             return;
         }
         json_proxy(function (data) {
@@ -212,7 +220,6 @@
     }
     // =========
     function CommitAndReset(succ, err) {
-        //succ({ Result: 'OK', ConfigCommitID: uuid() });
         json_proxy(function (data) {
             if (data.Result == 'OK') {
                 resetModels();
@@ -223,6 +230,25 @@
                     err(data.Result);
             }
         }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }), urlpostfix: "/commit" });
+    }
+    function CommitAndRestart(succ, err) {
+        var datapost = { Restart: true };
+
+        if(main_cmodel_id !== null)
+        datapost.MainPart = main_cmodel_id;
+        if(mods_cmodel_id !== null)
+            datapost.ModulesPart = mods_cmodel_id;
+
+        json_proxy(function (data) {
+            if (data.Result == 'OK') {
+                resetModels();
+                succ(data);
+
+            } else {
+                if (err)
+                    err(data.Result);
+            }
+        }, err, { data: angular.toJson(datapost), urlpostfix: "/commit" });
     }
     //=========
     resetModels();
@@ -257,6 +283,7 @@
         syncToMain: setServiceModel,
         syncToMods: setModsModel,
         CommitAndReset: CommitAndReset,
+        CommitAndRestart: CommitAndRestart,
 
         setHostAddress: setHostAddress
     };

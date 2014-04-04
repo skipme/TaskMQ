@@ -64,23 +64,30 @@ namespace SourceControl.Assemblys
             }
         }
         SCMRevision _PackageRevision;
+        DateTime LastCheck_PCKREV = DateTime.Now;
         public SCMRevision PackageRevision
         {
             get
             {
-                if (_PackageRevision == null)
+                if (_PackageRevision == null || (DateTime.Now - LastCheck_PCKREV).TotalSeconds > 80)
+                {
                     _PackageRevision = Versions.LatestRevision;
+                    LastCheck_PCKREV = DateTime.Now;
+                }
                 return _PackageRevision;
             }
         }
+
         SCMRevision _BuildServerRevision;
+        DateTime LastCheck_BSREV = DateTime.Now;
         public SCMRevision BuildServerRevision
         {
             get
             {
-                if (_BuildServerRevision == null)
+                if (_BuildServerRevision == null || (DateTime.Now - LastCheck_BSREV).TotalSeconds > 20)
                 {
                     _BuildServerRevision = BuildServer.GetVersion();
+                    LastCheck_BSREV = DateTime.Now;
                 }
                 return _BuildServerRevision;
             }

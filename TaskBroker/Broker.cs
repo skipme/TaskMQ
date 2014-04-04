@@ -516,7 +516,7 @@ namespace TaskBroker
 
         public bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false)
         {
-            bool result = false;
+            bool result = true;
             errors = string.Empty;
 
             if (!string.IsNullOrWhiteSpace(MainID))

@@ -26,7 +26,7 @@ namespace BBQ.Controllers
         }
         public JsonResult PxySet(string data, string urlprefix = null, string urlpostfix = null)
         {
-            string urlbase = tmq_host + urlprefix ?? "tmq/c" + urlpostfix ?? "";
+            string urlbase = tmq_host + (urlprefix ?? "tmq/c") + (urlpostfix ?? "");
 
             var client = WebRequest.Create(urlbase + "?format=json");
             client.Method = "POST";
