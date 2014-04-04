@@ -559,5 +559,10 @@ namespace TaskBroker
 
             return string.Empty;
         }
+
+        public ILogger APILogger()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

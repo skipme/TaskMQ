@@ -25,5 +25,9 @@ namespace TaskUniversum
         bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false);
 
         string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
+
+        // Module API's: logger, eventBus, ...
+        ILogger APILogger();
+
     }
 }

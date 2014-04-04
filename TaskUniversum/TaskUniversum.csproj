@@ -39,17 +39,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExecutionType.cs" />
-    <Compile Include="IAssemblyStatus.cs" />
-    <Compile Include="IBroker.cs" />
-    <Compile Include="IBrokerModule.cs" />
-    <Compile Include="IMod.cs" />
-    <Compile Include="IntervalType.cs" />
-    <Compile Include="ISCMRevision.cs" />
-    <Compile Include="ISourceManager.cs" />
-    <Compile Include="StatisticContainer.cs" />
-    <Compile Include="StatisticModel.cs" />
-    <Compile Include="TaskMeta.cs" />
+    <Compile Include="Common\ExecutionType.cs" />
+    <Compile Include="Common\IAssemblyStatus.cs" />
+    <Compile Include="AppToMod\IBroker.cs" />
+    <Compile Include="AppToMod\IBrokerModule.cs" />
+    <Compile Include="AppToMod\IMod.cs" />
+    <Compile Include="Common\IntervalType.cs" />
+    <Compile Include="Common\ISCMRevision.cs" />
+    <Compile Include="Common\IScopeLogger.cs" />
+    <Compile Include="Common\ISourceManager.cs" />
+    <Compile Include="Common\StatisticContainer.cs" />
+    <Compile Include="Common\StatisticModel.cs" />
+    <Compile Include="Common\TaskMeta.cs" />
+    <Compile Include="ModApi\ScopeLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +60,7 @@
       <Name>TaskQueue</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
