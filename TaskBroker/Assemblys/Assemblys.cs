@@ -43,6 +43,8 @@ namespace TaskBroker.Assemblys
 
     public class Assemblys : ISourceManager
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
         public string GetJsonBuildServersConfiguration()
         {
@@ -175,7 +177,7 @@ namespace TaskBroker.Assemblys
             catch (Exception e)
             {
                 remarks = string.Format("assembly loading error: '{0}' :: {1} :: {2}", a.ContainerName, e.Message, e.StackTrace);
-                Console.WriteLine(remarks);
+                logger.Exception(e, "load assembly", "");
                 return false;
             }
             return true;
@@ -225,7 +227,8 @@ namespace TaskBroker.Assemblys
             }
             else
             {
-                Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+               // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+                logger.Error("loading shared library failed: not found {0}", Parts[0]);
             }
             return null;
         }

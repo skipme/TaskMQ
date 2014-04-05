@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 using TaskUniversum.Statistics;
 
 namespace TaskBroker.Statistics
@@ -9,6 +10,8 @@ namespace TaskBroker.Statistics
     public delegate void FlushCB(StatRange range, Dictionary<string, object> match);
     public class StatHub
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public static int[] useRanges = new int[] { StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
         //private const int aliveCount = 20160;// 1week for 30 sec interval, 2week's for minute, 420day's for 30 min interval...
         private const int aliveCount = 2880;// 1day for 30 sec interval
@@ -20,9 +23,10 @@ namespace TaskBroker.Statistics
             string ccc = System.Configuration.ConfigurationManager.AppSettings["statConnectionDatabase"];
             if (string.IsNullOrWhiteSpace(cc) || string.IsNullOrWhiteSpace(ccc))
             {
-                Console.WriteLine("checkout app.config, set statistic mongodb connection parameters!");
+                logger.Error("checkout app.config, set statistic mongodb connection parameters!");
+                return;
             }
-            PersistenceChunks = new MongoDBPersistence(cc,ccc);
+            PersistenceChunks = new MongoDBPersistence(cc, ccc);
         }
         public void Clear()
         {
@@ -36,7 +40,7 @@ namespace TaskBroker.Statistics
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't ensure statistic collection index for: {0}:{1} '{2}'", matchData.Role, matchData.Name, e.Message);
+                logger.Error("can't ensure statistic collection index for: {0}:{1} '{2}'", matchData.Role, matchData.Name, e.Message);
             }
         }
         private void OptimisePerformance(Dictionary<string, object> matchData)
@@ -77,7 +81,7 @@ namespace TaskBroker.Statistics
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't save statistic chunk: {0}", e.Message);
+                logger.Exception(e, "FlushCallBack", "can't save statistic chunk");
             }
         }
 
@@ -111,7 +115,7 @@ namespace TaskBroker.Statistics
             else
             {
                 match.CreateRanges(useRanges);
-                Console.WriteLine("warning: for stat chunk undeclared match data, not persistent");
+                logger.Warning("for stat chunk undeclared match data, not persistent");
             }
             //
             RetrievedModels.Add(match);

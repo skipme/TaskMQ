@@ -44,6 +44,8 @@ namespace TaskBroker
 
     public class ModHolder
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public ModHolder(Broker b)
         {
             Modules = new Dictionary<string, ModMod>();
@@ -92,7 +94,7 @@ namespace TaskBroker
             }
             else
             {
-                Console.WriteLine("the module at {0} not found", interfaceName);
+                logger.Error("the module at {0} not found", interfaceName);
                 return;
                 // error
             }
@@ -102,7 +104,7 @@ namespace TaskBroker
             mod.ModAssembly = loadedInterfaces[interfaceName];
             if (Modules.ContainsKey(mod.UniqueName))
             {
-                Console.WriteLine("the module: {0} at {1} already registered", mod.UniqueName, interfaceName);
+                logger.Error("the module: {0} at {1} already registered", mod.UniqueName, interfaceName);
                 return;
             }
             Modules.Add(mod.UniqueName, mod);

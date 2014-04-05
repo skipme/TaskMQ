@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using TaskBroker.Statistics;
 using TaskQueue.Providers;
+using TaskUniversum;
 
 namespace TaskBroker
 {
     public class ChannelAnteroom
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public string ChannelName { get; set; }
         public BrokerStat ChannelStatistic;
 
@@ -34,7 +37,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("anteroom push error {0}", e.Message);
+                logger.Exception(e, "Message Push", "anteroom push error");
                 return false;
             }
             return true;
@@ -48,7 +51,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("anteroom update error {0}", e.Message);
+                logger.Exception(e, "Message Update", "anteroom update error");
                 return false;
             }
             return true;
@@ -75,7 +78,7 @@ namespace TaskBroker
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("anteroom take error: {0}", e.Message);
+                        logger.Exception(e, "Message Take", "anteroom take error");
                         return null;
                     }
 

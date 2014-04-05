@@ -13,6 +13,8 @@ namespace TaskBroker
 {
     public class Broker : IBroker
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public RestartApplication restartApp { get; set; }
         public RestartApplication resetBroker { get; set; }
 
@@ -27,7 +29,7 @@ namespace TaskBroker
             this.restartApp = restartApp;
             this.resetBroker = resetBroker;
 
-            Logger = new TaskBroker.Logger.CommonTape(new Logger.LoggerEndpoint[]{
+            ModulesLogger = new TaskBroker.Logger.CommonTape(new Logger.LoggerEndpoint[]{
                 new Logger.ConsoleEndpoint()
             });
             ClearConfiguration();
@@ -120,7 +122,7 @@ namespace TaskBroker
         public List<QueueTask> Tasks;
         public List<PlanItem> MaintenanceTasks;
 
-        Logger.CommonTape Logger;
+        Logger.CommonTape ModulesLogger;
         public ModHolder Modules;
         public Assemblys.Assemblys AssemblyHolder;
         public QueueClassificator QueueInterfaces;
@@ -320,7 +322,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("exception occured in module in isolated call procedure: '{0}', module '{1}' will be turned off", e.Message, task.ModuleName);
+                logger.Exception(e, "isolated call procedure", "module '{1}' will be turned off", task.ModuleName);
             }
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)
@@ -387,7 +389,7 @@ namespace TaskBroker
 
         private void ProducerEntry(QueueTask task)
         {
-            Console.WriteLine("producer: {0}", task.ChannelName);
+            logger.Debug("producer: {0}", task.ChannelName);
         }
         public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
         {
@@ -402,7 +404,7 @@ namespace TaskBroker
             ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(msg.MType);
             if (ch == null)
             {
-                Console.WriteLine("push: unknown message type: {0}", msg.MType);
+                logger.Warning("push: unknown message type: {0}", msg.MType);
                 return false;
             }
             msg.AddedTime = DateTime.UtcNow;
@@ -445,7 +447,7 @@ namespace TaskBroker
             if (restartApp != null)
                 restartApp();
             else
-                Console.WriteLine("Can't restart application");
+                logger.Error("Can't restart application");
         }
         //
         public void StopBroker()
@@ -460,7 +462,7 @@ namespace TaskBroker
             //stop isolated threads...
             Scheduler.CloseIsolatedThreads();
             //Tasks.RemoveAll(x => x.Temp);
-            Console.WriteLine("Broker has been stopped...");
+            logger.Info("Broker has been stopped...");
         }
         public void LoadAssemblys()
         {
@@ -566,7 +568,7 @@ namespace TaskBroker
 
         public ILogger APILogger()
         {
-            return TaskUniversum.ModApi.ScopeLogger.GetClassLogger(Logger, 2);
+            return TaskUniversum.ModApi.ScopeLogger.GetClassLogger(ModulesLogger, 2);
         }
     }
 }

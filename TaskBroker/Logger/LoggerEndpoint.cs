@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TaskBroker.Logger
 {
-    abstract class LoggerEndpoint
+    public abstract class LoggerEndpoint
     {
         public abstract void WriteFrame(TaskUniversum.LogTapeFrame frame);
     }

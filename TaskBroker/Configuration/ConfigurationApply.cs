@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskBroker.Configuration;
+using TaskUniversum;
 
 namespace TaskBroker
 {
     public static class ConfigurationApply
     {
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         public static void Apply(this ConfigurationBroker con, Broker broker)
         {
-            Console.WriteLine("trying to apply main configuration with datetime stamp: {0}", con.CreationDate);
+            logger.Debug("trying to apply main configuration with datetime stamp: {0}", con.CreationDate);
 
             foreach (var connection in con.Connections)
             {
@@ -32,7 +34,7 @@ namespace TaskBroker
         }
         public static void Apply(this ConfigurationAssemblys con, Broker broker)
         {
-            Console.WriteLine("trying to apply assembly's configuration with datetime stamp: {0}", con.CreationDate);
+            logger.Debug("trying to apply assembly's configuration with datetime stamp: {0}", con.CreationDate);
 
             foreach (var assemblyProject in con.Assemblys)
             {

@@ -23,9 +23,14 @@ namespace TApp
             Process.Start(startInfo);
             Environment.Exit(0);
         }
-        
+
         static void Main(string[] args)
         {
+            TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
+                new TaskBroker.Logger.ConsoleEndpoint()
+            });
+            TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
+
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);

@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace TaskBroker.Configuration
 {
     public class ConfigurationDepot
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         const string key_main = "JC_MAIN";
         const string key_modules = "JC_MODULES";
         const string key_assemblys = "JC_ASSEMBLYS";
@@ -37,7 +40,7 @@ namespace TaskBroker.Configuration
             {
                 return bc;
             }
-            Console.WriteLine(errors);
+            logger.Error(errors);
             return null;
         }
         public Configuration.ConfigurationAssemblys GetNewestAssemblysConfiguration()
@@ -53,7 +56,7 @@ namespace TaskBroker.Configuration
             {
                 return bc;
             }
-            Console.WriteLine(errors);
+            logger.Error(errors);
             return null;
         }
 

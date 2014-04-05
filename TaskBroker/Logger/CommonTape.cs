@@ -5,7 +5,7 @@ using System.Text;
 
 namespace TaskBroker.Logger
 {
-    class CommonTape : TaskUniversum.ILogTape
+    public class CommonTape : TaskUniversum.ILogTape
     {
         List<LoggerEndpoint> Endpoints;
         public CommonTape(LoggerEndpoint[] endpoints)

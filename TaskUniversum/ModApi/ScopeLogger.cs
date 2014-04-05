@@ -9,7 +9,12 @@ namespace TaskUniversum.ModApi
     public class ScopeLogger : ILogger, IScopeLogger
     {
         private ILogTape baseLogger;
+        private static ILogTape commonLogTape;
 
+        public static void RegisterCommonTape(ILogTape tape)
+        {
+            commonLogTape = tape;
+        }
         public static ScopeLogger GetClassLogger(ILogTape baseLogger = null, int framesToSkip = 1)
         {
             // extracted from: https://github.com/NLog
@@ -31,6 +36,9 @@ namespace TaskUniversum.ModApi
                 framesToSkip++;
                 loggerName = declaringType.FullName;
             } while (declaringType.Module.Name.Equals("mscorlib.dll", StringComparison.OrdinalIgnoreCase));
+
+            if (baseLogger == null)
+                baseLogger = commonLogTape;
 
             return new ScopeLogger(loggerName, baseLogger);
         }

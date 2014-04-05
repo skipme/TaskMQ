@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using TaskQueue;
 using TaskQueue.Providers;
+using TaskUniversum;
 
 namespace TaskBroker
 {
     public class MessageTypeClassificator
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public MessageTypeClassificator()
         {
             MChannelsList = new List<MessageChannel>();
@@ -45,7 +48,7 @@ namespace TaskBroker
             }
             else
             {
-                throw new Exception("-> Error: assign message type model to channel: channel name " + channelName + "not exists");
+                throw new Exception("Error: assign message type model to channel: channel name " + channelName + "not exists");
             }
 
         }
@@ -65,7 +68,7 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                Console.WriteLine("-> error in selector optimisation {0}, {1}", e.Message, e.StackTrace);
+                logger.Exception(e, "OptimiseForSelector", "error in selector optimisation");
             }
         }
         public MessageChannel GetChannelForMessage(string mtName)
@@ -118,7 +121,7 @@ namespace TaskBroker
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("-> anteroom initialisation error: {0}, {1}", e.Message, e.StackTrace);
+                    logger.Exception(e, "Anterooms.Add", "anteroom initialisation error");
                 }
             }
 
