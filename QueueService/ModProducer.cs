@@ -14,8 +14,11 @@ namespace QueueService
         baseService appHost;
         public static IBroker broker;
 
+        ILogger logger;
+
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
+            logger = context.APILogger();
             if (broker != null)
             {// except 
             }
@@ -28,7 +31,7 @@ namespace QueueService
         {
             appHost.Start(ListeningOn);
 
-            System.Console.WriteLine("AppHost queue services Created at {0}, listening on {1}",
+            logger.Info("AppHost queue services Created at {0}, listening on {1}",
                 DateTime.Now, ListeningOn);
         }
         public void IsolatedProducerStop()

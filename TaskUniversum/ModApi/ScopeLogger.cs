@@ -35,11 +35,12 @@ namespace TaskUniversum.ModApi
             return new ScopeLogger(loggerName, baseLogger);
         }
 
-        private LogTapeFrame formFrame(string eventName, string message)
+        private LogTapeFrame formFrame(LogFrameEvent eventType, string message)
         {
             return new LogTapeFrame
             {
-                EventName = eventName,
+                EventType = eventType,
+                EventName = eventType.ToString(),
                 Message = message,
                 Scope = scopeSource,
                 Time = DateTime.UtcNow
@@ -60,9 +61,9 @@ namespace TaskUniversum.ModApi
                 failedOperationDescription = failedOperationDescription
             };
         }
-        private void pushFrame(string eventName, string message)
+        private void pushFrame(LogFrameEvent eventType, string message)
         {
-            pushFrame(formFrame(eventName, message));
+            pushFrame(formFrame(eventType, message));
         }
         private void pushFrame(LogTapeFrame frame)
         {
@@ -79,27 +80,27 @@ namespace TaskUniversum.ModApi
 
         public void Write(string format, params object[] args)
         {
-            pushFrame(string.Empty, string.Format(format, args));
+            pushFrame(LogFrameEvent.unknown, string.Format(format, args));
         }
 
         public void Info(string format, params object[] args)
         {
-            pushFrame("Info", string.Format(format, args));
+            pushFrame(LogFrameEvent.Info, string.Format(format, args));
         }
 
         public void Warning(string format, params object[] args)
         {
-            pushFrame("Warning", string.Format(format, args));
+            pushFrame(LogFrameEvent.Warning, string.Format(format, args));
         }
 
         public void Error(string format, params object[] args)
         {
-            pushFrame("Error", string.Format(format, args));
+            pushFrame(LogFrameEvent.Error, string.Format(format, args));
         }
 
         public void Debug(string format, params object[] args)
         {
-            pushFrame("Debug", string.Format(format, args));
+            pushFrame(LogFrameEvent.Debug, string.Format(format, args));
         }
 
         public void Exception(Exception ex, string failedOperationDescription, string format, params object[] args)

@@ -69,6 +69,13 @@
     <Compile Include="Configuration\ConfigurationStorage.cs" />
     <Compile Include="Configuration\ConfigurationValidation.cs" />
     <Compile Include="Configuration\ModuleManager.cs" />
+    <Compile Include="Logger\CommonTape.cs" />
+    <Compile Include="Logger\ConEndpoint.cs" />
+    <Compile Include="Logger\mdFileEndpoint.cs" />
+    <Compile Include="Logger\JsonStreamFileEndpoint.cs" />
+    <Compile Include="Logger\FileEndpoint.cs" />
+    <Compile Include="Logger\LoggerEndpoint.cs" />
+    <Compile Include="Logger\MongoDBEndpoint.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="ModHolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

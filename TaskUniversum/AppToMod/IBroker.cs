@@ -18,14 +18,13 @@ namespace TaskUniversum
         TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null);
         bool PushMessage(TaskQueue.Providers.TaskMessage msg);
 
-        ISourceManager GetSourceManager();
-        StatisticContainer GetChannelsStatistic();
-
         void RegisterNewConfiguration(string id, string body);
         bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false);
 
         string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
 
+        ISourceManager GetSourceManager();
+        StatisticContainer GetChannelsStatistic();
         // Module API's: logger, eventBus, ...
         ILogger APILogger();
 

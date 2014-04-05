@@ -105,6 +105,14 @@ namespace QueueService
     public class ngService : Service
     {
         string _lock = "lock";
+        TaskUniversum.ILogger logger;
+
+        public ngService()
+        {
+            logger = QueueService.ModProducer.broker.APILogger();
+        }
+
+
         public object Get(AssembliesRequest r)
         {
             TaskUniversum.ISourceManager sourceManager = QueueService.ModProducer.broker.GetSourceManager();
@@ -209,7 +217,7 @@ namespace QueueService
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("error while message processing: {0} '{1}'", e.Message, e.StackTrace);
+                    logger.Exception(e, "message put", "error while message processing");
                     return new ServiceStack.HttpResult()
                     {
                         StatusCode = HttpStatusCode.InternalServerError
@@ -228,17 +236,6 @@ namespace QueueService
             string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
             byte[] jsonUtf8 = enc.GetBytes(conf);
             return jsonUtf8;
-            //if (request.MainPart)
-            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            //else if (request.ModulesPart)
-            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            //else if (request.AssemblysPart)
-            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(QueueService.ModProducer.broker).SerialiseJson();
-            //else if (request.ConfigurationExtra)
-            //{
-            //    return QueueService.ModProducer.broker.GetSourceManager().GetJsonBuildServersConfiguration();
-            //}
-            //return null;
         }
         public ConfigResponse Post(ConfigRequest request)
         {
@@ -259,7 +256,8 @@ namespace QueueService
         }
         public ConfigResponse Post(ConfigCommitRequest request)
         {
-            Console.WriteLine("id's {0} {1}", request.MainPart, request.ModulesPart);
+            logger.Debug("id's {0} {1}", request.MainPart, request.ModulesPart);
+             
             string errors = "";
             bool resp = false;
 

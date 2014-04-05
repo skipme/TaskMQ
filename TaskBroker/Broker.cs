@@ -27,6 +27,9 @@ namespace TaskBroker
             this.restartApp = restartApp;
             this.resetBroker = resetBroker;
 
+            Logger = new TaskBroker.Logger.CommonTape(new Logger.LoggerEndpoint[]{
+                new Logger.ConsoleEndpoint()
+            });
             ClearConfiguration();
 
             Statistics = new StatHub();
@@ -117,6 +120,7 @@ namespace TaskBroker
         public List<QueueTask> Tasks;
         public List<PlanItem> MaintenanceTasks;
 
+        Logger.CommonTape Logger;
         public ModHolder Modules;
         public Assemblys.Assemblys AssemblyHolder;
         public QueueClassificator QueueInterfaces;
@@ -562,7 +566,7 @@ namespace TaskBroker
 
         public ILogger APILogger()
         {
-            throw new NotImplementedException();
+            return TaskUniversum.ModApi.ScopeLogger.GetClassLogger(Logger, 2);
         }
     }
 }
