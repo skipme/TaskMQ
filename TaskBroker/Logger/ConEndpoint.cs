@@ -15,15 +15,15 @@ namespace TaskBroker.Logger
             switch (frame.EventType)
             {
                 case TaskUniversum.LogFrameEvent.Warning:
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+                    Console.ForegroundColor = ConsoleColor.Yellow;
                     resetreq = true;
                     break;
                 case TaskUniversum.LogFrameEvent.Error:
-                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.ForegroundColor = ConsoleColor.Red;
                     resetreq = true;
                     break;
                 case TaskUniversum.LogFrameEvent.Debug:
-                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    Console.ForegroundColor = ConsoleColor.Blue;
                     resetreq = true;
                     break;
                 case TaskUniversum.LogFrameEvent.Exception:

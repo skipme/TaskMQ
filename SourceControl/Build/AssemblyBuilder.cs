@@ -3,14 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.Build
 {
 
     public class AssemblyBuilder
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public class bLogger : Microsoft.Build.Framework.ILogger, IDisposable
         {
+            ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
             StringBuilder log = new StringBuilder();
             public void Initialize(Microsoft.Build.Framework.IEventSource eventSource)
             {
@@ -33,7 +38,7 @@ namespace SourceControl.Build
 
             void eventSource_ErrorRaised(object sender, Microsoft.Build.Framework.BuildErrorEventArgs e)
             {
-                Console.WriteLine("\t[{0}] {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
+                logger.Debug("buildlog: {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
                 log.AppendFormat("\t[{0}] {1}: {2} in {3} at {4}", e.Timestamp, e.SenderName, e.Message, e.File, e.LineNumber);
             }
 
@@ -97,17 +102,17 @@ namespace SourceControl.Build
             BuildResultAssets = null;
             try
             {
-                using (bLogger logger = new bLogger())
+                using (bLogger BuildLogger = new bLogger())
                 {
                     Project p = new Project(ProjectLocation);
 
                     string path = p.GetPropertyValue("TargetPath");
                     string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".pdb");
 
-                    Console.WriteLine("building project: {0}", ProjectLocation);
+                    logger.Debug("building project: {0}", ProjectLocation);
 
-                    buildResultOK = p.Build(logger);
-                    Log = logger.Result();
+                    buildResultOK = p.Build(BuildLogger);
+                    Log = BuildLogger.Result();
 
                     if (buildResultOK)
                     {

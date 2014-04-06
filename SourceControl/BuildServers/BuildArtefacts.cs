@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
@@ -49,6 +50,8 @@ namespace SourceControl.BuildServers
     /// </summary>
     public class BuildArtifacts
     {
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public BuildArtifacts() { Artefacts = new List<BuildArtifact>(); }
 
         public BuildArtifact GetArtifact(string name)
@@ -124,7 +127,7 @@ namespace SourceControl.BuildServers
 
             if (!artefactAssemblyFound)
             {
-                Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactName);
+                logger.Error(" BuildArtifacts:FromZipArchive assembly not found in zip : {0}", AssemblyArtefactName);
                 return null;
             }
 
@@ -160,7 +163,7 @@ namespace SourceControl.BuildServers
 
             if (!artefactAssemblyFound)
             {
-                Console.WriteLine(" from build artifact not found assembly: {0}", AssemblyArtefactAbsPath);
+                logger.Error(" BuildArtifacts:FromDirectory container ready but assembly not found in filesys: {0}", AssemblyArtefactAbsPath);
                 return null;
             }
 

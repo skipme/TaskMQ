@@ -6,12 +6,19 @@ using System.Net.Mail;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using TaskUniversum;
 
 namespace EmailConsumer
 {
     public class Sender
     {
-        public static bool Send(MailModel model, SmtpModel con)
+        ILogger logger;
+        public Sender(ILogger logger)
+        {
+            this.logger = logger;
+        }
+        
+        public bool Send(MailModel model, SmtpModel con)
         {
             MailMessage msg = new MailMessage();
             try// common validation - prevent major configuration errors
@@ -28,6 +35,8 @@ namespace EmailConsumer
             {
                 model.SendErrors = 5;
                 model.LastSError = "please check email model value:" + e.Message;
+
+                logger.Exception(e, "send email - form", "");
                 return true;
             }
             // 
@@ -49,6 +58,8 @@ namespace EmailConsumer
             {
                 model.SendErrors++;
                 model.LastSError = "unexpected: " + e.Message;
+
+                logger.Exception(e, "send email", "");
                 return false;
             }
         }
@@ -65,7 +76,7 @@ namespace EmailConsumer
             }
             return result;
         }
-        public static bool Send(MailMessage message, SmtpModel con)
+        public bool Send(MailMessage message, SmtpModel con)
         {
             if (con.OverrideCertificateSecurity)
             {

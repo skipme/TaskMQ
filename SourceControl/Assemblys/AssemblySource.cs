@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.Assemblys
 {
     public class AssemblySCM
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public string SourceUriOrigin { get; private set; }// repository url
         public string ProjectFilePath { get; private set; }
         public string Name { get; set; }
@@ -72,7 +75,7 @@ namespace SourceControl.Assemblys
             }
             else
             {
-                Console.WriteLine("build project failure: {0}", builder.Log);
+                logger.Error("build project failure: {0}", builder.Log);
             }
             lastBuildLog = builder.Log;
 
@@ -85,7 +88,7 @@ namespace SourceControl.Assemblys
             AssemblyBuilder builder = new AssemblyBuilder(ProjectFilePath);
             if (!(bresult = builder.BuildProject()))
             {
-                Console.WriteLine("build project failure: {0}", builder.Log);
+                logger.Error("build project failure: {0}", builder.Log);
             }
             lastBuildLog = builder.Log;
 
@@ -96,7 +99,7 @@ namespace SourceControl.Assemblys
             string assemblyAbs = System.IO.Path.Combine(this.WorkingDir, assemblyLocation);
             if (!File.Exists(assemblyAbs))
             {
-                Console.WriteLine("can't find output assembly");
+                logger.Error("GetArtifacts can't find output assembly");
                 return null;
             }
 

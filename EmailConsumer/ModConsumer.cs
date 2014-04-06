@@ -10,6 +10,8 @@ namespace EmailConsumer
 {
     public class ModConsumer : IModConsumer
     {
+        Sender emailSender;
+
         public bool Push(Dictionary<string, object> parameters, ref TaskMessage q_parameter)
         {
             System.Threading.Thread.Sleep(10);
@@ -19,7 +21,8 @@ namespace EmailConsumer
             MailModel mail = new MailModel(q_parameter);
 
             // send email
-            bool result = Sender.Send(mail, smtp_p);
+            bool result = emailSender.Send(mail, smtp_p);
+
             if (mail.SendErrors > 5)
                 result = true;
             q_parameter = mail;
@@ -33,6 +36,7 @@ namespace EmailConsumer
 
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
+            emailSender = new Sender(context.APILogger());
         }
 
         public string Name

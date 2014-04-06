@@ -6,17 +6,21 @@ using System.Text;
 using TaskQueue.Providers;
 using SourceControl.BuildServers.TeamCity;
 using TaskQueue;
+using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
     public class NaiveMSfromGit : IBuildServer
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
+        NaiveMSfromGitParams parameters = new NaiveMSfromGitParams();
+
         public NaiveMSfromGit()
         {
             State = BuildServerState.fetch_required;
         }
-        NaiveMSfromGitParams parameters = new NaiveMSfromGitParams();
-
+       
         SourceControl.Assemblys.AssemblySCM _scm;
         SourceControl.Assemblys.AssemblySCM scm
         {
@@ -88,7 +92,7 @@ namespace SourceControl.BuildServers
             State = BuildServerState.fetch;
 
             bool result = scm.SetUpToDate();
-            Console.WriteLine("source '{0}' update: {1}", scm.Name, result ? "ok" : "fail");
+            logger.Debug("gitms bs: source '{0}' update: {1}", scm.Name, result ? "ok" : "fail");
             State = result ? BuildServerState.fetch_ok : BuildServerState.fetch_error;
         }
 

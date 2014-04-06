@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace FileContentArchive
 {
     public class ZipStream : FileContentArchive.IFileStorage
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         Stream zipArchive;
 
         public ZipStream(Stream stream)
@@ -16,9 +18,9 @@ namespace FileContentArchive
             this.zipArchive = stream;
             if (!CheckArchive())
             {
-                if (ResetFile())
+                if (!ResetFile())
                 {
-                    Console.WriteLine("zip reset ok...");
+                    logger.Debug("zip reset failure...");
                 }
             }
         }
@@ -154,7 +156,7 @@ namespace FileContentArchive
             }
             catch (Exception e)
             {
-                Console.WriteLine("zip corrupted...");
+                logger.Exception(e, "CheckArchive", "zip corrupted...");
                 return false;
             }
         }
@@ -174,7 +176,7 @@ namespace FileContentArchive
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't reset zip archive...");
+                logger.Exception(e, "ResetFile", "can't reset zip archive...");
                 return false;
             }
             return true;

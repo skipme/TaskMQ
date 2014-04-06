@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace FileContentArchive
 {
@@ -12,6 +13,7 @@ namespace FileContentArchive
         // not thread-safe 
 
         //ZipFile zipFile;
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         string FileLoc;
 
         public ZipStorage(string fileloc)
@@ -19,9 +21,9 @@ namespace FileContentArchive
             this.FileLoc = fileloc;
             if (!CheckFile())
             {
-                if (ResetFile())
+                if (!ResetFile())
                 {
-                    Console.WriteLine("zip reset ok...");
+                    logger.Debug("zip reset failure: {0}", FileLoc);
                 }
             }
         }
@@ -146,7 +148,7 @@ namespace FileContentArchive
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("zip corrupted...");
+                    logger.Exception(e, "CheckArchive", "zip corrupted: {0}", FileLoc);
                     return false;
                 }
             }
@@ -171,7 +173,7 @@ namespace FileContentArchive
             }
             catch (Exception e)
             {
-                Console.WriteLine("can't reset zip archive...");
+                logger.Exception(e, "ResetFile", "can't reset zip archive: {0}", FileLoc);
                 return false;
             }
             return true;

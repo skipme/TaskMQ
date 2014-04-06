@@ -4,11 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.Git
 {
     public class git_scm : SCM
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)
         { UpdateStatus(); }
@@ -31,7 +34,7 @@ namespace SourceControl.Git
                     catch (Exception e)
                     {
                         status = Status.fetchFailure;
-                        Console.WriteLine("exception while trying to fetch: {0}", e.Message);
+                        logger.Exception(e, "git Fetch", "exception while trying to fetch");
                     }
                 }
             }
@@ -71,7 +74,7 @@ namespace SourceControl.Git
             }
             catch (Exception e)
             {
-                Console.WriteLine("git-scm '{0}' local copy error: {1}", this.cloneUri, e.Message);
+                logger.Exception(e, "git open, checkout", "'{0}' local copy error: {1}", this.cloneUri, e.Message);
                 return false; 
             }
             return true;
@@ -98,7 +101,7 @@ namespace SourceControl.Git
             }
             catch(Exception e)
             {
-                Console.WriteLine("git scm: Clone failure at '{0}, msg: {1}", cloneUri, e.Message);
+                logger.Exception(e, "git clone", "Clone failure at '{0}, msg: {1}", cloneUri, e.Message);
                 status = Status.cloneFailure;
                 return false;
             }

@@ -6,6 +6,7 @@ using System.Text;
 using TaskQueue.Providers;
 using SourceControl.BuildServers.TeamCity;
 using TaskQueue;
+using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
@@ -19,7 +20,9 @@ namespace SourceControl.BuildServers
         // http://localhost:8380/httpAuth/app/rest/builds/id:7/artifacts/children
         // http://localhost:8380/httpAuth/app/rest/builds/id:7/artifacts/content/debug.zip
 
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         TeamCityBSParams parameters = new TeamCityBSParams();
+
         public TItemModel GetParametersModel()
         {
             return this.parameters;
@@ -49,7 +52,7 @@ namespace SourceControl.BuildServers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.Exception(e, "GetBuilds", "");
                 return null;
             }
         }
@@ -68,7 +71,7 @@ namespace SourceControl.BuildServers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.Exception(e, "GetBuild", "");
                 return null;
             }
         }
@@ -86,7 +89,7 @@ namespace SourceControl.BuildServers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.Exception(e, "GetArtifact", "");
                 return null;
             }
         }
@@ -104,7 +107,7 @@ namespace SourceControl.BuildServers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.Exception(e, "GetChange", "");
                 return null;
             }
         }
@@ -122,7 +125,7 @@ namespace SourceControl.BuildServers
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                logger.Exception(e, "GetChanges", "");
                 return null;
             }
         }

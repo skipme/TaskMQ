@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using TaskUniversum;
 
 namespace TaskBroker
 {
     public class ApplicationKeeper
     {
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public static ManualResetEvent sync;
 
         public static void AppdomainLoop()
@@ -17,7 +20,7 @@ namespace TaskBroker
             {
                 sync.Reset();
                 // create appdomain
-                Console.WriteLine("domain starting.");
+                logger.Debug("domain starting.");
 
                 AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
                 AppDomain Domain = AppDomain.CreateDomain("ApplicationKeeper", null, setup);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.Containers
 {
@@ -10,6 +11,8 @@ namespace SourceControl.Containers
     /// </summary>
     public class AssemblyVersionPackage
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public AssemblyVersionPackage(Ref.AssemblyArtifacts meta, Containers.AssemblyBinVersions archive)
         {
             Version = meta;
@@ -44,7 +47,7 @@ namespace SourceControl.Containers
             }
             else
             {
-                Console.WriteLine("error while artefact extraction");
+                logger.Error("error while artefact extraction: tag: {0}, file:{0}", Version.VersionTag, art.FileName);
                 return null;
             }
             return res.Data;
@@ -58,7 +61,7 @@ namespace SourceControl.Containers
             }
             else
             {
-                Console.WriteLine("error while artefact extraction");
+                logger.Error("error while lib artefact extraction: tag: {0}, file:{0}", Version.VersionTag, Version.FileLibarary);
                 return null;
             }
             return res.Data;
@@ -73,7 +76,7 @@ namespace SourceControl.Containers
             }
             else
             {
-                Console.WriteLine("error while artefact extraction");
+                logger.Error("error while lib symbols artefact extraction: tag: {0}, file:{0}", Version.VersionTag, Version.FileSymbols);
                 return null;
             }
             return res.Data;
