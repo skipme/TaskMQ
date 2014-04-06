@@ -124,6 +124,10 @@
             succ(extra_cmodel);
         }, err, { ConfigurationExtra: true });
     }
+    function getChannelToMTypeMap(succ, err)
+    {
+        jsonp(succ, err, {ChannelMTypeMap: true});
+    }
     //----------------------------------------------------------------------------===========================
     function jsonp(succ, err, data) {
         $.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000, cache: false })
@@ -275,6 +279,8 @@
         syncFromMods: getModsModel,
         syncFromAssemblys: getAssemblysModel,
         syncFromExtras: getExtrasModel,
+
+        getChannelToMTypeMap: getChannelToMTypeMap,
 
         createTask: createTask,
         mainPartChanged: mainPartChanged,

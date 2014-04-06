@@ -17,6 +17,7 @@ namespace QueueService
         public bool AssemblysPart { get; set; }
 
         public bool ConfigurationExtra { get; set; } // registered message queue types, build server types
+        public bool ChannelMTypeMap { get; set; }
 
         public string Body { get; set; }
         public string ConfigId { get; set; }
@@ -232,6 +233,10 @@ namespace QueueService
         }
         public object Get(ConfigRequest request)
         {
+            if (request.ChannelMTypeMap)
+            {
+                return QueueService.ModProducer.broker.GetCurrentChannelMTypeMap();
+            }
             Encoding enc = Encoding.UTF8;
             string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
             byte[] jsonUtf8 = enc.GetBytes(conf);

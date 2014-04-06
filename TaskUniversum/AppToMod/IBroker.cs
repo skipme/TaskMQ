@@ -16,6 +16,8 @@ namespace TaskUniversum
         IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses();
 
         TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null);
+        Dictionary<string, string> GetCurrentChannelMTypeMap();
+
         bool PushMessage(TaskQueue.Providers.TaskMessage msg);
 
         void RegisterNewConfiguration(string id, string body);

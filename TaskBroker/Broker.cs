@@ -389,7 +389,7 @@ namespace TaskBroker
 
         private void ProducerEntry(QueueTask task)
         {
-            logger.Debug("producer: {0}", task.ChannelName);
+            logger.Debug("(not implemented...) producer: {0}", task.ChannelName);
         }
         public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
         {
@@ -569,6 +569,15 @@ namespace TaskBroker
         public ILogger APILogger()
         {
             return TaskUniversum.ModApi.ScopeLogger.GetClassLogger(ModulesLogger, 2);
+        }
+
+        /// <summary>
+        /// Message type assigned to channel with task registration, one channel can operate one mtype
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, string> GetCurrentChannelMTypeMap()
+        {
+            return MessageChannels.MChannelsList.ToDictionary(o => o.UniqueName, o => o.AssignedMessageType);
         }
     }
 }

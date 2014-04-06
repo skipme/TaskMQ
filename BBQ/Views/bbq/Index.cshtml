@@ -241,7 +241,7 @@
                                 <td>{{m.Name}}
                                 </td>
                                 <td>{{m.connectionName}}</td>
-                                <td>{{m.MType}}
+                                <td class="chMtypeName" channel="{{m.Name}}">
                                 </td>
                                 <td><span class="channel-sparkline-throughput" statsel="{{m.Name}}">sparkline...</span></td>
                                 <td><span class="channel-sparkline-heartbeat" statsel="{{m.Name}}">sparkline...</span></td>
@@ -250,7 +250,7 @@
                     </table>
                 </div>
                 <div class="well">
-                    <h4>Connections
+                    <h4>Queues / connection parameters
                 <br>
                     </h4>
                     <h4></h4>

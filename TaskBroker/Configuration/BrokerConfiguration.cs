@@ -24,8 +24,7 @@ namespace TaskBroker.Configuration
                           select new cChannel()
                           {
                               connectionName = cc.ConnectionName,
-                              Name = cc.UniqueName,
-                              //MType = cc.MessageType,
+                              Name = cc.UniqueName
                           }).ToArray();
 
             c.Tasks = (from tt in b.Tasks

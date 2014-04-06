@@ -333,18 +333,39 @@
             ).ondone(function () {
                 $scope.triggers.Info = !bbq_tmq.check_synced();
                 if (!$scope.triggers.Info) {
+
                     bbq_tmq.toastr_info(" Configuration synced ", true);
+
                     updateHeartbeat();
                     updateAssemblies();
+
+                    $scope.$apply();
+
+                    updateChannelToMTypeMap();
                 }
                 else {
                     bbq_tmq.toastr_error(" Error in configuration sync.", true);
                     bbq_tmq.rollbackAppC();
+
+                    $scope.$apply();
                 }
-                $scope.$apply();
+                
             });
         }
-        
+        function updateChannelToMTypeMap()
+        {
+            bbq_tmq.getChannelToMTypeMap(function (data) {
+                $("div#servp td.chMtypeName").text("* not assigned");
+                for (var chn in data) {
+                    $("div#servp td.chMtypeName[channel='" + chn + "']").text(data[chn]);
+                }
+                
+            }, function () {
+                bbq_tmq.toastr_error(" Error in retrieve channel MType map.");
+            });
+            
+        }
+
         $scope.sync = function () {
 
             bbq_tmq.setHostAddress($("#txt-configurationhost").val());
