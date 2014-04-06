@@ -173,9 +173,14 @@ namespace TaskBroker
             Dictionary<string, object> parameters = null, string Description = "-")
         {
             ModMod module = Modules.GetByName(moduleName);
+            MessageChannel channel = MessageChannels.GetChannelByName(ChannelName);
 
             if (module == null)
-                throw new Exception("-> error: RegisterTask: required module not found: " + moduleName);
+                throw new Exception("RegisterTask: required module not found: " + moduleName);
+
+            if (channel == null)
+                throw new Exception("RegisterTask: required channel not found: " + ChannelName);
+
             TaskScheduler.PlanItemEntryPoint ep = TaskEntry;
             if (it == IntervalType.isolatedThread)
             {
@@ -202,16 +207,21 @@ namespace TaskBroker
             {
                 if (!typeof(IModConsumer).IsAssignableFrom(module.MI.GetType()))
                 {
-                    throw new Exception("-> error: Consumer module required a consumer interface");
+                    throw new Exception("Consumer module required a consumer interface");
                 }
                 if (ChannelName == null)
                 {
-                    throw new Exception("-> error: Consumer module required a channel");
+                    throw new Exception("Consumer module required a channel");
                 }
                 else
                 {
+                    // monitoring put operation
                     t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", ChannelName));
+                    // set selector
+                    TaskQueue.TQItemSelector selector = ((IModConsumer)module.MI).ConfigureSelector();
+                    // channel -> model(MType)
                     MessageChannels.AssignMessageTypeToChannel(ChannelName, ((IModConsumer)module.MI).AcceptsModel, moduleName);
+                    channel.consumerSelector = selector;
                 }
             }
             Tasks.Add(t);

@@ -50,7 +50,6 @@ namespace TaskBroker
             {
                 throw new Exception("Error: assign message type model to channel: channel name " + channelName + "not exists");
             }
-
         }
 
         public void AddMessageChannel(MessageChannel mc)
@@ -114,7 +113,10 @@ namespace TaskBroker
                 try
                 {
                     //anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
-                    anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams, mc.consumerSelector);// schema free only queue providers (exclude sql server)
+                    anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams);// schema free only queue providers (mongodb)
+                    // set selector to queue
+                    anteroom.Queue.SetSelector(mc.consumerSelector);
+
                     Anterooms.Add(name, anteroom);
 
                     return anteroom;

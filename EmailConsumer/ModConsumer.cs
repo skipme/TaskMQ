@@ -55,7 +55,6 @@ namespace EmailConsumer
             return null;
         }
 
-
         public TaskQueue.Providers.TItemModel ParametersModel
         {
             get { return new SmtpModel(); }
@@ -64,6 +63,13 @@ namespace EmailConsumer
         public TaskQueue.Providers.TItemModel AcceptsModel
         {
             get { return new MailModel(); }
+        }
+
+
+        public TaskQueue.TQItemSelector ConfigureSelector()
+        {
+            return new TaskQueue.TQItemSelector("Processed", false)
+                .Rule("SendErrors", TaskQueue.TQItemSelectorSet.Ascending);
         }
     }
 }

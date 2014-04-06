@@ -104,7 +104,7 @@ namespace TaskBroker.Statistics
                 }
                 catch (Exception e)
                 {
-                    // TODO: connection exception
+                    logger.Exception(e, "current statistic state restore", "PersistenceChunks.GetNewest");
                 }
             }
             if (pranges != null)

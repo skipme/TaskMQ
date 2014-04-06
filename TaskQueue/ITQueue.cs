@@ -20,7 +20,10 @@ namespace TaskQueue
         /// </summary>
         /// <param name="model"></param>
         /// <param name="connection"></param>
-        void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector selector = null);
+        void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection);
+
+        void SetSelector(TQItemSelector selector);
+
         string QueueType { get; }
         string QueueDescription { get; }
 

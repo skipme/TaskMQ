@@ -177,7 +177,7 @@ namespace TaskBroker.Assemblys
             catch (Exception e)
             {
                 remarks = string.Format("assembly loading error: '{0}' :: {1} :: {2}", a.ContainerName, e.Message, e.StackTrace);
-                logger.Exception(e, "load assembly", "");
+                logger.Exception(e, "load assembly", "error loading assembly package ContainerName: {0}", a.ContainerName);
                 return false;
             }
             return true;

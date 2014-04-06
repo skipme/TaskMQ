@@ -196,10 +196,10 @@ namespace TaskScheduler
                     threadContext.JobComplete = true;
                     Thread.Sleep(0000);
                 }
-                else
-                {
+                //else
+                //{
                     Thread.Sleep(10);
-                }
+                //}
                 IntermediateThread(threadContext);
             }
             ExitThread(threadContext);

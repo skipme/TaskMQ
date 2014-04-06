@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TaskQueue;
 using TaskQueue.Providers;
 
 namespace TaskUniversum
@@ -28,6 +29,12 @@ namespace TaskUniversum
         /// <param name="message">Message taken from queue, sent by client</param>
         /// <returns></returns>
         bool Push(Dictionary<string, object> optionalParameters, ref TaskQueue.Providers.TaskMessage message);
+        /// <summary>
+        /// Set selector for queue
+        /// </summary>
+        /// <returns>null if module not required selector, or selector must configured by channel</returns>
+        TQItemSelector ConfigureSelector();
+
         /// <summary>
         /// Consist a parameters model which passed to consumer by platform configuration
         /// </summary>

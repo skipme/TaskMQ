@@ -5,6 +5,9 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
+    /// <summary>
+    /// Now support only fifo queue - without update, custom selectors
+    /// </summary>
     public class MemQueue : ITQueue
     {
         RepresentedModel m { get; set; }
@@ -39,7 +42,7 @@ namespace TaskQueue.Providers
             return baseQueue.Dequeue();
         }
 
-        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector selector = null)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.m = model;
             CollectionName = connection.Collection;
@@ -56,17 +59,16 @@ namespace TaskQueue.Providers
             get { return "Simple dynamic in-memory queue"; }
         }
 
-
         public void UpdateItem(Providers.TaskMessage item)
         {
-            //throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
 
         public void OptimiseForSelector()
         {
+            throw new NotImplementedException();
         }
-
 
         public Providers.TaskMessage[] GetItemTuple()
         {
@@ -82,10 +84,14 @@ namespace TaskQueue.Providers
             }
         }
 
-
         public long GetQueueLength()
         {
             return baseQueue.Count;
+        }
+
+        public void SetSelector(TQItemSelector selector = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

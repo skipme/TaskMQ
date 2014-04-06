@@ -13,14 +13,26 @@ namespace MongoQueue
     public class MongoDbQueue : ITQueue
     {
         const int TupleSize = 16;
+
         MongoCollection<MongoQueue.MongoMessage> Collection;
         IMongoSortBy SortFeature;
         IMongoQuery QueryFeature;
+
         TQItemSelector selector;
 
         public void OptimiseForSelector()
         {
+            CheckConnection();
+
             Collection.EnsureIndex(MongoSelector.GetIndex(selector));
+        }
+
+        public void SetSelector(TQItemSelector selector)
+        {
+            this.selector = selector;
+            this.QueryFeature = MongoSelector.GetQuery(this.selector);
+            this.SortFeature = MongoSelector.GetSort(this.selector);
+            OptimiseForSelector();
         }
 
         public long GetQueueLength()
@@ -98,13 +110,13 @@ namespace MongoQueue
                 throw new Exception("error in update to mongo queue: " + result.ToJson());
         }
 
-        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection, TQItemSelector _selector = null)
+        public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.model = model;
             this.connection = connection;
-            this.selector = _selector ?? TQItemSelector.DefaultFifoSelector;
-            this.QueryFeature = MongoSelector.GetQuery(this.selector);
-            this.SortFeature = MongoSelector.GetSort(this.selector);
+
+            SetSelector(TQItemSelector.DefaultFifoSelector);
+
             OpenConnection(connection);
         }
 
@@ -159,5 +171,6 @@ namespace MongoQueue
         public bool Connected { get; set; }
         RepresentedModel model { get; set; }
         QueueConnectionParameters connection { get; set; }
+
     }
 }
