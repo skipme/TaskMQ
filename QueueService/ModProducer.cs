@@ -10,7 +10,7 @@ namespace QueueService
 {
     public class ModProducer : IModIsolatedProducer
     {
-        public const string ListeningOn = "http://*:82/";
+        public const string ListeningOn = "http://+:82/";
         baseService appHost;
         public static IBroker broker;
 

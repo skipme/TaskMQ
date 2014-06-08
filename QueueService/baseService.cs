@@ -102,7 +102,9 @@ namespace QueueService
         public string ConfigCommitID { get; set; }
         public string Result { get; set; }
     }
+
     [ClientCanSwapTemplates]
+    [EnableCors]
     public class ngService : Service
     {
         string _lock = "lock";
@@ -231,17 +233,22 @@ namespace QueueService
                 HttpStatusCode.NotAcceptable
             };
         }
+
         public object Get(ConfigRequest request)
         {
             if (request.ChannelMTypeMap)
             {
-                return QueueService.ModProducer.broker.GetCurrentChannelMTypeMap();
+                return Newtonsoft.Json.JsonConvert.SerializeObject(
+                  QueueService.ModProducer.broker.GetCurrentChannelMTypeMap()
+                 );
             }
             Encoding enc = Encoding.UTF8;
+            // already in json
             string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
             byte[] jsonUtf8 = enc.GetBytes(conf);
             return jsonUtf8;
         }
+
         public ConfigResponse Post(ConfigRequest request)
         {
             if (request.MainPart)
@@ -259,10 +266,11 @@ namespace QueueService
                 ConfigCommitID = request.ConfigId
             };
         }
+
         public ConfigResponse Post(ConfigCommitRequest request)
         {
             logger.Debug("id's {0} {1}", request.MainPart, request.ModulesPart);
-             
+
             string errors = "";
             bool resp = false;
 
@@ -285,6 +293,7 @@ namespace QueueService
                 ConfigCommitID = null
             };
         }
+
         public object Post(ValidationRequest request)
         {
             TaskQueue.RepresentedModel model;
@@ -327,19 +336,11 @@ namespace QueueService
         /// <param name="container">The built-in IoC used with ServiceStack.</param>
         public override void Configure(Container container)
         {
-            //base.SetConfig(new EndpointHostConfig
-            //{
-            //    GlobalResponseHeaders =
-            //    {
-            //        { "Access-Control-Allow-Origin", "*" },
-            //        { "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS" },
-            //    },
-            //    //WsdlServiceNamespace = "http://localhost:82/"
-            //});
 
             Routes
               .Add<Dictionary<string, object>>("/tmq/q", "GET,PUT");
             ServiceStack.Text.JsConfig.DateHandler = ServiceStack.Text.DateHandler.ISO8601;
+
         }
     }
 }

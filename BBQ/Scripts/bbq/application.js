@@ -129,16 +129,48 @@
         jsonp(succ, err, {ChannelMTypeMap: true});
     }
     //----------------------------------------------------------------------------===========================
-    function jsonp(succ, err, data) {
-        $.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000, cache: false })
-            .done(function (data) {
-                succ(data);
-            }).fail(function () {
-                //console.log("error at: " + url_c);
-                bbq_tmq.toastr_error(" jsonp unavailable: " + url_c);
-                if (err)
+    function createGETUrl(url, data)
+    {
+        url = url + "?";
+        for (var k in data) {
+            url = url + k + '=' + data[k] + '&';
+        }
+
+        return url.substr(0, url.length - 1);
+    }
+    function json(succ, err, data) {
+        var request = new XMLHttpRequest();
+        request.open("GET", createGETUrl(url_c, data), true);
+        request.onerror = function () {
+            bbq_tmq.toastr_error(" json unavailable: " + url_c);
+            if (err)
+                err();
+        };
+        request.onreadystatechange = function () {
+            if (request.readyState === 4) {
+                var json;
+                try{
+                    json = JSON.parse(request.responseText);
+                    succ(json);
+                }
+                catch(e){
                     err();
-            });
+                }
+            }
+        };
+        request.send();
+    }
+    function jsonp(succ, err, data) {
+        return json(succ,err,data);
+        //$.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000, cache: false })
+        //    .done(function (data) {
+        //        succ(data);
+        //    }).fail(function () {
+        //        //console.log("error at: " + url_c);
+        //        bbq_tmq.toastr_error(" jsonp unavailable: " + url_c);
+        //        if (err)
+        //            err();
+        //    });
     }
     function jsonpu(url, succ, err, data) {
         $.ajax({ url: url_cb_js(url), dataType: "jsonp", data: data, timeout: 10000, cache: false })
