@@ -9,7 +9,7 @@ using TaskUniversum.Statistics;
 
 namespace QueueService
 {
-    [Route("/tmq/c", Verbs = "GET,POST")]
+    [Route("/tmq/c", Verbs = "GET,POST,OPTIONS")]
     public class ConfigRequest
     {
         public bool MainPart { get; set; }
@@ -22,7 +22,7 @@ namespace QueueService
         public string Body { get; set; }
         public string ConfigId { get; set; }
     }
-    [Route("/tmq/c/commit", Verbs = "POST")]
+    [Route("/tmq/c/commit", Verbs = "POST,OPTIONS")]
     public class ConfigCommitRequest
     {
         public bool Reset { get; set; }
@@ -104,7 +104,6 @@ namespace QueueService
     }
 
     [ClientCanSwapTemplates]
-    [EnableCors]
     public class ngService : Service
     {
         string _lock = "lock";
@@ -115,7 +114,7 @@ namespace QueueService
             logger = QueueService.ModProducer.broker.APILogger();
         }
 
-
+        [EnableCors]
         public object Get(AssembliesRequest r)
         {
             TaskUniversum.ISourceManager sourceManager = QueueService.ModProducer.broker.GetSourceManager();
@@ -187,6 +186,7 @@ namespace QueueService
                 StatusCode = HttpStatusCode.OK
             };
         }
+        [EnableCors]
         public object Get(StatisticRequest r)
         {
             StatisticResponseHeartbit h = new StatisticResponseHeartbit();
@@ -206,6 +206,7 @@ namespace QueueService
 
             return h;
         }
+        [EnableCors]
         public object Put(Dictionary<string, object> m)
         {
             // save to db
@@ -233,14 +234,14 @@ namespace QueueService
                 HttpStatusCode.NotAcceptable
             };
         }
-
+        [EnableCors]
         public object Get(ConfigRequest request)
         {
             if (request.ChannelMTypeMap)
             {
                 return //Newtonsoft.Json.JsonConvert.SerializeObject(
                   QueueService.ModProducer.broker.GetCurrentChannelMTypeMap()
-                 //)
+                    //)
                 ;
             }
             //Encoding enc = Encoding.UTF8;
@@ -250,7 +251,7 @@ namespace QueueService
             //return jsonUtf8;
             return QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
         }
-
+        [EnableCors]
         public ConfigResponse Post(ConfigRequest request)
         {
             if (request.MainPart)
@@ -268,7 +269,27 @@ namespace QueueService
                 ConfigCommitID = request.ConfigId
             };
         }
+        public void Options(ConfigCommitRequest request)
+        {
+            this.Response.StatusCode = 200;
+            this.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            this.Response.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            this.Response.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
+            this.Response.AddHeader("Access-Control-Max-Age", "1728000");
 
+            this.Response.End();
+        }
+        public void Options(ConfigRequest request)
+        {
+            this.Response.StatusCode = 200;
+            this.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            this.Response.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            this.Response.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
+            this.Response.AddHeader("Access-Control-Max-Age", "1728000");
+
+            this.Response.End();
+        }
+        [EnableCors]
         public ConfigResponse Post(ConfigCommitRequest request)
         {
             logger.Debug("id's {0} {1}", request.MainPart, request.ModulesPart);
@@ -295,7 +316,7 @@ namespace QueueService
                 ConfigCommitID = null
             };
         }
-
+        [EnableCors]
         public object Post(ValidationRequest request)
         {
             TaskQueue.RepresentedModel model;

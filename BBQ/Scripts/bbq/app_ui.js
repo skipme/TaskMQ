@@ -478,7 +478,8 @@
             ResyncAll();
         }
         $scope.commit_reset = function () {
-            aftermath(
+            
+                aftermath(
                 function (actx) {
                     bbq_tmq.syncToMain(function (data) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
@@ -505,6 +506,7 @@
           }, function (msg) {
               bbq_tmq.toastr_error(" Configuration commit error: " + msg);
           });
+        
         }
         $scope.commit_restart = function () {
             aftermath(

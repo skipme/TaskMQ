@@ -135,8 +135,8 @@
         for (var k in data) {
             url = url + k + '=' + data[k] + '&';
         }
-
-        return url.substr(0, url.length - 1);
+        url = url + "format=json";
+        return url;
     }
     function json(succ, err, data, url, method) {
         // TODO: add timeout
@@ -145,8 +145,8 @@
         if (typeof method === "undefined")
             method = "GET";
         
-        data.format = "json";
-        url = method === "GET" ? createGETUrl(url, data) : url;
+       
+        url = method === "GET" ? createGETUrl(url, data) : url + "?format=json";
 
         var request = new XMLHttpRequest();
         
@@ -171,7 +171,14 @@
                 }
             }
         };
-        request.send(method === "POST" ? data : null);
+        if (method === "GET")
+            request.send();
+        else if (method === "POST")
+        {
+            request.setRequestHeader('X-PINGOTHER', 'pingpong');
+            request.setRequestHeader('Content-Type', 'application/json');
+            request.send(JSON.stringify(data));
+        }
     }
     function jsonp(succ, err, data, url) {
         return json(succ, err, data, url);
