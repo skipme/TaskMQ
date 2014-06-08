@@ -112,19 +112,22 @@ namespace TaskBroker
                 anteroom.Queue = (TaskQueue.ITQueue)Activator.CreateInstance(qparams.QueueInstance.GetType()); //Queues.GetQueue(mc.QueueName);
                 try
                 {
-                    //anteroom.Queue.InitialiseFromModel(new QueueItemModel(mc.MessageModel.GetType()), qparams);
                     anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams);// schema free only queue providers (mongodb)
                     // set selector to queue
                     anteroom.Queue.SetSelector(mc.consumerSelector);
-
-                    Anterooms.Add(name, anteroom);
-
-                    return anteroom;
+                }
+                catch (QueueConnectionException e)
+                {
+                    logger.Warning(e.Message);
                 }
                 catch (Exception e)
                 {
                     logger.Exception(e, "Anterooms.Add", "anteroom initialisation error");
                 }
+                
+                Anterooms.Add(name, anteroom);
+
+                return anteroom;
             }
 
             return null;

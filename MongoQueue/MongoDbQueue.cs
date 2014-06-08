@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using TaskQueue;
 using TaskQueue.Providers;
+using TaskUniversum;
 
 namespace MongoQueue
 {
@@ -24,7 +25,14 @@ namespace MongoQueue
         {
             CheckConnection();
 
-            Collection.EnsureIndex(MongoSelector.GetIndex(selector));
+            try
+            {
+                Collection.EnsureIndex(MongoSelector.GetIndex(selector));
+            }
+            catch (MongoConnectionException e)
+            {
+                throw new QueueConnectionException("can't ensure index", e);
+            }
         }
 
         public void SetSelector(TQItemSelector selector)
@@ -116,8 +124,14 @@ namespace MongoQueue
             this.connection = connection;
 
             SetSelector(TQItemSelector.DefaultFifoSelector);
-
-            OpenConnection(connection);
+            try
+            {
+                OpenConnection(connection);
+            }
+            catch (Exception e)
+            {
+                throw new QueueConnectionException("can't open connection to: " + connection.ConnectionString, e);
+            }
         }
 
         private void OpenConnection(QueueConnectionParameters connection)
