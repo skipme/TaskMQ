@@ -14,11 +14,11 @@
         setTimeout(function () { $("div[ng-app='bbq']").fadeIn(); }, 500);
 
         $scope.intervals = [
-            { t: 17, l: 'without', s: true, sv: false },
-            { t: 18, l: 'ms', s: true, sv: true },
-            { t: 19, l: 'sec', s: true, sv: true },
-            { t: 20, l: 'daytime', s: false, sv: false },
-            { t: 21, l: 'isolated', s: false, sv: false }];
+            { t: "withoutInterval", l: 'without', s: true, sv: false },
+            { t: "intervalMilliseconds", l: 'ms', s: true, sv: true },
+            { t: "intervalSeconds", l: 'sec', s: true, sv: true },
+            { t: "DayTime", l: 'daytime', s: false, sv: false },
+            { t: "isolatedThread", l: 'isolated', s: false, sv: false }];
 
         $scope.newtask = null;
         $scope.ref_task = null;
