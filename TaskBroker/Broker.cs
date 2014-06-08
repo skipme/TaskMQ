@@ -6,6 +6,7 @@ using TaskBroker.Statistics;
 using TaskQueue.Providers;
 using TaskScheduler;
 using TaskUniversum;
+using TaskUniversum.Common;
 using TaskUniversum.Statistics;
 using TaskUniversum.Task;
 
@@ -560,22 +561,37 @@ namespace TaskBroker
 
             return result;
         }
-        public string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra)
+        public string GetCurrentConfigurationString(bool Main, bool Modules, bool Assemblys, bool Extra)
+        {
+            //if (Main)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(this).SerialiseJsonString();
+            //else if (Modules)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(this).SerialiseJsonString();
+            //else if (Assemblys)
+            //    return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(this).SerialiseJsonString();
+            //else if (Extra)
+            //{
+            //    return GetSourceManager().GetJsonBuildServersConfiguration();
+            //}
+
+            //return string.Empty;
+            return GetCurrentConfiguration(Main, Modules, Assemblys, Extra).SerialiseJsonString();
+        }
+        public IRepresentedConfiguration GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra)
         {
             if (Main)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(this).SerialiseJsonString();
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractFromBroker(this);
             else if (Modules)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(this).SerialiseJsonString();
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(this);
             else if (Assemblys)
-                return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(this).SerialiseJsonString();
-            else if (Extra)
-            {
-                return GetSourceManager().GetJsonBuildServersConfiguration();
-            }
+                return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(this);
+            //else if (Extra)
+            //{
+            //    return GetSourceManager().GetJsonBuildServersConfiguration();
+            //}
 
-            return string.Empty;
+            return new RepresentedConfiguration();
         }
-
         public ILogger APILogger()
         {
             return TaskUniversum.ModApi.ScopeLogger.GetClassLogger(ModulesLogger, 2);

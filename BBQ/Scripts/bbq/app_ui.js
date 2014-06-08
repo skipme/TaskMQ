@@ -568,11 +568,17 @@
     bbqmvc.filter('intervt', function () {
         return function (num) {
             switch (num) {
-                case 17: return "without";
-                case 18: return "ms";
-                case 19: return "sec";
-                case 20: return "daytime";
-                case 21: return "isolated";
+                //case 17: return "without";
+                //case 18: return "ms";
+                //case 19: return "sec";
+                //case 20: return "daytime";
+                //case 21: return "isolated";
+
+                case "withoutInterval": return "without";
+                case "intervalMilliseconds": return "ms";
+                case "intervalSeconds": return "sec";
+                case "DayTime": return "daytime";
+                case "isolatedThread": return "isolated";
                 default:
                     break;
             }

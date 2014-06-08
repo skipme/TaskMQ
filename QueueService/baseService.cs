@@ -238,15 +238,17 @@ namespace QueueService
         {
             if (request.ChannelMTypeMap)
             {
-                return Newtonsoft.Json.JsonConvert.SerializeObject(
+                return //Newtonsoft.Json.JsonConvert.SerializeObject(
                   QueueService.ModProducer.broker.GetCurrentChannelMTypeMap()
-                 );
+                 //)
+                ;
             }
-            Encoding enc = Encoding.UTF8;
-            // already in json
-            string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
-            byte[] jsonUtf8 = enc.GetBytes(conf);
-            return jsonUtf8;
+            //Encoding enc = Encoding.UTF8;
+            //// already in json
+            //string conf = QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
+            //byte[] jsonUtf8 = enc.GetBytes(conf);
+            //return jsonUtf8;
+            return QueueService.ModProducer.broker.GetCurrentConfiguration(request.MainPart, request.ModulesPart, request.AssemblysPart, request.ConfigurationExtra);
         }
 
         public ConfigResponse Post(ConfigRequest request)

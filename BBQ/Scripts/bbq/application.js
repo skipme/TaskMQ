@@ -138,9 +138,21 @@
 
         return url.substr(0, url.length - 1);
     }
-    function json(succ, err, data) {
+    function json(succ, err, data, url, method) {
+        // TODO: add timeout
+        if(typeof url === "undefined")
+            url = url_c;
+        if (typeof method === "undefined")
+            method = "GET";
+        
+        data.format = "json";
+        url = method === "GET" ? createGETUrl(url, data) : url;
+
         var request = new XMLHttpRequest();
-        request.open("GET", createGETUrl(url_c, data), true);
+        
+        request.open(method, url, true);
+        //request.responseType = "json";// firefox, opera only
+
         request.onerror = function () {
             bbq_tmq.toastr_error(" json unavailable: " + url_c);
             if (err)
@@ -148,6 +160,7 @@
         };
         request.onreadystatechange = function () {
             if (request.readyState === 4) {
+                //succ(request.response);// firefox, opera only
                 var json;
                 try{
                     json = JSON.parse(request.responseText);
@@ -158,43 +171,26 @@
                 }
             }
         };
-        request.send();
+        request.send(method === "POST" ? data : null);
     }
-    function jsonp(succ, err, data) {
-        return json(succ,err,data);
-        //$.ajax({ url: url_cb_js(url_c), dataType: "jsonp", data: data, timeout: 10000, cache: false })
-        //    .done(function (data) {
-        //        succ(data);
-        //    }).fail(function () {
-        //        //console.log("error at: " + url_c);
-        //        bbq_tmq.toastr_error(" jsonp unavailable: " + url_c);
-        //        if (err)
-        //            err();
-        //    });
+    function jsonp(succ, err, data, url) {
+        return json(succ, err, data, url);
     }
-    function jsonpu(url, succ, err, data) {
-        $.ajax({ url: url_cb_js(url), dataType: "jsonp", data: data, timeout: 10000, cache: false })
-            .done(function (data) {
-                succ(data);
-            }).fail(function () {
-                //console.log("error at: " + url_c);
-                bbq_tmq.toastr_error(" jsonp unavailable: " + url);
-                if (err)
-                    err();
-            });
+    function jsonpost(succ, err, data, url) {
+        return json(succ, err, data, url, "POST");
     }
-    function json_proxy(succ, err, data) {
-        $.ajax({ url: url_c_pxy, dataType: "json", data: data, timeout: 10000, type: 'POST' })
-           .done(function (data) {
-               var cresp = angular.fromJson(data);
-               succ(cresp);
-           }).fail(function () {
-               //console.log("error at: " + url_c);
-               bbq_tmq.toastr_error(" json proxy unavailable: " + url_c_pxy);
-               if (err)
-                   err();
-           });
-    }
+    //function json_proxy(succ, err, data) {
+        //$.ajax({ url: url_c_pxy, dataType: "json", data: data, timeout: 10000, type: 'POST' })
+        //   .done(function (data) {
+        //       var cresp = angular.fromJson(data);
+        //       succ(cresp);
+        //   }).fail(function () {
+        //       //console.log("error at: " + url_c);
+        //       bbq_tmq.toastr_error(" json proxy unavailable: " + url_c_pxy);
+        //       if (err)
+        //           err();
+        //   });
+    //}
     // obj {description, channel, module, parametersStr, intervalType, intervalValue}
     function createTask(obj) {
         var pobj = $.parseJSON(obj.parametersStr);
@@ -227,14 +223,15 @@
             succ("service model not changed...");
             return;
         }
-        json_proxy(function (data) {
+        jsonpost(function (data) {
             if (data.Result == 'OK') {
                 succ(data);
             } else {
                 if (err)
                     err();
             }
-        }, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
+        //}, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
+        }, err, { MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id });
     }
     function setModsModel(succ, err) {
         if (typeof mods_cmodel_id === 'undefined' || mods_cmodel_id === null) {
@@ -245,18 +242,19 @@
             succ("mods model not changed...");
             return;
         }
-        json_proxy(function (data) {
+        jsonpost(function (data) {
             if (data.Result == 'OK') {
                 succ(data);
             } else {
                 if (err)
                     err(data.Result);
             }
-        }, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id }) });
+            //}, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id }) });
+        }, err, { ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id });
     }
     // =========
     function CommitAndReset(succ, err) {
-        json_proxy(function (data) {
+        jsonpost(function (data) {
             if (data.Result == 'OK') {
                 resetModels();
                 succ(data);
@@ -265,7 +263,8 @@
                 if (err)
                     err(data.Result);
             }
-        }, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }), urlpostfix: "/commit" });
+            //}, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }), urlpostfix: "/commit" });
+        }, err, { MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }, url_c + '/commit');
     }
     function CommitAndRestart(succ, err) {
         var datapost = { Restart: true };
@@ -275,7 +274,7 @@
         if(mods_cmodel_id !== null)
             datapost.ModulesPart = mods_cmodel_id;
 
-        json_proxy(function (data) {
+        jsonpost(function (data) {
             if (data.Result == 'OK') {
                 resetModels();
                 succ(data);
@@ -284,15 +283,16 @@
                 if (err)
                     err(data.Result);
             }
-        }, err, { data: angular.toJson(datapost), urlpostfix: "/commit" });
+            //}, err, { data: angular.toJson(datapost), urlpostfix: "/commit" });
+        }, err, datapost, url_c + '/commit');
     }
     //=========
     resetModels();
 
     function stub() { }
     bbq_tmq = {
-        jsonp: jsonpu,
-        json_proxy: json_proxy,
+        jsonp: json,
+        //json_proxy: json_proxy,
 
         url_stat: url_stat,
         url_assemblies: url_assemblies,

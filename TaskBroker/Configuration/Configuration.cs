@@ -8,11 +8,12 @@ using System.Xml;
 using System.Xml.Serialization;
 using TaskQueue;
 using TaskUniversum;
+using TaskUniversum.Common;
 using TaskUniversum.Task;
 
 namespace TaskBroker.Configuration
 {
-    public class RepresentedConfiguration
+    public class RepresentedConfiguration : IRepresentedConfiguration
     {
         public RepresentedConfiguration()
         {

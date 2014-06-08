@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Configuration.cs" />
     <Compile Include="Common\ExecutionType.cs" />
     <Compile Include="Common\IAssemblyStatus.cs" />
     <Compile Include="AppToMod\IBroker.cs" />

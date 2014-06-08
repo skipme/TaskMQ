@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaskUniversum.Assembly;
+using TaskUniversum.Common;
 using TaskUniversum.Statistics;
 
 namespace TaskUniversum
@@ -23,7 +24,8 @@ namespace TaskUniversum
         void RegisterNewConfiguration(string id, string body);
         bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false);
 
-        string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
+        //string GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
+        IRepresentedConfiguration GetCurrentConfiguration(bool Main, bool Modules, bool Assemblys, bool Extra);
 
         ISourceManager GetSourceManager();
         StatisticContainer GetChannelsStatistic();
