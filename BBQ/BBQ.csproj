@@ -180,10 +180,17 @@
     <Content Include="Content\flatui\js\google-code-prettify\prettify.js" />
     <Content Include="Content\flatui\js\holder.js" />
     <Content Include="Content\flatui\prettify.css" />
+    <Content Include="Content\fonts\lato\lato-black.svg" />
+    <Content Include="Content\fonts\lato\lato-bold.svg" />
+    <Content Include="Content\fonts\lato\lato-bolditalic.svg" />
+    <Content Include="Content\fonts\lato\lato-italic.svg" />
+    <Content Include="Content\fonts\lato\lato-light.svg" />
+    <Content Include="Content\fonts\lato\lato-regular.svg" />
     <Content Include="Content\toastr.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\application.js" />
-    <Content Include="Scripts\bbq\angular.js" />
+    <Content Include="Scripts\bbq\angular-1.2.17.min.js" />
+    <Content Include="Scripts\bbq\angular-animate-1.2.17.min.js" />
     <Content Include="Scripts\bbq\application-info.js" />
     <Content Include="Scripts\bbq\application.js" />
     <Content Include="Scripts\bbq\app_ui.js" />
@@ -235,6 +242,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\_L.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\lato\lato-black.eot" />
+    <Content Include="Content\fonts\lato\lato-black.ttf" />
+    <Content Include="Content\fonts\lato\lato-black.woff" />
+    <Content Include="Content\fonts\lato\lato-bold.eot" />
+    <Content Include="Content\fonts\lato\lato-bold.ttf" />
+    <Content Include="Content\fonts\lato\lato-bold.woff" />
+    <Content Include="Content\fonts\lato\lato-bolditalic.eot" />
+    <Content Include="Content\fonts\lato\lato-bolditalic.ttf" />
+    <Content Include="Content\fonts\lato\lato-bolditalic.woff" />
+    <Content Include="Content\fonts\lato\lato-italic.eot" />
+    <Content Include="Content\fonts\lato\lato-italic.ttf" />
+    <Content Include="Content\fonts\lato\lato-italic.woff" />
+    <Content Include="Content\fonts\lato\lato-light.eot" />
+    <Content Include="Content\fonts\lato\lato-light.ttf" />
+    <Content Include="Content\fonts\lato\lato-light.woff" />
+    <Content Include="Content\fonts\lato\lato-regular.eot" />
+    <Content Include="Content\fonts\lato\lato-regular.ttf" />
+    <Content Include="Content\fonts\lato\lato-regular.woff" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

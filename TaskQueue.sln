@@ -53,6 +53,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build_deploy", "build_deploy", "{944F6FA8-C7C0-4288-913D-DD101642F609}"
 	ProjectSection(SolutionItems) = preProject
 		build_deploy\create_BBQ_static_html.bat = build_deploy\create_BBQ_static_html.bat
+		build_deploy\create_BBQ_static_html.cs = build_deploy\create_BBQ_static_html.cs
 	EndProjectSection
 EndProject
 Global
