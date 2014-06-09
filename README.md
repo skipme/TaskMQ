@@ -4,7 +4,7 @@
 
 **The version of this file is preliminary**
 
-**BBQ can used static-hosted, for example - on github-pages: [skipme.github.io/BBQ_static](skipme.github.io/BBQ_static)**
+**BBQ can used static-hosted, for example - on github-pages: [skipme.github.io/BBQ_static](http://skipme.github.io/BBQ_static)**
 
 ##Introduction##
 
