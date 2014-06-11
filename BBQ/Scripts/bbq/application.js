@@ -1,20 +1,12 @@
-﻿var bbq_tmq = {};
+﻿var bbq_tmq;
 (function ($) {
-    var url_host;
-    var url_c;
-    var url_stat;
-    var url_c_pxy;
-    var url_assemblies;
 
-    setHostAddress("http://127.0.0.1:82/");
-
-    function setHostAddress(address)
-    {
-        url_host = address;
-        url_c = url_host + "tmq/c";
-        url_stat = url_host + "tmq/s";
-        url_c_pxy = "/bbq/" + "PxySet";
-        url_assemblies = url_host + "tmq/assemblies";
+    function setHostAddress(address) {
+        bbq_tmq.url_host = address;
+        bbq_tmq.url_c = bbq_tmq.url_host + "tmq/c";
+        bbq_tmq.url_stat = bbq_tmq.url_host + "tmq/s";
+        bbq_tmq.url_c_pxy = "/bbq/" + "PxySet";
+        bbq_tmq.url_assemblies = bbq_tmq.url_host + "tmq/assemblies";
     }
 
     var main_cmodel = null;
@@ -87,7 +79,7 @@
         mods_cmodel_id = null;
         assm_cmodel_id = null;
     }
-    
+
     function url_cb_js(url) {
         return url + "?format=json&callback=?";
     }
@@ -101,7 +93,7 @@
         }, err, { MainPart: true });
     }
     function getModsModel(succ, err) {
-        mods_synced = false; mods_cmodel_id = null; 
+        mods_synced = false; mods_cmodel_id = null;
         jsonp(function (data) {// success
             mods_synced = true; mods_cmodel_id = null;
             mods_cmodel = bbq_tmq.m_mods = data;
@@ -124,13 +116,11 @@
             succ(extra_cmodel);
         }, err, { ConfigurationExtra: true });
     }
-    function getChannelToMTypeMap(succ, err)
-    {
-        jsonp(succ, err, {ChannelMTypeMap: true});
+    function getChannelToMTypeMap(succ, err) {
+        jsonp(succ, err, { ChannelMTypeMap: true });
     }
     //----------------------------------------------------------------------------===========================
-    function createGETUrl(url, data)
-    {
+    function createGETUrl(url, data) {
         url = url + "?";
         for (var k in data) {
             url = url + k + '=' + data[k] + '&';
@@ -140,21 +130,21 @@
     }
     function json(succ, err, data, url, method) {
         // TODO: add timeout
-        if(typeof url === "undefined")
-            url = url_c;
+        if (typeof url === "undefined")
+            url = bbq_tmq.url_c;
         if (typeof method === "undefined")
             method = "GET";
-        
-       
+
+
         url = method === "GET" ? createGETUrl(url, data) : url + "?format=json";
 
         var request = new XMLHttpRequest();
-        
+
         request.open(method, url, true);
         //request.responseType = "json";// firefox, opera only
 
         request.onerror = function () {
-            bbq_tmq.toastr_error(" json unavailable: " + url_c);
+            bbq_tmq.toastr_error(" json unavailable: " + bbq_tmq.url);
             if (err)
                 err();
         };
@@ -162,19 +152,18 @@
             if (request.readyState === 4) {
                 //succ(request.response);// firefox, opera only
                 var json;
-                try{
+                try {
                     json = JSON.parse(request.responseText);
                     succ(json);
                 }
-                catch(e){
+                catch (e) {
                     err();
                 }
             }
         };
         if (method === "GET")
             request.send();
-        else if (method === "POST")
-        {
+        else if (method === "POST") {
             request.setRequestHeader('X-PINGOTHER', 'pingpong');
             request.setRequestHeader('Content-Type', 'application/json');
             request.send(JSON.stringify(data));
@@ -187,16 +176,16 @@
         return json(succ, err, data, url, "POST");
     }
     //function json_proxy(succ, err, data) {
-        //$.ajax({ url: url_c_pxy, dataType: "json", data: data, timeout: 10000, type: 'POST' })
-        //   .done(function (data) {
-        //       var cresp = angular.fromJson(data);
-        //       succ(cresp);
-        //   }).fail(function () {
-        //       //console.log("error at: " + url_c);
-        //       bbq_tmq.toastr_error(" json proxy unavailable: " + url_c_pxy);
-        //       if (err)
-        //           err();
-        //   });
+    //$.ajax({ url: url_c_pxy, dataType: "json", data: data, timeout: 10000, type: 'POST' })
+    //   .done(function (data) {
+    //       var cresp = angular.fromJson(data);
+    //       succ(cresp);
+    //   }).fail(function () {
+    //       //console.log("error at: " + url_c);
+    //       bbq_tmq.toastr_error(" json proxy unavailable: " + url_c_pxy);
+    //       if (err)
+    //           err();
+    //   });
     //}
     // obj {description, channel, module, parametersStr, intervalType, intervalValue}
     function createTask(obj) {
@@ -218,15 +207,14 @@
     function assmPartChanged() {
         assm_cmodel_id = uuid();
     }
-    
+
     // ==============
     function setServiceModel(succ, err) {
         if (typeof main_cmodel === 'undefined' || main_cmodel === null) {
             succ("service model not changed since last sync...");
             return;
         }
-        if (main_cmodel_id === null)
-        {
+        if (main_cmodel_id === null) {
             succ("service model not changed...");
             return;
         }
@@ -237,7 +225,7 @@
                 if (err)
                     err();
             }
-        //}, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
+            //}, err, { data: angular.toJson({ MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id }) });
         }, err, { MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id });
     }
     function setModsModel(succ, err) {
@@ -271,14 +259,14 @@
                     err(data.Result);
             }
             //}, err, { data: angular.toJson({ MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }), urlpostfix: "/commit" });
-        }, err, { MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }, url_c + '/commit');
+        }, err, { MainPart: main_cmodel_id, ModulesPart: mods_cmodel_id, Reset: true }, bbq_tmq.url_c + '/commit');
     }
     function CommitAndRestart(succ, err) {
         var datapost = { Restart: true };
 
-        if(main_cmodel_id !== null)
-        datapost.MainPart = main_cmodel_id;
-        if(mods_cmodel_id !== null)
+        if (main_cmodel_id !== null)
+            datapost.MainPart = main_cmodel_id;
+        if (mods_cmodel_id !== null)
             datapost.ModulesPart = mods_cmodel_id;
 
         jsonpost(function (data) {
@@ -291,18 +279,13 @@
                     err(data.Result);
             }
             //}, err, { data: angular.toJson(datapost), urlpostfix: "/commit" });
-        }, err, datapost, url_c + '/commit');
+        }, err, datapost, bbq_tmq.url_c + '/commit');
     }
-    //=========
-    resetModels();
 
     function stub() { }
     bbq_tmq = {
         jsonp: json,
         //json_proxy: json_proxy,
-
-        url_stat: url_stat,
-        url_assemblies: url_assemblies,
 
         check_synced: function () { return main_synced && mods_synced && assm_synced && extras_synced; },
         check_commit: function () { return config_commit_ok; },
@@ -330,8 +313,16 @@
         CommitAndReset: CommitAndReset,
         CommitAndRestart: CommitAndRestart,
 
-        setHostAddress: setHostAddress
+        setHostAddress: setHostAddress,
+        url_host: "",
+        url_c: "",
+        url_stat: "",
+        url_c_pxy: "",
+        url_assemblies: ""
     };
+    //=========
+    resetModels();
+    setHostAddress("http://127.0.0.1:82/");
     //
     jQuery.cachedScript = function (url, options) {
         // allow user to set any option except for dataType, cache, and url
