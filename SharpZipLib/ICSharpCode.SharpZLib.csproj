@@ -72,7 +72,7 @@
     <Compile Include="Zip\ZipFile.cs" />
     <Compile Include="GZip\GzipOutputStream.cs" />
     <Compile Include="GZip\GzipInputStream.cs" />
-    <Compile Include="GZip\GZipConstants.cs" />
+    <Compile Include="GZip\GzipConstants.cs" />
     <Compile Include="Zip\ZipException.cs" />
     <Compile Include="BZip2\BZip2InputStream.cs" />
     <Compile Include="BZip2\BZip2OutputStream.cs" />
@@ -101,7 +101,7 @@
     <Compile Include="Zip\Compression\Streams\OutputWindow.cs" />
     <Compile Include="SharpZipBaseException.cs" />
     <Compile Include="Tar\TarException.cs" />
-    <Compile Include="GZip\GZipException.cs" />
+    <Compile Include="GZip\GzipException.cs" />
     <Compile Include="BZip2\BZip2Exception.cs" />
     <Compile Include="Core\NameFilter.cs" />
     <Compile Include="Zip\FastZip.cs" />
