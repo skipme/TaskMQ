@@ -4,7 +4,7 @@
 
     }
     var bbqmvc = angular.module('bbq', ['ngAnimate']);
-   
+
     bbqmvc.run(function () {
         // Do post-load initialization stuff here
         $("select.customselect").selectpicker({ style: 'btn-primary', menuStyle: 'dropdown-inverse' });
@@ -132,7 +132,7 @@
                 heartbeatInterval = setTimeout(updateHeartbeat, 1000 * 5);
             });
 
-            
+
         }
         function tryKillHeartbeat() {
             if (heartbeatInterval !== null)
@@ -149,13 +149,13 @@
                         var restartReq = false;
                         data.forEach(function (asm) {
                             $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="status"]').text(asm.state);
-                            
-                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"] a i').attr("class", 
+
+                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"] a i').attr("class",
                                 asm.revisionTag == asm.revisionSourceTag ? "icon-ok" : "icon-chevron-up");
 
                             $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc-loaded"] a i').attr("class",
                                asm.loaded ? "icon-ok" : "icon-warning-sign");
-                            
+
                             if (asm.loadedRevision != asm.revisionTag)// loaded not actual assembly build
                                 restartReq = true;
                         });
@@ -220,8 +220,7 @@
         $scope.assembly_represent = function (bsName) {
             var reprobj = null;
             for (var i = 0; i < $scope.m_extra.BuildServerTypes.length; i++) {
-                if ($scope.m_extra.BuildServerTypes[i].Name === bsName)
-                {
+                if ($scope.m_extra.BuildServerTypes[i].Name === bsName) {
                     reprobj = $scope.m_extra.BuildServerTypes[i].ParametersModel;
                     break;
                 }
@@ -241,7 +240,7 @@
 
             angular.copy($scope.edit_assembly, $scope.ref_assembly);
             $scope.ref_assembly.BSParameters = obj;
-            if (bbq_tmq.m_assemblys.Assemblys.indexOf($scope.ref_assembly)<0)
+            if (bbq_tmq.m_assemblys.Assemblys.indexOf($scope.ref_assembly) < 0)
                 bbq_tmq.m_assemblys.Assemblys.push($scope.ref_assembly);
             bbq_tmq.assmPartChanged();
             $scope.triggers.wRestart = true;
@@ -251,7 +250,7 @@
         }
         $scope.newassembly = function () {
             var asm = { Name: "", BuildServerType: $scope.m_extra.BuildServerTypes[0].Name, BSParameters: {} };
-            
+
             $scope.assembly_edit(asm);
         }
         $scope.assembly_checkParameters = function (bsName, params) {
@@ -349,30 +348,38 @@
 
                     $scope.$apply();
                 }
-                
+
             });
         }
-        function updateChannelToMTypeMap()
-        {
+        function updateChannelToMTypeMap() {
             bbq_tmq.getChannelToMTypeMap(function (data) {
                 $("div#servp td.chMtypeName").text("* not assigned");
                 for (var chn in data) {
                     $("div#servp td.chMtypeName[channel='" + chn + "']").text(data[chn]);
                 }
-                
+
             }, function () {
                 bbq_tmq.toastr_error(" Error in retrieve channel MType map.");
             });
-            
+
         }
 
         $scope.sync = function () {
+            var address = $("#txt-configurationhost").val();
+            if (address.indexOf("http://") < 0 && address.indexOf("http://") < 0) {
+                bbq_tmq.toastr_error("url string must start with protocol section");
+            }
+            else {
+                if (address[address.length - 1] != '//') {
+                    address = address + '/'; // fix malformed errors
+                    bbq_tmq.toastr_warning("url used: " + address);
+                }
+                bbq_tmq.setHostAddress(address);
 
-            bbq_tmq.setHostAddress($("#txt-configurationhost").val());
-
-            resetTriggers();
-            resetNewForms();
-            ResyncAll();
+                resetTriggers();
+                resetNewForms();
+                ResyncAll();
+            }
         }
         $scope.$watch('m_main', function () {
             return true;
@@ -411,7 +418,7 @@
         }
 
         $scope.task_edit = function (model_e, r_index) {
-            
+
             //check sync state
             if (!bbq_tmq.check_synced()) {
                 alert('the state is not synced...');
@@ -466,7 +473,7 @@
 
             $scope.m_main.Tasks.splice(
                 $scope.m_main.Tasks.indexOf($scope.ref_task), 1);
-            
+
             bbq_tmq.mainPartChanged();
             $scope.triggers.wReset = true;
 
@@ -478,35 +485,35 @@
             ResyncAll();
         }
         $scope.commit_reset = function () {
-            
-                aftermath(
-                function (actx) {
-                    bbq_tmq.syncToMain(function (data) {
-                        bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
-                        actx.ok();
-                    }, function (msg) { actx.error("main configuration upload error"); })
-                },
-                function (actx) {
-                    bbq_tmq.syncToMods(function (data) {
-                        bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
-                        actx.ok();
-                    }, function (msg) { actx.error("module configuration upload error"); })
-                })
-          .ondone(function () {
-              bbq_tmq.CommitAndReset(function (data) {
-                 
-                  refModels();
-                  $scope.triggers.Info = true;
-                  $scope.triggers.wReset = false;
-                  
-                  $scope.$apply();
 
-                  bbq_tmq.toastr_success(" configuration commit ok ", true);
-              }, function (msg) { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
-          }, function (msg) {
-              bbq_tmq.toastr_error(" Configuration commit error: " + msg);
-          });
-        
+            aftermath(
+            function (actx) {
+                bbq_tmq.syncToMain(function (data) {
+                    bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
+                    actx.ok();
+                }, function (msg) { actx.error("main configuration upload error"); })
+            },
+            function (actx) {
+                bbq_tmq.syncToMods(function (data) {
+                    bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
+                    actx.ok();
+                }, function (msg) { actx.error("module configuration upload error"); })
+            })
+      .ondone(function () {
+          bbq_tmq.CommitAndReset(function (data) {
+
+              refModels();
+              $scope.triggers.Info = true;
+              $scope.triggers.wReset = false;
+
+              $scope.$apply();
+
+              bbq_tmq.toastr_success(" configuration commit ok ", true);
+          }, function (msg) { bbq_tmq.toastr_error(" Configuration commit error: " + msg); })
+      }, function (msg) {
+          bbq_tmq.toastr_error(" Configuration commit error: " + msg);
+      });
+
         }
         $scope.commit_restart = function () {
             aftermath(
@@ -539,14 +546,13 @@
           });
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        
+
         resetTriggers();
         resetNewForms();
         $scope.triggers.Info = true;
         //ResyncAll();
 
-        function refModels()
-        {
+        function refModels() {
             $scope.m_main = bbq_tmq.m_main;
             $scope.m_mods = bbq_tmq.m_mods;
             $scope.m_assemblys = bbq_tmq.m_assemblys;

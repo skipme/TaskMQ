@@ -333,7 +333,8 @@ namespace TaskBroker
             }
             catch (Exception e)
             {
-                logger.Exception(e, "isolated call procedure", "module '{1}' will be turned off", task.ModuleName);
+                logger.Exception(e, "isolated call procedure", "module '{0}' will be turned off", task.ModuleName);
+                ti.StopThread = true;
             }
             //task.Module.Producer(task.Parameters);
             while (!ti.StopThread)

@@ -1,7 +1,2 @@
-*
-!*/
-!.gitignore
-!create_BBQ_static_html.bat
-!create_BBQ_static_html.cs
-!readme.md
-!RazorEngine/*
+BBQ_static/*
+!bin/

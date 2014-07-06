@@ -29,10 +29,19 @@ namespace QueueService
         }
         public void IsolatedProducer(Dictionary<string, object> parameters)
         {
-            appHost.Start(ListeningOn);
-
-            logger.Info("AppHost queue services Created at {0}, listening on {1}",
-                DateTime.Now, ListeningOn);
+            try
+            {
+                appHost.Start(ListeningOn);
+                logger.Info("AppHost queue services Created at {0}, listening on {1}", DateTime.Now, ListeningOn);
+            }
+            catch (System.Net.Sockets.SocketException e)
+            {
+                if (e.Message == "Access denied")
+                {
+                    logger.Exception(e, "http service start listening", "check permissions/firewall parameters...");
+                }
+                throw e;
+            }
         }
         public void IsolatedProducerStop()
         {

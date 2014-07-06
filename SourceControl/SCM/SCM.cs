@@ -1,6 +1,7 @@
 ﻿using SourceControl.Ref;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -23,6 +24,16 @@ namespace SourceControl
 
         public SCM(string localRepositoryPath, string cloneUri)
         {
+            if (!localRepositoryPath.StartsWith("/"))
+            {
+                localRepositoryPath = Path.Combine(
+                     Directory.GetCurrentDirectory(),
+                     localRepositoryPath);
+            }
+            if (!Directory.Exists(localRepositoryPath))
+            {
+                Directory.CreateDirectory(localRepositoryPath);
+            }
             LocalContainerDirectory = localRepositoryPath;
             this.cloneUri = cloneUri;
         }
