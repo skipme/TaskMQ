@@ -8,25 +8,34 @@ using System.Text;
 using System.Threading;
 using TaskBroker.Configuration;
 using TaskScheduler;
+using TaskUniversum;
 
 namespace TaskBroker
 {
     [SecurityPermission(SecurityAction.Demand, Infrastructure = true)]
     public class BrokerApplication : MarshalByRefObject, IDisposable
     {
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         ManualResetEvent Signal;
-
         TaskBroker.Broker broker;
+
+        volatile bool Signalling = false;
+
         public void Dispose()
         {
         }
         void Restart()
         {
-            //broker.StopBroker(); // ! stop scheduler and other isolated threads
-            //Signal.Set();
+            if (Signalling)
+            {
+                logger.Warning("Signal invocation already initiated");
+                return;
+            }
+            Signalling = true;
             Thread th = new Thread((object o) =>
             {
                 broker.StopBroker(); // ! stop scheduler and other isolated threads
+                logger.Debug("Signal to appdomain set by restart...");
                 Signal.Set();
             });
             th.Start();
@@ -44,7 +53,7 @@ namespace TaskBroker
         {
             broker = new Broker(Restart, Reset);
             QueueService.ModProducer m;// todo: force loading local dep's
-            
+
             broker.RevokeBroker(true);
             this.Signal = signal;
             //exportConfiguration();

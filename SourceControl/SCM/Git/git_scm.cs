@@ -8,13 +8,20 @@ using TaskUniversum;
 
 namespace SourceControl.Git
 {
+    /// <summary>
+    /// Just keeping in update remote branch, other braches ignored, things to be remote branch always newer and local changes not relevant
+    /// </summary>
     public class git_scm : SCM
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
+        object thread_safe_rep = "";// used only where Repository object activated, working with repository allowed only with one thread at time
+
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)
-        { UpdateStatus(); }
+        { 
+            UpdateStatus(); 
+        }
 
         private SCM.Status status = Status.none;// this means to determine status by UpdateStatus
 
@@ -22,19 +29,22 @@ namespace SourceControl.Git
         {
             if (CheckLocalCopy())
             {
-                using (var repo = new Repository(base.LocalContainerDirectory))
+                lock (thread_safe_rep)
                 {
-                    try
+                    using (var repo = new Repository(base.LocalContainerDirectory))
                     {
-                        repo.Network.Fetch(repo.Network.Remotes[GetRemoteBranchName(repo)]);
-                        CheckoutRemoteBranch(repo);
-                        status = Status.allUpToDate;
-                        return true;
-                    }
-                    catch (Exception e)
-                    {
-                        status = Status.fetchFailure;
-                        logger.Exception(e, "git Fetch", "exception while trying to fetch");
+                        try
+                        {
+                            repo.Network.Fetch(repo.Network.Remotes[GetRemoteBranchName(repo)]);
+                            CheckoutRemoteBranch(repo);
+                            status = Status.allUpToDate;
+                            return true;
+                        }
+                        catch (Exception e)
+                        {
+                            status = Status.fetchFailure;
+                            logger.Exception(e, "git Fetch", "exception while trying to fetch");
+                        }
                     }
                 }
             }
@@ -67,9 +77,12 @@ namespace SourceControl.Git
         {
             try
             {
-                using (var repo = new Repository(base.LocalContainerDirectory))
+                lock (thread_safe_rep)
                 {
-                    CheckoutRemoteBranch(repo);
+                    using (var repo = new Repository(base.LocalContainerDirectory))
+                    {
+                        CheckoutRemoteBranch(repo);
+                    }
                 }
             }
             catch (Exception e)
@@ -90,13 +103,16 @@ namespace SourceControl.Git
             string dc = null;
             try
             {
-                dc = Repository.Clone(base.cloneUri, base.LocalContainerDirectory);
-                if (CheckLocalCopy())
-                    status = Status.allUpToDate;
-                else
+                lock (thread_safe_rep)
                 {
-                    status = Status.cloneFailure;
-                    return false;
+                    dc = Repository.Clone(base.cloneUri, base.LocalContainerDirectory);
+                    if (CheckLocalCopy())
+                        status = Status.allUpToDate;
+                    else
+                    {
+                        status = Status.cloneFailure;
+                        return false;
+                    }
                 }
             }
             catch(Exception e)
@@ -133,19 +149,22 @@ namespace SourceControl.Git
                 if (this.status == Status.cloneRequired || this.status == Status.cloneFailure)
                     return null;
                 Branch focusBranch = null;
-                using (var repo = new Repository(base.LocalContainerDirectory))
+                lock (thread_safe_rep)
                 {
-                    focusBranch = CheckoutRemoteBranch(repo);
-                    if (focusBranch == null)
-                        return null;
-                    Commit commit = focusBranch.Commits.First();
-                    return new SCMRevision
+                    using (var repo = new Repository(base.LocalContainerDirectory))
                     {
-                        CommitMessage = commit.Message,
-                        CommitTime = commit.Committer.When.LocalDateTime,
-                        Revision = commit.Sha,
-                        Commiter = commit.Committer.Email
-                    };
+                        focusBranch = CheckoutRemoteBranch(repo);
+                        if (focusBranch == null)
+                            return null;
+                        Commit commit = focusBranch.Commits.First();
+                        return new SCMRevision
+                        {
+                            CommitMessage = commit.Message,
+                            CommitTime = commit.Committer.When.LocalDateTime,
+                            Revision = commit.Sha,
+                            Commiter = commit.Committer.Email
+                        };
+                    }
                 }
             }
         }

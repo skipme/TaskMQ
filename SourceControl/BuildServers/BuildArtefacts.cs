@@ -96,14 +96,15 @@ namespace SourceControl.BuildServers
 
         public static BuildArtifacts FromZipArchive(string AssemblyArtefactName, string versionTag, byte[] data)
         {
-            string AssemblyArtefactNameSym = pathWithoutExtension(AssemblyArtefactName) + ".pdb";
+            string AssemblyArtefactNameSym = (pathWithoutExtension(AssemblyArtefactName) + ".pdb").ToLower();
+            string AssemblyArtefactNameSymL = (pathWithoutExtension(AssemblyArtefactName) + ".mdb").ToLower();
 
             BuildArtifacts result = new BuildArtifacts();
             FileContentArchive.ZipStream zipArch = new FileContentArchive.ZipStream(data);
             FileContentArchive.FileStorageEntry[] entrys = zipArch.GetAllEntrys();
 
             bool artefactAssemblyFound = false;
-            bool artefactAssemblySymFound = false;
+            string artefactAssemblySymFound = null;
             for (int i = 0; i < entrys.Length; i++)
             {
                 if (entrys[i].IsDir)
@@ -111,8 +112,11 @@ namespace SourceControl.BuildServers
 
                 if (entrys[i].Location == AssemblyArtefactName)
                     artefactAssemblyFound = true;
-                if (entrys[i].Location == AssemblyArtefactNameSym)
-                    artefactAssemblySymFound = true;
+
+                if (entrys[i].Location.ToLower() == AssemblyArtefactNameSym)
+                    artefactAssemblySymFound = AssemblyArtefactNameSym;
+                if (entrys[i].Location.ToLower() == AssemblyArtefactNameSymL)
+                    artefactAssemblySymFound = AssemblyArtefactNameSymL;
 
                 result.AddArtefact(entrys[i].Location, zipArch.GetContentRaw(entrys[i].Location));
             }
@@ -120,7 +124,7 @@ namespace SourceControl.BuildServers
             zipArch.Close();
 
             result.AssemblyArtefactName = AssemblyArtefactName;
-            result.AssemblyArtefactNameSym = artefactAssemblySymFound ? AssemblyArtefactNameSym : null;
+            result.AssemblyArtefactNameSym = artefactAssemblySymFound;
 
             result.AddedAt = DateTime.UtcNow;
             result.VersionTag = versionTag;
@@ -139,31 +143,47 @@ namespace SourceControl.BuildServers
             string Dir = System.IO.Path.GetDirectoryName(AssemblyArtefactAbsPath);
             string assemblyAbsSym = pathWithoutExtension(AssemblyArtefactAbsPath);
 
-            if (File.Exists(assemblyAbsSym + ".pdb"))
-            {
-                assemblyAbsSym = assemblyAbsSym + ".pdb";
-            }
-            else assemblyAbsSym = null;
+            assemblyAbsSym = assemblyAbsSym + ".pdb";
+            string assemblyAbsSymL = assemblyAbsSym + ".mdb";
+
             string[] Files = System.IO.Directory.GetFiles(Dir);
 
+            // assume we don't need case sensitive, but it depends on system, just ignore
+            AssemblyArtefactAbsPath = AssemblyArtefactAbsPath.ToLower();
+            assemblyAbsSym = assemblyAbsSym.ToLower();
+            assemblyAbsSymL = assemblyAbsSymL.ToLower();
+            string AssemblySymFound = null;
+            //
             bool artefactAssemblyFound = false;
             for (int i = 0; i < Files.Length; i++)
             {
-                if (Files[i] == AssemblyArtefactAbsPath)
+                string fl = Files[i].ToLower();
+                if (fl == AssemblyArtefactAbsPath)
+                {
+                    AssemblyArtefactAbsPath = Files[i]; // save original case
                     artefactAssemblyFound = true;
+                }
+                else if (fl == assemblyAbsSym)
+                {
+                    AssemblySymFound = Files[i];
+                }
+                else if (fl == assemblyAbsSymL)
+                {
+                    AssemblySymFound = Files[i];
+                }
 
-                result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));
+                result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));// add file to artifacts list
             }
 
             result.AssemblyArtefactName = System.IO.Path.GetFileName(AssemblyArtefactAbsPath);
-            result.AssemblyArtefactNameSym = assemblyAbsSym == null ? null : System.IO.Path.GetFileName(assemblyAbsSym);
+            result.AssemblyArtefactNameSym = AssemblySymFound == null ? null : System.IO.Path.GetFileName(AssemblySymFound);
 
             result.AddedAt = DateTime.UtcNow;
             result.VersionTag = versionTag;
 
             if (!artefactAssemblyFound)
             {
-                logger.Error(" BuildArtifacts:FromDirectory container ready but assembly not found in filesys: {0}", AssemblyArtefactAbsPath);
+                logger.Error(" BuildArtifacts:FromDirectory container ready but assembly not found in filesys: '{0}'", AssemblyArtefactAbsPath);
                 return null;
             }
 

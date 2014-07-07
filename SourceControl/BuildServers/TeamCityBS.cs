@@ -158,7 +158,7 @@ namespace SourceControl.BuildServers
                         cl.Headers.Add("Authorization", "Basic " +
                             Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Format("{0}:{1}", parameters.User, parameters.Password))));
                         byte[] zip = cl.DownloadData(uri);
-                        BuildArtifacts result = BuildArtifacts.FromZipArchive(parameters.Assembly, build.revisions.revision[0].version, zip);
+                        BuildArtifacts result = BuildArtifacts.FromZipArchive(parameters.AssemblyFileName, build.revisions.revision[0].version, zip);
 
                         return result;
                     }
@@ -257,7 +257,7 @@ namespace SourceControl.BuildServers
         public TeamCityBSParams(TItemModel tm) : base(tm.GetHolder()) { }
 
         [TaskQueue.FieldDescription("assembly path in artifacts zip archive", Required: true)]
-        public string Assembly { get; set; }
+        public string AssemblyFileName { get; set; }
 
         [TaskQueue.FieldDescription("host address (hostname:port)", Required: true)]
         public string Host { get; set; }
@@ -292,7 +292,7 @@ namespace SourceControl.BuildServers
             {
                 result += ";\n" + "parameter " + "Host" + " is empty";
             }
-            if (string.IsNullOrWhiteSpace(Assembly))
+            if (string.IsNullOrWhiteSpace(AssemblyFileName))
             {
                 result += ";\n" + "parameter " + "Assembly" + " is empty";
             }

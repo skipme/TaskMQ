@@ -250,8 +250,9 @@
         }
         $scope.newassembly = function () {
             var asm = { Name: "", BuildServerType: $scope.m_extra.BuildServerTypes[0].Name, BSParameters: {} };
-
+            
             $scope.assembly_edit(asm);
+            $scope.assembly_represent(asm.BuildServerType);
         }
         $scope.assembly_checkParameters = function (bsName, params) {
             var obj = null;
@@ -493,7 +494,7 @@
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                     } else {
-                        actx.error("main configuration upload error: " + data);
+                        aactx.ok();// model don't need commit
                     }
                 }, function (msg) { actx.error("main configuration upload error"); })
             },
@@ -503,7 +504,7 @@
                         bbq_tmq.toastr_success(" modules configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                     } else {
-                        actx.error("modules configuration upload error: " + data);
+                        actx.ok();// model don't need commit
                     }
                 }, function (msg) { actx.error("module configuration upload error"); })
             })
@@ -526,13 +527,14 @@
 
         }
         $scope.commit_restart = function () {
-            aftermath(
+            aftermath(// restart operation can be allowed by server by maintenance reason
                 function (actx) {
                     bbq_tmq.syncToMain(function (data) {
                         if (data.ConfigCommitID) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
-                        } else { actx.error("main configuration upload error: " + data);
+                        } else {
+                            actx.ok();// model don't need commit
                         }
                     }, function (msg) { actx.error("main configuration upload error"); })
                 },
@@ -542,7 +544,7 @@
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                         } else {
-                            actx.error("module configuration upload error: " + data);
+                            actx.ok();// model don't need commit
                         }
                     }, function (msg) { actx.error("module configuration upload error"); })
                 },
@@ -552,7 +554,7 @@
                         bbq_tmq.toastr_success(" assembly configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                         } else {
-                            actx.error("assembly configuration upload error: " + data);
+                            actx.ok();// model don't need commit
                         }
                     }, function (msg) { actx.error("assembly configuration upload error"); })
                 })
