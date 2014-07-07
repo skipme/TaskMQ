@@ -371,7 +371,7 @@
                 bbq_tmq.toastr_error("url string must start with protocol section");
             }
             else {
-                if (address[address.length - 1] != '//') {
+                if (address[address.length - 1] != '/') {
                     address = address + '/'; // fix malformed errors
                     bbq_tmq.toastr_warning("url used: " + address);
                 }
