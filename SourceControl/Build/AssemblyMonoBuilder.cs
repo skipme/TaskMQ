@@ -107,6 +107,7 @@ namespace SourceControl.Build
             {
                 using (bLogger BuildLogger = new bLogger())
                 {
+                    // usage Microsoft.Build.BuildEngine.Engine is prevelegy of MONO runtime
                     Microsoft.Build.BuildEngine.Engine eng = Microsoft.Build.BuildEngine.Engine.GlobalEngine;
                     eng.RegisterLogger(BuildLogger);
                     Microsoft.Build.BuildEngine.Project prj = new Microsoft.Build.BuildEngine.Project(eng);
@@ -119,7 +120,7 @@ namespace SourceControl.Build
                     string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".mdb");
 
                     logger.Debug("building project: {0}", ProjectLocation);
-                    Microsoft.Build.BuildEngine.Target trg = prj.Targets["Debug"];
+                    // todo: add configuration set option
                     buildResultOK = prj.Build();
                     eng.UnregisterAllLoggers();
 

@@ -42,12 +42,17 @@ namespace TaskBroker.Assemblys
                 string prefile = ToSymbolsPathFromLibraryPath(art.FileName);
                 AssemblyArtifact symart = pckg.FindArtefactByName(prefile);
                 if (symart == null)
-                    return null;
+                {
+                    prefile = ToSymbolsPathFromLibraryPath(art.FileName, "mdb");
+                    symart = pckg.FindArtefactByName(prefile);
+                    if (symart == null)
+                        return null;
+                }
                 return new BuildResultFile { Name = prefile, Data = pckg.ExtractArtefact(symart) };
             }
-            private string ToSymbolsPathFromLibraryPath(string pathDll)
+            private string ToSymbolsPathFromLibraryPath(string pathDll, string ext = "pdb")
             {
-                return pathDll.Remove(pathDll.Length - 3, 3) + "pdb";// dll -> pdb (relative path saved!)
+                return pathDll.Remove(pathDll.Length - 3, 3);
             }
         }
         private Dictionary<string, PackageAndArtefactLibLinked> AssemblyControlList;
@@ -102,7 +107,7 @@ namespace TaskBroker.Assemblys
                         if (AssemblyControlList[art.Name].art.Version != art.Version)
                             throw new Exception(string.Format("The module {0} has incosistent dependency '{1}'({2}) with other modules - '{3}'({4}): {5}",
                                 binPackage.ContainerName, art.Name, art.Version,
-                                AssemblyControlList[art.Name].art.Name, AssemblyControlList[art.Name].art.Version, 
+                                AssemblyControlList[art.Name].art.Name, AssemblyControlList[art.Name].art.Version,
                                 AssemblyControlList[art.Name].IsLocalDependency ? "WorkingDir Dependency" : "Module dependency"));
                     }
                     else
