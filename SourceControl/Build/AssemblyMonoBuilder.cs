@@ -86,15 +86,17 @@ namespace SourceControl.Build
         }
 
         public string ProjectLocation { get; set; }
+        public string Configuration { get; set; }
 
-		public string Log{ get; set; }
-		public string BuildResultDll{ get; set; }
-		public string BuildResultSymbols{ get; set; }
-		public string[] BuildResultAssets{ get; set; }
+        public string Log { get; set; }
+        public string BuildResultDll { get; set; }
+        public string BuildResultSymbols { get; set; }
+        public string[] BuildResultAssets { get; set; }
 
-        public AssemblyBuilderMono(string projectPath)
+        public AssemblyBuilderMono(string projectPath, string Configuration)
         {
-            ProjectLocation = projectPath;// @"C:\Users\USER\test\EmailConsumer\EmailConsumer.csproj";
+            this.ProjectLocation = projectPath;
+            this.Configuration = Configuration;
         }
 
         public bool BuildProject()
@@ -113,24 +115,31 @@ namespace SourceControl.Build
                     Microsoft.Build.BuildEngine.Project prj = new Microsoft.Build.BuildEngine.Project(eng);
 
                     prj.Load(ProjectLocation);
-                    string path = System.IO.Path.Combine(
-                        System.IO.Path.GetDirectoryName(ProjectLocation),
-                        prj.GetEvaluatedProperty("OutDir"),
-                        prj.GetEvaluatedProperty("TargetFileName"));
-                    string pdb = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), System.IO.Path.GetFileNameWithoutExtension(path) + ".mdb");
 
                     logger.Debug("building project: {0}", ProjectLocation);
                     // todo: add configuration set option
+
+                    if (!string.IsNullOrWhiteSpace(this.Configuration))
+                        eng.GlobalProperties.SetProperty("Configuration", this.Configuration);
+                    //eng.GlobalProperties.SetProperty("OutputPath", "Release");
+                    eng.GlobalProperties.SetProperty("Platform", "AnyCPU");
+
+                    string fileLib = System.IO.Path.Combine(
+                       System.IO.Path.GetDirectoryName(ProjectLocation),
+                       prj.GetEvaluatedProperty("OutDir"),
+                       prj.GetEvaluatedProperty("TargetFileName"));
+                    string fileSymbols = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileLib), System.IO.Path.GetFileNameWithoutExtension(fileLib) + ".mdb");
+
                     buildResultOK = prj.Build();
                     eng.UnregisterAllLoggers();
 
                     Log = BuildLogger.Result();
                     if (buildResultOK)
                     {
-                        BuildResultDll = path;
-                        BuildResultSymbols = pdb;
+                        BuildResultDll = fileLib;
+                        BuildResultSymbols = fileSymbols;
                         List<string> files = new List<string>();
-                        foreach (string F in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(path)))
+                        foreach (string F in System.IO.Directory.GetFiles(System.IO.Path.GetDirectoryName(fileLib)))
                         {// TODO: not recursive! not now...
                             if (F != BuildResultDll && F != BuildResultSymbols)
                             {

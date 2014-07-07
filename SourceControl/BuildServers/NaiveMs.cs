@@ -105,7 +105,7 @@ namespace SourceControl.BuildServers
             //if (scm.Status != SCM.Status.allUpToDate)
             //    return;
             State = BuildServerState.build;
-            bool result = scm.BuildProject();
+            bool result = scm.BuildProject(parameters.Configuration);
             State = result ? BuildServerState.build_ok : BuildServerState.build_error;
         }
     }
@@ -123,13 +123,8 @@ namespace SourceControl.BuildServers
         [TaskQueue.FieldDescription("scm url", Required: true)]
         public string SCM_URL { get; set; }
 
-        //[TaskQueue.FieldDescription("scm files location", Required: true)]
-        //public string WorkingDirectory { get; set; }
-
-        //[TaskQueue.FieldDescription("username", Required: false)]
-        //public string User { get; set; }
-        //[TaskQueue.FieldDescription("password", Required: false)]
-        //public string Password { get; set; }
+        [TaskQueue.FieldDescription("configuration name", Required: false)]
+        public string Configuration { get; set; }
 
         [FieldDescription(Ignore = true, Inherited = true, Required = false)]
         public override string ItemTypeName

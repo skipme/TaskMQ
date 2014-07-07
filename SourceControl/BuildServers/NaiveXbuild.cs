@@ -14,7 +14,7 @@ namespace SourceControl.BuildServers
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
-		NaiveXBuildfromGitParams parameters = new NaiveXBuildfromGitParams();
+        NaiveMSfromGitParams parameters = new NaiveMSfromGitParams();
 
 		public NaiveXBuildfromGit()
         {
@@ -58,7 +58,7 @@ namespace SourceControl.BuildServers
         {
             this.parameters.SetHolder(Mparameters);
         }
-		public void SetParameters(NaiveXBuildfromGitParams parameters)
+        public void SetParameters(NaiveMSfromGitParams parameters)
         {
             this.parameters = parameters;
         }
@@ -105,62 +105,9 @@ namespace SourceControl.BuildServers
             //if (scm.Status != SCM.Status.allUpToDate)
             //    return;
             State = BuildServerState.build;
-            bool result = scm.BuildProject();
+            bool result = scm.BuildProject(parameters.Configuration);
             State = result ? BuildServerState.build_ok : BuildServerState.build_error;
         }
     }
-	public class NaiveXBuildfromGitParams : TItemModel
-    {
-		public NaiveXBuildfromGitParams() { }
-		public NaiveXBuildfromGitParams(TItemModel tm) : base(tm.GetHolder()) { }
 
-        [TaskQueue.FieldDescription("project in source for build", Required: true)]
-        public string ProjectPath { get; set; }
-
-        [TaskQueue.FieldDescription("built assembly relative path", Required: true)]
-        public string AssemblyPath { get; set; }
-
-        [TaskQueue.FieldDescription("scm url", Required: true)]
-        public string SCM_URL { get; set; }
-
-        //[TaskQueue.FieldDescription("scm files location", Required: true)]
-        //public string WorkingDirectory { get; set; }
-
-        //[TaskQueue.FieldDescription("username", Required: false)]
-        //public string User { get; set; }
-        //[TaskQueue.FieldDescription("password", Required: false)]
-        //public string Password { get; set; }
-
-        [FieldDescription(Ignore = true, Inherited = true, Required = false)]
-        public override string ItemTypeName
-        {
-            get
-            {
-                return "naive.MonoXBuild parameters";
-            }
-            set
-            {
-
-            }
-        }
-
-        public bool ValidateValues(out string result)
-        {
-            result = string.Empty;
-            if (string.IsNullOrWhiteSpace(ProjectPath))
-            {
-                result += ";\n" + "parameter " + "ProjectPath" + " is empty";
-            }
-            if (string.IsNullOrWhiteSpace(AssemblyPath))
-            {
-                result += ";\n" + "parameter " + "AssemblyPath" + " is empty";
-            }
-            if (string.IsNullOrWhiteSpace(SCM_URL))
-            {
-                result += ";\n" + "parameter " + "SCM_URL" + " is empty";
-            }
-
-            return result == string.Empty;
-        }
-    }
 }

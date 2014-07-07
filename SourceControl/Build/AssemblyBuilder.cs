@@ -83,16 +83,18 @@ namespace SourceControl.Build
                 log = null;
             }
         }
-
         public string ProjectLocation { get; set; }
-		public string Log { get; set; }
-		public string BuildResultDll { get; set; }
-		public string BuildResultSymbols { get; set; }
-		public string[] BuildResultAssets { get; set; }
+        public string Configuration { get; set; }
 
-        public AssemblyBuilder(string projectPath)
+        public string Log { get; set; }
+        public string BuildResultDll { get; set; }
+        public string BuildResultSymbols { get; set; }
+        public string[] BuildResultAssets { get; set; }
+
+        public AssemblyBuilder(string projectPath, string Configuration)
         {
-            ProjectLocation = projectPath;// @"C:\Users\USER\test\EmailConsumer\EmailConsumer.csproj";
+            this.ProjectLocation = projectPath;
+            this.Configuration = Configuration;
         }
         public bool BuildProject()
         {
@@ -139,3 +141,22 @@ namespace SourceControl.Build
         }
     }
 }
+/*
+ * string projectFileName = @"\visual studio 2010\Projects\ConsoleApplication1\ConsoleApplication1.sln";
+
+            ProjectCollection pc = new ProjectCollection();
+
+            Dictionary<string, string> GlobalProperty = new Dictionary<string, string>();
+
+            GlobalProperty.Add("Configuration", "Debug");
+
+            GlobalProperty.Add("Platform", "x86");
+
+            //Here, we set the property
+
+            GlobalProperty.Add("OutputPath",@"D:\Output");
+
+            BuildRequestData BuidlRequest = new BuildRequestData(projectFileName, GlobalProperty, null, new string[] { "Build" }, null);
+
+            BuildResult buildResult = BuildManager.DefaultBuildManager.Build(new BuildParameters(pc), BuidlRequest);
+ */
