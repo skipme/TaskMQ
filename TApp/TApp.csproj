@@ -107,9 +107,9 @@ xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBin
   </PropertyGroup>
   <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
     <PostBuildEvent>
-cp "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so" "$(TargetDir)libgit2-90befde.so"
-cp "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so.0.21.0" "$(TargetDir)libgit2-90befde.so.0.21.0"
-cp -s "$(TargetDir)libgit2-90befde.so.0.21.0" "$(TargetDir)libgit2-90befde.so.21"
+cp -u "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so" "$(TargetDir)libgit2-90befde.so"
+cp -u "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so.0.21.0" "$(TargetDir)libgit2-90befde.so.0.21.0"
+cp -f -s "$(TargetDir)libgit2-90befde.so.0.21.0" "$(TargetDir)libgit2-90befde.so.21"
     </PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

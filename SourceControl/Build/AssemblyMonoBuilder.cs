@@ -121,12 +121,11 @@ namespace SourceControl.Build
 
                     if (!string.IsNullOrWhiteSpace(this.Configuration))
                         eng.GlobalProperties.SetProperty("Configuration", this.Configuration);
-                    //eng.GlobalProperties.SetProperty("OutputPath", "Release");
+					string outd = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "_tempArtifacts");
+					eng.GlobalProperties.SetProperty("OutputPath", outd);
                     eng.GlobalProperties.SetProperty("Platform", "AnyCPU");
 
-                    string fileLib = System.IO.Path.Combine(
-                       System.IO.Path.GetDirectoryName(ProjectLocation),
-                       prj.GetEvaluatedProperty("OutDir"),
+					string fileLib = System.IO.Path.Combine(outd,
                        prj.GetEvaluatedProperty("TargetFileName"));
                     string fileSymbols = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileLib), System.IO.Path.GetFileNameWithoutExtension(fileLib) + ".mdb");
 

@@ -1,21 +1,28 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="SourceControl/Build/AssemblyMonoBuilder.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="TApp/Program.cs">
     <Files>
-      <File FileName="SourceControl/Build/AssemblyMonoBuilder.cs" Line="121" Column="138" />
+      <File FileName="SourceControl/Build/AssemblyMonoBuilder.cs" Line="1" Column="1" />
       <File FileName="SourceControl/Build/AssemblyBuilder.cs" Line="1" Column="1" />
-      <File FileName="TApp/Program.cs" Line="22" Column="81" />
+      <File FileName="TApp/Program.cs" Line="36" Column="68" />
+      <File FileName="MongoQueue/MongoDbQueue.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Platform" expanded="True">
             <Node name="SourceControl" expanded="True">
-              <Node name="Build" expanded="True">
-                <Node name="AssemblyMonoBuilder.cs" selected="True" />
+              <Node name="Build" expanded="True" />
+              <Node name="BuildServers" expanded="True">
+                <Node name="TeamCity" expanded="True" />
               </Node>
             </Node>
-            <Node name="TApp" expanded="True" />
+            <Node name="TApp" expanded="True">
+              <Node name="Program.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="Queues" expanded="True">
+            <Node name="MongoQueue" expanded="True" />
           </Node>
         </State>
       </Pad>
