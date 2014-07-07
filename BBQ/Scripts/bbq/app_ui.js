@@ -500,10 +500,10 @@
             function (actx) {
                 bbq_tmq.syncToMods(function (data) {
                     if (data.ConfigCommitID) {
-                        bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
+                        bbq_tmq.toastr_success(" modules configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                     } else {
-                        actx.error("main configuration upload error: " + data);
+                        actx.error("modules configuration upload error: " + data);
                     }
                 }, function (msg) { actx.error("module configuration upload error"); })
             })
@@ -513,6 +513,8 @@
               refModels();
               $scope.triggers.Info = true;
               $scope.triggers.wReset = false;
+              tryKillHeartbeat();
+              tryKillAssembliesUpdate();
 
               $scope.$apply();
 
@@ -527,20 +529,31 @@
             aftermath(
                 function (actx) {
                     bbq_tmq.syncToMain(function (data) {
+                        if (data.ConfigCommitID) {
                         bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
+                        } else { actx.error("main configuration upload error: " + data);
+                        }
                     }, function (msg) { actx.error("main configuration upload error"); })
                 },
                 function (actx) {
                     bbq_tmq.syncToMods(function (data) {
+                        if (data.ConfigCommitID) {
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
+                        } else {
+                            actx.error("module configuration upload error: " + data);
+                        }
                     }, function (msg) { actx.error("module configuration upload error"); })
                 },
                 function (actx) {
                     bbq_tmq.syncToAssemblies(function (data) {
+                        if (data.ConfigCommitID) {
                         bbq_tmq.toastr_success(" assembly configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
+                        } else {
+                            actx.error("assembly configuration upload error: " + data);
+                        }
                     }, function (msg) { actx.error("assembly configuration upload error"); })
                 })
           .ondone(function () {
@@ -550,6 +563,8 @@
                   $scope.triggers.Info = true;
                   //$scope.triggers.wReset = false;
                   $scope.triggers.wRestart = false;
+                  tryKillHeartbeat();
+                  tryKillAssembliesUpdate();
 
                   $scope.$apply();
 
