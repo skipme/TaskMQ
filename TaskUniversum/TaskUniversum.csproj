@@ -11,6 +11,8 @@
     <AssemblyName>TaskUniversum</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
-      <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
+      <Project>{221947D1-8926-463D-863C-AD6323E9CFD4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
   </ItemGroup>

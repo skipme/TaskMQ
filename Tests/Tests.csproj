@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,6 +36,7 @@
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+      <Package>nunit</Package>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,23 +58,23 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
-      <Project>{c250a799-20af-494d-ba51-32ad41a376bb}</Project>
+      <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\SourceControl\SourceControl.csproj">
-      <Project>{b0afee79-b1af-48c4-9ffd-638f638c2c00}</Project>
+      <Project>{B0AFEE79-B1AF-48C4-9FFD-638F638C2C00}</Project>
       <Name>SourceControl</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskClient\TaskClient.csproj">
-      <Project>{a2a2559d-7309-417d-964b-7e3e65554791}</Project>
+      <Project>{A2A2559D-7309-417D-964B-7E3E65554791}</Project>
       <Name>TaskClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
-      <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
+      <Project>{221947D1-8926-463D-863C-AD6323E9CFD4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
-      <Project>{5c45cdba-1aac-4349-8d42-28b7ad794ba0}</Project>
+      <Project>{5C45CDBA-1AAC-4349-8D42-28B7AD794BA0}</Project>
       <Name>FileContentArchive</Name>
     </ProjectReference>
   </ItemGroup>

@@ -26,6 +26,10 @@ namespace TApp
 
         static void Main(string[] args)
         {
+			SourceControl.Build.AssemblyBuilder ab = new SourceControl.Build.AssemblyBuilder (
+				"/home/cerriun/TaskMQ-master/QueueService/QueueService.csproj");
+			ab.BuildProject ();
+			return;
             TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
                 new TaskBroker.Logger.ConsoleEndpoint()
             });

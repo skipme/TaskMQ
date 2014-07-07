@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,30 +34,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Bson, Version=1.9.1.221, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Bson.dll</HintPath>
-    </Reference>
-    <Reference Include="MongoDB.Driver, Version=1.9.1.221, Culture=neutral, PublicKeyToken=f686731cfb9cc103, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Driver.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Text, Version=4.0.21.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Text.4.0.21\lib\net40\ServiceStack.Text.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Bson.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\packages\mongocsharpdriver.1.9.1\lib\net35\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>..\packages\ServiceStack.Text.4.0.21\lib\net40\ServiceStack.Text.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assemblys\AssemblyModule.cs" />
@@ -93,27 +91,27 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
-      <Project>{c250a799-20af-494d-ba51-32ad41a376bb}</Project>
+      <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\SourceControl\SourceControl.csproj">
-      <Project>{b0afee79-b1af-48c4-9ffd-638f638c2c00}</Project>
+      <Project>{B0AFEE79-B1AF-48C4-9FFD-638F638C2C00}</Project>
       <Name>SourceControl</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
-      <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
+      <Project>{221947D1-8926-463D-863C-AD6323E9CFD4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskScheduler\TaskScheduler.csproj">
-      <Project>{71d36b0a-382d-4fcf-95af-67cfea21887d}</Project>
+      <Project>{71D36B0A-382D-4FCF-95AF-67CFEA21887D}</Project>
       <Name>TaskScheduler</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskUniversum\TaskUniversum.csproj">
-      <Project>{cb666077-a79e-403e-bc4e-6c7cf4a9742d}</Project>
+      <Project>{CB666077-A79E-403E-BC4E-6C7CF4A9742D}</Project>
       <Name>TaskUniversum</Name>
     </ProjectReference>
     <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
-      <Project>{5c45cdba-1aac-4349-8d42-28b7ad794ba0}</Project>
+      <Project>{5C45CDBA-1AAC-4349-8D42-28B7AD794BA0}</Project>
       <Name>FileContentArchive</Name>
     </ProjectReference>
   </ItemGroup>

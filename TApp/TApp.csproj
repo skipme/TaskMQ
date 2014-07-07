@@ -36,10 +36,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LibGit2Sharp, Version=0.18.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\LibGit2Sharp.0.18.1.0\lib\net40\LibGit2Sharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,6 +43,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="LibGit2Sharp">
+      <HintPath>..\packages\LibGit2Sharp.0.18.1.0\lib\net40\LibGit2Sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationKeeper.cs" />
@@ -60,7 +59,7 @@
       <Name>MongoQueue</Name>
     </ProjectReference>
     <ProjectReference Include="..\QueueService\QueueService.csproj">
-      <Project>{9ca84f01-7a31-4037-8c46-c9a9e958ab6a}</Project>
+      <Project>{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}</Project>
       <Name>QueueService</Name>
     </ProjectReference>
     <ProjectReference Include="..\SharpZipLib\ICSharpCode.SharpZLib.csproj">
@@ -84,7 +83,7 @@
       <Name>TaskScheduler</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskUniversum\TaskUniversum.csproj">
-      <Project>{cb666077-a79e-403e-bc4e-6c7cf4a9742d}</Project>
+      <Project>{CB666077-A79E-403E-BC4E-6C7CF4A9742D}</Project>
       <Name>TaskUniversum</Name>
     </ProjectReference>
     <ProjectReference Include="..\ZipStorage\FileContentArchive.csproj">
@@ -106,7 +105,7 @@ xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBin
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
   </PropertyGroup>
-    <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT'">
     <PostBuildEvent>
 cp "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so" "$(TargetDir)libgit2-90befde.so"
 cp "$(SolutionDir)build_deploy/bin/libgit2/libgit2-90befde.so.0.21.0" "$(TargetDir)libgit2-90befde.so.0.21.0"

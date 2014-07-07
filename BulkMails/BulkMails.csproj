@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <ProductVersion>12.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,11 +58,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TaskClient\TaskClient.csproj">
-      <Project>{a2a2559d-7309-417d-964b-7e3e65554791}</Project>
+      <Project>{A2A2559D-7309-417D-964B-7E3E65554791}</Project>
       <Name>TaskClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskQueue\TaskQueue.csproj">
-      <Project>{221947d1-8926-463d-863c-ad6323e9cfd4}</Project>
+      <Project>{221947D1-8926-463D-863C-AD6323E9CFD4}</Project>
       <Name>TaskQueue</Name>
     </ProjectReference>
   </ItemGroup>

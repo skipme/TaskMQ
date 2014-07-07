@@ -1,12 +1,30 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="TApp\Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="SourceControl/Build/AssemblyMonoBuilder.cs">
     <Files>
-      <File FileName="TApp\Program.cs" Line="51" Column="1" />
+      <File FileName="SourceControl/Build/AssemblyMonoBuilder.cs" Line="121" Column="138" />
+      <File FileName="SourceControl/Build/AssemblyBuilder.cs" Line="1" Column="1" />
+      <File FileName="TApp/Program.cs" Line="22" Column="81" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Platform" expanded="True">
+            <Node name="SourceControl" expanded="True">
+              <Node name="Build" expanded="True">
+                <Node name="AssemblyMonoBuilder.cs" selected="True" />
+              </Node>
+            </Node>
+            <Node name="TApp" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/home/cerriun/tmqdev/TaskMQ/TApp/Program.cs" line="32" column="11" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

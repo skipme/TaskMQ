@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Evaluation;
+﻿#if ZMONO
+using Microsoft.Build.Evaluation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,3 +140,4 @@ namespace SourceControl.Build
         }
     }
 }
+#endif
