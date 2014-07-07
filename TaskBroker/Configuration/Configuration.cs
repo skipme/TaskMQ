@@ -85,9 +85,10 @@ namespace TaskBroker.Configuration
     {
         public List<ExtraParametersBS> BuildServerTypes { get; set; }
     }
-    public class ExtraParametersBS : RepresentedConfiguration
+    public class ExtraParametersBS
     {
         public string Name { get; set; }
+        public string Description { get; set; }
         public Dictionary<string, string> ParametersModel { get; set; }
     }
     [Serializable]

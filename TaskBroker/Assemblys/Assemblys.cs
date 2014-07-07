@@ -58,7 +58,11 @@ namespace TaskBroker.Assemblys
             foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServers)
             {
                 TaskQueue.RepresentedModel rm = bs.Value.GetParametersModel().GetModel();
-                p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS { Name = bs.Key, ParametersModel = rm.ToDeclareDictionary() });
+                p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS {
+                    Name = bs.Value.Name, 
+                    Description = bs.Value.Description,
+                    ParametersModel = rm.ToDeclareDictionary() 
+                });
             }
             return p;
         }
