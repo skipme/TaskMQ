@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using TaskUniversum;
 using TaskUniversum.Assembly;
+using TaskUniversum.Common;
 
 namespace TaskBroker.Assemblys
 {
@@ -46,9 +47,9 @@ namespace TaskBroker.Assemblys
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
-        public string GetJsonBuildServersConfiguration()
+        public IRepresentedConfiguration GetJsonBuildServersConfiguration()
         {
-            return GetBuildServersConfiguration().SerialiseJsonString();
+            return GetBuildServersConfiguration();
         }
         public TaskBroker.Configuration.ExtraParameters GetBuildServersConfiguration()
         {

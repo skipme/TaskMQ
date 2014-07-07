@@ -586,10 +586,10 @@ namespace TaskBroker
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractModulesFromBroker(this);
             else if (Assemblys)
                 return TaskBroker.Configuration.BrokerConfiguration.ExtractAssemblysFromBroker(this);
-            //else if (Extra)
-            //{
-            //    return GetSourceManager().GetJsonBuildServersConfiguration();
-            //}
+            else if (Extra)
+            {
+                return GetSourceManager().GetJsonBuildServersConfiguration();
+            }
 
             return new RepresentedConfiguration();
         }

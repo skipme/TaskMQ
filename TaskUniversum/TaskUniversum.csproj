@@ -51,6 +51,7 @@
     <Compile Include="Common\ISCMRevision.cs" />
     <Compile Include="Common\IScopeLogger.cs" />
     <Compile Include="Common\ISourceManager.cs" />
+    <Compile Include="Common\Runtime.cs" />
     <Compile Include="Common\StatisticContainer.cs" />
     <Compile Include="Common\StatisticModel.cs" />
     <Compile Include="Common\TaskMeta.cs" />

@@ -91,6 +91,7 @@
     <Compile Include="Assemblys\AssemblyProject.cs" />
     <Compile Include="Assemblys\AssemblyProjects.cs" />
     <Compile Include="Assemblys\AssemblySource.cs" />
+    <Compile Include="Build\IAssemblyBuilder.cs" />
     <Compile Include="Containers\AssemblyVersionPackage.cs" />
     <Compile Include="Containers\AssemblyVersions.cs" />
     <Compile Include="SCM\Git\git_scm.cs" />

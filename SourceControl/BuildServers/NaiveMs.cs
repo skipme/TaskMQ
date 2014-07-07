@@ -20,15 +20,19 @@ namespace SourceControl.BuildServers
         {
             State = BuildServerState.fetch_required;
         }
-       
-        SourceControl.Assemblys.AssemblySCM _scm;
-        SourceControl.Assemblys.AssemblySCM scm
+
+        SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilder> _scm;
+        SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilder> scm
         {
             get
             {
                 if (_scm == null)
                 {
-                    _scm = new Assemblys.AssemblySCM(System.IO.Directory.GetCurrentDirectory(), parameters.ProjectPath, parameters.SCM_URL);
+                    _scm = new Assemblys.AssemblySCM<Build.AssemblyBuilder>(
+                        System.IO.Directory.GetCurrentDirectory(), 
+                        parameters.ProjectPath,
+                        parameters.SCM_URL
+                        );
                 }
                 return _scm;
             }

@@ -1,5 +1,4 @@
-﻿#if ZMONO
-using Microsoft.Build.Evaluation;
+﻿using Microsoft.Build.Evaluation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,7 @@ using TaskUniversum;
 namespace SourceControl.Build
 {
 
-    public class AssemblyBuilder
+    public class AssemblyBuilder : SourceControl.Build.IAssemblyBuilder
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
@@ -140,4 +139,3 @@ namespace SourceControl.Build
         }
     }
 }
-#endif

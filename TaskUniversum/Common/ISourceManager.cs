@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum.Common;
 
 namespace TaskUniversum
 {
@@ -12,6 +13,6 @@ namespace TaskUniversum
         void UpdatePackage(string assemblyProjectName);
 
         bool CheckBuildServerParameters(string BSTypeName, Dictionary<string, object> bsParameters, out string explain);
-        string GetJsonBuildServersConfiguration();
+        IRepresentedConfiguration GetJsonBuildServersConfiguration();
     }
 }

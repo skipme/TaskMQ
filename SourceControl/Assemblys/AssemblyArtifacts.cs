@@ -11,11 +11,20 @@ namespace SourceControl.Assemblys
         public AssemblyArtifacts()
         {
             BuildServers = new Dictionary<string, BuildServers.IBuildServer>();
-            SourceControl.BuildServers.TeamCityBS tc = new BuildServers.TeamCityBS();
-            SourceControl.BuildServers.NaiveMSfromGit netgit = new BuildServers.NaiveMSfromGit();
 
+            SourceControl.BuildServers.TeamCityBS tc = new BuildServers.TeamCityBS();
             BuildServers.Add(tc.Name, tc);
-            BuildServers.Add(netgit.Name, netgit);
+
+            if (TaskUniversum.Common.Runtime.IsRunningOnMono())
+            {
+                SourceControl.BuildServers.NaiveXBuildfromGit monogit = new BuildServers.NaiveXBuildfromGit();
+                BuildServers.Add(monogit.Name, monogit);
+            }
+            else
+            {
+                SourceControl.BuildServers.NaiveMSfromGit netgit = new BuildServers.NaiveMSfromGit();
+                BuildServers.Add(netgit.Name, netgit);
+            }
         }
 
       

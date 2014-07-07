@@ -9,7 +9,7 @@ using TaskUniversum;
 
 namespace SourceControl.Assemblys
 {
-    public class AssemblySCM
+    public class AssemblySCM<BS> where BS : IAssemblyBuilder
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
@@ -62,7 +62,6 @@ namespace SourceControl.Assemblys
             scm = (SCM)Activator.CreateInstance(T, new object[] { this.WorkingDir, remoteUri });
         }
 
-        //public bool BuildProject(out string outputLocation, out byte[] library, out byte[] symbols, out string[] assetsPath)
         public bool BuildProject(out AssemblyBinaryBuildResult bin)
         {
             bool bresult;
@@ -105,7 +104,7 @@ namespace SourceControl.Assemblys
 
             return BuildServers.BuildArtifacts.FromDirectory(assemblyAbs, Version.Revision);
         }
-       
+
         public bool SetUpToDate()
         {
             return IsUpToDate = lSetUpToDate();
