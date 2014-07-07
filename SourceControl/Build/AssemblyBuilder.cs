@@ -85,10 +85,10 @@ namespace SourceControl.Build
         }
 
         public string ProjectLocation { get; set; }
-        public string Log;
-        public string BuildResultDll;
-        public string BuildResultSymbols;
-        public string[] BuildResultAssets;
+		public string Log { get; set; }
+		public string BuildResultDll { get; set; }
+		public string BuildResultSymbols { get; set; }
+		public string[] BuildResultAssets { get; set; }
 
         public AssemblyBuilder(string projectPath)
         {
