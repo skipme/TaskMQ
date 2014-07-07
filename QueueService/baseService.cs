@@ -263,6 +263,11 @@ namespace QueueService
             {
                 //Console.Write("conf mod part set: {0}", request.Body);
             }
+            else if (request.AssemblysPart)
+            {
+                QueueService.ModProducer.broker.RegisterNewConfiguration(request.ConfigId, request.Body);
+                //Console.Write("conf mod part set: {0}", request.Body);
+            }
             return new ConfigResponse()
             {
                 Result = "OK", // OR SOME ERROR DESCRIPTION
@@ -297,7 +302,7 @@ namespace QueueService
             string errors = "";
             bool resp = false;
 
-            resp = QueueService.ModProducer.broker.ValidateAndCommitConfigurations(request.MainPart, request.ModulesPart, out errors, request.Reset, request.Restart);
+            resp = QueueService.ModProducer.broker.ValidateAndCommitConfigurations(request.MainPart, request.ModulesPart, request.AssemblysPart, out errors, request.Reset, request.Restart);
             if (resp)
             {
                 errors = "OK";

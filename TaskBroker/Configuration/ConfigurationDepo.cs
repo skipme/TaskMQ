@@ -123,5 +123,32 @@ namespace TaskBroker.Configuration
             errors = "ok";
             return true;
         }
+
+        public bool ValidateAndCommitAssemblies(string id, out string errors)
+        {
+            if (id == null || !jsonConfigurations.ContainsKey(id))
+            {
+                errors = "id not present in commit queue";
+                return false;
+            }
+            else
+            {
+                string json = jsonConfigurations[id];
+                bool vok = ConfigurationValidation.ValidateAssemblys(ref json, out errors);
+                try
+                {
+                    versions.AddVersion(key_assemblys, json);
+                }
+                catch (Exception e)
+                {
+                    // archive errors // opened in another app
+                    errors = e.Message;
+                    return false;
+                }
+            }
+
+            errors = "ok";
+            return true;
+        }
     }
 }

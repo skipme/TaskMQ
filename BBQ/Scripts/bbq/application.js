@@ -229,7 +229,7 @@
         }, err, { MainPart: true, Body: angular.toJson(main_cmodel, false), ConfigId: main_cmodel_id });
     }
     function setModsModel(succ, err) {
-        if (typeof mods_cmodel_id === 'undefined' || mods_cmodel_id === null) {
+        if (typeof mods_cmodel === 'undefined' || mods_cmodel === null) {
             succ("mods model not changed since last sync...");
             return;
         }
@@ -246,6 +246,24 @@
             }
             //}, err, { data: angular.toJson({ ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id }) });
         }, err, { ModulesPart: true, Body: angular.toJson(mods_cmodel, false), ConfigId: mods_cmodel_id });
+    }
+    function setAssemblyModel(succ, err) {
+        if (typeof assm_cmodel === 'undefined' || assm_cmodel === null) {
+            succ("mods model not changed since last sync...");
+            return;
+        }
+        if (assm_cmodel_id === null) {
+            succ("mods model not changed...");
+            return;
+        }
+        jsonpost(function (data) {
+            if (data.Result == 'OK') {
+                succ(data);
+            } else {
+                if (err)
+                    err(data.Result);
+            }
+        }, err, { AssemblysPart: true, Body: angular.toJson(assm_cmodel, false), ConfigId: assm_cmodel_id });
     }
     // =========
     function CommitAndReset(succ, err) {
@@ -268,6 +286,8 @@
             datapost.MainPart = main_cmodel_id;
         if (mods_cmodel_id !== null)
             datapost.ModulesPart = mods_cmodel_id;
+        if (assm_cmodel_id !== null)
+            datapost.AssemblysPart = assm_cmodel_id;
 
         jsonpost(function (data) {
             if (data.Result == 'OK') {
@@ -310,6 +330,7 @@
 
         syncToMain: setServiceModel,
         syncToMods: setModsModel,
+        syncToAssemblies: setAssemblyModel,
         CommitAndReset: CommitAndReset,
         CommitAndRestart: CommitAndRestart,
 

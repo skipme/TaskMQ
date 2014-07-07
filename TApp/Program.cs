@@ -42,7 +42,7 @@ namespace TApp
             {
                 ApplicationKeeper.AppdomainLoop();
             }
-            Console.WriteLine("Application Main entry exit.");
+            Console.WriteLine("! Application MAIN EXIT.");
             Console.ReadLine();
             return;
         }

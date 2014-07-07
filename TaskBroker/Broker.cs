@@ -532,7 +532,7 @@ namespace TaskBroker
         }
 
 
-        public bool ValidateAndCommitConfigurations(string MainID, string ModulesID, out string errors, bool Reset = false, bool Restart = false)
+        public bool ValidateAndCommitConfigurations(string MainID, string ModulesID, string AssembliesID, out string errors, bool Reset = false, bool Restart = false)
         {
             bool result = true;
             errors = string.Empty;
@@ -542,6 +542,9 @@ namespace TaskBroker
 
             if (result && !string.IsNullOrWhiteSpace(ModulesID))
                 result = Configurations.ValidateAndCommitMods(ModulesID, out errors);
+
+            if (result && !string.IsNullOrWhiteSpace(AssembliesID))
+                result = Configurations.ValidateAndCommitAssemblies(AssembliesID, out errors);
 
             if (result)
                 Configurations.ClearConfigurationsForCommit();// drop all pending commits

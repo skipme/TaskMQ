@@ -489,14 +489,22 @@
             aftermath(
             function (actx) {
                 bbq_tmq.syncToMain(function (data) {
-                    bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
-                    actx.ok();
+                    if (data.ConfigCommitID) {
+                        bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
+                        actx.ok();
+                    } else {
+                        actx.error("main configuration upload error: " + data);
+                    }
                 }, function (msg) { actx.error("main configuration upload error"); })
             },
             function (actx) {
                 bbq_tmq.syncToMods(function (data) {
-                    bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
-                    actx.ok();
+                    if (data.ConfigCommitID) {
+                        bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
+                        actx.ok();
+                    } else {
+                        actx.error("main configuration upload error: " + data);
+                    }
                 }, function (msg) { actx.error("module configuration upload error"); })
             })
       .ondone(function () {
@@ -528,6 +536,12 @@
                         bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
                         actx.ok();
                     }, function (msg) { actx.error("module configuration upload error"); })
+                },
+                function (actx) {
+                    bbq_tmq.syncToAssemblies(function (data) {
+                        bbq_tmq.toastr_success(" assembly configuration upload id: " + data.ConfigCommitID);
+                        actx.ok();
+                    }, function (msg) { actx.error("assembly configuration upload error"); })
                 })
           .ondone(function () {
               bbq_tmq.CommitAndRestart(function (data) {
