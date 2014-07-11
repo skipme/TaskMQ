@@ -83,7 +83,7 @@
         <span>
             <b>TaskMQ host unreachable or configuration out of date!</b>&nbsp; Specify host endpoint:<br />
             <input type="text" id="txt-configurationhost" value="http://127.0.0.1:82/" />&nbsp;
-            <button class="btn" ng-click="sync()">Connect</button></span>
+            <button class="btn" ng-click="sync()">Sync configuration</button></span>
     </div>
 
     <div class="alert alert-block" ng-show="triggers.wReset">
@@ -131,7 +131,7 @@
                 <a href="#servp" data-toggle="tab">Entities</a>
             </li>
             <li>
-                <a href="#assemblys" data-toggle="tab">Assemblies</a>
+                <a href="#assemblys" data-toggle="tab">Assembly Packages</a>
             </li>
             <li>
                 <a href="#configurations" data-toggle="tab">Configurations</a>
@@ -179,6 +179,79 @@
                         </tbody>
                     </table>
                 </div>
+
+            </div>
+            <div id="servp" class="tab-pane span11">
+                <div class="well">
+                    <h3>Channels</h3>
+                    <p>
+                        Message model typing and node scaling<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
+                    </p>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Channel ID
+                                </th>
+                                <th>Queue ID</th>
+                                <th>Assigned Tag(MType)
+                                </th>
+                                <th>throughput</th>
+                                <th>heartbeat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="m in m_main.Channels">
+                                <td>{{m.Name}}
+                                </td>
+                                <td>{{m.connectionName}}</td>
+                                <td class="chMtypeName" channel="{{m.Name}}"></td>
+                                <td><span class="channel-sparkline-throughput" statsel="{{m.Name}}">sparkline...</span></td>
+                                <td><span class="channel-sparkline-heartbeat" statsel="{{m.Name}}">sparkline...</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="well">
+                    <h3>Queues / connection parameters
+                    </h3>
+                    <p>
+                        Contains persistant part<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
+                    </p>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Queue ID
+                                </th>
+                                <th>Provider</th>
+                                <th>connection string
+                                </th>
+                                <th>database.collection</th>
+                                <th>currentLevel
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="m in m_main.Connections">
+                                <td>{{m.Name}}
+                      <br>
+                                </td>
+                                <td>{{m.queueTypeName}}
+                      <br>
+                                </td>
+                                <td>{{m.connectionString}}
+                      <br>
+                                </td>
+                                <td>{{m.database}}.{{m.collection}}
+                      <br>
+                                </td>
+                                <td>15</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
                 <div class="well">
                     <h3>Modules
                 <br>
@@ -215,112 +288,29 @@
                     </table>
                 </div>
             </div>
-            <div id="servp" class="tab-pane span11">
-                <div class="well">
-                    <h4>Channels</h4>
-                    <h4></h4>
-                    <p>
-                        Message model typing and node scaling<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
-                    </p>
-
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>id
-                                </th>
-                                <th>connection</th>
-                                <th>Mtype(name)
-                                </th>
-                                <th>throughput</th>
-                                <th>heartbeat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="m in m_main.Channels">
-                                <td>{{m.Name}}
-                                </td>
-                                <td>{{m.connectionName}}</td>
-                                <td class="chMtypeName" channel="{{m.Name}}"></td>
-                                <td><span class="channel-sparkline-throughput" statsel="{{m.Name}}">sparkline...</span></td>
-                                <td><span class="channel-sparkline-heartbeat" statsel="{{m.Name}}">sparkline...</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="well">
-                    <h4>Queues / connection parameters
-                <br>
-                    </h4>
-                    <h4></h4>
-                    <p>
-                        Contains persitant part<a class="btn btn-primary pull-right"><i class="icon-plus-sign icon-white"></i> Create new</a>
-                    </p>
-
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>id
-                      <br>
-                                </th>
-                                <th>queue</th>
-                                <th>connection string
-                      <br>
-                                </th>
-                                <th>database/collection(table)</th>
-                                <th>currentLevel
-                      <br>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="m in m_main.Connections">
-                                <td>{{m.Name}}
-                      <br>
-                                </td>
-                                <td>{{m.queueTypeName}}
-                      <br>
-                                </td>
-                                <td>{{m.connectionString}}
-                      <br>
-                                </td>
-                                <td>{{m.database}}/{{m.collection}}
-                      <br>
-                                </td>
-                                <td>15</td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
             <div id="assemblys" class="tab-pane span11">
                 <div style="" class="well tab-pane active">
-                    <h4>Assemblies, repositories
-                <br>
-                    </h4>
-                    <h4></h4>
+                    <h3>Packages
+                    </h3>
                     <p>
-                        Contains assemblys whose contains modules
-              <a class="btn btn-primary pull-right" ng-click="newassembly()"><i class="icon-plus-sign icon-white"></i>Create new</a>
+                        Packages of assemblies with modules, build server sources.
+                    <a class="btn btn-primary pull-right" role="button" ng-click="newassembly()"><i class="icon-plus-sign icon-white"></i>Create new</a>
                     </p>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>strong name
-                      <br>
+                                <th>Package ID
                                 </th>
                                 <th>Build Server Type
                                 </th>
                                 <th>parameters
-                      <br>
                                 </th>
-                                <th>actual
+                                <th>Version Actual
                                 </th>
-                                <th>loaded
+                                <th>Is Loaded
                                 </th>
-                                <th>State
-                      <br>
+                                <th>Build Server <br />State
                                 </th>
                                 <th></th>
                                 <th></th>
@@ -425,7 +415,7 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="edittaskModal">
                 <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true" ng-click="task_edit_del()">Delete</button>
-                &nbsp; Edit Task</h3>
+                &nbsp; Task</h3>
         </div>
         <div class="modal-body">
             <form name="editTaskForm" class="form-horizontal">
@@ -504,7 +494,6 @@
                 <dt>Package Revision</dt>
                 <dd>{{mi_cassembly.revisionTag}}</dd>
                 <dt>Packaged SCM Commit</dt>
-                @*<dd>{{mi_cassembly.revCommiter}}@@{{mi_cassembly.revCommitComment}} :: {{mi_cassembly.revCommitTime | date:'MMM d, y HH:mm:ss'}}</dd>*@
                 <dd>
                     <blockquote>{{mi_cassembly.revCommitComment}}<small>{{mi_cassembly.revCommiter}} @@ {{mi_cassembly.revCommitTime | date:'MMM d, y HH:mm:ss'}}</small></blockquote>
                 </dd>
@@ -512,7 +501,7 @@
                 <dd>{{mi_cassembly.packaged | date:'MMM d, y HH:mm:ss'}}</dd>
                 <br />
                 <dt>IsLoaded</dt>
-                <dd><a ng-show="mi_cassembly.loaded" title="loaded"><i class="icon-ok"></i></a><a ng-hide="mi_cassembly.loaded" title="not loaded"><i class="icon-warning-sign"></i></a></dd>
+                <dd><a ng-show="mi_cassembly.loaded" title="loaded"><i class="icon-ok"></i></a><a ng-hide="mi_cassembly.loaded" title="not loaded"><i class="icon-warning-sign"></i> &nbsp; not Loaded</a></dd>
                 <dt>Load Revision</dt>
                 <dd>{{mi_cassembly.loadedRevision}}</dd>
                 <dt>Load Info</dt>

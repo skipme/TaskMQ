@@ -14,11 +14,11 @@
         setTimeout(function () { $("div[ng-app='bbq']").fadeIn(); }, 500);
 
         $scope.intervals = [
-            { t: "withoutInterval", l: 'without', s: true, sv: false },
-            { t: "intervalMilliseconds", l: 'ms', s: true, sv: true },
-            { t: "intervalSeconds", l: 'sec', s: true, sv: true },
-            { t: "DayTime", l: 'daytime', s: false, sv: false },
-            { t: "isolatedThread", l: 'isolated', s: false, sv: false }];
+            { t: "withoutInterval", l: 'Immediately', s: true, sv: false },
+            { t: "intervalMilliseconds", l: 'Milliseconds', s: true, sv: true },
+            { t: "intervalSeconds", l: 'Seconds', s: true, sv: true },
+            { t: "DayTime", l: 'Specific Datetime', s: false, sv: false },
+            { t: "isolatedThread", l: 'Isolated Thread', s: false, sv: false }];
 
         $scope.newtask = null;
         $scope.ref_task = null;
@@ -249,6 +249,12 @@
             $('div#modal-edit-assembly').modal('hide');
         }
         $scope.newassembly = function () {
+            //check sync state
+            if (!bbq_tmq.check_synced()) {
+                bbq_tmq.toastr_warning('the state is not synced...');
+                return;
+            }
+
             var asm = { Name: "", BuildServerType: $scope.m_extra.BuildServerTypes[0].Name, BSParameters: {} };
             
             $scope.assembly_edit(asm);
@@ -395,7 +401,7 @@
         $scope.show_newtask = function () {
             //check sync state
             if (!bbq_tmq.check_synced()) {
-                alert('the state is not synced...');
+                bbq_tmq.toastr_warning('the state is not synced...');
                 return;
             }
 
