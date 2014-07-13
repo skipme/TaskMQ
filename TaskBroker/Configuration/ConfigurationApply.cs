@@ -24,12 +24,18 @@ namespace TaskBroker
             {
                 broker.RegisterChannel(channel.connectionName, channel.Name);
             }
-            foreach (var task in con.Tasks)
+            for (int i = 0; i < con.Tasks.Length; i++)
             {
-                if (!task.Auto)
+                var task = con.Tasks[i];
+                if (task == null)
                 {
-                    broker.RegisterTask(task.ChannelName, task.ModuleName, task.intervalType, task.intervalValue, task.parameters, task.Description);
+                    logger.Warning("skipping task from configuration at index: {0}", i);
                 }
+                else
+                    if (!task.Auto)
+                    {
+                        broker.RegisterTask(task.ChannelName, task.ModuleName, task.intervalType, task.intervalValue, task.parameters, task.Description);
+                    }
             }
         }
         public static void Apply(this ConfigurationAssemblys con, Broker broker)

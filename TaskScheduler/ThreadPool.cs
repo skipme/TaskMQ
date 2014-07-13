@@ -11,16 +11,14 @@ namespace TaskScheduler
     {
         public bool Isolated { get; set; }
         public Thread hThread { get; set; }
-        public bool HasJob { get; set; }
-        public bool JobComplete { get; set; }
 
         public bool StopThread { get; set; }
         public bool StoppedThread { get; set; }
 
         public int ManagedID { get; set; }
 
-        public PlanItem Job { get; set; }
-        public ExecutionPlan rootPlan { get; set; }
+        public PlanItem Job;
+        public ExecutionPlan rootPlan;
     }
 
     public class ThreadPool
@@ -28,8 +26,13 @@ namespace TaskScheduler
         const int maxThreads = 8;
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
-        public ThreadPool() { Revoke(); }
+        public ThreadPool() 
+        {
+            this.ProcessorCount = Environment.ProcessorCount;
+            Revoke(); 
+        }
         // Throughput tune
+        public int ProcessorCount { get; set; }
         public void IncrementWorkingThreads()
         {
 
@@ -97,6 +100,10 @@ namespace TaskScheduler
         {
             plan.SetComponents(planItems.ToList());
         }
+        public void DeferJob(PlanItem job)
+        {
+            plan.DoNonpiorityJob(job);
+        }
         public void CloseIsolatedThreads()
         {
             foreach (ThreadContext t in threads)
@@ -108,7 +115,6 @@ namespace TaskScheduler
                         t.hThread.Abort();
                     }
                 }
-
             }
         }
         public void CreateIsolatedThreadForPlan(PlanItem pi)
@@ -144,20 +150,14 @@ namespace TaskScheduler
         {
             PlanItem nextJob;
 
-            if (ti.HasJob && ti.JobComplete)
+            if (ti.Job != null)
             {
                 ti.Job.ExucutingNow = false;
             }
 
-            nextJob = ti.rootPlan.Next();
+            nextJob = ti.rootPlan.Next(true);
 
             ti.Job = nextJob;
-            if (ti.HasJob = nextJob != null)
-            {
-                ti.Job.ExucutingNow = true;
-            }
-
-            ti.JobComplete = false;
         }
         static void ExitThread(ThreadContext ti)
         {
@@ -175,14 +175,11 @@ namespace TaskScheduler
             threadContext.ManagedID = threadContext.hThread.ManagedThreadId;
             while (!threadContext.StopThread)
             {
-                if (threadContext.HasJob)
+                if (threadContext.Job != null)
                 {
                     PlanItem planned = threadContext.Job;
 
                     planned.JobEntry(threadContext, planned);
-
-                    planned.LastExecutionTime = DateTime.Now;
-                    threadContext.JobComplete = true;
                     Thread.Sleep(0000);
                 }
                 //else

@@ -16,8 +16,8 @@ namespace TaskScheduler
 
         public PlanItemEntryPoint JobEntry;
 
-        public DateTime LastExecutionTime { get; set; }
-        public bool ExucutingNow { get; set; }
+        public DateTime LastExecutionTime;
+        public volatile bool ExucutingNow;
 
         //public object CustomObject { get; set; }
         public bool Suspended { get; set; }
