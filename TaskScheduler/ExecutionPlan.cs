@@ -8,47 +8,63 @@ namespace TaskScheduler
 {
     public class ExecutionPlan
     {
-        public List<PlanItem> PlanComponents = new List<PlanItem>();
-        public List<PlanItem> CurrentPlanQueue = null;
-        public int QueueCursor { get; set; }
- 
+        private List<PlanItem> PlanComponents = new List<PlanItem>();
+
+        private PlanItem[] CurrentPlanQueue = new PlanItem[0];
+        private int CPQueueCursor;
+
         public PlanItem Next()
         {
-            if (CurrentPlanQueue == null || CurrentPlanQueue.Count == 0)
+            PlanItem Dequeued;
+            lock (CurrentPlanQueue)
             {
-                Create();
-            }
-
-            PlanItem pi = SubNext();
-            if (pi == null)
-            {
-                Create();
-                pi = SubNext();
-            }
-            return pi;
-        }
-
-        private PlanItem SubNext()
-        {
-            for (int i = QueueCursor; i < CurrentPlanQueue.Count; i++)
-            {
-                if (!CurrentPlanQueue[i].ExucutingNow)
+                bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
+                if (!planNotEmpty)
                 {
-                    QueueCursor = i + 1;
-                    return CurrentPlanQueue[i];
+                    PlanItem[] newcmpnts = OrderComponents();
+                    planNotEmpty = newcmpnts.Length > 0;
+                    if (!planNotEmpty)
+                        return null;// plan is empty
+                    else
+                    {
+                        // populate queue
+                        CurrentPlanQueue = newcmpnts;
+                        CPQueueCursor = 0;
+                    }
+                }
+
+                Dequeued = CurrentPlanQueue[CPQueueCursor];
+                CPQueueCursor++;
+            }
+
+            return Dequeued;
+        }
+        public void SetComponents(List<PlanItem> newComponents)
+        {
+            lock (PlanComponents)
+            {
+                lock (CurrentPlanQueue)
+                {
+                    PlanComponents = newComponents;
+                    PopulateQueue(OrderComponents());
                 }
             }
-            return null;
+
         }
-        public List<PlanItem> Create()
+
+        private PlanItem[] OrderComponents()
         {
             var p = from i in PlanComponents
                     where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
                     !i.ExucutingNow && i.MillisecondsBeforeExecute() <= 0
                     orderby i.LAMS
                     select i;
-            QueueCursor = 0;
-            return CurrentPlanQueue = p.ToList();
+            return p.ToArray();
+        }
+        private void PopulateQueue(PlanItem[] p)
+        {
+            CurrentPlanQueue = p;
+            CPQueueCursor = 0;
         }
     }
 }

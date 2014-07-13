@@ -27,7 +27,7 @@ namespace TaskScheduler
     {
         const int maxThreads = 8;
         List<ThreadContext> threads = new List<ThreadContext>();
-        ExecutionPlan plan = new ExecutionPlan();
+        private ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool() { Revoke(); }
         // Throughput tune
         public void IncrementWorkingThreads()
@@ -87,27 +87,15 @@ namespace TaskScheduler
         }
         public void SetPlan(List<PlanItem> setPlanItems)
         {
-            lock (plan)
-            {
-                plan.PlanComponents = setPlanItems;
-                plan.Create();
-            }
+            plan.SetComponents(setPlanItems);
         }
         public void SetPlan(params PlanItem[] args)
         {
-            lock (plan)
-            {
-                plan.PlanComponents = args.ToList();
-                plan.Create();
-            }
+            plan.SetComponents(args.ToList());
         }
         public void SetPlan(IEnumerable<PlanItem> planItems)
         {
-            lock (plan)
-            {
-                plan.PlanComponents = planItems.ToList();
-                plan.Create();
-            }
+            plan.SetComponents(planItems.ToList());
         }
         public void CloseIsolatedThreads()
         {
@@ -154,21 +142,22 @@ namespace TaskScheduler
         /// <param name="ti"></param>
         static void IntermediateThread(ThreadContext ti)
         {
-            lock (ti.rootPlan)
+            PlanItem nextJob;
+
+            if (ti.HasJob && ti.JobComplete)
             {
-                if (ti.HasJob && ti.JobComplete)
-                {
-                    ti.Job.ExucutingNow = false;
-                }
-                PlanItem pi = ti.rootPlan.Next();
-                ti.Job = pi;
-                if (ti.HasJob = pi != null)
-                {
-                    ti.Job.ExucutingNow = true;
-                }
-                ti.JobComplete = false;
+                ti.Job.ExucutingNow = false;
             }
-            //Console.WriteLine("Intermediate {0} {1}", ti.ManagedID, ti.hThread.IsThreadPoolThread);
+
+            nextJob = ti.rootPlan.Next();
+
+            ti.Job = nextJob;
+            if (ti.HasJob = nextJob != null)
+            {
+                ti.Job.ExucutingNow = true;
+            }
+
+            ti.JobComplete = false;
         }
         static void ExitThread(ThreadContext ti)
         {
@@ -198,7 +187,7 @@ namespace TaskScheduler
                 }
                 //else
                 //{
-                    Thread.Sleep(10);
+                Thread.Sleep(10);
                 //}
                 IntermediateThread(threadContext);
             }
