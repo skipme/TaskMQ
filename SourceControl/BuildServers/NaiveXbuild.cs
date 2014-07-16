@@ -10,17 +10,17 @@ using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
-	public class NaiveXBuildfromGit : IBuildServer
+    public class NaiveXBuildfromGit : IBuildServer
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         NaiveMSfromGitParams parameters = new NaiveMSfromGitParams();
 
-		public NaiveXBuildfromGit()
+        public NaiveXBuildfromGit()
         {
             State = BuildServerState.fetch_required;
         }
-       
+
         SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilderMono> _scm;
         SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilderMono> scm
         {
@@ -29,8 +29,8 @@ namespace SourceControl.BuildServers
                 if (_scm == null)
                 {
                     _scm = new Assemblys.AssemblySCM<Build.AssemblyBuilderMono>(
-                        System.IO.Directory.GetCurrentDirectory(), 
-                        parameters.ProjectPath, 
+                        System.IO.Directory.GetCurrentDirectory(),
+                        parameters.ProjectPath,
                         parameters.SCM_URL
                         );
                 }
@@ -85,12 +85,12 @@ namespace SourceControl.BuildServers
             return State;
         }
 
-        public void FetchSource()
+        private bool FetchSource()
         {
             if (scm.Status == SCM.Status.allUpToDate)
             {
                 State = BuildServerState.fetch_ok;
-                return;
+                return true;
             }
 
             State = BuildServerState.fetch;
@@ -98,15 +98,73 @@ namespace SourceControl.BuildServers
             bool result = scm.SetUpToDate();
             logger.Debug("gitmono bs: source '{0}' update: {1}", scm.Name, result ? "ok" : "fail");
             State = result ? BuildServerState.fetch_ok : BuildServerState.fetch_error;
+
+            return result;
         }
 
-        public void BuildSource()
+        private bool BuildSource()
         {
-            //if (scm.Status != SCM.Status.allUpToDate)
-            //    return;
             State = BuildServerState.build;
             bool result = scm.BuildProject(parameters.Configuration);
             State = result ? BuildServerState.build_ok : BuildServerState.build_error;
+
+            return result;
+        }
+
+        public bool DobBSJob(BuildServerJobs jobDef)
+        {
+            bool result = false;
+            switch (jobDef)
+            {
+                case BuildServerJobs.fetch:
+                    result = FetchSource();
+                    break;
+                case BuildServerJobs.build:
+                    result = BuildSource();
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        public List<BuildServerJobs> GetAllowedJobs()
+        {
+            List<BuildServerJobs> result = new List<BuildServerJobs>();
+            switch (State)
+            {
+                case BuildServerState.source_absent:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.fetch:
+                    break;
+                case BuildServerState.build:
+                    break;
+                case BuildServerState.fetch_required:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.fetch_error:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.build_error:
+                    result.Add(BuildServerJobs.fetch);
+                    result.Add(BuildServerJobs.build);
+                    break;
+                case BuildServerState.fetch_ok:
+                    result.Add(BuildServerJobs.build);
+                    break;
+                case BuildServerState.build_ok:
+                    break;
+                case BuildServerState.major_error:
+                    result.Add(BuildServerJobs.fetch);
+                    result.Add(BuildServerJobs.build);
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
         }
     }
 

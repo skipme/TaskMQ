@@ -51,7 +51,7 @@ namespace TaskScheduler
                     {
                         PlanItem[] Pnewcmpnts = OrderComponents();
 
-                        newcmpnts = new PlanItem[jnewcmpnts.Length + newcmpnts.Length];
+                        newcmpnts = new PlanItem[jnewcmpnts.Length + Pnewcmpnts.Length];
                         Array.Copy(jnewcmpnts, newcmpnts, jnewcmpnts.Length);
                         Array.Copy(Pnewcmpnts, 0, newcmpnts, jnewcmpnts.Length, Pnewcmpnts.Length);
                     }
@@ -62,11 +62,14 @@ namespace TaskScheduler
                     planNotEmpty = newcmpnts.Length > 0;
                     if (planNotEmpty)
                     {
-                        Dequeued = newcmpnts[0];
                         if (newcmpnts.Length > 1)
                         {
                             // populate queue
-                            PopulateQueue(newcmpnts);
+                            PopulateQueue(newcmpnts);// let wait handled thread do that with race for job
+                        }
+                        else
+                        {
+                            Dequeued = newcmpnts[0];// this thread has exclusive access without race for job
                         }
                     }
                     else

@@ -55,7 +55,7 @@ namespace updateModulePackage
                 ProjectPath = scmProjectPath,
                 AssemblyPath = null
             });
-            SourceControl.Assemblys.AssemblyProject prj = new SourceControl.Assemblys.AssemblyProject(System.IO.Directory.GetCurrentDirectory(), moduleName, git);
+            SourceControl.Assemblys.SourceController prj = new SourceControl.Assemblys.SourceController(System.IO.Directory.GetCurrentDirectory(), moduleName, git);
 
             prj.Fetch();
             prj.Build();

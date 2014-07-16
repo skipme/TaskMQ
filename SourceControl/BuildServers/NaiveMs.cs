@@ -85,12 +85,12 @@ namespace SourceControl.BuildServers
             return State;
         }
 
-        public void FetchSource()
+        public bool FetchSource()
         {
             if (scm.Status == SCM.Status.allUpToDate)
             {
                 State = BuildServerState.fetch_ok;
-                return;
+                return true;
             }
 
             State = BuildServerState.fetch;
@@ -98,15 +98,73 @@ namespace SourceControl.BuildServers
             bool result = scm.SetUpToDate();
             logger.Debug("gitms bs: source '{0}' update: {1}", scm.Name, result ? "ok" : "fail");
             State = result ? BuildServerState.fetch_ok : BuildServerState.fetch_error;
+
+            return result;
         }
 
-        public void BuildSource()
+        public bool BuildSource()
         {
-            //if (scm.Status != SCM.Status.allUpToDate)
-            //    return;
             State = BuildServerState.build;
             bool result = scm.BuildProject(parameters.Configuration);
             State = result ? BuildServerState.build_ok : BuildServerState.build_error;
+
+            return result;
+        }
+
+        public bool DobBSJob(BuildServerJobs jobDef)
+        {
+            bool result = false;
+            switch (jobDef)
+            {
+                case BuildServerJobs.fetch:
+                    result = FetchSource();
+                    break;
+                case BuildServerJobs.build:
+                    result = BuildSource();
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        public List<BuildServerJobs> GetAllowedJobs()
+        {
+            List<BuildServerJobs> result = new List<BuildServerJobs>();
+            switch (State)
+            {
+                case BuildServerState.source_absent:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.fetch:
+                    break;
+                case BuildServerState.build:
+                    break;
+                case BuildServerState.fetch_required:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.fetch_error:
+                    result.Add(BuildServerJobs.fetch);
+                    break;
+                case BuildServerState.build_error:
+                    result.Add(BuildServerJobs.fetch);
+                    result.Add(BuildServerJobs.build);
+                    break;
+                case BuildServerState.fetch_ok:
+                    result.Add(BuildServerJobs.build);
+                    break;
+                case BuildServerState.build_ok:
+                    break;
+                case BuildServerState.major_error:
+                    result.Add(BuildServerJobs.fetch);
+                    result.Add(BuildServerJobs.build);
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
         }
     }
     public class NaiveMSfromGitParams : TItemModel

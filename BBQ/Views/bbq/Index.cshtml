@@ -49,6 +49,10 @@
             .animchange.rchange {
                 background-color: #FCF8E3;
             }
+
+        .hiddenByDefault {
+            display: none;
+        }
     </style>
 }
 <div class="navbar navbar-fixed-top">
@@ -310,32 +314,31 @@
                                 </th>
                                 <th>Is Loaded
                                 </th>
-                                <th>Build Server <br />State
+                                <th>Build Server
+                                    <br />
+                                    State
                                 </th>
                                 <th></th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr ng-repeat="assembly in m_assemblys.Assemblys">
+                            <tr ng-repeat="assembly in m_assemblys.Assemblys" assembly_sel="{{assembly.Name}}">
                                 <td><a class="btn-link" ng-click="assembly_edit(assembly)"><i class="icon-pencil"></i></a></td>
                                 <td>{{assembly.Name}}
-                      <br>
                                 </td>
                                 <td>{{assembly.BuildServerType}}
-                      <br>
                                 </td>
                                 <td>{{assembly.BSParameters | jsonshort}}
-                                    <br>
                                 </td>
-                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc"><a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
+                                <td><span app_role="desc"><a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
                                 </td>
-                                <td><span assembly_sel="{{assembly.Name}}" app_role="desc-loaded"><a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
+                                <td><span app_role="desc-loaded"><a class="btn-link" ng-click="assembly_info(assembly)" title="view detail information"><i class="icon-ok"></i></a></span>
                                 </td>
-                                <td><span assembly_sel="{{assembly.Name}}" app_role="status"></span></td>
-                                <td><a class="btn-link" ng-click="fetch_assembly(assembly)" title="fetch assembly source"><i class="icon-refresh"></i></a></td>
-                                <td><a class="btn-link" ng-click="build_assembly(assembly)" title="build assembly source"><i class="icon-filter"></i></a></td>
-                                <td><a class="btn-link" ng-click="package_assembly(assembly)" title="build/update package"><i class="icon-download-alt"></i></a></td>
+                                <td><span app_role="status"></span></td>
+                                <td app_role="fetch"><a class="btn-link hiddenByDefault" ng-click="fetch_assembly(assembly)" title="fetch assembly source"><i class="icon-refresh"></i></a></td>
+                                <td app_role="build"><a class="btn-link hiddenByDefault" ng-click="build_assembly(assembly)" title="build assembly source"><i class="icon-filter"></i></a></td>
+                                <td app_role="update"><a class="btn-link hiddenByDefault" ng-click="package_assembly(assembly)" title="build/update package"><i class="icon-download-alt"></i></a></td>
                             </tr>
 
                         </tbody>
@@ -501,7 +504,7 @@
                 <dd>{{mi_cassembly.packaged | date:'MMM d, y HH:mm:ss'}}</dd>
                 <br />
                 <dt>IsLoaded</dt>
-                <dd><a ng-show="mi_cassembly.loaded" title="loaded"><i class="icon-ok"></i></a><a ng-hide="mi_cassembly.loaded" title="not loaded"><i class="icon-warning-sign"></i> &nbsp; not Loaded</a></dd>
+                <dd><a ng-show="mi_cassembly.loaded" title="loaded"><i class="icon-ok"></i></a><a ng-hide="mi_cassembly.loaded" title="not loaded"><i class="icon-warning-sign"></i>&nbsp; not Loaded</a></dd>
                 <dt>Load Revision</dt>
                 <dd>{{mi_cassembly.loadedRevision}}</dd>
                 <dt>Load Info</dt>

@@ -26,10 +26,10 @@ namespace TaskScheduler
         const int maxThreads = 8;
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
-        public ThreadPool() 
+        public ThreadPool()
         {
             this.ProcessorCount = Environment.ProcessorCount;
-            Revoke(); 
+            Revoke();
         }
         // Throughput tune
         public int ProcessorCount { get; set; }
@@ -99,6 +99,14 @@ namespace TaskScheduler
         public void SetPlan(IEnumerable<PlanItem> planItems)
         {
             plan.SetComponents(planItems.ToList());
+        }
+        public void DeferJob(PlanItemEntryPoint job)
+        {
+            this.DeferJob(new PlanItem
+            {
+                JobEntry = job,
+                NameAndDescription = "deffered job"
+            });
         }
         public void DeferJob(PlanItem job)
         {

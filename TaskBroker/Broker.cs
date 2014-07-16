@@ -39,7 +39,7 @@ namespace TaskBroker
 
             Statistics = new StatHub();
             Scheduler = new TaskScheduler.ThreadPool();
-            AssemblyHolder = new Assemblys.Assemblys();
+            AssemblyHolder = new Assemblys.AssemblyPackages();
 
             MaintenanceTasks = new List<PlanItem>()
             {
@@ -51,17 +51,18 @@ namespace TaskBroker
                      JobEntry = (ThreadContext ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
                 },
                 // 
-                new PlanItem(){
-                     intervalType = IntervalType.intervalSeconds,
-                     intervalValue = 30,
-                     NameAndDescription="assemblies maintenance task",
-                     JobEntry = (ThreadContext ti, PlanItem pi)=>
-                     { 
-                         AssemblyHolder.assemblySources.FetchAllIfRequired();
-                         AssemblyHolder.assemblySources.BuildAllIfRequired();
-                         AssemblyHolder.assemblySources.UpdateAllIfRequired();
-                     }
-                }
+                //new PlanItem(){
+                //     intervalType = IntervalType.intervalSeconds,
+                //     intervalValue = 30,
+                //     NameAndDescription="assemblies maintenance task",
+                //     JobEntry = (ThreadContext ti, PlanItem pi)=>
+                //     { 
+                //         AssemblyHolder.assemblySources.FetchAllIfRequired();
+                //         AssemblyHolder.assemblySources.BuildAllIfRequired();
+                //         AssemblyHolder.assemblySources.UpdateAllIfRequired();
+                //     }
+                //}
+
                 // TODO:
                 // performance tune
                 // by channel level growing -> increment tasks for channel -> increment working threads
@@ -127,7 +128,7 @@ namespace TaskBroker
 
         Logger.CommonTape ModulesLogger;
         public ModHolder Modules;
-        public Assemblys.Assemblys AssemblyHolder;
+        public Assemblys.AssemblyPackages AssemblyHolder;
         public QueueClassificator QueueInterfaces;
         public TaskScheduler.ThreadPool Scheduler;
         public StatHub Statistics;
@@ -371,8 +372,6 @@ namespace TaskBroker
             //    task.Suspended = true;
             //    return;
             //}
-            ch.ChannelStatistic.inc();
-
             TaskQueue.Providers.TaskMessage item = message;
 
             bool updated = ((IModConsumer)mod.MI).Push(task.Parameters, ref message);
@@ -381,9 +380,14 @@ namespace TaskBroker
                 message.Processed = true;
                 message.ProcessedTime = DateTime.UtcNow;
             }
-            updated = updated || (!Object.ReferenceEquals(item, message));
+
+            updated = updated || (!Object.ReferenceEquals(item, message));// model is modified
             if (updated)
+            {
                 ch.Update(message);
+            }
+            ch.ChannelStatistic.inc(); // inc stats
+
         }
 
         public TaskMessage Pop(string channel)
@@ -610,6 +614,11 @@ namespace TaskBroker
         public Dictionary<string, string> GetCurrentChannelMTypeMap()
         {
             return MessageChannels.MChannelsList.ToDictionary(o => o.UniqueName, o => o.AssignedMessageType);
+        }
+
+        public void DoPackageCommand(string Name, SourceControllerJobs job)
+        {
+            Scheduler.DeferJob((tc, j) => { AssemblyHolder.DoPackageCommand(Name, job); });
         }
     }
 }

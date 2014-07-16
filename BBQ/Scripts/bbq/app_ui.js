@@ -148,13 +148,22 @@
                     function (data) {
                         var restartReq = false;
                         data.forEach(function (asm) {
-                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="status"]').text(asm.state);
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="status"]').text(asm.state);
 
-                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc"] a i').attr("class",
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="desc"] a i').attr("class",
                                 asm.revisionTag == asm.revisionSourceTag ? "icon-ok" : "icon-chevron-up");
 
-                            $('div#assemblys span[assembly_sel="' + asm.Name + '"][app_role="desc-loaded"] a i').attr("class",
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="desc-loaded"] a i').attr("class",
                                asm.loaded ? "icon-ok" : "icon-warning-sign");
+
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] td[app_role="fetch"] a').css("display",
+                                asm.allowedFetch ? "block" : "none");
+
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] td[app_role="build"] a').css("display",
+                                asm.allowedBuild ? "block" : "none");
+
+                            $('div#assemblys tr[assembly_sel="' + asm.Name + '"] td[app_role="update"] a').css("display",
+                                asm.allowedUpdate ? "block" : "none");
 
                             if (asm.loadedRevision != asm.revisionTag)// loaded not actual assembly build
                                 restartReq = true;
@@ -256,7 +265,7 @@
             }
 
             var asm = { Name: "", BuildServerType: $scope.m_extra.BuildServerTypes[0].Name, BSParameters: {} };
-            
+
             $scope.assembly_edit(asm);
             $scope.assembly_represent(asm.BuildServerType);
         }
@@ -537,8 +546,8 @@
                 function (actx) {
                     bbq_tmq.syncToMain(function (data) {
                         if (data.ConfigCommitID) {
-                        bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
-                        actx.ok();
+                            bbq_tmq.toastr_success(" main configuration upload id: " + data.ConfigCommitID);
+                            actx.ok();
                         } else {
                             actx.ok();// model don't need commit
                         }
@@ -547,8 +556,8 @@
                 function (actx) {
                     bbq_tmq.syncToMods(function (data) {
                         if (data.ConfigCommitID) {
-                        bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
-                        actx.ok();
+                            bbq_tmq.toastr_success(" module configuration upload id: " + data.ConfigCommitID);
+                            actx.ok();
                         } else {
                             actx.ok();// model don't need commit
                         }
@@ -557,8 +566,8 @@
                 function (actx) {
                     bbq_tmq.syncToAssemblies(function (data) {
                         if (data.ConfigCommitID) {
-                        bbq_tmq.toastr_success(" assembly configuration upload id: " + data.ConfigCommitID);
-                        actx.ok();
+                            bbq_tmq.toastr_success(" assembly configuration upload id: " + data.ConfigCommitID);
+                            actx.ok();
                         } else {
                             actx.ok();// model don't need commit
                         }

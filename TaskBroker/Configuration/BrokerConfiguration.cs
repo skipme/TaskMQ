@@ -64,7 +64,7 @@ namespace TaskBroker.Configuration
             c.Assemblys = (from mm in b.AssemblyHolder.assemblySources.hostedProjects
                            select new cAssembly()
                            {
-                               Name = mm.moduleName,
+                               Name = mm.PackageName,
                                BSParameters = mm.BuildServer.GetParametersModel().GetHolder(),
                                BuildServerType = mm.BuildServer.Name
                            }).ToArray();

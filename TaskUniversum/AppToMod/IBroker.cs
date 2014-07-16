@@ -29,6 +29,7 @@ namespace TaskUniversum
 
         ISourceManager GetSourceManager();
         StatisticContainer GetChannelsStatistic();
+        void DoPackageCommand(string Name, SourceControllerJobs job);
         // Module API's: logger, eventBus, ...
         ILogger APILogger();
 

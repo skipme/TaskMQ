@@ -241,14 +241,15 @@ namespace SourceControl.BuildServers
             return BuildServerState.build_ok;
         }
 
-        public void FetchSource()
-        {
 
+        public bool DobBSJob(BuildServerJobs jobDef)
+        {
+            return false;
         }
 
-        public void BuildSource()
+        public List<BuildServerJobs> GetAllowedJobs()
         {
-
+            return new List<BuildServerJobs> { };
         }
     }
     public class TeamCityBSParams : TItemModel

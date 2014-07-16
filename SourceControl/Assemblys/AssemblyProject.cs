@@ -7,30 +7,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.Assemblys
 {
-    public class AssemblyProject
+    public class SourceController
     {
-        public bool BuildDeferred { get; private set; }
-        public bool FetchDeferred { get; private set; }
-        public bool UpdateDeferred { get; private set; }
-
-        public void SetBuildDeferredFlag()
-        {
-            BuildDeferred = true;
-        }
-        public void SetFetchDeferredFlag()
-        {
-            FetchDeferred = true;
-        }
-        public void SetUpdateDeferredFlag()
-        {
-            UpdateDeferred = true;
-        }
-
         public AssemblyBinVersions Versions;
-        public string moduleName { get; private set; }
+        public string PackageName { get; private set; }
         public BuildServers.IBuildServer BuildServer;
 
         public bool RuntimeLoaded { get; set; }
@@ -42,27 +26,67 @@ namespace SourceControl.Assemblys
             return Versions.GetVersions();
         }
 
-        public AssemblyProject(string workingDirectory, string moduleName, BuildServers.IBuildServer buildServer)
+        public SourceController(string workingDirectory, string moduleName, BuildServers.IBuildServer buildServer)
         {
             Versions = new AssemblyBinVersions(workingDirectory, moduleName);
             this.BuildServer = buildServer;
 
-            this.moduleName = moduleName;
+            this.PackageName = moduleName;
         }
-        public void Fetch()
+        public void DoControl(SourceControllerJobs job)
         {
-            BuildServer.FetchSource();
-            _BuildServerRevision = BuildServer.GetVersion();
-        }
-        public void Build()
-        {
-            SCMRevision buildVersion = BuildServer.GetVersion();
-            if (Versions.LatestVersion.VersionTag != buildVersion.Revision)
+            switch (job)
             {
-                BuildServer.BuildSource();
-                _BuildServerRevision = BuildServer.GetVersion();
+                case SourceControllerJobs.fetchBS:
+                    if (BuildServer.DobBSJob(BuildServerJobs.fetch))
+                    {
+                        _BuildServerRevision = BuildServer.GetVersion();
+                    }
+                    break;
+                case SourceControllerJobs.buildBS:
+                    if (BuildServer.DobBSJob(BuildServerJobs.build))
+                    {
+                        _BuildServerRevision = BuildServer.GetVersion();
+                    }
+                    break;
+                case SourceControllerJobs.updatePackageFromBuild:
+                    SCMRevision buildVersion = BuildServer.GetVersion();
+                    if (buildVersion != null && Versions.LatestVersion.VersionTag != buildVersion.Revision)
+                    {
+                        BuildArtifacts arts = BuildServer.GetArtifacts();
+                        if (arts != null)// artifacts taken from build server
+                        {
+                            Versions.AddVersion(buildVersion, arts);
+                            _PackageRevision = Versions.LatestRevision;
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
+        public List<SourceControllerJobs> GetAllowedJobs()
+        {
+            List<SourceControllerJobs> result = new List<SourceControllerJobs>();
+            List<BuildServerJobs> bsjobs = BuildServer.GetAllowedJobs();
+
+            HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.fetch, SourceControllerJobs.fetchBS,
+                bsjobs, result);
+            HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.build, SourceControllerJobs.buildBS,
+               bsjobs, result);
+
+            SCMRevision buildVersion = BuildServer.GetVersion();
+            if (buildVersion != null && Versions.LatestVersion.VersionTag != buildVersion.Revision)
+                result.Add(SourceControllerJobs.updatePackageFromBuild);
+
+            return result;
+        }
+        private void HasAdd<T, D>(T item, D itemD, List<T> itemList, List<D> distList)
+        {
+            if (itemList.Contains(item))
+                distList.Add(itemD);
+        }
+
         SCMRevision _PackageRevision;
         DateTime LastCheck_PCKREV = DateTime.Now;
         public SCMRevision PackageRevision
@@ -93,17 +117,5 @@ namespace SourceControl.Assemblys
             }
         }
 
-        public void UpdatePackage()
-        {
-            SCMRevision buildVersion = BuildServer.GetVersion();
-            if (Versions.LatestVersion.VersionTag != buildVersion.Revision)
-            {
-                BuildArtifacts arts = BuildServer.GetArtifacts();
-                if (arts == null)
-                    return;
-                Versions.AddVersion(buildVersion, arts);
-                _PackageRevision = Versions.LatestRevision;
-            }
-        }
     }
 }

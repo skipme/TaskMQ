@@ -25,7 +25,7 @@ namespace TaskBroker.Assemblys
 
         public DateTime packagedDate { get; set; }
 
-        public AssemblyStatus(SourceControl.Assemblys.AssemblyProject prj)
+        public AssemblyStatus(SourceControl.Assemblys.SourceController prj)
         {
             State = prj.BuildServer.GetState().ToString();
 
@@ -42,15 +42,19 @@ namespace TaskBroker.Assemblys
         }
     }
 
-    public class Assemblys : ISourceManager
+    public class AssemblyPackages : ISourceManager
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         public SourceControl.Assemblys.AssemblyProjects assemblySources;
+        public Dictionary<string, AssemblyCard> loadedAssemblys;
+        private ArtefactsDepot SharedManagedLibraries;
+
         public IRepresentedConfiguration GetJsonBuildServersConfiguration()
         {
             return GetBuildServersConfiguration();
         }
+
         public TaskBroker.Configuration.ExtraParameters GetBuildServersConfiguration()
         {
             TaskBroker.Configuration.ExtraParameters p = new Configuration.ExtraParameters();
@@ -58,10 +62,11 @@ namespace TaskBroker.Assemblys
             foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServers)
             {
                 TaskQueue.RepresentedModel rm = bs.Value.GetParametersModel().GetModel();
-                p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS {
-                    Name = bs.Value.Name, 
+                p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS
+                {
+                    Name = bs.Value.Name,
                     Description = bs.Value.Description,
-                    ParametersModel = rm.ToDeclareDictionary() 
+                    ParametersModel = rm.ToDeclareDictionary()
                 });
             }
             return p;
@@ -79,7 +84,7 @@ namespace TaskBroker.Assemblys
             explain = string.Empty;
             return false;
         }
-        public Assemblys()
+        public AssemblyPackages()
         {
             // host packages, modules
             //list = new List<AssemblyModule>();
@@ -92,77 +97,48 @@ namespace TaskBroker.Assemblys
         }
         public IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses()
         {
-            foreach (SourceControl.Assemblys.AssemblyProject proj in assemblySources.hostedProjects)
+            foreach (SourceControl.Assemblys.SourceController proj in assemblySources.hostedProjects)
             {
-                yield return new KeyValuePair<string, IAssemblyStatus>(proj.moduleName, new AssemblyStatus(proj));
+                yield return new KeyValuePair<string, IAssemblyStatus>(proj.PackageName, new AssemblyStatus(proj));
             }
         }
-        public void UpdatePackage(string Name)
+        public void DoPackageCommand(string Name, SourceControllerJobs job)
         {
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
             {
-                if (assemblySources.hostedProjects[i].moduleName == Name)
+                if (assemblySources.hostedProjects[i].PackageName == Name)
                 {
-                    assemblySources.hostedProjects[i].SetUpdateDeferredFlag();
+                    assemblySources.hostedProjects[i].DoControl(job);
+                    logger.Debug("passed command {1} to package {0}", Name, job.ToString());
                     return;
                 }
             }
         }
-        public void BuildSource(string Name)
+
+        public List<SourceControllerJobs> GetAllowedCommands(string Name)
         {
+            List<SourceControllerJobs> result = null;
             for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
             {
-                if (assemblySources.hostedProjects[i].moduleName == Name)
+                if (assemblySources.hostedProjects[i].PackageName == Name)
                 {
-                    assemblySources.hostedProjects[i].SetBuildDeferredFlag();
-                    return;
+                    result = assemblySources.hostedProjects[i].GetAllowedJobs();
                 }
             }
-
+            // todo: exception
+            return result;
         }
-        public void FetchSource(string Name)
-        {
-            for (int i = 0; i < assemblySources.hostedProjects.Count; i++)
-            {
-                if (assemblySources.hostedProjects[i].moduleName == Name)
-                {
-                    assemblySources.hostedProjects[i].SetFetchDeferredFlag();
-                    return;
-                }
-            }
-
-        }
-        //public List<AssemblyModule> list;
-        public Dictionary<string, AssemblyCard> loadedAssemblys;
-
-        private ArtefactsDepot SharedManagedLibraries;
-
         public void AddAssemblySource(string name, string buildServerType, Dictionary<string, object> parameters)
         {
             assemblySources.Add(name, buildServerType, parameters);
         }
 
-        //public void AddAssembly(string name)
-        //{
-        //    AssemblyBinVersions ver = new AssemblyBinVersions(System.IO.Directory.GetCurrentDirectory(), name);
-        //    AssemblyVersionPackage package = ver.GetLatestVersion();
-        //    if (package == null)
-        //    {
-        //        Console.WriteLine("module not well formated, package info not present: {0}", name);
-        //        return;
-        //    }
-        //    list.Add(new AssemblyModule(package));
-        //}
-        //public void AddAssembly(AssemblyVersionPackage package)
-        //{
-        //    list.Add(new AssemblyModule(package));
-        //}
         public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
             // in order to reject only new modules -if depconflict persist-
-            IEnumerable<SourceControl.Assemblys.AssemblyProject> mods = assemblySources.TakeLoadTime();
-            foreach (SourceControl.Assemblys.AssemblyProject a in mods)
+            IEnumerable<SourceControl.Assemblys.SourceController> mods = assemblySources.TakeLoadTime();
+            foreach (SourceControl.Assemblys.SourceController a in mods)
             {
                 AssemblyVersionPackage pckg = a.Versions.GetLatestVersion();
                 string remarks;
@@ -232,11 +208,12 @@ namespace TaskBroker.Assemblys
             }
             else
             {
-               // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+                // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
                 logger.Error("loading shared library failed: not found {0}", Parts[0]);
             }
             return null;
         }
+
 
     }
 }

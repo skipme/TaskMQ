@@ -85,6 +85,10 @@ namespace QueueService
         public bool loaded { get; set; }
         public string loadedRevision { get; set; }
         public string loadedRemarks { get; set; }
+
+        public bool allowedFetch { get; set; }// fetch source
+        public bool allowedBuild { get; set; }// build source
+        public bool allowedUpdate { get; set; }// push build artifacts to package
     }
     public class ItemCounter
     {
@@ -126,6 +130,7 @@ namespace QueueService
                     List<AssemblyStatus> resp = new List<AssemblyStatus>();
                     foreach (var asm in QueueService.ModProducer.broker.GetSourceStatuses())
                     {
+                        List<TaskUniversum.SourceControllerJobs> scj = sourceManager.GetAllowedCommands(asm.Key);
                         AssemblyStatus expStat = new AssemblyStatus
                         {
                             Name = asm.Key,
@@ -144,7 +149,11 @@ namespace QueueService
                             revisionSourceTag = _na,
                             revSCommitComment = _na,
                             revSCommiter = _na,
-                            revSCommitTime = DateTime.MinValue
+                            revSCommitTime = DateTime.MinValue,
+
+                            allowedBuild = scj.Contains(TaskUniversum.SourceControllerJobs.buildBS),
+                            allowedFetch = scj.Contains(TaskUniversum.SourceControllerJobs.fetchBS),
+                            allowedUpdate = scj.Contains(TaskUniversum.SourceControllerJobs.updatePackageFromBuild)
                         };
                         if (asm.Value.BuildServerRev != null)
                         {
@@ -160,15 +169,24 @@ namespace QueueService
             }
             else if (r.Build)
             {
-                sourceManager.BuildSource(r.Name);
+                QueueService.ModProducer.broker.
+                    //sourceManager.
+                DoPackageCommand(r.Name,
+                    TaskUniversum.SourceControllerJobs.buildBS);
             }
             else if (r.Fetch)
             {
-                sourceManager.FetchSource(r.Name);
+                QueueService.ModProducer.broker.
+                    //sourceManager.
+                DoPackageCommand(r.Name,
+                    TaskUniversum.SourceControllerJobs.fetchBS);
             }
             else if (r.Package)
             {
-                sourceManager.UpdatePackage(r.Name);
+                QueueService.ModProducer.broker.
+                    //sourceManager.
+                DoPackageCommand(r.Name,
+                    TaskUniversum.SourceControllerJobs.updatePackageFromBuild);
             }
             else if (r.CheckBS)
             {

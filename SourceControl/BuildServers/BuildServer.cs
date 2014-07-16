@@ -20,6 +20,11 @@ namespace SourceControl.BuildServers
         build_ok,
         major_error
     }
+    public enum BuildServerJobs
+    {
+        fetch,
+        build
+    }
     public interface IBuildServer
     {
         string Name { get; }
@@ -34,7 +39,9 @@ namespace SourceControl.BuildServers
         SCMRevision GetVersion();
         BuildServerState GetState();
 
-        void FetchSource();
-        void BuildSource();
+        bool DobBSJob(BuildServerJobs jobDef);
+        List<BuildServerJobs> GetAllowedJobs();
+        //void FetchSource();
+        //void BuildSource();
     }
 }
