@@ -1,4 +1,4 @@
-![](http://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png "")
+[![tip for next commit](https://tip4commit.com/projects/898.svg)](https://tip4commit.com/github/skipme/TaskMQ)
 
 #TaskMQ#
 
