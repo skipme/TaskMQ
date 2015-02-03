@@ -106,7 +106,7 @@ namespace QueueService
         public string ConfigCommitID { get; set; }
         public string Result { get; set; }
     }
-
+  
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
@@ -117,7 +117,7 @@ namespace QueueService
         {
             logger = QueueService.ModProducer.broker.APILogger();
         }
-
+        
         [EnableCors]
         public object Get(AssembliesRequest r)
         {

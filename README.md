@@ -1,5 +1,3 @@
-[![tip for next commit](https://tip4commit.com/projects/898.svg)](https://tip4commit.com/github/skipme/TaskMQ)
-
 #TaskMQ#
 
 **The version of this file is preliminary**
