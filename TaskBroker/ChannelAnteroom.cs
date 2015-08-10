@@ -13,7 +13,7 @@ namespace TaskBroker
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         public string ChannelName { get; set; }
-        public BrokerStat ChannelStatistic;
+        
 
         public ChannelAnteroom()
         {
@@ -102,5 +102,13 @@ namespace TaskBroker
                 }
             }
         }
+        /// <summary>
+        /// processed messages
+        /// </summary>
+        public BrokerStat ChannelStatsOut;
+        /// <summary>
+        /// pushed messages to queue
+        /// </summary>
+        public BrokerStat ChannelStatsIn;
     }
 }

@@ -58,5 +58,14 @@ namespace TaskQueue.Providers
             }
             return di;
         }
+        public override string ToString()
+        {
+            string result = "";
+            foreach (KeyValuePair<string, object> pair in GetSendEnvelope())
+            {
+                result += pair.Key + " = " + pair.Value.ToString() + ", \n";
+            }
+            return result;
+        }
     }
 }

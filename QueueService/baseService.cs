@@ -236,6 +236,7 @@ namespace QueueService
                 try
                 {
                     result = QueueService.ModProducer.broker.PushMessage(tm);
+                    //logger.Info("push msg ok: {0}", tm);
                 }
                 catch (Exception e)
                 {

@@ -220,7 +220,8 @@ namespace TaskBroker
                 else
                 {
                     // monitoring put operation
-                    t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", ChannelName));
+                    t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", ChannelName));
+                    t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", ChannelName));
                     // set selector
                     TaskQueue.TQItemSelector selector = ((IModConsumer)module.MI).ConfigureSelector();
                     // channel -> model(MType)
@@ -250,7 +251,9 @@ namespace TaskBroker
             };
             if (t.Anteroom != null)
             {
-                t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", mst.ChannelName));
+                t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", mst.ChannelName));
+                t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", mst.ChannelName));
+                //t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", mst.ChannelName));
             }
             //ModMod module = Modules.GetByName(t.ModuleName);
             //if (module == null)
@@ -386,7 +389,7 @@ namespace TaskBroker
             {
                 ch.Update(message);
             }
-            ch.ChannelStatistic.inc(); // inc stats
+            ch.ChannelStatsOut.inc(); // inc stats
 
         }
 
@@ -428,6 +431,7 @@ namespace TaskBroker
             msg.AddedTime = DateTime.UtcNow;
             bool status = ch.Push(msg);
 
+            ch.ChannelStatsIn.inc();
             // TODO: replace with suspend interface
             //var x = from t in Tasks
             //        where t.ChannelName == ch.ChannelName

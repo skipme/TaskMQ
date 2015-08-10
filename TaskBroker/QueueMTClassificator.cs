@@ -124,7 +124,7 @@ namespace TaskBroker
                 {
                     logger.Exception(e, "Anterooms.Add", "anteroom initialisation error");
                 }
-                
+
                 Anterooms.Add(name, anteroom);
 
                 return anteroom;
@@ -133,11 +133,11 @@ namespace TaskBroker
             return null;
         }
 
-        public IEnumerable<Statistics.BrokerStat> GetStatistics()
+        public IEnumerable<Statistics.BrokerStat> GetStatistics(bool input = false)
         {
             foreach (KeyValuePair<string, ChannelAnteroom> sca in Anterooms)
             {
-                yield return sca.Value.ChannelStatistic;
+                yield return input ? sca.Value.ChannelStatsIn : sca.Value.ChannelStatsOut;
             }
         }
         public Dictionary<string, ChannelAnteroom> Anterooms;

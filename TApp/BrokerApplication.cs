@@ -52,7 +52,9 @@ namespace TaskBroker
         public void Run(ManualResetEvent signal)
         {
             broker = new Broker(Restart, Reset);
+
             QueueService.ModProducer m;// todo: force loading local dep's
+            BenchModules.ModConsumer cons;
 
             broker.RevokeBroker(true);
             this.Signal = signal;

@@ -59,7 +59,7 @@ namespace TaskClient.Clients
             return ApiResult.ServiceError;
         }
         /// <summary>
-        /// 
+        /// required MType key
         /// </summary>
         /// <param name="flatMessageData">required MType key for routing to channel name on service side</param>
         /// <returns></returns>
