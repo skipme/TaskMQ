@@ -20,7 +20,10 @@ namespace BenchWriter
                     {"ParameterB", "unset"}
                 };
             while (true)
+            {
                 restcli.Enqueue(msg);
+                System.Threading.Thread.Sleep(10);
+            }
         }
     }
 }

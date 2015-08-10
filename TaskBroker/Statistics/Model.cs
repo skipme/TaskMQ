@@ -49,34 +49,36 @@ namespace TaskBroker.Statistics
         }
         public void checkExpired()
         {
-            for (int i = 0; i < currentRanges.Length; i++)
-            {
-                StatRange r = currentRanges[i];
-                if (r.Expired)
+            lock (currentRanges)
+                for (int i = 0; i < currentRanges.Length; i++)
                 {
-                    // flush and create new
-                    if (flushCallback != null)
-                        flushCallback(r, this.MatchData);
-                    lastRanges[i] = r;
-                    r = currentRanges[i] = new StatRange(r);
+                    StatRange r = currentRanges[i];
+                    if (r.Expired)
+                    {
+                        // flush and create new
+                        if (flushCallback != null)
+                            flushCallback(r, this.MatchData);
+                        lastRanges[i] = r;
+                        r = currentRanges[i] = new StatRange(r);
+                    }
                 }
-            }
         }
         public void inc()
         {
-            for (int i = 0; i < currentRanges.Length; i++)
-            {
-                StatRange r = currentRanges[i];
-                if (r.Expired)
+            lock (currentRanges)
+                for (int i = 0; i < currentRanges.Length; i++)
                 {
-                    // flush and create new
-                    if (flushCallback != null)
-                        flushCallback(r, this.MatchData);
-                    lastRanges[i] = r;
-                    r = currentRanges[i] = new StatRange(r);
+                    StatRange r = currentRanges[i];
+                    if (r.Expired)
+                    {
+                        // flush and create new
+                        if (flushCallback != null)
+                            flushCallback(r, this.MatchData);
+                        lastRanges[i] = r;
+                        r = currentRanges[i] = new StatRange(r);
+                    }
+                    r.inc();
                 }
-                r.inc();
-            }
         }
 
         public StatRange GetFlushedMinRange()

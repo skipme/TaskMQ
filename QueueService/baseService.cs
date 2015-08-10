@@ -106,18 +106,19 @@ namespace QueueService
         public string ConfigCommitID { get; set; }
         public string Result { get; set; }
     }
-  
+
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
-        string _lock = "lock";
-        TaskUniversum.ILogger logger;
+        static string _lock = "lock";
+        static TaskUniversum.ILogger logger;
 
         public ngService()
         {
-            logger = QueueService.ModProducer.broker.APILogger();
+            if (logger == null)
+                logger = QueueService.ModProducer.broker.APILogger();// every request creation is expensive
         }
-        
+
         [EnableCors]
         public object Get(AssembliesRequest r)
         {

@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Providers\QueueOverflowException.cs" />
     <Compile Include="ValueMap.cs" />
     <Compile Include="ITItem.cs" />
     <Compile Include="Providers\Message - Dict.cs" />

@@ -13,7 +13,7 @@ namespace MongoQueue
 {
     public class MongoDbQueue : ITQueue
     {
-        const int TupleSize = 16;
+        const int TupleSize = 100;
 
         MongoCollection<MongoQueue.MongoMessage> Collection;
         IMongoSortBy SortFeature;
@@ -57,6 +57,8 @@ namespace MongoQueue
             //WriteConcernResult result = Collection.Insert(new BsonDocument(item.GetHolder()), new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
             //WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() }, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
             WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() });
+            // TODO: QueueOverflowException
+            
             if (!result.Ok)
                 throw new Exception("error in push to mongo queue: " + result.ToJson());
         }

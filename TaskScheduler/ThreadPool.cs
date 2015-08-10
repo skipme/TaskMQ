@@ -23,7 +23,7 @@ namespace TaskScheduler
 
     public class ThreadPool
     {
-        const int maxThreads = 8;
+        const int maxThreads = 4;
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool()
@@ -172,6 +172,7 @@ namespace TaskScheduler
             ti.StoppedThread = true;
             //Console.WriteLine("Exit" + ti.ManagedID);
         }
+        const int maxSuspend = 100;
         /// <summary>
         /// All threads do it ;
         /// this implementation have bottleneck -> IntermediateThread
@@ -179,6 +180,7 @@ namespace TaskScheduler
         /// <param name="threadCtx"></param>
         static void ThreadEntry(object threadCtx)
         {
+            Random rnd = new Random();
             ThreadContext threadContext = threadCtx as ThreadContext;
             threadContext.ManagedID = threadContext.hThread.ManagedThreadId;
             while (!threadContext.StopThread)
@@ -187,13 +189,17 @@ namespace TaskScheduler
                 {
                     PlanItem planned = threadContext.Job;
 
-                    planned.JobEntry(threadContext, planned);
-                    Thread.Sleep(0000);
+                    if (planned.JobEntry(threadContext, planned) == 1)
+                    {
+                        Thread.Sleep(maxSuspend);
+                    }
+                    else
+                        Thread.Sleep(0000);
                 }
-                //else
-                //{
-                Thread.Sleep(10);
-                //}
+                else
+                {
+                    Thread.Sleep(maxSuspend);
+                }
                 IntermediateThread(threadContext);
             }
             ExitThread(threadContext);

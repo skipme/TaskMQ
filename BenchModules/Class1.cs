@@ -40,9 +40,12 @@ namespace BenchModules
             BenchModel pocket = new BenchModel(q_parameter);
             pocket.ParameterA = "setA";
             pocket.ParameterB = "setB";
-            System.Threading.Thread.Sleep(2000);
-            q_parameter = pocket;
-            return true;
+            //System.Threading.Thread.Sleep(2000);
+            
+            //q_parameter = pocket; // for persistant only queues
+            //return true;
+
+            return false;
         }
 
         public void Exit()

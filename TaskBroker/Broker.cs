@@ -46,9 +46,10 @@ namespace TaskBroker
                 // include statistic flush task
                 new PlanItem(){
                      intervalType = IntervalType.intervalSeconds,
-                     intervalValue = 30,
+                     intervalValue = 15,
                      NameAndDescription="statistic maintenance task",
-                     JobEntry = (ThreadContext ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); }
+                     JobEntry = (ThreadContext ti, PlanItem pi)=>{ Statistics.FlushRetairedChunks(); return 1;
+                     }
                 },
                 // 
                 //new PlanItem(){
@@ -317,20 +318,21 @@ namespace TaskBroker
             Scheduler.SetPlan(plan);
         }
 
-        private void TaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
+        private int TaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
             switch (task.Module.Role)
             {
                 case ExecutionType.Consumer:
-                    ConsumerEntry(task);
+                    return ConsumerEntry(task);
                     break;
                 case ExecutionType.Producer:
-                    ProducerEntry(task);
+                    return ProducerEntry(task);
                     break;
             }
+            return 1;
         }
-        private void IsolatedTaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
+        private int IsolatedTaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
         {
             QueueTask task = pi as QueueTask;
             try
@@ -348,9 +350,10 @@ namespace TaskBroker
                 System.Threading.Thread.Sleep(100);
             }
             ((IModIsolatedProducer)task.Module.MI).IsolatedProducerStop();
+            return 1;
         }
 
-        private void ConsumerEntry(QueueTask task)
+        private int ConsumerEntry(QueueTask task)
         {
             //Console.WriteLine("consumer: {0}", task.ChannelName);
             //QueueTask task = pi as QueueTask;
@@ -360,13 +363,13 @@ namespace TaskBroker
             ChannelAnteroom ch = task.Anteroom;//MessageChannels.GetAnteroom(task.ChannelName);
 
             if (ch.InternalEmptyFlag)
-                return;
+                return 1;
 
             TaskQueue.Providers.TaskMessage message = ch.Next();
 
             if (message == null)
             {
-                return;
+                return 1;
             }
             //if (message == null)
             //{
@@ -390,7 +393,7 @@ namespace TaskBroker
                 ch.Update(message);
             }
             ch.ChannelStatsOut.inc(); // inc stats
-
+            return 0;
         }
 
         public TaskMessage Pop(string channel)
@@ -408,9 +411,10 @@ namespace TaskBroker
             return item;
         }
 
-        private void ProducerEntry(QueueTask task)
+        private int ProducerEntry(QueueTask task)
         {
             logger.Debug("(not implemented...) producer: {0}", task.ChannelName);
+            return 1;
         }
         public TaskQueue.RepresentedModel GetValidationModel(string MessageType, string ChannelName = null)
         {
@@ -431,7 +435,14 @@ namespace TaskBroker
             msg.AddedTime = DateTime.UtcNow;
             bool status = ch.Push(msg);
 
-            ch.ChannelStatsIn.inc();
+            if (status)
+            {
+                ch.ChannelStatsIn.inc();
+            }
+            else
+            {
+                logger.Warning("push: can't enqueue message mtype: {0}, channel: {1}", msg.MType, ch.ChannelName);
+            }
             // TODO: replace with suspend interface
             //var x = from t in Tasks
             //        where t.ChannelName == ch.ChannelName
@@ -622,7 +633,7 @@ namespace TaskBroker
 
         public void DoPackageCommand(string Name, SourceControllerJobs job)
         {
-            Scheduler.DeferJob((tc, j) => { AssemblyHolder.DoPackageCommand(Name, job); });
+            Scheduler.DeferJob((tc, j) => { AssemblyHolder.DoPackageCommand(Name, job); return 1; });
         }
     }
 }

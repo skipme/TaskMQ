@@ -15,6 +15,7 @@ namespace TaskBroker.Statistics
         public static int[] useRanges = new int[] { StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
         //private const int aliveCount = 20160;// 1week for 30 sec interval, 2week's for minute, 420day's for 30 min interval...
         private const int aliveCount = 2880;// 1day for 30 sec interval
+        public List<StatMatchModel> RetrievedModels = new List<StatMatchModel>();
 
         private MongoDBPersistence PersistenceChunks;
         public StatHub()
@@ -30,7 +31,8 @@ namespace TaskBroker.Statistics
         }
         public void Clear()
         {
-            RetrievedModels.Clear();
+            lock (RetrievedModels)
+                RetrievedModels.Clear();
         }
         private void OptimisePerformance(BrokerStat matchData)
         {
@@ -49,11 +51,12 @@ namespace TaskBroker.Statistics
         }
         public void FlushRetairedChunks()
         {
-            foreach (StatMatchModel m in RetrievedModels)
-            {
-                m.checkExpired();
-                // save all to persistent component
-            }
+            lock (RetrievedModels)
+                foreach (StatMatchModel m in RetrievedModels)
+                {
+                    m.checkExpired();
+                    // save all to persistent component
+                }
 
         }
         public void RemoveExcessiveChunks()
@@ -64,7 +67,7 @@ namespace TaskBroker.Statistics
                 PersistenceChunks.PurgeExcessive(useRanges[i], secAlive);
             }
         }
-        public List<StatMatchModel> RetrievedModels = new List<StatMatchModel>();
+
 
         private void FlushCallBack(StatRange range, Dictionary<string, object> match)
         {
@@ -118,7 +121,8 @@ namespace TaskBroker.Statistics
                 logger.Warning("for stat chunk undeclared match data, not persistent");
             }
             //
-            RetrievedModels.Add(match);
+            lock (RetrievedModels)
+                RetrievedModels.Add(match);
             return match;
         }
     }

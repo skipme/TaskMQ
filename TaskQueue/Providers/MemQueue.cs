@@ -10,6 +10,7 @@ namespace TaskQueue.Providers
     /// </summary>
     public class MemQueue : ITQueue
     {
+        const int maxTuple = 100;
         RepresentedModel m { get; set; }
         string CollectionName { get; set; }
         Queue<Providers.TaskMessage> baseQueue;
@@ -17,6 +18,12 @@ namespace TaskQueue.Providers
         public MemQueue()
         {
             baseQueue = new Queue<Providers.TaskMessage>();
+            //Providers.TaskMessage[] tarrtp = new Providers.TaskMessage[3000000];
+            //for (int i = 0; i < tarrtp.Length; i++)
+            //{
+            //    tarrtp[i] = new TaskMessage("benchMessage");
+            //}
+            //baseQueue = new Queue<Providers.TaskMessage>(tarrtp);
         }
         public MemQueue(RepresentedModel model, QueueConnectionParameters connection)
         {
@@ -25,7 +32,14 @@ namespace TaskQueue.Providers
 
         public void Push(Providers.TaskMessage item)
         {
-            baseQueue.Enqueue(item);
+            try
+            {
+                baseQueue.Enqueue(item);
+            }
+            catch (OutOfMemoryException excOverfl)
+            {
+                throw new QueueOverflowException(excOverfl);
+            }
         }
 
         public Providers.TaskMessage GetItemFifo()
@@ -56,7 +70,7 @@ namespace TaskQueue.Providers
 
         public string QueueDescription
         {
-            get { return "Simple dynamic in-memory queue"; }
+            get { return "Non persistant in-memory queue"; }
         }
 
         public void UpdateItem(Providers.TaskMessage item)
@@ -74,9 +88,22 @@ namespace TaskQueue.Providers
         {
             if (baseQueue.Count >= 1)
             {
-                return new TaskMessage[]{
-                    baseQueue.Dequeue()
-                };
+                TaskMessage[] tuple;
+                if (maxTuple < baseQueue.Count)
+                {
+                    tuple = new TaskMessage[maxTuple];
+                    for (int i = 0; i < maxTuple; i++)
+                    {
+                        tuple[i] = baseQueue.Dequeue();
+                    }
+                }
+                else
+                {
+                    tuple = baseQueue.ToArray();
+                    baseQueue.Clear();
+                }
+                return tuple;
+
             }
             else
             {
