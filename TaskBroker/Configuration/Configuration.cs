@@ -17,7 +17,7 @@ namespace TaskBroker.Configuration
     {
         public RepresentedConfiguration()
         {
-            CreationDate = DateTime.Now;// server time...
+            CreationDate = DateTime.UtcNow;// server time...
         }
         public DateTime CreationDate { get; set; }
 

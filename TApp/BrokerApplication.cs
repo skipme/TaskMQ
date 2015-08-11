@@ -53,8 +53,10 @@ namespace TaskBroker
         {
             broker = new Broker(Restart, Reset);
 
-            QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
+            RabbitMqService.ModProducer amqm = new RabbitMqService.ModProducer();
+            //QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
             BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
+            
             //m.Description = "";
             //cons.Description = "";
 

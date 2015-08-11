@@ -12,6 +12,7 @@ namespace TaskBroker.Logger
         public override void WriteFrame(TaskUniversum.LogTapeFrame frame)
         {
             bool resetreq = false;
+            ConsoleColor clrl = Console.ForegroundColor;
             switch (frame.EventType)
             {
                 case TaskUniversum.LogFrameEvent.Warning:
@@ -31,9 +32,11 @@ namespace TaskBroker.Logger
                     resetreq = true;
                     break;
             }
-            Console.WriteLine(frame);
+            Console.WriteLine(frame.ToString());
             if (resetreq)
-                Console.ResetColor();
+                Console.ForegroundColor = clrl;
+            //if (resetreq)
+                //Console.ResetColor();
         }
     }
 }
