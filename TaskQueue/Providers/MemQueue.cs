@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 
 namespace TaskQueue.Providers
@@ -34,7 +34,8 @@ namespace TaskQueue.Providers
         {
             try
             {
-                baseQueue.Enqueue(item);
+                lock (baseQueue)
+                    baseQueue.Enqueue(item);
             }
             catch (OutOfMemoryException excOverfl)
             {
@@ -46,14 +47,16 @@ namespace TaskQueue.Providers
         {
             if (baseQueue.Count == 0)
                 return null;
-            return baseQueue.Dequeue();
+            lock (baseQueue)
+                return baseQueue.Dequeue();
         }
 
         public Providers.TaskMessage GetItem()
         {
             if (baseQueue.Count == 0)
                 return null;
-            return baseQueue.Dequeue();
+            lock (baseQueue)
+                return baseQueue.Dequeue();
         }
 
         public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
@@ -86,29 +89,30 @@ namespace TaskQueue.Providers
 
         public Providers.TaskMessage[] GetItemTuple()
         {
-            if (baseQueue.Count >= 1)
-            {
-                TaskMessage[] tuple;
-                if (maxTuple < baseQueue.Count)
+            lock (baseQueue)
+                if (baseQueue.Count >= 1)
                 {
-                    tuple = new TaskMessage[maxTuple];
-                    for (int i = 0; i < maxTuple; i++)
+                    TaskMessage[] tuple;
+                    if (maxTuple < baseQueue.Count)
                     {
-                        tuple[i] = baseQueue.Dequeue();
+                        tuple = new TaskMessage[maxTuple];
+                        for (int i = 0; i < maxTuple; i++)
+                        {
+                            tuple[i] = baseQueue.Dequeue();
+                        }
                     }
+                    else
+                    {
+                        tuple = baseQueue.ToArray();
+                        baseQueue.Clear();
+                    }
+                    return tuple;
+
                 }
                 else
                 {
-                    tuple = baseQueue.ToArray();
-                    baseQueue.Clear();
+                    return null;
                 }
-                return tuple;
-
-            }
-            else
-            {
-                return null;
-            }
         }
 
         public long GetQueueLength()

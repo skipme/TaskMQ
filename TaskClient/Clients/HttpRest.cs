@@ -1,5 +1,5 @@
-﻿using ServiceStack.Common.Web;
-using ServiceStack.ServiceClient.Web;
+﻿using ServiceStack;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Text;
 
 namespace TaskClient.Clients
 {
-    public class HttpRest
+    public class HttpRest : TaskClient.Clients.IMessageClient
     {
         JsonServiceClient client;
         public string uri
@@ -67,11 +67,13 @@ namespace TaskClient.Clients
         {
             return ApiEnqueue(flatMessageData) == ApiResult.OK;
         }
-        public void Enqueue(TaskQueue.Providers.TaskMessage message)
+        public bool Enqueue(TaskQueue.Providers.TaskMessage message)
         {
             ApiResult result = ApiEnqueue(message.GetSendEnvelope());
             if (result != ApiResult.OK)
                 throw new Exception("Message rejected. Check platform configuration, perhaps message type doesn't have any channel");
+
+            return true;
         }
         public TaskQueue.RepresentedModel GetValidationInfo(string MType, string channelName = null)
         {

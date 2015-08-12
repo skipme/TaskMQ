@@ -9,7 +9,8 @@ namespace BenchWriter
     {
         static void Main(string[] args)
         {
-            TaskClient.Clients.HttpRest restcli = new TaskClient.Clients.HttpRest();
+            //TaskClient.Clients.HttpRest restcli = new TaskClient.Clients.HttpRest();
+            TaskClient.Clients.TcpBson tcpb = new TaskClient.Clients.TcpBson();
             var msg = new Dictionary<string, object>
                 {
                     {"MType", "benchMessage"},
@@ -21,9 +22,11 @@ namespace BenchWriter
                 };
             while (true)
             {
-                restcli.Enqueue(msg);
-                System.Threading.Thread.Sleep(10);
+                //restcli.Enqueue(msg);
+                tcpb.Enqueue(msg);
+                System.Threading.Thread.Sleep(0);
             }
+            Console.Read();
         }
     }
 }

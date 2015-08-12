@@ -22,7 +22,7 @@ namespace RabbitMqService
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
             logger = context.APILogger();
-
+            broker = context;
         }
         public void IsolatedProducer(Dictionary<string, object> parameters)
         {
@@ -43,18 +43,46 @@ namespace RabbitMqService
 
             string[] paddr = ListeningOn.Split(':');
 
+            TCPBsonBase.ServerClientCtx ctx = new TCPBsonBase.ServerClientCtx();
+            ctx.PutCallback = (msg) =>
+                {
+
+                    TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(msg);
+                    //logger.Debug("put {0}", tm.MType);
+                    bool result = false;
+                    if (tm.MType != null)
+                    {
+                        try
+                        {
+                            result = broker.PushMessage(tm);
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Exception(e, "message put", "error while message processing");
+                        }
+                    }
+                    return result;
+                };
             TcpListener serv = new TcpListener(IPAddress.Any, Int32.Parse(paddr[1]));
             serv.Start();
             while (!stopSignal)
             {
                 TcpClient cli = serv.AcceptTcpClient();
-                
+
                 NetworkStream ns = cli.GetStream();
                 while (true)
                 {
                     if (ns.DataAvailable)
                     {
                         // client sets state
+                        ctx.ReadSelfState(ns);
+                        ctx.ProcState();
+                        ctx.WriteOppositeStateIfRequired(ns);
+                        System.Threading.Thread.Sleep(0);
+                    }
+                    else
+                    {
+                        System.Threading.Thread.Sleep(500);
                     }
                 }
             }
@@ -81,7 +109,7 @@ namespace RabbitMqService
             {
                 intervalType = IntervalType.isolatedThread,
                 ModuleName = thisModule.UniqueName,
-                NameAndDescription = "Host for AMQP service[RabbitMQ AMQP compatiable main service]"
+                NameAndDescription = "Host for BSON service (BSON over TCP)"
 
             };
             return new MetaTask[] { t };
@@ -90,7 +118,7 @@ namespace RabbitMqService
 
         public string Name
         {
-            get { return "AMQP-service"; }
+            get { return "BSON-service"; }
         }
 
         public string Description
