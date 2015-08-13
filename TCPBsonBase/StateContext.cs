@@ -31,7 +31,7 @@ namespace TCPBsonBase
         {
             int i1 = BitConverter.ToInt32(framecheck, 0);
             if (i1 != marker)
-                throw new Exception("aligment error");
+                throw new Exception("alignment error");
 
             int i2 = BitConverter.ToInt32(framecheck, 4);
 

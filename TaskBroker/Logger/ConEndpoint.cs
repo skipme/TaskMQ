@@ -1,42 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace TaskBroker.Logger
 {
     public class ConsoleEndpoint : LoggerEndpoint
     {
-
+        static readonly Dictionary<TaskUniversum.LogFrameEvent, ConsoleColor> cmap = new Dictionary<TaskUniversum.LogFrameEvent, ConsoleColor>
+        {
+             {TaskUniversum.LogFrameEvent.Warning, ConsoleColor.Yellow},
+             {TaskUniversum.LogFrameEvent.Error, ConsoleColor.DarkRed},
+             {TaskUniversum.LogFrameEvent.Debug, ConsoleColor.DarkYellow},
+             {TaskUniversum.LogFrameEvent.Exception, ConsoleColor.Red}
+        };
         public override void WriteFrame(TaskUniversum.LogTapeFrame frame)
         {
-            bool resetreq = false;
             ConsoleColor clrl = Console.ForegroundColor;
-            switch (frame.EventType)
+            ConsoleColor clrlset = 0;
+
+            if (cmap.TryGetValue(frame.EventType, out clrlset))
             {
-                case TaskUniversum.LogFrameEvent.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    resetreq = true;
-                    break;
-                case TaskUniversum.LogFrameEvent.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    resetreq = true;
-                    break;
-                case TaskUniversum.LogFrameEvent.Debug:
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    resetreq = true;
-                    break;
-                case TaskUniversum.LogFrameEvent.Exception:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    resetreq = true;
-                    break;
+                Console.ForegroundColor = clrlset;
+                Console.WriteLine(frame.ToString());
+                Console.ResetColor();
             }
-            Console.WriteLine(frame.ToString());
-            if (resetreq)
-                Console.ForegroundColor = clrl;
-            //if (resetreq)
-                //Console.ResetColor();
+            else
+            {
+                Console.WriteLine(frame.ToString());
+            }
+
         }
     }
 }

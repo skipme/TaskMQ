@@ -19,15 +19,15 @@ namespace TaskUniversum.Statistics
         }
         public StatRange(int secondsRange)
         {
-            secondsInterval = secondsRange;
-            Left = DateTime.UtcNow;
-            NextLeft = Left.AddSeconds(secondsInterval);
+            this.secondsInterval = secondsRange;
+            this.Left = DateTime.UtcNow;
+            this.NextLeft = this.Left.AddSeconds(secondsInterval);
         }
         public StatRange(int secondsRange, DateTime Left)
         {
-            secondsInterval = secondsRange;
+            this.secondsInterval = secondsRange;
             this.Left = Left;// prevLeft.AddSeconds(secondsInterval);
-            NextLeft = Left.AddSeconds(secondsInterval);
+            this.NextLeft = Left.AddSeconds(secondsInterval);
         }
 
         public const int seconds30 = 30;

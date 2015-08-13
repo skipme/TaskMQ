@@ -29,7 +29,7 @@ namespace TaskUniversum
 
         public override string ToString()
         {
-            return string.Format("{0} [{1}]\t{2}: {3}", Time, EventName, Scope, Message);
+            return string.Format("{0} [{1}]    {2}: {3}", Time, EventName, Scope, Message);
         }
     }
     public class LogTapeFrameException : LogTapeFrame
@@ -44,7 +44,7 @@ namespace TaskUniversum
 
         public override string ToString()
         {
-            return string.Format("{0} [{1}]\t{2}: {3}\n\t\tEXCEPTION for: '{6}': {4}, {5}\r\n", Time, EventName, Scope, Message, ExceptionMessage, ExceptionStackTrace, failedOperationDescription);
+            return string.Format("{0} [{1}]  {2}: {3}\r\n   EXCEPTION for: '{6}': {4}, {5}\r\n", Time, EventName, Scope, Message, ExceptionMessage, ExceptionStackTrace, failedOperationDescription);
         }
     }
     public interface ILogTape

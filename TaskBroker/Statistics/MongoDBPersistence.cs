@@ -69,13 +69,14 @@ namespace TaskBroker.Statistics
             var indexE = IndexKeys<MongoRange>.Ascending(r => r.SecondsInterval).Ascending(r => r.Left);
             Collection.EnsureIndex(indexE);
         }
-        private IMongoQuery GetQuery(Dictionary<string, object> matchData)
+        private IMongoQuery GetQuery(Dictionary<string, object> matchData, List<IMongoQuery> more)
         {
-            List<IMongoQuery> qs = new List<IMongoQuery>();
+            List<IMongoQuery> qs = more;//new List<IMongoQuery>();
             foreach (KeyValuePair<string, object> kv in matchData)
             {
                 qs.Add(Query.EQ(kv.Key, (string)kv.Value));
             }
+
             return Query.And(qs);
         }
         public IEnumerable<MongoRange> GetNewest(Dictionary<string, object> matchData)
@@ -158,7 +159,12 @@ db.tmqStats.aggregate({$match:{ch:"4", z:"5"}}, { $sort: { Left: 1 } },
         public void Save(MongoRange range)
         {
             // insert/update
-            var query = Query.And(GetQuery(range.MatchElements), Query<MongoRange>.EQ(p => p.Left, range.Left));
+            //var query = Query.And(GetQuery(range.MatchElements), Query<MongoRange>.EQ(p => p.Left, range.Left));
+            var query = GetQuery(range.MatchElements, 
+                new List<IMongoQuery>{
+                    Query<MongoRange>.EQ(p => p.Left, range.Left), 
+                    Query<MongoRange>.EQ(p => p.SecondsInterval, range.SecondsInterval)
+                });
 
             CheckConnection();
             Collection.Update(query,

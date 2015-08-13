@@ -8,22 +8,22 @@ namespace TCPBsonBase
 {
     public class BsonSerialiser
     {
-        static NFX.Serialization.Slim.SlimSerializer ser = new NFX.Serialization.Slim.SlimSerializer();
-        public static byte[] Serialise<T>(T obj)
-        {
-            //System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        //static NFX.Serialization.Slim.SlimSerializer ser = new NFX.Serialization.Slim.SlimSerializer();
+        //public static byte[] Serialise<T>(T obj)
+        //{
+        //    //System.IO.MemoryStream ms = new System.IO.MemoryStream();
             
-            //ser.Serialize(ms, obj);
-            //return ms.GetBuffer();
-            return null;
-        }
-        public static T DeSerialise<T>(byte[] rawData)
-        {
-            //System.IO.MemoryStream ms = new System.IO.MemoryStream(rawData);
+        //    //ser.Serialize(ms, obj);
+        //    //return ms.GetBuffer();
+        //    return null;
+        //}
+        //public static T DeSerialise<T>(byte[] rawData)
+        //{
+        //    //System.IO.MemoryStream ms = new System.IO.MemoryStream(rawData);
 
-            //return (T)ser.Deserialize(ms);
-            return default(T);
-        }
+        //    //return (T)ser.Deserialize(ms);
+        //    return default(T);
+        //}
 
         //public static byte[] Serialise<T>(T obj)
         //{
@@ -40,24 +40,24 @@ namespace TCPBsonBase
         //    T result = ProtoBuf.Serializer.Deserialize<T>(ms);
         //    return result;
         //}
+        static Newtonsoft.Json.JsonSerializer ser = Newtonsoft.Json.JsonSerializer.Create();
+        public static byte[] Serialise(object obj)
+        {
+            System.IO.MemoryStream ms = new System.IO.MemoryStream();
+            Newtonsoft.Json.Bson.BsonWriter bw = new Newtonsoft.Json.Bson.BsonWriter(ms);
 
-        //public static byte[] Serialise(object obj)
-        //{
-        //    System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        //    Newtonsoft.Json.Bson.BsonWriter bw = new Newtonsoft.Json.Bson.BsonWriter(ms);
-        //    Newtonsoft.Json.JsonSerializer ser = Newtonsoft.Json.JsonSerializer.Create();
-        //    ser.Serialize(bw, obj);
-        //    //IStateObj
+            ser.Serialize(bw, obj);
+            //IStateObj
 
-        //    return ms.GetBuffer();
-        //}
-        //public static T DeSerialise<T>(byte[] rawData)
-        //{
-        //    System.IO.MemoryStream ms = new System.IO.MemoryStream(rawData);
-        //    Newtonsoft.Json.Bson.BsonReader br = new Newtonsoft.Json.Bson.BsonReader(ms);
-        //    Newtonsoft.Json.JsonSerializer ser = Newtonsoft.Json.JsonSerializer.Create();
-        //    T result = ser.Deserialize<T>(br);
-        //    return result;
-        //}
+            return ms.GetBuffer();
+        }
+        public static T DeSerialise<T>(byte[] rawData)
+        {
+            System.IO.MemoryStream ms = new System.IO.MemoryStream(rawData);
+            Newtonsoft.Json.Bson.BsonReader br = new Newtonsoft.Json.Bson.BsonReader(ms);
+            
+            T result = ser.Deserialize<T>(br);
+            return result;
+        }
     }
 }

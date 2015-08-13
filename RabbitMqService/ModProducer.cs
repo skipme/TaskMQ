@@ -8,28 +8,125 @@ using TaskQueue.Providers;
 using TaskUniversum;
 using TaskUniversum.Task;
 
-namespace RabbitMqService
+namespace BsonBenchService
 {
     public class ModProducer : IModIsolatedProducer
     {
         public const string ListeningOn = "0.0.0.0:83";// 5672
 
         public static IBroker broker;
-
+        static TcpListener serv;
         ILogger logger;
 
+        public class BsonClient
+        {
+            ILogger logger;
+            public BsonClient(ILogger logger)
+            {
+                this.logger = logger;
+                lastChecking = DateTime.UtcNow;
+            }
+
+            public TCPBsonBase.ServerClientCtx ctx;
+            public TcpClient client;
+            public NetworkStream ns;
+
+            private DateTime lastChecking;
+            public bool isAlive
+            {
+                get
+                {
+                    if ((DateTime.UtcNow - lastChecking).TotalSeconds > 10)
+                    {
+                        lastChecking = DateTime.UtcNow;
+
+                        Socket s = client.Client;
+
+                        bool blockingState = s.Blocking;
+                        try
+                        {
+                            byte[] tmp = new byte[1];
+
+                            s.Blocking = false;
+                            s.Send(tmp, 0, 0);
+                        }
+                        catch (SocketException e)
+                        {
+                            // 10035 == WSAEWOULDBLOCK 
+                            if (!e.NativeErrorCode.Equals(10035))
+                            {
+                                return false;
+                            }
+                            //if (e.NativeErrorCode.Equals(10035))
+                            //    Console.WriteLine("Still Connected, but the Send would block");
+                            //else
+                            //{
+                            //    Console.WriteLine("Disconnected: error code {0}!", e.NativeErrorCode);
+                            //    return false;
+                            //}
+                        }
+                        finally
+                        {
+                            s.Blocking = blockingState;
+                        }
+
+                    }
+                    return true;
+                }
+            }
+
+            public bool proc()
+            {
+                try
+                {
+                    ctx.ReadSelfState(ns);
+                    ctx.ProcState();
+                    ctx.WriteOppositeStateIfRequired(ns);
+                }
+                catch (Exception exc)
+                {
+                    logger.Exception(exc, "serve client", "while processing TcpClient");
+                    return false;
+                }
+                return true;
+            }
+        }
+        public List<BsonClient> activeClients = new List<BsonClient>();
 
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
             logger = context.APILogger();
             broker = context;
         }
+        public bool pushMessage(Dictionary<string, object> msg)
+        {
+
+            //           benchMessage
+            TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(msg);
+            //logger.Debug("put {0}", tm.MType);
+            bool result = false;
+            if (tm.MType != null)
+            {
+                try
+                {
+                    result = broker.PushMessage(tm);
+                }
+                catch (Exception e)
+                {
+                    logger.Exception(e, "message put", "error while message processing");
+                }
+            }
+            return result;
+        }
         public void IsolatedProducer(Dictionary<string, object> parameters)
         {
+            //TCPBsonBase.ServerClientCtx ctx = new TCPBsonBase.ServerClientCtx();
+
             try
             {
-
-                //appHost.Start(ListeningOn);
+                string[] paddr = ListeningOn.Split(':');
+                serv = new TcpListener(IPAddress.Any, Int32.Parse(paddr[1]));
+                serv.Start();
                 logger.Info("AppHost queue services Created at {0}, listening on {1}", DateTime.Now, ListeningOn);
             }
             catch (System.Net.Sockets.SocketException e)
@@ -41,52 +138,59 @@ namespace RabbitMqService
                 throw e;
             }
 
-            string[] paddr = ListeningOn.Split(':');
-
-            TCPBsonBase.ServerClientCtx ctx = new TCPBsonBase.ServerClientCtx();
-            ctx.PutCallback = (msg) =>
-                {
-
-                    TaskQueue.Providers.TaskMessage tm = new TaskQueue.Providers.TaskMessage(msg);
-                    //logger.Debug("put {0}", tm.MType);
-                    bool result = false;
-                    if (tm.MType != null)
-                    {
-                        try
-                        {
-                            result = broker.PushMessage(tm);
-                        }
-                        catch (Exception e)
-                        {
-                            logger.Exception(e, "message put", "error while message processing");
-                        }
-                    }
-                    return result;
-                };
-            TcpListener serv = new TcpListener(IPAddress.Any, Int32.Parse(paddr[1]));
-            serv.Start();
+            serv.BeginAcceptTcpClient(AcceptNewClient, null);
+            int ringIndex = 0;
             while (!stopSignal)
             {
-                TcpClient cli = serv.AcceptTcpClient();
-
-                NetworkStream ns = cli.GetStream();
-                while (true)
+                if (activeClients.Count > 0)
                 {
-                    if (ns.DataAvailable)
+                    BsonClient cli = null;
+                    lock (activeClients)
+                        cli = activeClients[ringIndex];
+
+                    if (cli.ns.DataAvailable)
                     {
-                        // client sets state
-                        ctx.ReadSelfState(ns);
-                        ctx.ProcState();
-                        ctx.WriteOppositeStateIfRequired(ns);
-                        System.Threading.Thread.Sleep(0);
+                        cli.proc();
                     }
                     else
                     {
-                        System.Threading.Thread.Sleep(500);
+                        if (!cli.isAlive)
+                        {
+                            lock (activeClients)
+                                activeClients.RemoveAt(ringIndex);
+                            ringIndex--;
+                            logger.Debug("Disconnected: {0}", cli.client.Client.RemoteEndPoint);
+                        }
+                        System.Threading.Thread.Sleep(0);
                     }
+
+                    ringIndex++;
+                    if (ringIndex >= activeClients.Count)
+                        ringIndex = 0;
+                }
+                else
+                {
+                    System.Threading.Thread.Sleep(500);
                 }
             }
 
+        }
+
+        private void AcceptNewClient(IAsyncResult s)
+        {
+            TcpClient tc = serv.EndAcceptTcpClient(s);
+            BsonClient cli = new BsonClient(logger)
+            {
+                ctx = new TCPBsonBase.ServerClientCtx(),
+                client = tc,
+                ns = tc.GetStream()
+            };
+            cli.ctx.PutCallback = pushMessage;
+            lock (activeClients)
+                activeClients.Add(cli);
+            logger.Debug("Connected: {0}", tc.Client.RemoteEndPoint);
+
+            serv.BeginAcceptTcpClient(AcceptNewClient, null);
         }
         volatile bool stopSignal = false;
         public void IsolatedProducerStop()

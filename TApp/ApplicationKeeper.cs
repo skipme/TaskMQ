@@ -35,8 +35,8 @@ namespace TaskBroker
 
                 // unload appdomain
                 AppDomain.Unload(Domain);
-                
-                Console.WriteLine("domain unloaded.");
+
+                logger.Debug("domain unloaded.");
 
                 GC.Collect(); // collects all unused memory
                 GC.WaitForPendingFinalizers(); // wait until GC has finished its work

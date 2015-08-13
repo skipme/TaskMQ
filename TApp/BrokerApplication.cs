@@ -51,12 +51,18 @@ namespace TaskBroker
         }
         public void Run(ManualResetEvent signal)
         {
+            //if (!AttachConsole(-1))
+            ////if (FreeConsole())
+            //{ 
+            //    AllocConsole();
+            //    logger.Warning("consoleattached");
+            //}
             broker = new Broker(Restart, Reset);
 
-            RabbitMqService.ModProducer amqm = new RabbitMqService.ModProducer();
+            BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
             //QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
             BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
-            
+
             //m.Description = "";
             //cons.Description = "";
 
@@ -64,7 +70,14 @@ namespace TaskBroker
             this.Signal = signal;
             //exportConfiguration();
         }
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern bool AllocConsole();
 
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern bool AttachConsole(int pid);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool FreeConsole();
         //public void exportConfiguration()
         //{
         //    File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());

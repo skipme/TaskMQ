@@ -424,6 +424,7 @@ namespace TaskBroker
                 return null;
             return new TaskQueue.RepresentedModel(channel.AssignedMessageModel.GetType());
         }
+
         public bool PushMessage(TaskQueue.Providers.TaskMessage msg)
         {
             ChannelAnteroom ch = MessageChannels.GetAnteroomByMessage(msg.MType);
@@ -432,6 +433,10 @@ namespace TaskBroker
                 logger.Warning("push: unknown message type: {0}", msg.MType);
                 return false;
             }
+
+            //ch.ChannelStatsIn.inc();
+            //return true;
+
             msg.AddedTime = DateTime.UtcNow;
             bool status = ch.Push(msg);
 
