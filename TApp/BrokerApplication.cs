@@ -49,8 +49,19 @@ namespace TaskBroker
             });
             th.Start();
         }
-        public void Run(ManualResetEvent signal)
+        public void Run(ManualResetEvent signal, bool customDomain = false)
         {
+            if (customDomain)
+            {
+                // reinitiate tape within domain
+                TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(
+                    new TaskBroker.Logger.LoggerEndpoint[]{
+                    new TaskBroker.Logger.ConsoleEndpoint(),
+                    new TaskBroker.Logger.FileEndpoint("log.txt", true)
+                });
+           
+                TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
+            }
             //if (!AttachConsole(-1))
             ////if (FreeConsole())
             //{ 
@@ -59,8 +70,8 @@ namespace TaskBroker
             //}
             broker = new Broker(Restart, Reset);
 
-            BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
-            //QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
+            //BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
+            QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
             BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
 
             //m.Description = "";

@@ -30,6 +30,7 @@ namespace TaskBroker
             this.restartApp = restartApp;
             this.resetBroker = resetBroker;
 
+            logger.Debug("intitialising broker");
             // logger for modules only
             ModulesLogger = new TaskBroker.Logger.CommonTape(new Logger.LoggerEndpoint[]{
                 new Logger.ConsoleEndpoint()

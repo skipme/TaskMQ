@@ -20,8 +20,10 @@ namespace TaskBroker.Logger
             if (cmap.TryGetValue(frame.EventType, out clrlset))
             {
                 Console.ForegroundColor = clrlset;
-                Console.WriteLine(frame.ToString());
+                Console.Write(frame.ToStringHeader());
                 Console.ResetColor();
+                Console.Write("    ");
+                Console.WriteLine(frame.ToStringMessage());
             }
             else
             {

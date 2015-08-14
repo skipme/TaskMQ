@@ -24,9 +24,15 @@ namespace QueueService
             {// except 
             }
             QueueService.ModProducer.broker = context;
-
-            appHost = new baseService();
-            appHost.Init();
+            if (!System.Web.Hosting.HostingEnvironment.IsHosted)
+            {
+                appHost = new baseService();
+                appHost.Init();
+            }
+            else
+            {
+                logger.Info("the code is hosted, can't start self hosted messaging service");
+            }
         }
         public void IsolatedProducer(Dictionary<string, object> parameters)
         {

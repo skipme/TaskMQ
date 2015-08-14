@@ -29,7 +29,7 @@ namespace TaskBroker
                     typeof(BrokerApplication).Assembly.FullName,
                     typeof(BrokerApplication).FullName);
                 //RunAppInSeparateThread(app);
-                app.Run(sync);
+                app.Run(sync, true);
                 // waitfor sync
                 sync.WaitOne();
 

@@ -27,6 +27,14 @@ namespace TaskUniversum
         public string EventName;
         public string Scope;
 
+        public string ToStringHeader()
+        {
+            return string.Format("{0} [{1}]    ", Time, EventName);
+        }
+        public string ToStringMessage()
+        {
+            return string.Format("{0}: {1}", Scope, Message);
+        }
         public override string ToString()
         {
             return string.Format("{0} [{1}]    {2}: {3}", Time, EventName, Scope, Message);

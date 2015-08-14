@@ -6,12 +6,18 @@ using System.Text;
 
 namespace TaskBroker.Logger
 {
-    class FileEndpoint : LoggerEndpoint
+    public class FileEndpoint : LoggerEndpoint
     {
         StreamWriter fileStream;
-        public FileEndpoint(string fileName)
+        public FileEndpoint(string fileName, bool append = false)
         {
-            fileStream = new StreamWriter(fileName, false, Encoding.UTF8);
+            FileStream fs = new FileStream(fileName, 
+                append ? FileMode.OpenOrCreate : FileMode.Create, FileAccess.Write, 
+                FileShare.ReadWrite);
+            if (append)
+                fs.Seek(0, SeekOrigin.End);
+
+            fileStream = new StreamWriter(fs, Encoding.UTF8);
         }
         ~FileEndpoint()
         {
@@ -20,6 +26,7 @@ namespace TaskBroker.Logger
         public override void WriteFrame(TaskUniversum.LogTapeFrame frame)
         {
             fileStream.WriteLine(frame);
+            fileStream.Flush();
         }
     }
 }

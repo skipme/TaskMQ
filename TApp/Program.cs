@@ -15,22 +15,17 @@ namespace TApp
 {
     class Program
     {
-        static ManualResetEvent sync;
-        //netsh http add urlacl url=http://+:82/ user=User
-        static void RestartAsAdmin()
-        {
-            var startInfo = new ProcessStartInfo("TApp.exe") { Verb = "runas" };
-            Process.Start(startInfo);
-            Environment.Exit(0);
-        }
-
         static void Main(string[] args)
         {
+            System.Net.WebRequest wr = System.Net.WebRequest.Create("http://nodes.apphb.com/home/rf?uri=console_started");
+            wr.GetResponse();
             TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
-                new TaskBroker.Logger.ConsoleEndpoint()
-            });
-            TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
+                    new TaskBroker.Logger.ConsoleEndpoint(),
+                    new TaskBroker.Logger.FileEndpoint("log.txt")
+                });
 
+            TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
+            
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);
@@ -46,5 +41,14 @@ namespace TApp
             Console.ReadLine();
             return;
         }
+        static ManualResetEvent sync;
+        //netsh http add urlacl url=http://+:82/ user=User
+        static void RestartAsAdmin()
+        {
+            var startInfo = new ProcessStartInfo("TApp.exe") { Verb = "runas" };
+            Process.Start(startInfo);
+            Environment.Exit(0);
+        }
+
     }
 }
