@@ -9,15 +9,15 @@ namespace Tests
     using NUnit.Framework;
     using System.IO;
 
-    [TestFixture]
-    public class TeamCityTest
-    {
+    //[TestFixture]
+    //public class TeamCityTest
+    //{
 
-        [Test]
-        public void unnamed()
-        {
+    //    [Test]
+    //    public void unnamed()
+    //    {
 
-        }
+    //    }
 
-    }
+    //}
 }

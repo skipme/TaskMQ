@@ -8,9 +8,9 @@ namespace Tests
 
     using NUnit.Framework;
 
-    [TestFixture]
-    public class RestClientTest
-    {
+    //[TestFixture]
+    //public class RestClientTest
+    //{
 
     //    [Test]
     //    public void Put()
@@ -29,5 +29,5 @@ namespace Tests
     //        Assert.IsTrue(result.schema.val1.Contains("To"));
     //        Assert.IsTrue(result.schema.val2[result.schema.val1.IndexOf("To")].Required);
     //    }
-    }
+    //}
 }
