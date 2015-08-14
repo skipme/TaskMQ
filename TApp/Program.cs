@@ -17,8 +17,6 @@ namespace TApp
     {
         static void Main(string[] args)
         {
-            System.Net.WebRequest wr = System.Net.WebRequest.Create("http://nodes.apphb.com/home/rf?uri=console_started");
-            wr.GetResponse();
             TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
                     new TaskBroker.Logger.ConsoleEndpoint(),
                     new TaskBroker.Logger.FileEndpoint("log.txt")
