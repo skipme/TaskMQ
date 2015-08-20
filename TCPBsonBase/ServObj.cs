@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -8,6 +9,7 @@ namespace TCPBsonBase
 
     public class ServObj : StateObj
     {
+
         public void ProcessState(ServerClientCtx ctx)
         {
             switch (this.state)
@@ -17,6 +19,13 @@ namespace TCPBsonBase
                         this.PAsInt("id"),
                         this.PAsInt("setid"),
                         this.PAsDict("message")
+                        );
+                    break;
+                case "BATCH_PUT":
+                    ctx.OnPutBatch(
+                        this.PAsInt("id"),
+                        this.PAsInt("setid"),
+                        this.PAsDictCollection("messages")
                         );
                     break;
                 default:
@@ -32,6 +41,15 @@ namespace TCPBsonBase
                 { "id", id},
                 { "setid", setId},
                 { "message", message }
+            };
+        }
+        public void SetPutBatch(int id, int setId, ICollection<Dictionary<string, object>> messages)
+        {
+            this.state = "BATCH_PUT";
+            this.stateParameters = new Dictionary<string, object>{
+                { "id", id},
+                { "setid", setId},
+                { "messages", messages }
             };
         }
         public void SetGetPutIds(int minimalId)

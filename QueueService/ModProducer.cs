@@ -47,7 +47,7 @@ namespace QueueService
                 {
                     logger.Exception(e, "http service start listening", "check permissions/firewall parameters...");
                 }
-                throw e;
+                throw;
             }
         }
         public void IsolatedProducerStop()

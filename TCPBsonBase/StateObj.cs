@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -23,8 +24,13 @@ namespace TCPBsonBase
         {
             Newtonsoft.Json.Linq.JObject rp = (Newtonsoft.Json.Linq.JObject)stateParameters[name];
 
-
             return rp.ToObject<Dictionary<string, object>>();
+        }
+        public Collection<Dictionary<string, object>> PAsDictCollection(string name)
+        {
+            Newtonsoft.Json.Linq.JArray rp = (Newtonsoft.Json.Linq.JArray)stateParameters[name];
+
+            return rp.ToObject<Collection<Dictionary<string, object>>>();
         }
         public byte[] GetBsonData()
         {

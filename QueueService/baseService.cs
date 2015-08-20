@@ -132,20 +132,21 @@ namespace QueueService
                     foreach (var asm in QueueService.ModProducer.broker.GetSourceStatuses())
                     {
                         List<TaskUniversum.SourceControllerJobs> scj = sourceManager.GetAllowedCommands(asm.Key);
+                        TaskUniversum.IRevision rev = asm.Value.PackageRev;
                         AssemblyStatus expStat = new AssemblyStatus
                         {
                             Name = asm.Key,
                             state = asm.Value.State,
-                            revisionTag = asm.Value.PackageRev.Revision,
+                            revisionTag = rev.Revision,
 
                             loaded = asm.Value.Loaded,
                             packaged = asm.Value.packagedDate,
                             loadedRevision = asm.Value.LoadedRevision,
                             loadedRemarks = asm.Value.LoadedRemarks,
 
-                            revCommitComment = asm.Value.PackageRev.CommitMessage,
-                            revCommiter = asm.Value.PackageRev.Commiter,
-                            revCommitTime = asm.Value.PackageRev.CommitTime,
+                            revCommitComment = rev.CommitMessage,
+                            revCommiter = rev.Commiter,
+                            revCommitTime = rev.CommitTime,
 
                             revisionSourceTag = _na,
                             revSCommitComment = _na,
@@ -158,10 +159,11 @@ namespace QueueService
                         };
                         if (asm.Value.BuildServerRev != null)
                         {
-                            expStat.revisionSourceTag = asm.Value.BuildServerRev.Revision;
-                            expStat.revSCommitComment = asm.Value.BuildServerRev.CommitMessage;
-                            expStat.revSCommiter = asm.Value.BuildServerRev.Commiter;
-                            expStat.revSCommitTime = asm.Value.BuildServerRev.CommitTime;
+                            TaskUniversum.IRevision bsrev = asm.Value.BuildServerRev;
+                            expStat.revisionSourceTag = bsrev.Revision;
+                            expStat.revSCommitComment = bsrev.CommitMessage;
+                            expStat.revSCommiter = bsrev.Commiter;
+                            expStat.revSCommitTime = bsrev.CommitTime;
                         }
                         resp.Add(expStat);
                     }
@@ -296,23 +298,25 @@ namespace QueueService
         }
         public void Options(ConfigCommitRequest request)
         {
-            this.Response.StatusCode = 200;
-            this.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            this.Response.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-            this.Response.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
-            this.Response.AddHeader("Access-Control-Max-Age", "1728000");
+            var resp = this.Response;
+            resp.StatusCode = 200;
+            resp.AddHeader("Access-Control-Allow-Origin", "*");
+            resp.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            resp.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
+            resp.AddHeader("Access-Control-Max-Age", "1728000");
 
-            this.Response.End();
+            resp.End();
         }
         public void Options(ConfigRequest request)
         {
-            this.Response.StatusCode = 200;
-            this.Response.AddHeader("Access-Control-Allow-Origin", "*");
-            this.Response.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-            this.Response.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
-            this.Response.AddHeader("Access-Control-Max-Age", "1728000");
+            var resp = this.Response;
+            resp.StatusCode = 200;
+            resp.AddHeader("Access-Control-Allow-Origin", "*");
+            resp.AddHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            resp.AddHeader("Access-Control-Allow-Headers", "X-PINGOTHER, Content-Type");
+            resp.AddHeader("Access-Control-Max-Age", "1728000");
 
-            this.Response.End();
+            resp.End();
         }
         [EnableCors]
         public ConfigResponse Post(ConfigCommitRequest request)

@@ -11,6 +11,11 @@ namespace TaskBroker.Statistics
         StatRange[] lastRanges;
 
         FlushCB flushCallback;
+        TaskUniversum.ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+        public StatMatchModel()
+        {
+
+        }
 
         public void CreateRanges(int[] secRanges, FlushCB f = null)
         {
@@ -43,24 +48,14 @@ namespace TaskBroker.Statistics
 
             flushCallback = f;
         }
-        public StatMatchModel()
-        {
 
-        }
         public void checkExpired()
         {
             lock (currentRanges)
                 for (int i = 0; i < currentRanges.Length; i++)
                 {
                     StatRange r = currentRanges[i];
-                    if (r.Expired)
-                    {
-                        // flush and create new
-                        if (flushCallback != null)
-                            flushCallback(r, this.MatchData);
-                        lastRanges[i] = r;
-                        r = currentRanges[i] = new StatRange(r);
-                    }
+                    FlushExpired(i, r);
                 }
         }
         public void inc()
@@ -69,16 +64,24 @@ namespace TaskBroker.Statistics
                 for (int i = 0; i < currentRanges.Length; i++)
                 {
                     StatRange r = currentRanges[i];
-                    if (r.Expired)
-                    {
-                        // flush and create new
-                        if (flushCallback != null)
-                            flushCallback(r, this.MatchData);
-                        lastRanges[i] = r;
-                        r = currentRanges[i] = new StatRange(r);
-                    }
+                    r = FlushExpired(i, r);
                     r.inc();
                 }
+        }
+
+        private StatRange FlushExpired(int i, StatRange r)
+        {
+            if (r.Expired)
+            {
+                // flush and create new
+                if (flushCallback != null)
+                    flushCallback(r, this.MatchData);
+
+                logger.Info("{0} {1}/{2}sec.", matchString(), r.Counter, r.secondsInterval);
+                lastRanges[i] = r;
+                r = currentRanges[i] = new StatRange(r);
+            }
+            return r;
         }
 
         public StatRange GetFlushedMinRange()
@@ -90,9 +93,19 @@ namespace TaskBroker.Statistics
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < currentRanges.Length; i++)
             {
-                sb.AppendFormat("{0}/{1:.0}/{2:.0}|", currentRanges[i].Counter, currentRanges[i].PerMinute, currentRanges[i].PerSecond);
+                sb.AppendFormat("{3} {0}/{1:.0}/{2:.0}|", currentRanges[i].Counter, currentRanges[i].PerMinute, currentRanges[i].PerSecond, matchString());
             }
             return sb.ToString();
+        }
+        public string matchString()
+        {
+            string result = "";
+            Dictionary<string, object> md = MatchData;
+            foreach (KeyValuePair<string, object> item in md)
+            {
+                result += item.Value.ToString() + " ";
+            }
+            return result;
         }
         public virtual Dictionary<string, object> MatchData
         {

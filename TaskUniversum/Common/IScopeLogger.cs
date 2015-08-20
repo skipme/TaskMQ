@@ -27,11 +27,11 @@ namespace TaskUniversum
         public string EventName;
         public string Scope;
 
-        public string ToStringHeader()
+        public virtual string ToStringHeader()
         {
             return string.Format("{0} [{1}]    ", Time, EventName);
         }
-        public string ToStringMessage()
+        public virtual string ToStringMessage()
         {
             return string.Format("{0}: {1}", Scope, Message);
         }
@@ -50,6 +50,10 @@ namespace TaskUniversum
         public string ExceptionStackTrace;
         public string failedOperationDescription;
 
+        public override string ToStringMessage()
+        {
+            return string.Format("{0}: {1}\r\n   MESSAGE: {2}\r\n CS: {3}", Scope, Message, ExceptionMessage, ExceptionStackTrace);
+        }
         public override string ToString()
         {
             return string.Format("{0} [{1}]  {2}: {3}\r\n   EXCEPTION for: '{6}': {4}, {5}\r\n", Time, EventName, Scope, Message, ExceptionMessage, ExceptionStackTrace, failedOperationDescription);

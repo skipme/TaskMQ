@@ -127,7 +127,7 @@ namespace BsonBenchService
                 string[] paddr = ListeningOn.Split(':');
                 serv = new TcpListener(IPAddress.Any, Int32.Parse(paddr[1]));
                 serv.Start();
-                logger.Info("AppHost queue services Created at {0}, listening on {1}", DateTime.Now, ListeningOn);
+                logger.Info("TCP queue services Created at {0}, listening on {1}", DateTime.Now, ListeningOn);
             }
             catch (System.Net.Sockets.SocketException e)
             {
@@ -135,7 +135,7 @@ namespace BsonBenchService
                 {
                     logger.Exception(e, "http service start listening", "check permissions/firewall parameters...");
                 }
-                throw e;
+                throw;
             }
 
             serv.BeginAcceptTcpClient(AcceptNewClient, null);
@@ -185,6 +185,7 @@ namespace BsonBenchService
                 client = tc,
                 ns = tc.GetStream()
             };
+            cli.ns.ReadTimeout = 10;
             cli.ctx.PutCallback = pushMessage;
             lock (activeClients)
                 activeClients.Add(cli);

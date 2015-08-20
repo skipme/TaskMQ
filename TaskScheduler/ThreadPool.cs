@@ -77,7 +77,7 @@ namespace TaskScheduler
             for (int i = 0; threads.Count < maxThreads; i++)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(ThreadEntry));
-                thread.Name = "TaskScheduler Thread#" + i;
+                thread.Name = "TaskScheduler Thread#" + i.ToString();
                 ThreadContext ti = new ThreadContext()
                 {
                     hThread = thread,

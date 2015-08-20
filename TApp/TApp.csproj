@@ -59,6 +59,10 @@
       <Project>{37d40112-530a-4284-842b-3493d25054cf}</Project>
       <Name>BenchModules</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BsonBenchService\BsonBenchService.csproj">
+      <Project>{9dc7eb33-db60-409f-8fdd-bf0eeee0c7ef}</Project>
+      <Name>BsonBenchService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
       <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>
@@ -66,10 +70,6 @@
     <ProjectReference Include="..\QueueService\QueueService.csproj">
       <Project>{9CA84F01-7A31-4037-8C46-C9A9E958AB6A}</Project>
       <Name>QueueService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\RabbitMqService\BsonBenchService.csproj">
-      <Project>{9dc7eb33-db60-409f-8fdd-bf0eeee0c7ef}</Project>
-      <Name>BsonBenchService</Name>
     </ProjectReference>
     <ProjectReference Include="..\SharpZipLib\ICSharpCode.SharpZLib.csproj">
       <Project>{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}</Project>

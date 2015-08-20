@@ -13,7 +13,7 @@ namespace MongoQueue
         }
 
         [BsonExtraElements]
-        public Dictionary<string, object> ExtraElements { get; set; }
+        public Dictionary<string, object> ExtraElements;
 
         public MongoDB.Bson.BsonObjectId id { get; set; }
     }
