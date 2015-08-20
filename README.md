@@ -40,7 +40,23 @@ And a very important feature of queues: after module process message you can kee
 
 Default access module implemented with service stack and self-hosted within application, so you can simply push messages with http protocol at **tmq/q** with PUT method, also at **tmq/c** open access to the configuration. **BBQ** is web interface for simply view and modify all entities on taskmq server, show statictics, maintain queues.
 
-BBQ web interface: 
+##BBQ web interface: 
 <br />![BBQ TaskMQ](doc/bbq2sparkline.png "TaskMQ :: BBQ")
 <br />![BBQ TaskMQ](doc/buildServers.png "TaskMQ :: BBQ")
 <br />![BBQ TaskMQ](doc/assembly-info.png "TaskMQ :: BBQ")
+
+##Some evaluative performance test (unclean)
+
+BSON(Json.Net) over TCP simple protocol, 1 process(writer) pushes messages one by one to TaskMQ producer module, TaskMQ with one task, in-memory queue, consumer module in that task only deserializing to model specific class. Everything is performed on the same machine: 4cores Intel SandyBridge ~2.9MHz and some background jobs, you can see writer and TaskMQ not utilising all processor time.
+With this setup, throughput reaches ~500000 messages per 30 sec, ~15000 messages per second. In TaskMQ receiver part it has BSON deserialization, TaskMessage Type (unoptimized) deserialization, Queue push operation. In TaskMQ task part it has Queue pop operation, Custom Type derived from TaskMessage deserialization.
+
+For batching scenarious (32 messages in one batch, unconfigured tcp s/r buffer, message size ~256 bytes):
+19.08.2015 23:10:38 [Info]    TaskBroker.Statistics.BrokerStat: chan_in bench  2243840/30sec.
+19.08.2015 23:10:38 [Info]    TaskBroker.Statistics.BrokerStat: chan_in bench  4148448/60sec.
+19.08.2015 23:10:40 [Info]    TaskBroker.Statistics.BrokerStat: chan_out bench  351649/30sec.
+19.08.2015 23:10:40 [Info]    TaskBroker.Statistics.BrokerStat: chan_out bench  668949/60sec.
+19.08.2015 23:11:08 [Info]    TaskBroker.Statistics.BrokerStat: chan_in bench  2209632/30sec.
+19.08.2015 23:11:10 [Info]    TaskBroker.Statistics.BrokerStat: chan_out bench  352256/30sec.
+
+<br />![evaluative performance 1](doc/perf1.jpg "P1")
+<br />![evaluative performance 2](doc/perf2.jpg "P2")
