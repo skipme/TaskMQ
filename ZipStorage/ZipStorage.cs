@@ -112,14 +112,17 @@ namespace FileContentArchive
                 }
             }
             CustomStaticDataSource sds = new CustomStaticDataSource();
-            sds.SetStream(new MemoryStream(content));
+            using (MemoryStream ms = new MemoryStream(content))
+            {
+                sds.SetStream(ms);
 
-            // If an entry of the same name already exists, it will be overwritten; otherwise added.
-            zipFile.Add(sds, loc);
+                // If an entry of the same name already exists, it will be overwritten; otherwise added.
+                zipFile.Add(sds, loc);
 
-            // Both CommitUpdate and Close must be called.
-            zipFile.CommitUpdate();
-            zipFile.Close();
+                // Both CommitUpdate and Close must be called.
+                zipFile.CommitUpdate();
+                zipFile.Close();
+            }
         }
         void DeleteContent(string loc)
         {

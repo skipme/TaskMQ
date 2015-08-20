@@ -82,7 +82,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assemblys\AssemblyArtifacts.cs" />
+    <Compile Include="BuildServers\Register.cs" />
     <Compile Include="BuildServers\BuildArtefacts.cs" />
     <Compile Include="BuildServers\BuildServer.cs" />
     <Compile Include="BuildServers\NaiveMs.cs" />

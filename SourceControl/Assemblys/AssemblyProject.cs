@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using TaskUniversum;
 
-namespace SourceControl.Assemblys
+namespace SourceControl.BuildServers
 {
     public class SourceController
     {

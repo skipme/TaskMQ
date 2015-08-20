@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SourceControl.Assemblys
+namespace SourceControl.BuildServers
 {
     public class AssemblyProjects
     {
         public string DiretoryContainer { get; set; }
         public List<SourceController> hostedProjects;
-        public AssemblyArtifacts artifacts;
+        public Register artifacts;
 
         public AssemblyProjects(string path)
         {
@@ -17,7 +17,7 @@ namespace SourceControl.Assemblys
             CheckDirectory();
 
             hostedProjects = new List<SourceController>();
-            artifacts = new AssemblyArtifacts();
+            artifacts = new Register();
         }
         public void Add(string name, string buildServerType, Dictionary<string, object> parameters)
         {

@@ -21,14 +21,14 @@ namespace SourceControl.BuildServers
             State = BuildServerState.fetch_required;
         }
 
-        SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilderMono> _scm;
-        SourceControl.Assemblys.AssemblySCM<Build.AssemblyBuilderMono> scm
+        SourceControl.BuildServers.AssemblySCM<Build.AssemblyBuilderMono> _scm;
+        SourceControl.BuildServers.AssemblySCM<Build.AssemblyBuilderMono> scm
         {
             get
             {
                 if (_scm == null)
                 {
-                    _scm = new Assemblys.AssemblySCM<Build.AssemblyBuilderMono>(
+                    _scm = new BuildServers.AssemblySCM<Build.AssemblyBuilderMono>(
                         System.IO.Directory.GetCurrentDirectory(),
                         parameters.ProjectPath,
                         parameters.SCM_URL

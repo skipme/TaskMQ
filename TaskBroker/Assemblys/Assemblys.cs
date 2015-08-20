@@ -25,7 +25,7 @@ namespace TaskBroker.Assemblys
 
         public DateTime packagedDate { get; set; }
 
-        public AssemblyStatus(SourceControl.Assemblys.SourceController prj)
+        public AssemblyStatus(SourceControl.BuildServers.SourceController prj)
         {
             State = prj.BuildServer.GetState().ToString();
 
@@ -46,7 +46,7 @@ namespace TaskBroker.Assemblys
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
-        public SourceControl.Assemblys.AssemblyProjects assemblySources;
+        public SourceControl.BuildServers.AssemblyProjects assemblySources;
         public Dictionary<string, AssemblyCard> loadedAssemblys;
         private ArtefactsDepot SharedManagedLibraries;
 
@@ -59,7 +59,7 @@ namespace TaskBroker.Assemblys
         {
             TaskBroker.Configuration.ExtraParameters p = new Configuration.ExtraParameters();
             p.BuildServerTypes = new List<Configuration.ExtraParametersBS>();
-            foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServers)
+            foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServersRegister)
             {
                 TaskQueue.RepresentedModel rm = bs.Value.GetParametersModel().GetModel();
                 p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS
@@ -93,11 +93,11 @@ namespace TaskBroker.Assemblys
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
             // build, update packages: 
-            assemblySources = new SourceControl.Assemblys.AssemblyProjects(Directory.GetCurrentDirectory());
+            assemblySources = new SourceControl.BuildServers.AssemblyProjects(Directory.GetCurrentDirectory());
         }
         public IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses()
         {
-            foreach (SourceControl.Assemblys.SourceController proj in assemblySources.hostedProjects)
+            foreach (SourceControl.BuildServers.SourceController proj in assemblySources.hostedProjects)
             {
                 yield return new KeyValuePair<string, IAssemblyStatus>(proj.PackageName, new AssemblyStatus(proj));
             }
@@ -137,8 +137,8 @@ namespace TaskBroker.Assemblys
         {
             loadedAssemblys.Clear();
             // in order to reject only new modules -if depconflict persist-
-            IEnumerable<SourceControl.Assemblys.SourceController> mods = assemblySources.TakeLoadTime();
-            foreach (SourceControl.Assemblys.SourceController a in mods)
+            IEnumerable<SourceControl.BuildServers.SourceController> mods = assemblySources.TakeLoadTime();
+            foreach (SourceControl.BuildServers.SourceController a in mods)
             {
                 AssemblyVersionPackage pckg = a.Versions.GetLatestVersion();
                 string remarks;

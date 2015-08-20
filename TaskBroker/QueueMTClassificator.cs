@@ -26,7 +26,7 @@ namespace TaskBroker
             Connections.Add(conParameters.Name, conParameters);
         }
         /// <summary>
-        /// assume now for message type we have only one channel
+        /// assume now for one message type we have only one channel
         /// </summary>
         /// <param name="channelName"></param>
         /// <param name="m"></param>
