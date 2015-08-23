@@ -5,10 +5,11 @@ using System.Text;
 
 namespace TaskQueue
 {
-    public enum FieldType
+    public enum FieldType : byte
     {
         text = 0x11,
         num_int,
+        num_long,
         num_double,
         boolean,
         datetime

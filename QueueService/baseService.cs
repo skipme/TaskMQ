@@ -48,6 +48,7 @@ namespace QueueService
     public class ValidationResponse
     {
         public Dictionary<string, TaskQueue.RepresentedModelValue> ModelScheme { get; set; }
+        public string ModelHashSum { get; set; }
     }
 
     [Route("/tmq/assemblies", Verbs = "GET")]
@@ -371,7 +372,8 @@ namespace QueueService
                 };
             return new ValidationResponse()
             {
-                ModelScheme = model.schema.ToDictionary()
+                ModelScheme = model.schema.ToDictionary(),
+                ModelHashSum = model.CalculateSchemeHash()
             };
         }
     }

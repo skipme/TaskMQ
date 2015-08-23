@@ -80,46 +80,72 @@ namespace TaskQueue
             nullable = Nullable.GetUnderlyingType(t) != null;
             if (nullable)
                 t = Nullable.GetUnderlyingType(t);
+
             if (t == typeof(int))
             {
                 return FieldType.num_int;
             }
-            if (t == typeof(double))
+            else if (t == typeof(long))
+            {
+                return FieldType.num_long;
+            }
+            else if (t == typeof(double))
             {
                 return FieldType.num_double;
             }
-            if (t == typeof(string))
+            else if (t == typeof(string))
             {
                 return FieldType.text;
             }
-            if (t == typeof(DateTime))
+            else if (t == typeof(DateTime))
             {
                 return FieldType.datetime;
             }
-            if (t == typeof(bool))
+            else if (t == typeof(bool))
             {
                 return FieldType.boolean;
             }
             return FieldType.text;
         }
+        static readonly Dictionary<FieldType, string> ftMapSimlinkType = new Dictionary<FieldType, string>()
+         {
+             {FieldType.text,       "string"},
+             {FieldType.num_int,    "int"},
+             {FieldType.num_long,   "long"},
+             {FieldType.num_double, "double"},
+             {FieldType.boolean,    "bool"},
+             {FieldType.datetime,   "DateTime"}
+         };
         public static string GetLTypeString(FieldType ft)
         {
-            switch (ft)
+            string result;
+            if (ftMapSimlinkType.TryGetValue(ft, out result))
+                return result;
+            return null;
+        }
+        public string CalculateSchemeHash()
+        {
+            List<byte> b = new List<byte>();
+            string result = "";
+
+            for (int i = 0; i < schema.val1.Count; i++)
             {
-                case FieldType.text:
-                    return "string";
-                case FieldType.num_int:
-                    return "int";
-                case FieldType.num_double:
-                    return "double";
-                case FieldType.boolean:
-                    return "bool";
-                case FieldType.datetime:
-                    return "DateTime";
-                default:
-                    break;
+                RepresentedModelValue rv = schema.val2[i];
+                if (rv.Required)
+                {
+                    b.AddRange(Encoding.UTF8.GetBytes(schema.val1[i]));
+
+                    //b.Add((byte)(rv.Required ? 1 : 0));
+                    b.Add((byte)(rv.VType));
+                }
             }
-            return "string";
+            byte[] hash = (new System.Security.Cryptography.SHA1Managed()).ComputeHash(b.ToArray());
+            for (int i = 0; i < hash.Length; i++)
+            {
+                result += hash[i].ToString("x2");
+            }
+            return result;
+
         }
     }
 }

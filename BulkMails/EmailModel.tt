@@ -64,7 +64,7 @@ for (int i = 0; i < result.schema.val1.Count; i++)
 		/// <summary>
 		/// <#= result.schema.val2[i].Description!=null ? result.schema.val2[i].Description : "" #>	
 		/// <#= result.schema.val2[i].Required ?"REQUIRED !":"" #>
-        /// </summary>	
+        	/// </summary>	
 		public <#=TaskQueue.RepresentedModel.GetLTypeString(result.schema.val2[i].VType)#> <#= result.schema.val1[i] #> { get; set; }
 <#}#>
 	}
