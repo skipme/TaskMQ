@@ -22,6 +22,9 @@ namespace TaskQueue
         /// property inherited from parent class -validation check only required field
         /// </summary>
         public bool Inherited { get; set; }
+
+        public object DefaultValue { get; set; }
+
         public FieldDescription()
         { }
         public FieldDescription(string Description, bool Required = false)
@@ -48,6 +51,7 @@ namespace TaskQueue
         public string Description;
         public bool Required;
         public bool Inherited;
+        public object DefaultValue;
         public PropertyInfo propertyDescriptor;
     }
 }

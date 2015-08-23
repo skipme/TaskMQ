@@ -109,7 +109,8 @@ namespace TaskBroker
                 anteroom.ChannelName = name;
 
                 TaskQueue.Providers.QueueConnectionParameters qparams = Connections[mc.ConnectionName];
-                anteroom.Queue = (TaskQueue.ITQueue)Activator.CreateInstance(qparams.QueueInstance.GetType()); //Queues.GetQueue(mc.QueueName);
+                anteroom.Queue = qparams.QueueInstance;
+                //anteroom.Queue = (TaskQueue.ITQueue)Activator.CreateInstance(qparams.QueueInstance.GetType()); //Queues.GetQueue(mc.QueueName);
                 try
                 {
                     anteroom.Queue.InitialiseFromModel(new RepresentedModel(typeof(TaskMessage)), qparams);// schema free only queue providers (mongodb)

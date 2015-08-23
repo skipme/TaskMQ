@@ -10,6 +10,8 @@ using TaskUniversum;
 using TaskUniversum.Common;
 using TaskUniversum.Task;
 
+// PLATFORM CONFIGURATION, not for components, modules, etc
+// for bunching/orchestration components, not for components! 
 namespace TaskBroker.Configuration
 {
     public class RepresentedConfiguration : IRepresentedConfiguration
@@ -70,6 +72,7 @@ namespace TaskBroker.Configuration
             return obj;
         }
     }
+
     public class ConfigurationAssemblys : RepresentedConfiguration
     {
         public cAssembly[] Assemblys { get; set; }
@@ -88,7 +91,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public Dictionary<string, string> ParametersModel { get; set; }
+        public Dictionary<string, SchemeValueSpec> ParametersModel { get; set; }
     }
     [Serializable]
     public class cTask
@@ -100,6 +103,9 @@ namespace TaskBroker.Configuration
 
         public string ChannelName { get; set; }
         public string ModuleName { get; set; }
+        /// <summary>
+        /// means internal task, if true this object must be ignored, its created by runtime configuration, not for platform
+        /// </summary>
         public bool Auto { get; set; }
     }
     [Serializable]
@@ -116,22 +122,48 @@ namespace TaskBroker.Configuration
         public string TypeFullName { get; set; }
     }
     [Serializable]
+    public class SchemeValueSpec
+    {
+        public SchemeValueSpec()
+        {
+
+        }
+        public SchemeValueSpec(TaskQueue.RepresentedModelValue schemeValue)
+        {
+            this.VType = schemeValue.VType.ToString();
+            this.Description = schemeValue.Description;
+            this.Required = schemeValue.Required;
+
+            if (schemeValue.DefaultValue != null)
+                this.DefaultValue = schemeValue.DefaultValue.ToString();
+        }
+        public string VType { get; set; }
+        public string Description { get; set; }
+        public bool Required { get; set; }
+
+        public string DefaultValue { get; set; }
+    }
+    [Serializable]
     public class cModule
     {
         public string Name { get; set; }
+        /// <summary>
+        /// Enable/Disable module - restart required
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        // Runtime specific, for extraction only, not for configuration!:
         public string Description { get; set; }
         public ExecutionType Role { get; set; }
         public string TypeFullName { get; set; }
-        public Dictionary<string, string> ParametersModel { get; set; }
+        public Dictionary<string, SchemeValueSpec> ParametersModel { get; set; }
     }
     [Serializable]
     public class cConnection
     {
         public string Name { get; set; }
-        public string connectionString { get; set; }
-        public string collection { get; set; }
-        public string database { get; set; }
         public string queueTypeName { get; set; }
+        public Dictionary<string, object> QueueParameters { get; set; }
     }
     [Serializable]
     public class cAssembly

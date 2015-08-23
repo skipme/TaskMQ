@@ -120,7 +120,7 @@ namespace TaskBroker
             ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
 
             if (cmain != null)
-                cmain.Apply(this);
+                cmain.Apply(this);// validate and apply
         }
 
         public ConfigurationDepot Configurations;
@@ -164,6 +164,10 @@ namespace TaskBroker
         // bunch [queue, +channel]
         public void RegisterChannel(string connectionName, string channelName)
         {
+            if (!MessageChannels.Connections.ContainsKey(connectionName))
+            {
+                throw new Exception("Can't find queue " + connectionName + " declare queue first");
+            }
             MessageChannels.AddMessageChannel(new TaskBroker.MessageChannel()
             {
                 ConnectionName = connectionName,
@@ -275,37 +279,25 @@ namespace TaskBroker
             Tasks.Add(t);
             UpdatePlan();
         }
-        // bunch [connectionparams, queue]
-        private void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp, TaskQueue.ITQueue qI)
-        //where T : TaskQueue.ITQueue
+        // bunch [connectionparams, queue] ()
+        private void AddConnection(TaskQueue.Providers.QueueConnectionParameters qcp)
         {
-            //TaskQueue.ITQueue q = (TaskQueue.ITQueue)Activator.CreateInstance(qType);
-            qcp.QueueTypeName = qI.QueueType;
-            qcp.QueueInstance = qI;
+            //qcp.QueueTypeName = qI.QueueType;
+            //qcp.QueueInstance = qI;
 
             MessageChannels.AddConnection(qcp);
         }
-        public void RegisterConnection<T>(string name, string connectionString, string database, string collection)
+        public void RegisterConnection<T>(string name, TaskQueue.Providers.QueueSpecificParameters parameters)
             where T : TaskQueue.ITQueue
         {
-            TaskQueue.ITQueue q = Activator.CreateInstance<T>();
-            AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
-                {
-                    Collection = collection,
-                    Name = name,
-                    Database = database,
-                    ConnectionString = connectionString
-                }, q);
+            TaskQueue.ITQueue qm = Activator.CreateInstance<T>();
+            RegisterConnection(name, qm, parameters);
         }
-        public void RegisterConnection(string name, string connectionString, string database, string collection, TaskQueue.ITQueue qI)
+        public void RegisterConnection(string name, TaskQueue.ITQueue qI, TaskQueue.Providers.QueueSpecificParameters parameters)
         {
-            AddConnection(new TaskQueue.Providers.QueueConnectionParameters()
-            {
-                Collection = collection,
-                Name = name,
-                Database = database,
-                ConnectionString = connectionString
-            }, qI);
+            QueueConnectionParameters qcp = new QueueConnectionParameters(name);
+            qcp.SetInstance(qI, parameters);
+            AddConnection(qcp);
         }
         private void UpdatePlan()
         {

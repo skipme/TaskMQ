@@ -110,11 +110,11 @@ namespace TaskQueue.Providers
             d = Holder;
             return result;
         }
-        public Dictionary<string, object> ToDictionary()
-        {
-            SetProps();
-            return Holder;
-        }
+        //public Dictionary<string, object> ToDictionary()
+        //{
+        //    SetProps();
+        //    return Holder;
+        //}
 
         public Dictionary<string, object> GetHolder()
         {

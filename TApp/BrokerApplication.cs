@@ -71,7 +71,7 @@ namespace TaskBroker
             broker = new Broker(Restart, Reset);
 
             BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
-            //QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
+            QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
             BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
 
             //m.Description = "";
@@ -79,21 +79,26 @@ namespace TaskBroker
 
             broker.RevokeBroker(true);
             this.Signal = signal;
-            //exportConfiguration();
+            exportConfiguration();
         }
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool AllocConsole();
+#if !MONO
+        //[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        //private static extern bool AllocConsole();
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
-        private static extern bool AttachConsole(int pid);
+        //[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        //private static extern bool AttachConsole(int pid);
 
-        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool FreeConsole();
-        //public void exportConfiguration()
-        //{
-        //    File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());
-        //    File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).SerialiseJson());
-        //    File.WriteAllBytes("assemblys.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).SerialiseJson());
-        //}
+        //[System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        //private static extern bool FreeConsole();
+#endif
+        /// <summary>
+        /// Many runtime configuration declared, dump object model of it if required
+        /// </summary>
+        public void exportConfiguration()
+        {
+            File.WriteAllBytes("main.json", BrokerConfiguration.ExtractFromBroker(broker).SerialiseJson());
+            File.WriteAllBytes("modules.json", BrokerConfiguration.ExtractModulesFromBroker(broker).SerialiseJson());
+            File.WriteAllBytes("assemblies.json", BrokerConfiguration.ExtractAssemblysFromBroker(broker).SerialiseJson());
+        }
     }
 }

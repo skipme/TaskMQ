@@ -15,10 +15,8 @@ namespace TaskBroker.Configuration
                              select new cConnection()
                              {
                                  Name = cc.Key,
-                                 connectionString = cc.Value.ConnectionString,
-                                 collection = cc.Value.Collection,
-                                 database = cc.Value.Database,
-                                 queueTypeName = cc.Value.QueueTypeName
+                                 queueTypeName = cc.Value.QueueTypeName,
+                                 QueueParameters = cc.Value.specParams.GetHolder()
                              }).ToArray();
             c.Channels = (from cc in b.MessageChannels.MChannelsList
                           select new cChannel()
@@ -52,7 +50,8 @@ namespace TaskBroker.Configuration
                              Name = mm.Key,
                              Description = mm.Value.Description,
                              Role = mm.Value.Role,
-                             ParametersModel = mm.Value.ParametersModel.ToDeclareDictionary()
+                             ParametersModel = mm.Value.ParametersModel.schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => new Configuration.SchemeValueSpec(valueItem.Value2))
+                             //mm.Value.ParametersModel.schema
                          }).ToArray();
 
             return c;

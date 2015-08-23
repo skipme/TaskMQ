@@ -18,7 +18,11 @@ namespace TaskBroker
         {
             QueueList.Add(q.QueueType, q);
         }
-
+        /// <summary>
+        /// Create new instance of Queue
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public TaskQueue.ITQueue GetQueue(string name)
         {
             TaskQueue.ITQueue q = (TaskQueue.ITQueue)Activator.CreateInstance(QueueList[name].GetType());

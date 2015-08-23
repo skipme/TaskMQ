@@ -66,7 +66,8 @@ namespace TaskBroker.Assemblys
                 {
                     Name = bs.Value.Name,
                     Description = bs.Value.Description,
-                    ParametersModel = rm.ToDeclareDictionary()
+                    ParametersModel = rm.schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => new Configuration.SchemeValueSpec( valueItem.Value2))
+                    //rm.ToDeclareDictionary()
                 });
             }
             return p;

@@ -42,10 +42,10 @@ namespace TaskQueue
                 };
             }
         }
-        public Dictionary<string, string> ToDeclareDictionary()
-        {
-            return schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString());
-        }
+        //public Dictionary<string, string> ToDeclareDictionary()
+        //{
+        //    return schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString());
+        //}
         private RepresentedModel() { }
         public RepresentedModel(Type classWithProps)
         {

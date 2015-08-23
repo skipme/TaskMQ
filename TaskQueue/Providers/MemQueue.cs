@@ -131,29 +131,30 @@ namespace TaskQueue.Providers
             throw new NotImplementedException();
         }
 
-        public QueueSpecificConnectionParameters GetParametersModel()
+        public QueueSpecificParameters GetParametersModel()
         {
             return new MemQueueParams();
         }
     }
-    public class MemQueueParams : QueueSpecificConnectionParameters
+    public class MemQueueParams : QueueSpecificParameters
     {
-        [TaskQueue.FieldDescription("Flush/restore queue to disk", Required: true)]
+        [TaskQueue.FieldDescription("Flush/restore queue to disk", Required = true, DefaultValue = true)]
         public bool Persistant { get; set; }
 
-        public override bool CheckParameters(out string result)
+        public override bool Validate(out string result)
         {
-            throw new NotImplementedException();
+            result = "";
+            return true;
         }
         public override string ItemTypeName
         {
             get
             {
-                return "MemQueueParams";
+                return this.GetType().Name;
             }
             set
             {
-                
+
             }
         }
     }

@@ -15,11 +15,16 @@ namespace MongoQueue
     {
         const int TupleSize = 100;
 
+        // instance specific:
+        public bool Connected;
         MongoCollection<MongoQueue.MongoMessage> Collection;
         IMongoSortBy SortFeature;
         IMongoQuery QueryFeature;
 
+        // platform specific:
         TQItemSelector selector;
+        RepresentedModel model;
+        QueueConnectionParameters connection;
 
         public void OptimiseForSelector()
         {
@@ -58,7 +63,7 @@ namespace MongoQueue
             //WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() }, new MongoInsertOptions() { WriteConcern = new WriteConcern() { Journal = true } });
             WriteConcernResult result = Collection.Insert(new MongoMessage { ExtraElements = item.GetHolder() });
             // TODO: QueueOverflowException
-            
+
             if (!result.Ok)
                 throw new Exception("error in push to mongo queue: " + result.ToJson());
         }
@@ -126,22 +131,24 @@ namespace MongoQueue
             this.connection = connection;
 
             SetSelector(TQItemSelector.DefaultFifoSelector);
+            MongoQueueParams mongoparams = connection.specParams as MongoQueueParams;
             try
             {
-                OpenConnection(connection);
+                OpenConnection(mongoparams);
             }
             catch (Exception e)
             {
-                throw new QueueConnectionException("can't open connection to: " + connection.ConnectionString, e);
+                throw new QueueConnectionException("can't open connection to: " + mongoparams.ConnectionString, e);
             }
         }
 
-        private void OpenConnection(QueueConnectionParameters connection)
+
+        private void OpenConnection(MongoQueueParams mongoparams)
         {
-            MongoClient cli = new MongoClient(connection.ConnectionString);
+            MongoClient cli = new MongoClient(mongoparams.ConnectionString);
             var server = cli.GetServer();
-            var db = server.GetDatabase(connection.Database);
-            Collection = db.GetCollection<MongoQueue.MongoMessage>(connection.Collection);
+            var db = server.GetDatabase(mongoparams.Database);
+            Collection = db.GetCollection<MongoQueue.MongoMessage>(mongoparams.Collection);
             Connected = true;
         }
 
@@ -149,7 +156,8 @@ namespace MongoQueue
         {
             if (!Connected)
             {
-                OpenConnection(this.connection);
+                MongoQueueParams mongoparams = this.connection.specParams as MongoQueueParams;
+                OpenConnection(mongoparams);
             }
         }
 
@@ -184,15 +192,38 @@ namespace MongoQueue
             Collection.RemoveAll();
         }
 
-        public bool Connected { get; set; }
-        RepresentedModel model { get; set; }
-        QueueConnectionParameters connection { get; set; }
 
-
-
-        public QueueSpecificConnectionParameters GetParametersModel()
+        public QueueSpecificParameters GetParametersModel()
         {
-            throw new NotImplementedException();
+            return new MongoQueueParams();
+        }
+    }
+    public class MongoQueueParams : QueueSpecificParameters
+    {
+        [TaskQueue.FieldDescription("", Required = true)]
+        public string ConnectionString { get; set; }
+
+        [TaskQueue.FieldDescription("", Required = true)]
+        public string Database { get; set; }
+
+        [TaskQueue.FieldDescription("", Required = true)]
+        public string Collection { get; set; }
+
+        public override bool Validate(out string result)
+        {
+            result = "";
+            return true;
+        }
+        public override string ItemTypeName
+        {
+            get
+            {
+                return this.GetType().Name;
+            }
+            set
+            {
+
+            }
         }
     }
 }

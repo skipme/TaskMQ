@@ -72,6 +72,7 @@ namespace TaskUniversum
         void Error(string format, params object[] args);
 
         void Debug(string format, params object[] args);
+        void Exception(Exception ex, string failedOperationDescription);
         void Exception(Exception ex, string failedOperationDescription, string format, params object[] args);
     }
     public interface IScopeLogger

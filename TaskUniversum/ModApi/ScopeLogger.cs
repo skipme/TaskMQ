@@ -121,5 +121,11 @@ namespace TaskUniversum.ModApi
             get;
             private set;
         }
+
+
+        public void Exception(Exception ex, string failedOperationDescription)
+        {
+            this.Exception(ex, failedOperationDescription, "");
+        }
     }
 }
