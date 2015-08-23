@@ -86,8 +86,7 @@ namespace TaskScheduler
             {
                 lock (PlanComponents)
                 {
-                    Dequeued.LastExecutionTime = DateTime.Now;
-                    Dequeued.ExucutingNow = true;
+                    Dequeued.SetStartExecution();
                 }
             }
             else if (wait)
