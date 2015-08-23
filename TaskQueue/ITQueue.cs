@@ -28,5 +28,6 @@ namespace TaskQueue
         string QueueDescription { get; }
 
         void OptimiseForSelector();
+        QueueSpecificConnectionParameters GetParametersModel();
     }
 }

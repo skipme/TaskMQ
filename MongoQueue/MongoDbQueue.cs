@@ -188,5 +188,11 @@ namespace MongoQueue
         RepresentedModel model { get; set; }
         QueueConnectionParameters connection { get; set; }
 
+
+
+        public QueueSpecificConnectionParameters GetParametersModel()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

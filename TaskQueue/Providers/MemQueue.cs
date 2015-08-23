@@ -12,8 +12,9 @@ namespace TaskQueue.Providers
     {
         const int maxTuple = 100;
         RepresentedModel m { get; set; }
-        string CollectionName { get; set; }
+
         Queue<Providers.TaskMessage> baseQueue;
+        public string Name;
 
         public MemQueue()
         {
@@ -33,6 +34,7 @@ namespace TaskQueue.Providers
         public MemQueue(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.InitialiseFromModel(model, connection);
+            Name = connection.Name;
         }
 
         public void Push(Providers.TaskMessage item)
@@ -67,7 +69,6 @@ namespace TaskQueue.Providers
         public void InitialiseFromModel(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.m = model;
-            CollectionName = connection.Collection;
         }
 
         public string QueueType
@@ -128,6 +129,32 @@ namespace TaskQueue.Providers
         public void SetSelector(TQItemSelector selector = null)
         {
             throw new NotImplementedException();
+        }
+
+        public QueueSpecificConnectionParameters GetParametersModel()
+        {
+            return new MemQueueParams();
+        }
+    }
+    public class MemQueueParams : QueueSpecificConnectionParameters
+    {
+        [TaskQueue.FieldDescription("Flush/restore queue to disk", Required: true)]
+        public bool Persistant { get; set; }
+
+        public override bool CheckParameters(out string result)
+        {
+            throw new NotImplementedException();
+        }
+        public override string ItemTypeName
+        {
+            get
+            {
+                return "MemQueueParams";
+            }
+            set
+            {
+                
+            }
         }
     }
 }
