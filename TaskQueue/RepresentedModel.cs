@@ -56,21 +56,29 @@ namespace TaskQueue
             {
                 if (prop.CanRead && prop.CanWrite)
                 {
+                    FieldDescription[] attrs = (FieldDescription[])prop.GetCustomAttributes(typeof(FieldDescription), true);
                     bool isnull;
                     FieldType itv = GetRType(prop.PropertyType, out isnull);
-                    RepresentedModelValue sch_v = new RepresentedModelValue(itv);
-
-                    FieldDescription[] attrs = (FieldDescription[])prop.GetCustomAttributes(typeof(FieldDescription), true);
+                    RepresentedModelValue sch_v = new RepresentedModelValue(itv)
+                    {
+                         propertyDescriptor = prop
+                    };
                     if (attrs.Length > 0)
                     {
-                        sch_v.Description = attrs[0].Description;
-                        sch_v.Required = attrs[0].Required;
-                        sch_v.Inherited = attrs[0].Inherited;
-                        sch_v.propertyDescriptor = prop;
-                        if (attrs[0].Ignore)
-                            continue;
+                        FieldDescription at = attrs[0];
+                        if (!at.Ignore)
+                        {
+                            sch_v.Description = at.Description;
+                            sch_v.Required = at.Required;
+                            sch_v.Inherited = at.Inherited;
+                            
+                            schema.Add(prop.Name, sch_v);
+                        }
                     }
-                    schema.Add(prop.Name, sch_v);
+                    else
+                    {
+                        schema.Add(prop.Name, sch_v);
+                    }
                 }
             }
         }

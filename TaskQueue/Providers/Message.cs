@@ -41,16 +41,24 @@ namespace TaskQueue.Providers
                 MType = value;// !!!
             }
         }
+        /// <summary>
+        /// Get dictionary holder without inherited properties, but with MType
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, object> GetSendEnvelope()
         {
             Dictionary<string, object> di = new Dictionary<string, object>();
             Type t = this.GetType();
-            //TaskQueue.RepresentedModel m = new RepresentedModel(t);
+
             ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
+
+            di.Add("MType", this.MType);
+
             for (int i = 0; i < model.val1.Count; i++)
             {
                 string k = model.val1[i];
-                if (!model.val2[i].Inherited || k == "MType")
+                RepresentedModelValue v = model.val2[i];
+                if (!v.Inherited)
                 {
                     PropertyInfo pi = model.val2[i].propertyDescriptor;
                     object val = pi.GetValue(this, null);

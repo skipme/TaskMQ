@@ -10,6 +10,7 @@ namespace BulkMails
     {
         static void Main(string[] args)
         {
+            Console.WriteLine((new EMail()).GetModel().CalculateSchemeHash());
             // have some ldap catalog with 1000 persons and organisations
             // now we need to send them unique email
 
@@ -33,6 +34,7 @@ namespace BulkMails
                     To = "example@localhost",
                     Body = "hello#" + (i + 1)
                 };
+                
                 //try
                 {
                     rest.Enqueue(mail);
