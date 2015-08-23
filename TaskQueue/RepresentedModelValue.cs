@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace TaskQueue
@@ -22,7 +23,7 @@ namespace TaskQueue
         /// </summary>
         public bool Inherited { get; set; }
         public FieldDescription()
-        {}
+        { }
         public FieldDescription(string Description, bool Required = false)
         {
             this.Description = Description;
@@ -43,9 +44,10 @@ namespace TaskQueue
         {
             this.VType = VType;
         }
-        public FieldType VType { get; set; }
-        public string Description { get; set; }
-        public bool Required { get; set; }
-        public bool Inherited { get; set; }
+        public FieldType VType;
+        public string Description;
+        public bool Required;
+        public bool Inherited;
+        public PropertyInfo propertyDescriptor;
     }
 }

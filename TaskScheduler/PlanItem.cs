@@ -8,48 +8,51 @@ namespace TaskScheduler
 {
     public class PlanItem
     {
-        public string NameAndDescription { get; set; }
+        public string NameAndDescription;
 
-        public IntervalType intervalType { get; set; }
-        public long intervalValue { get; set; }
-        public DateTime intervalTime { get; set; }
+        public IntervalType intervalType;
+        public long intervalValue;
+        public DateTime intervalTime;
 
         public PlanItemEntryPoint JobEntry;
 
-        public DateTime LastExecutionTime;
-        public volatile bool ExucutingNow;
-
-        //public object CustomObject { get; set; }
-        public bool Suspended { get; set; }
-        public long LAMS { get; set; }
-
-        public long MillisecondsBeforeExecute()
+        internal DateTime LastExecutionTime;
+        internal DateTime NextExecutionTime;
+        public void SetStartExecution()
         {
-            long ms = 0;
+            ExucutingNow = true;
+            LastExecutionTime = DateTime.UtcNow;
+
             switch (intervalType)
             {
-                //case IntervalType.withoutInterval:
-                //    ms = 0;
-                //    break;
                 case IntervalType.intervalMilliseconds:
-                    ms = (long)(LastExecutionTime.AddMilliseconds(intervalValue) - DateTime.Now).TotalMilliseconds;
+                    NextExecutionTime = LastExecutionTime.AddMilliseconds(intervalValue);
                     break;
                 case IntervalType.intervalSeconds:
-                    ms = (long)(LastExecutionTime.AddSeconds(intervalValue) - DateTime.Now).TotalMilliseconds;
+                    NextExecutionTime = LastExecutionTime.AddSeconds(intervalValue);
                     break;
                 case IntervalType.DayTime:
-                    if (LastExecutionTime.Date == DateTime.Now.Date)
-                        ms = (long)(DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
-                    else 
-                        ms = (long)(DateTime.Today.AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute) - DateTime.Now).TotalMilliseconds;
+                    if (LastExecutionTime.Date == DateTime.UtcNow.Date)// today already executed
+                        NextExecutionTime = DateTime.Today.AddDays(1).AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute);
+                    else
+                        NextExecutionTime = DateTime.Today.AddHours(intervalTime.Hour).AddMinutes(intervalTime.Minute);
                     break;
-                //case IntervalType.isolatedThread:
-
-                //    break;
                 default:
+                    NextExecutionTime = DateTime.UtcNow;
                     break;
             }
-            return LAMS = ms;
+        }
+        public volatile bool ExucutingNow;
+
+        /// <summary>
+        /// We can suspend this job for maintenance
+        /// </summary>
+        public bool Suspended;
+        public double LAMS;
+
+        public double MillisecondsBeforeExecute()
+        {
+            return LAMS = (NextExecutionTime - DateTime.UtcNow).TotalMilliseconds;
         }
     }
 }

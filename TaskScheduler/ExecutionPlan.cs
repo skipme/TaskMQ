@@ -16,7 +16,10 @@ namespace TaskScheduler
         private int CPQueueCursor;
 
         private List<PlanItem> OnceJobs = new List<PlanItem>();// not prioritized
-
+        /// <summary>
+        /// Enqueue unprioritized backround job, maintenance job maybe
+        /// </summary>
+        /// <param name="job"></param>
         public void DoNonpiorityJob(PlanItem job)
         {
             lock (OnceJobs)
@@ -87,17 +90,17 @@ namespace TaskScheduler
                     Dequeued.ExucutingNow = true;
                 }
             }
-            else
-                if (wait)
+            else if (wait)
+            {
+                // check if we have a job to wait
+                int waitms = this.BeforeNextMs();
+                if (waitms > 0)
                 {
-                    int waitms = this.BeforeNextMs();
-                    if (waitms > 0)
-                    {
-                        refilled.WaitOne(waitms);
-                    }
-                    Dequeued = this.Next(false);
+                    refilled.WaitOne(waitms);
                 }
-
+                Dequeued = this.Next(false);
+            }
+            
             return Dequeued;
         }
         public void SetComponents(List<PlanItem> newComponents)

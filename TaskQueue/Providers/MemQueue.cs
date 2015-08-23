@@ -18,10 +18,15 @@ namespace TaskQueue.Providers
         public MemQueue()
         {
             baseQueue = new Queue<Providers.TaskMessage>();
-            //Providers.TaskMessage[] tarrtp = new Providers.TaskMessage[3000000];
+            //DateTime dt = DateTime.UtcNow;
+            //Providers.TaskMessage[] tarrtp = new Providers.TaskMessage[2000000];
             //for (int i = 0; i < tarrtp.Length; i++)
             //{
-            //    tarrtp[i] = new TaskMessage("benchMessage");
+            //    tarrtp[i] = new TaskMessage("benchMessage")
+            //    {
+            //        AddedTime = dt
+            //    };
+            //    dt = dt.AddSeconds(1);
             //}
             //baseQueue = new Queue<Providers.TaskMessage>(tarrtp);
         }
@@ -90,7 +95,7 @@ namespace TaskQueue.Providers
         public Providers.TaskMessage[] GetItemTuple()
         {
             lock (baseQueue)
-                if (baseQueue.Count >= 1)
+                if (baseQueue.Count > 0)
                 {
                     TaskMessage[] tuple;
                     if (maxTuple < baseQueue.Count)

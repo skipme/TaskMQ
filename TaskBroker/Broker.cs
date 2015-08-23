@@ -221,14 +221,17 @@ namespace TaskBroker
                 }
                 else
                 {
-                    // monitoring put operation
-                    t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", ChannelName));
-                    t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", ChannelName));
-                    // set selector
-                    TaskQueue.TQItemSelector selector = ((IModConsumer)module.MI).ConfigureSelector();
-                    // channel -> model(MType)
-                    MessageChannels.AssignMessageTypeToChannel(ChannelName, ((IModConsumer)module.MI).AcceptsModel, moduleName);
-                    channel.consumerSelector = selector;
+                    if (t.Anteroom.ChannelStatsIn == null)// first task for this channel?
+                    {
+                        // monitoring put operation
+                        t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", ChannelName));
+                        t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", ChannelName));
+                        // set selector
+                        TaskQueue.TQItemSelector selector = ((IModConsumer)module.MI).ConfigureSelector();
+                        // channel -> model(MType)
+                        MessageChannels.AssignMessageTypeToChannel(ChannelName, ((IModConsumer)module.MI).AcceptsModel, moduleName);
+                        channel.consumerSelector = selector;
+                    }
                 }
             }
             Tasks.Add(t);

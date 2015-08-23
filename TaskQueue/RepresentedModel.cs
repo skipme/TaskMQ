@@ -1,14 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Linq;
 using System.Text;
 
 namespace TaskQueue
 {
     public class RepresentedModel
     {
+        internal static Dictionary<Type, RepresentedModel> SchemeCache = new Dictionary<Type, RepresentedModel>();
+
+        public static ValueMap<string, RepresentedModelValue> FindScheme(Type classWithProps)
+        {
+            RepresentedModel lookupModel;
+            lock (SchemeCache)
+                if (!SchemeCache.TryGetValue(classWithProps, out lookupModel))
+                {
+                    lookupModel = new RepresentedModel(classWithProps);
+                    SchemeCache.Add(classWithProps, lookupModel);
+                }
+
+            return lookupModel.schema;
+        }
+
         public ValueMap<string, RepresentedModelValue> schema;
+
         public static RepresentedModel FromSchema(Dictionary<string, RepresentedModelValue> schema)
         {
             return new RepresentedModel
@@ -50,6 +66,7 @@ namespace TaskQueue
                         sch_v.Description = attrs[0].Description;
                         sch_v.Required = attrs[0].Required;
                         sch_v.Inherited = attrs[0].Inherited;
+                        sch_v.propertyDescriptor = prop;
                         if (attrs[0].Ignore)
                             continue;
                     }

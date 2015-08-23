@@ -110,7 +110,7 @@ namespace TaskBroker
                             {
                                 anteroom = new Queue<TaskMessage>(items);
                                 //anteroom = new ConcurrentQueue<TaskMessage>(items);
-                                return items[0];
+                                return result;
                             }
                             // the channel queue is empty
                             InternalEmptyFlag = true;

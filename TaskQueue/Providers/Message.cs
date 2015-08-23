@@ -45,13 +45,14 @@ namespace TaskQueue.Providers
         {
             Dictionary<string, object> di = new Dictionary<string, object>();
             Type t = this.GetType();
-            TaskQueue.RepresentedModel m = new RepresentedModel(t);
-            for (int i = 0; i < m.schema.val1.Count; i++)
+            //TaskQueue.RepresentedModel m = new RepresentedModel(t);
+            ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
+            for (int i = 0; i < model.val1.Count; i++)
             {
-                string k = m.schema.val1[i];
-                if (!m.schema.val2[i].Inherited || k == "MType")
+                string k = model.val1[i];
+                if (!model.val2[i].Inherited || k == "MType")
                 {
-                    PropertyInfo pi = t.GetProperty(k);
+                    PropertyInfo pi = model.val2[i].propertyDescriptor;
                     object val = pi.GetValue(this, null);
                     di.Add(k, val);
                 }

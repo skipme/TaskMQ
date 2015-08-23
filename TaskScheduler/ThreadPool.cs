@@ -23,7 +23,9 @@ namespace TaskScheduler
 
     public class ThreadPool
     {
-        const int maxThreads = 4;
+        const int minThrads = 4;
+        const int maxThreads = 4;// TODO: replace it with some max value, if jobs executed too long allocate new threads according to this value
+
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
         public ThreadPool()
@@ -172,6 +174,9 @@ namespace TaskScheduler
             ti.StoppedThread = true;
             //Console.WriteLine("Exit" + ti.ManagedID);
         }
+        /// <summary>
+        /// if the Queue is empty we can suspend this thread for non blocking other jobs
+        /// </summary>
         const int maxSuspend = 100;
         /// <summary>
         /// All threads do it ;
@@ -180,7 +185,7 @@ namespace TaskScheduler
         /// <param name="threadCtx"></param>
         static void ThreadEntry(object threadCtx)
         {
-            Random rnd = new Random();
+            //Random rnd = new Random();
             ThreadContext threadContext = threadCtx as ThreadContext;
             threadContext.ManagedID = threadContext.hThread.ManagedThreadId;
             while (!threadContext.StopThread)
@@ -194,7 +199,10 @@ namespace TaskScheduler
                         Thread.Sleep(maxSuspend);
                     }
                     else
-                        Thread.Sleep(0000);
+                    {
+                        Thread.Yield();
+                        //Thread.Sleep(0000);
+                    }
                 }
                 else
                 {

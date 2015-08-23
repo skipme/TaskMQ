@@ -30,29 +30,35 @@ namespace TaskQueue.Providers
         public void SetHolder(Dictionary<string, object> msgDict)
         {
             Type t = this.GetType();
-            //RepresentedModel model = new RepresentedModel(t);
+            //ValueMap<string, RepresentedModelValue> model = new RepresentedModel(t).schema;
+            ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
             foreach (KeyValuePair<string, object> v in msgDict)
             {
-                PropertyInfo pi = t.GetProperty(v.Key);
-                if (pi == null)
-                    continue;
-                Type pt = pi.PropertyType;
-
-                bool nullable = false;
-                Type ptn = Nullable.GetUnderlyingType(pt);
-                if (nullable = ptn != null)
-                    pt = ptn;
-
-                if (v.Value == null && !nullable)
+                int descIndex = model.IndexOf(v.Key);
+                if (descIndex >= 0)
                 {
-                    if (pt.BaseType != typeof(object))
-                        throw new Exception("value does not accept nullable types, key: " + v.Key);
-                    else continue;
-                }
-                else if (!nullable && pt != v.Value.GetType())
-                    throw new Exception("unknown type for key: " + v.Key);
+                    //PropertyInfo pi = t.GetProperty(v.Key);
+                    //if (pi == null)
+                    //    continue;
+                    PropertyInfo pi = model.val2[descIndex].propertyDescriptor;
+                    Type pt = pi.PropertyType;
 
-                pi.SetValue(this, v.Value, null);
+                    bool nullable = false;
+                    Type ptn = Nullable.GetUnderlyingType(pt);
+                    if (nullable = ptn != null)
+                        pt = ptn;
+
+                    if (v.Value == null && !nullable)
+                    {
+                        if (pt.BaseType != typeof(object))
+                            throw new Exception("value does not accept nullable types, key: " + v.Key);
+                        else continue;
+                    }
+                    else if (!nullable && pt != v.Value.GetType())
+                        throw new Exception("unknown type for key: " + v.Key);
+
+                    pi.SetValue(this, v.Value, null);
+                }
             }
             Holder = new Dictionary<string, object>(msgDict);
         }
@@ -61,12 +67,18 @@ namespace TaskQueue.Providers
             if (Holder == null)
                 return;
             Type t = this.GetType();
+            ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
             foreach (KeyValuePair<string, object> v in Holder)
             {
-                PropertyInfo pi = t.GetProperty(v.Key);
-                if (pi == null)
-                    continue;
-                pi.SetValue(this, v.Value, null);
+                //PropertyInfo pi = t.GetProperty(v.Key);
+                //if (pi == null)
+                //    continue;
+                int propDescIndex = model.IndexOf(v.Key);
+                if (propDescIndex >= 0)
+                {
+                    PropertyInfo pi = model.val2[propDescIndex].propertyDescriptor;
+                    pi.SetValue(this, v.Value, null);
+                }
             }
         }
 
@@ -75,11 +87,12 @@ namespace TaskQueue.Providers
             if (Holder == null)
                 Holder = new Dictionary<string, object>();
             Type t = this.GetType();
-            RepresentedModel model = new RepresentedModel(t);
-            for (int i = 0; i < model.schema.val1.Count; i++)
+            //ValueMap<string, RepresentedModelValue> model = new RepresentedModel(t).schema;
+            ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
+            for (int i = 0; i < model.val1.Count; i++)
             {
-                string k = model.schema.val1[i];
-                PropertyInfo pi = t.GetProperty(k);
+                string k = model.val1[i];
+                PropertyInfo pi = model.val2[i].propertyDescriptor; //t.GetProperty(k);
                 object val = pi.GetValue(this, null);
 
                 if (Holder.ContainsKey(k))
