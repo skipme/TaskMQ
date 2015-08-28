@@ -61,7 +61,7 @@ namespace TaskQueue
                     FieldType itv = GetRType(prop.PropertyType, out isnull);
                     RepresentedModelValue sch_v = new RepresentedModelValue(itv)
                     {
-                         propertyDescriptor = prop
+                        propertyDescriptor = prop
                     };
                     if (attrs.Length > 0)
                     {
@@ -71,7 +71,7 @@ namespace TaskQueue
                             sch_v.Description = at.Description;
                             sch_v.Required = at.Required;
                             sch_v.Inherited = at.Inherited;
-                            
+
                             schema.Add(prop.Name, sch_v);
                         }
                     }
@@ -131,6 +131,10 @@ namespace TaskQueue
                 return result;
             return null;
         }
+        /// <summary>
+        /// Compatibility hash
+        /// </summary>
+        /// <returns></returns>
         public string CalculateSchemeHash()
         {
             List<byte> b = new List<byte>();
@@ -142,8 +146,6 @@ namespace TaskQueue
                 if (rv.Required)
                 {
                     b.AddRange(Encoding.UTF8.GetBytes(schema.val1[i]));
-
-                    //b.Add((byte)(rv.Required ? 1 : 0));
                     b.Add((byte)(rv.VType));
                 }
             }
@@ -154,6 +156,26 @@ namespace TaskQueue
             }
             return result;
 
+        }
+        /// <summary>
+        /// For Vector hash
+        /// </summary>
+        /// <returns></returns>
+        public byte[] LightweightSchemeProjection()
+        {
+            List<byte> b = new List<byte>();
+
+            for (int i = 0; i < schema.val1.Count; i++)
+            {
+                RepresentedModelValue rv = schema.val2[i];
+                //if (!Ignored) ignored not in list anyway
+                //{
+                b.AddRange(Encoding.UTF8.GetBytes(schema.val1[i]));
+                b.Add((byte)(rv.VType));
+                //}
+            }
+ 
+            return b.ToArray();
         }
     }
 }

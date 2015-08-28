@@ -36,6 +36,14 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Distal\ChronObject.cs" />
+    <Compile Include="Distal\ChronRoller.cs" />
+    <Compile Include="Persistence\ExpensiveEstimation.cs" />
+    <Compile Include="Persistence\IExpensive.cs" />
+    <Compile Include="Persistence\IChronSwap.cs" />
+    <Compile Include="Persistence\SwapFile.cs" />
+    <Compile Include="Persistence\SwapIndex.cs" />
+    <Compile Include="Persistence\SwapStorage.cs" />
     <Compile Include="Providers\QueueOverflowException.cs" />
     <Compile Include="ValueMap.cs" />
     <Compile Include="ITItem.cs" />
@@ -50,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TQItemSelector.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

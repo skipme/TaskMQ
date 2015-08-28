@@ -147,6 +147,8 @@ namespace TaskBroker.Configuration
     public class cModule
     {
         public string Name { get; set; }
+
+        public Dictionary<string, SchemeValueSpec> ParametersModel { get; set; }
         /// <summary>
         /// Enable/Disable module - restart required
         /// </summary>
@@ -156,7 +158,8 @@ namespace TaskBroker.Configuration
         public string Description { get; set; }
         public ExecutionType Role { get; set; }
         public string TypeFullName { get; set; }
-        public Dictionary<string, SchemeValueSpec> ParametersModel { get; set; }
+        public string ParametersModelHashsum { get; set; }
+        
     }
     [Serializable]
     public class cConnection

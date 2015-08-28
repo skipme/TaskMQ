@@ -1,5 +1,7 @@
 #TaskMQ#
 
+[![Build status](https://ci.appveyor.com/api/projects/status/rfu2e61vw66rxhgj?svg=true)](https://ci.appveyor.com/project/skipme/taskmq)
+
 **The version of this file is preliminary**
 
 **BBQ can used static-hosted, for example - on github-pages: [skipme.github.io/BBQ_static](http://skipme.github.io/BBQ_static)**
