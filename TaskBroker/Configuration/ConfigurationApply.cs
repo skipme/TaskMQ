@@ -18,7 +18,11 @@ namespace TaskBroker
             for (int i = 0; i < con.Connections.Length; i++)
             {
                 cConnection connection = con.Connections[i];
-                if (connection.queueTypeName == null)
+                if (connection.Auto)
+                {
+                    logger.Warning("Skipping connection parameters for [{0}]:{1}", i, connection.Name);
+                }
+                else if (connection.queueTypeName == null)
                 {
                     logger.Error("Connection has not auto specific property, ignored: {0}", i);
                 }
@@ -39,7 +43,12 @@ namespace TaskBroker
             {
                 try
                 {
-                    broker.RegisterChannel(channel.connectionName, channel.Name);
+                    if (channel.Auto)
+                    {
+                        logger.Warning("Skipping channel for {0}", channel.Name);
+                    }
+                    else
+                        broker.RegisterChannel(channel.connectionName, channel.Name);
                 }
                 catch (Exception e)
                 {

@@ -38,6 +38,7 @@
     <Compile Include="ExecutionPlan.cs" />
     <Compile Include="PlanItemEntryPoint.cs" />
     <Compile Include="PlanItem.cs" />
+    <Compile Include="PlanStrategies.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThreadPool.cs" />
   </ItemGroup>

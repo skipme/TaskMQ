@@ -13,7 +13,7 @@ namespace TaskBroker
 
         public static ManualResetEvent sync;
 
-        public static void AppdomainLoop()
+        public static void AppdomainLoop(bool benchConfiguration)
         {
             sync = new ManualResetEvent(false);
             while (true)
@@ -29,7 +29,7 @@ namespace TaskBroker
                     typeof(BrokerApplication).Assembly.FullName,
                     typeof(BrokerApplication).FullName);
                 //RunAppInSeparateThread(app);
-                app.Run(sync, true);
+                app.Run(sync, benchConfiguration, true);
                 // waitfor sync
                 sync.WaitOne();
 
@@ -44,15 +44,15 @@ namespace TaskBroker
             }
         }
 
-        static void RunAppInSeparateThread(BrokerApplication app)
-        {
-            Thread thread = new Thread(new ParameterizedThreadStart(AppThread));
-            thread.Start(app);
-        }
-        static void AppThread(object o)
-        {
-            BrokerApplication app = (BrokerApplication)o;
-            app.Run(sync);
-        }
+        //static void RunAppInSeparateThread(BrokerApplication app)
+        //{
+        //    Thread thread = new Thread(new ParameterizedThreadStart(AppThread));
+        //    thread.Start(app);
+        //}
+        //static void AppThread(object o)
+        //{
+        //    BrokerApplication app = (BrokerApplication)o;
+        //    app.Run(sync);
+        //}
     }
 }

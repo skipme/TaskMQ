@@ -31,10 +31,14 @@ namespace BenchModules
         [TaskQueue.FieldDescription("random parameter for consumer to set", true)]
         public string ParameterB { get; set; }
 
+        [TaskQueue.FieldDescription("sleep thread for msecs", true, DefaultValue = 0)]
+        public int WaitThreadMS { get; set; }
+
     }
     public class ModConsumer : IModConsumer
     {
-
+        public const string ModuleName = "Benchmark_common";
+        ILogger logger;
         public bool Push(Dictionary<string, object> parameters, ref TaskMessage q_parameter)
         {
             //Console.WriteLine(q_parameter.AddedTime.ToString());
@@ -42,8 +46,14 @@ namespace BenchModules
             BenchModel pocket = new BenchModel(q_parameter);
             pocket.ParameterA = "setA";
             pocket.ParameterB = "setB";
-            //System.Threading.Thread.Sleep(2000);
-            
+            if (pocket.WaitThreadMS > 0)//100 secmax
+            {
+                if (pocket.WaitThreadMS < 100000)
+                    System.Threading.Thread.Sleep(pocket.WaitThreadMS);
+                else
+                    logger.Warning("message has try to wait thread for more than 100sec, check arguments");
+            }
+
             //q_parameter = pocket; // for persistant only queues
             //return true;
 
@@ -57,17 +67,17 @@ namespace BenchModules
 
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
-       
+            logger = context.APILogger();
         }
 
         public string Name
         {
-            get { return "Benchmark pAB"; }
+            get { return ModuleName; }
         }
 
         public string Description
         {
-            get { return "Benchmark module just sets a and b parameters within model"; }
+            get { return "Benchmark module sets a and b parameters within model, suspend channel thread for a \"WaitThreadMS\" milliseconds param in message"; }
         }
 
 

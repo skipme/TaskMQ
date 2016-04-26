@@ -54,5 +54,17 @@ namespace TaskScheduler
         {
             return LAMS = (NextExecutionTime - DateTime.UtcNow).TotalMilliseconds;
         }
+
+        public void SetActualTimePosition(DateTime startedAt, TimeSpan executionTime)
+        {
+            // TODO: push args data to prediction constructions
+        }
+        /// <summary>
+        /// Mode time required for job execution (in milliseconds) on this configuration(s&h)
+        /// </summary>
+        public ulong MillisecondsRequired
+        {
+            get { return 0; } // TODO: take data from pred constr
+        }
     }
 }

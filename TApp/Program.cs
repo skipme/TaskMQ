@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 using System.Threading;
 using TaskBroker;
@@ -23,17 +23,18 @@ namespace TApp
                 });
 
             TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
-            
-            if (System.Diagnostics.Debugger.IsAttached)
+            bool benchConfiguration = Array.IndexOf(args, "benchTasks") >= 0;// for plan or other params depends on tasks calculation
+
+            if (Array.IndexOf(args, "inline") >= 0 || System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);
                 BrokerApplication ba = new BrokerApplication();
-                ba.Run(mre);
+                ba.Run(mre, benchConfiguration, false);
                 mre.WaitOne();
             }
             else
             {
-                ApplicationKeeper.AppdomainLoop();
+                ApplicationKeeper.AppdomainLoop(benchConfiguration);
             }
             Console.WriteLine("! Application MAIN EXIT.");
             Console.ReadLine();

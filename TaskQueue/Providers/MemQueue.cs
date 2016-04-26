@@ -10,6 +10,8 @@ namespace TaskQueue.Providers
     /// </summary>
     public class MemQueue : ITQueue
     {
+        public const string queueTypeName = "InMemoryQueue";
+
         const int maxTuple = 100;
         RepresentedModel m { get; set; }
 
@@ -73,7 +75,7 @@ namespace TaskQueue.Providers
 
         public string QueueType
         {
-            get { return "InMemoryQueue"; }
+            get { return queueTypeName; }
         }
 
 

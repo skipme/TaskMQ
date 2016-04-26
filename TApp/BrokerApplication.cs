@@ -45,11 +45,11 @@ namespace TaskBroker
             Thread th = new Thread((object o) =>
             {
                 broker.StopBroker(); // ! stop scheduler and other isolated threads
-                broker.RevokeBroker(true, true);
+                broker.RevokeBroker(false, true, true);
             });
             th.Start();
         }
-        public void Run(ManualResetEvent signal, bool customDomain = false)
+        public void Run(ManualResetEvent signal, bool benchConf, bool customDomain)
         {
             if (customDomain)
             {
@@ -59,7 +59,7 @@ namespace TaskBroker
                     new TaskBroker.Logger.ConsoleEndpoint(),
                     new TaskBroker.Logger.FileEndpoint("log.txt", true)
                 });
-           
+
                 TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
             }
             //if (!AttachConsole(-1))
@@ -77,7 +77,7 @@ namespace TaskBroker
             //m.Description = "";
             //cons.Description = "";
 
-            broker.RevokeBroker(true);
+            broker.RevokeBroker(benchConf, true, false);
             this.Signal = signal;
             exportConfiguration();
         }

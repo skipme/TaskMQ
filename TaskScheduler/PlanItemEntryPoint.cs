@@ -6,7 +6,8 @@ using System.Text;
 namespace TaskScheduler
 {
     /// <summary>
-    /// 
+    /// return 1 if executed logic don't need maximum priority, 0 if it need to maximum priority in queue
+    /// this is actually for default plan strategy
     /// </summary>
     /// <param name="thread"></param>
     /// <param name="job"></param>

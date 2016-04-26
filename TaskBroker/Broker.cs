@@ -106,7 +106,7 @@ namespace TaskBroker
         }
         private void LoadLatestConfiguration(bool tasksOnly = false)
         {
-            if (!tasksOnly)
+            if (!tasksOnly)// isAssemblyConfiguration reloading required
             {
                 ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
                 if (casm != null)
@@ -122,7 +122,50 @@ namespace TaskBroker
             if (cmain != null)
                 cmain.Apply(this);// validate and apply
         }
+        private void CreateRandomBenchConfiguration()
+        {
+            ClearConfiguration();
+            ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
+            cConnection con = new cConnection
+            {
+                Name = "benchQ",
+                QueueParameters = new MemQueueParams().Holder,
+                queueTypeName = MemQueue.queueTypeName,
+                Auto = true
+            };
+            cChannel chan = new cChannel
+            {
+                Name = "benchCH#" + 1,
+                connectionName = con.Name,
+                Auto = true
+            };
+            List<cConnection> shcCon = new List<cConnection>(cmain.Connections);
+            List<cChannel> shcChan = new List<cChannel>(cmain.Channels);
+            shcCon.Add(con);
+            shcChan.Add(chan);
+            cmain.Connections = shcCon.ToArray();
+            cmain.Channels = shcChan.ToArray();
+            // add ~10000 bench consumer tasks
+            Random rnd = new Random(DateTime.UtcNow.Millisecond);
+            List<cTask> shcTasks = new List<cTask>(cmain.Tasks);
+            for (int i = 0; i < 10000; i++)
+            {
+                shcTasks.Add(new cTask
+                {
+                    Auto = true,
 
+                    ChannelName = chan.Name,
+                    ModuleName = BenchModules.ModConsumer.ModuleName,
+
+                    intervalType = IntervalType.intervalMilliseconds,
+                    intervalValue = rnd.Next(0, 1000),
+
+                    Description = "bench task #" + (i + 1)
+                });
+            }
+            cmain.Tasks = shcTasks.ToArray();
+            cmain.Apply(this);
+        }
         public ConfigurationDepot Configurations;
         public MessageTypeClassificator MessageChannels;
         public List<QueueTask> Tasks;
@@ -502,7 +545,7 @@ namespace TaskBroker
         {
             AssemblyHolder.LoadAssemblys(this);
         }
-        public void RevokeBroker(bool reconfigureFromStorage = false, bool reconfigureOnlyTasks = false)
+        public void RevokeBroker(bool BenchConfiguration, bool reconfigureFromStorage, bool reconfigureOnlyTasks)
         {
             if (reconfigureFromStorage)
                 LoadLatestConfiguration(reconfigureOnlyTasks);

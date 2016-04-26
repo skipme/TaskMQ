@@ -113,6 +113,7 @@ namespace TaskBroker.Configuration
     {
         public string Name { get; set; }
         public string connectionName { get; set; }
+        public bool Auto { get; set; }
     }
     [Serializable]
     public class cModel
@@ -167,6 +168,7 @@ namespace TaskBroker.Configuration
         public string Name { get; set; }
         public string queueTypeName { get; set; }
         public Dictionary<string, object> QueueParameters { get; set; }
+        public bool Auto { get; set; }
     }
     [Serializable]
     public class cAssembly

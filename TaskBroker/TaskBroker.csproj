@@ -88,6 +88,10 @@
     <Compile Include="Tasks.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BenchModules\BenchModules.csproj">
+      <Project>{37d40112-530a-4284-842b-3493d25054cf}</Project>
+      <Name>BenchModules</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
       <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>
