@@ -16,13 +16,15 @@ namespace TaskBroker.Configuration
                              {
                                  Name = cc.Key,
                                  queueTypeName = cc.Value.QueueTypeName,
-                                 QueueParameters = cc.Value.specParams.GetHolder()
+                                 QueueParameters = cc.Value.specParams.GetHolder(),
+                                 Auto = cc.Value.Temporary
                              }).ToArray();
             c.Channels = (from cc in b.MessageChannels.MChannelsList
                           select new cChannel()
                           {
                               connectionName = cc.ConnectionName,
-                              Name = cc.UniqueName
+                              Name = cc.UniqueName,
+                              Auto = cc.Temporary
                           }).ToArray();
 
             c.Tasks = (from tt in b.Tasks
@@ -34,7 +36,7 @@ namespace TaskBroker.Configuration
                            intervalValue = tt.intervalValue,
                            ModuleName = tt.Module.UniqueName,
                            parameters = tt.Parameters == null ? null : tt.Parameters,
-                           Auto = tt.Temp
+                           Auto = tt.Temporary
                        }).ToArray();
 
             return c;

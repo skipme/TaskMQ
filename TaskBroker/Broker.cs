@@ -108,12 +108,7 @@ namespace TaskBroker
         {
             if (!tasksOnly)// isAssemblyConfiguration reloading required
             {
-                ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
-                if (casm != null)
-                {
-                    casm.Apply(this);
-                    LoadAssemblys();
-                }
+                LoadAssemblyConfiguration();
             }
 
             ClearConfiguration();
@@ -122,49 +117,43 @@ namespace TaskBroker
             if (cmain != null)
                 cmain.Apply(this);// validate and apply
         }
-        private void CreateRandomBenchConfiguration()
+
+        private void LoadAssemblyConfiguration()
         {
+            ConfigurationAssemblys casm = Configurations.GetNewestAssemblysConfiguration();
+            if (casm != null)
+            {
+                casm.Apply(this);
+                LoadAssemblys();
+            }
+        }
+        private void CreateRandomBenchConfiguration(bool tasksOnly = false)
+        {
+            if (!tasksOnly)// isAssemblyConfiguration reloading required
+            {
+                LoadAssemblyConfiguration();
+            }
             ClearConfiguration();
             ConfigurationBroker cmain = Configurations.GetNewestMainConfiguration();
-            cConnection con = new cConnection
-            {
-                Name = "benchQ",
-                QueueParameters = new MemQueueParams().Holder,
-                queueTypeName = MemQueue.queueTypeName,
-                Auto = true
-            };
-            cChannel chan = new cChannel
-            {
-                Name = "benchCH#" + 1,
-                connectionName = con.Name,
-                Auto = true
-            };
-            List<cConnection> shcCon = new List<cConnection>(cmain.Connections);
-            List<cChannel> shcChan = new List<cChannel>(cmain.Channels);
-            shcCon.Add(con);
-            shcChan.Add(chan);
-            cmain.Connections = shcCon.ToArray();
-            cmain.Channels = shcChan.ToArray();
-            // add ~10000 bench consumer tasks
+
+            cmain.Apply(this);
+
+            var qinterface = QueueInterfaces.GetQueue(MemQueue.queueTypeName);
+            QueueSpecificParameters parameters = new MemQueueParams();
+            RegisterConnection("benchQ", qinterface, parameters, true);
+            RegisterChannel("benchQ", "benchCH#" + 1, true);
             Random rnd = new Random(DateTime.UtcNow.Millisecond);
-            List<cTask> shcTasks = new List<cTask>(cmain.Tasks);
             for (int i = 0; i < 10000; i++)
             {
-                shcTasks.Add(new cTask
+                RegisterTempTask(new MetaTask
                 {
-                    Auto = true,
-
-                    ChannelName = chan.Name,
-                    ModuleName = BenchModules.ModConsumer.ModuleName,
-
+                    ChannelName = "benchCH#1",
                     intervalType = IntervalType.intervalMilliseconds,
                     intervalValue = rnd.Next(0, 1000),
-
-                    Description = "bench task #" + (i + 1)
-                });
+                    ModuleName = BenchModules.ModConsumer.ModuleName,
+                    NameAndDescription = "bench task #" + (i + 1)
+                }, null);
             }
-            cmain.Tasks = shcTasks.ToArray();
-            cmain.Apply(this);
         }
         public ConfigurationDepot Configurations;
         public MessageTypeClassificator MessageChannels;
@@ -205,7 +194,7 @@ namespace TaskBroker
         //    });
         //}
         // bunch [queue, +channel]
-        public void RegisterChannel(string connectionName, string channelName)
+        public void RegisterChannel(string connectionName, string channelName, bool Temporary)
         {
             if (!MessageChannels.Connections.ContainsKey(connectionName))
             {
@@ -216,6 +205,7 @@ namespace TaskBroker
                 ConnectionName = connectionName,
                 UniqueName = channelName,
                 //MessageType = MType
+                Temporary = Temporary
             });
         }
         // bunch [channel~[message model], module[message model], +executionContext]
@@ -225,8 +215,8 @@ namespace TaskBroker
             long intervalValue = 100,
             Dictionary<string, object> parameters = null, string Description = "-")
         {
-            ModMod module = Modules.GetByName(moduleName);
-            MessageChannel channel = MessageChannels.GetChannelByName(ChannelName);
+            ModMod module = Modules.GetInstanceByName(moduleName);
+            MessageChannel channel = MessageChannels.GetInstanceByName(ChannelName);
 
             if (module == null)
                 throw new Exception("RegisterTask: required module not found: " + moduleName);
@@ -268,7 +258,7 @@ namespace TaskBroker
                 }
                 else
                 {
-                    if (t.Anteroom.ChannelStatsIn == null)// first task for this channel?
+                    if (t.Anteroom.ChannelStatsIn == null && t.Anteroom.ChannelStatsIn == null)// first task for this channel?
                     {
                         // monitoring put operation
                         t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", ChannelName));
@@ -288,6 +278,12 @@ namespace TaskBroker
         }
         public void RegisterTempTask(MetaTask mst, IBrokerModule module)
         {
+            if (module == null)
+            {
+                module = Modules.GetInstanceByName(mst.ModuleName);
+                if (module == null)
+                    throw new Exception("RegisterTempTask: required module not found: " + mst.ModuleName);
+            }
             QueueTask t = new QueueTask()
             {
                 ModuleName = mst.ModuleName,
@@ -301,7 +297,7 @@ namespace TaskBroker
                 intervalValue = mst.intervalValue,
                 NameAndDescription = mst.NameAndDescription
             };
-            if (t.Anteroom != null)
+            if (t.Anteroom != null && t.Anteroom.ChannelStatsIn == null)
             {
                 t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", mst.ChannelName));
                 t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", mst.ChannelName));
@@ -316,8 +312,9 @@ namespace TaskBroker
                 ep = IsolatedTaskEntry;
             }
             t.JobEntry = ep;
+
             t.Module = module;
-            t.Temp = true;
+            t.Temporary = true;
 
             Tasks.Add(t);
             UpdatePlan();
@@ -330,16 +327,17 @@ namespace TaskBroker
 
             MessageChannels.AddConnection(qcp);
         }
-        public void RegisterConnection<T>(string name, TaskQueue.Providers.QueueSpecificParameters parameters)
+        public void RegisterConnection<T>(string name, TaskQueue.Providers.QueueSpecificParameters parameters, bool Temporary)
             where T : TaskQueue.ITQueue
         {
             TaskQueue.ITQueue qm = Activator.CreateInstance<T>();
-            RegisterConnection(name, qm, parameters);
+            RegisterConnection(name, qm, parameters, Temporary);
         }
-        public void RegisterConnection(string name, TaskQueue.ITQueue qI, TaskQueue.Providers.QueueSpecificParameters parameters)
+        public void RegisterConnection(string name, TaskQueue.ITQueue qI, TaskQueue.Providers.QueueSpecificParameters parameters, bool Temporary)
         {
             QueueConnectionParameters qcp = new QueueConnectionParameters(name);
             qcp.SetInstance(qI, parameters);
+            qcp.Temporary = Temporary;
             AddConnection(qcp);
         }
         private void UpdatePlan()
@@ -359,6 +357,7 @@ namespace TaskBroker
 
         private int TaskEntry(TaskScheduler.ThreadContext ti, TaskScheduler.PlanItem pi)
         {
+            // TODO: remove this method , replace that routing to task registration
             QueueTask task = pi as QueueTask;
             switch (task.Module.Role)
             {
@@ -548,7 +547,12 @@ namespace TaskBroker
         public void RevokeBroker(bool BenchConfiguration, bool reconfigureFromStorage, bool reconfigureOnlyTasks)
         {
             if (reconfigureFromStorage)
-                LoadLatestConfiguration(reconfigureOnlyTasks);
+            {
+                if (BenchConfiguration)
+                    CreateRandomBenchConfiguration(reconfigureOnlyTasks);
+                else
+                    LoadLatestConfiguration(reconfigureOnlyTasks);
+            }
             Scheduler.Revoke();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks

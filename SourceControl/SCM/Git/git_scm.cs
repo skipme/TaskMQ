@@ -20,7 +20,7 @@ namespace SourceControl.Git
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)
         { 
-            UpdateStatus(); 
+            //UpdateStatus(); 
         }
 
         private SCM.Status status = Status.none;// this means to determine status by UpdateStatus

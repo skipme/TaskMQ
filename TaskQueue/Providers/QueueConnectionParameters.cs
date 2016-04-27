@@ -25,6 +25,8 @@ namespace TaskQueue.Providers
         public TaskQueue.ITQueue QueueInstance;
         public QueueSpecificParameters specParams;
 
+        public bool Temporary { get; set; }
+
         public void SetInstance(TaskQueue.ITQueue instance, QueueSpecificParameters parameters)
         {
             this.QueueTypeName = instance.QueueType;

@@ -33,6 +33,8 @@ namespace TaskBroker
         public string AssignedMessageType;
         public TItemModel AssignedMessageModel;
         public string FirstModuleNameAssigned;
+
+        public bool Temporary { get; set; }
     }
     public class MessageType
     {

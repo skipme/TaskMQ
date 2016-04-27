@@ -13,7 +13,7 @@ namespace TaskBroker
         static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         public static void Apply(this ConfigurationBroker con, Broker broker)
         {
-            logger.Debug("Trying to apply main configuration\r\n with datetime stamp: {0} {1}", con.CreationDate.ToLongDateString(), con.CreationDate.ToLongTimeString());
+            logger.Debug("Trying to apply ---main configuration---\r\n with datetime stamp: {0} {1}", con.CreationDate.ToLongDateString(), con.CreationDate.ToLongTimeString());
 
             for (int i = 0; i < con.Connections.Length; i++)
             {
@@ -35,7 +35,7 @@ namespace TaskBroker
                     var qinterface = broker.QueueInterfaces.GetQueue(connection.queueTypeName);
                     QueueSpecificParameters parameters = qinterface.GetParametersModel();
                     parameters.SetHolder(connection.QueueParameters);
-                    broker.RegisterConnection(connection.Name, qinterface, parameters);
+                    broker.RegisterConnection(connection.Name, qinterface, parameters, false);
                 }
             }
 
@@ -48,7 +48,7 @@ namespace TaskBroker
                         logger.Warning("Skipping channel for {0}", channel.Name);
                     }
                     else
-                        broker.RegisterChannel(channel.connectionName, channel.Name);
+                        broker.RegisterChannel(channel.connectionName, channel.Name, false);
                 }
                 catch (Exception e)
                 {
@@ -77,7 +77,7 @@ namespace TaskBroker
         }
         public static void Apply(this ConfigurationAssemblys con, Broker broker)
         {
-            logger.Debug("Trying to apply assembly's configuration\r\n with datetime stamp: {0} {1}", con.CreationDate.ToLongDateString(), con.CreationDate.ToLongTimeString());
+            logger.Debug("Trying to apply ---assembly's configuration---\r\n with datetime stamp: {0} {1}", con.CreationDate.ToLongDateString(), con.CreationDate.ToLongTimeString());
 
             foreach (var assemblyProject in con.Assemblys)
             {

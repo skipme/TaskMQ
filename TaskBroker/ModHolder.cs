@@ -119,7 +119,7 @@ namespace TaskBroker
                 }
         }
 
-        public ModMod GetByName(string name)
+        public ModMod GetInstanceByName(string name)
         {
             ModMod m;
             if (!Modules.TryGetValue(name, out m))
@@ -153,7 +153,7 @@ namespace TaskBroker
         }
         private void ExitMod(string name)
         {
-            ModMod m = GetByName(name);
+            ModMod m = GetInstanceByName(name);
             m.ExitEntry();
         }
 
@@ -161,7 +161,7 @@ namespace TaskBroker
         {
             get
             {
-                return GetByName(name);
+                return GetInstanceByName(name);
             }
         }
     }

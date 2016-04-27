@@ -86,7 +86,7 @@ namespace TaskBroker
                 return null;
             return GetAnteroom(mc.UniqueName);
         }
-        public MessageChannel GetChannelByName(string name)
+        public MessageChannel GetInstanceByName(string name)
         {
             int chId = 0;
             if (MessageChannels.TryGetValue(name, out chId))
@@ -104,7 +104,7 @@ namespace TaskBroker
             }
             else
             {
-                MessageChannel mc = GetChannelByName(name);
+                MessageChannel mc = GetInstanceByName(name);
                 anteroom = new ChannelAnteroom();
                 anteroom.ChannelName = name;
 
