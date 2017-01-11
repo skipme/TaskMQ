@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
 namespace TaskQueue.Providers
 {
-    public class TaskMessage : TItemModel
+    public class TaskMessage : TItemModel, IComparable
     {
         [FieldDescription(Ignore = false, Inherited = true, Required = true)]
         public string MType { get; set; }
@@ -75,6 +76,195 @@ namespace TaskQueue.Providers
                 result += pair.Key + " = " + pair.Value.ToString() + ", \n";
             }
             return result;
+        }
+        // comparator::
+
+        public Delegate MakeComparator(TQItemSelector selector, Type delegateType)
+        {
+            Type MessageType = this.GetType();
+            if (!typeof(TaskMessage).IsAssignableFrom(MessageType))
+                throw new Exception("TaskMessage derived types only");
+            ParameterExpression one = Expression.Parameter(MessageType);
+            ParameterExpression other = Expression.Parameter(MessageType);
+            List<Expression> body = new List<Expression>();
+            MethodInfo internalCMP = typeof(IComparable).GetMethod("CompareTo");
+
+            LabelTarget returnTarget = Expression.Label(typeof(int));
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals) { continue; }
+
+                Expression fieldA = Expression.PropertyOrField(one, rule.Key);
+                Expression fieldB = Expression.PropertyOrField(other, rule.Key);
+                Expression internalComparator;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    Expression castedA = Expression.Convert(fieldA, typeof(IComparable));
+                    Expression castedB = Expression.Convert(fieldB, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
+                }
+                else
+                {
+                    Expression castedB = Expression.Convert(fieldA, typeof(IComparable));
+                    Expression castedA = Expression.Convert(fieldB, typeof(object));
+                    internalComparator = Expression.Call(castedB, internalCMP, castedA);
+                }
+                Expression isNEq = Expression.NotEqual(internalComparator, Expression.Constant(0));
+                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, internalComparator));
+                body.Add(cond);
+            }
+            LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(0));
+            body.Add(returnDef);
+            Expression expression_body = Expression.Block(body);
+
+            return Expression.Lambda(delegateType, expression_body, one, other).Compile();
+        }
+        public delegate int InternalComparableDictionary(Dictionary<string, object> one, Dictionary<string, object> other);
+        public static InternalComparableDictionary MakeComparatorDictionary(TQItemSelector selector)
+        {
+            Type KeyType = typeof(Dictionary<string, object>);
+
+            ParameterExpression one = Expression.Parameter(KeyType);
+            ParameterExpression other = Expression.Parameter(KeyType);
+            List<Expression> body = new List<Expression>();
+            MethodInfo internalCMP = typeof(IComparable).GetMethod("CompareTo");
+
+            PropertyInfo indexer = KeyType.GetProperty("Item");// Dictionary<string, object>[key]
+
+            LabelTarget returnTarget = Expression.Label(typeof(int));
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals) { continue; }
+
+                Expression fieldA = Expression.Property(one, indexer, Expression.Constant(rule.Key));
+                Expression fieldB = Expression.Property(other, indexer, Expression.Constant(rule.Key));
+                Expression internalComparator;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    Expression castedA = Expression.Convert(fieldA, typeof(IComparable));
+                    Expression castedB = Expression.Convert(fieldB, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
+                }
+                else
+                {
+                    Expression castedB = Expression.Convert(fieldA, typeof(IComparable));
+                    Expression castedA = Expression.Convert(fieldB, typeof(object));
+                    internalComparator = Expression.Call(castedB, internalCMP, castedA);
+                }
+                Expression isNEq = Expression.NotEqual(internalComparator, Expression.Constant(0));
+                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, internalComparator));
+                body.Add(cond);
+            }
+            LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(0));
+            body.Add(returnDef);
+            Expression expression_body = Expression.Block(body);
+
+            return (InternalComparableDictionary)Expression.Lambda(typeof(InternalComparableDictionary), expression_body, one, other).Compile();
+        }
+        public delegate bool InternalCheckDictionary(Dictionary<string, object> one);
+
+        /// <summary>
+        /// This will check for all required keys in dictionary and
+        /// CHECK Equal or NotEqual valued parameters by selector
+        /// </summary>
+        /// <param name="selector"></param>
+        /// <returns></returns>
+        public static InternalCheckDictionary MakeCheckerDictionary(TQItemSelector selector)
+        {
+            Type KeyType = typeof(Dictionary<string, object>);
+
+            ParameterExpression one = Expression.Parameter(KeyType);
+
+            List<Expression> body = new List<Expression>();
+
+            MethodInfo tryGetValue = KeyType.GetMethod("TryGetValue", new Type[] { typeof(string), typeof(object).MakeByRefType() });// string, out object
+            MethodInfo conv = typeof(RepresentedModel).GetMethod("Convert");
+
+            LabelTarget returnTarget = Expression.Label(typeof(bool));
+            ParameterExpression varOut = Expression.Variable(typeof(object), "outObject");
+
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                Expression callOut = Expression.Call(one, tryGetValue, Expression.Constant(rule.Key), varOut);
+
+                Expression cond = Expression.IfThen(Expression.Not(callOut), Expression.Return(returnTarget, Expression.Constant(false)));
+                body.Add(cond);
+                Expression isEq = null;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
+                {
+                    Expression cmpVal = Expression.Constant(rule.Value.Value);
+                    MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
+                    Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
+                    isEq = Expression.NotEqual(ICMP, Expression.Constant(0));
+                    Expression cond2 = Expression.IfThen(isEq, Expression.Return(returnTarget, Expression.Constant(false)));
+                    body.Add(cond2);
+                }
+                else if (rule.Value.ValueSet == TQItemSelectorSet.NotEquals)
+                {
+                    Expression cmpVal = Expression.Constant(rule.Value.Value);
+                    MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
+                    Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
+                    isEq = Expression.Equal(ICMP, Expression.Constant(0));
+                    Expression cond2 = Expression.IfThen(isEq, Expression.Return(returnTarget, Expression.Constant(false)));
+                    body.Add(cond2);
+                }
+            }
+            LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(true));
+            body.Add(returnDef);
+            Expression expression_body = Expression.Block(new[] { varOut }, body);
+
+            return (InternalCheckDictionary)Expression.Lambda(typeof(InternalCheckDictionary), expression_body, one).Compile();
+        }
+        public static bool CheckWithSelector(Dictionary<string, object> other, TQItemSelector selector)
+        {
+            object DVAL;
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                if (other.TryGetValue(rule.Key, out DVAL))
+                {
+                    if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
+                    {
+                        if (((IComparable)rule.Value.Value)
+                            .CompareTo(RepresentedModel.Convert(DVAL, rule.Value.Value.GetType())) != 0)
+                            return false;
+                    }
+                    else if (rule.Value.ValueSet == TQItemSelectorSet.NotEquals)
+                    {
+                        if (((IComparable)rule.Value.Value)
+                               .CompareTo(RepresentedModel.Convert(DVAL, rule.Value.Value.GetType())) == 0)
+                            return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static int CompareWithSelector(Dictionary<string, object> one, Dictionary<string, object> other, TQItemSelector selector)
+        {
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                object obja = one[rule.Key];
+                object objb = one[rule.Key];
+                int rslt;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    rslt = ((IComparable)obja).CompareTo(objb);
+                }
+                else
+                {
+                    rslt = ((IComparable)objb).CompareTo(obja);
+                }
+                if (rslt != 0)
+                    return rslt;
+            }
+            return 0;
+        }
+        public int CompareTo(object obj)
+        {
+            return object.ReferenceEquals(this, obj) ? 0 : 1;
         }
     }
 }

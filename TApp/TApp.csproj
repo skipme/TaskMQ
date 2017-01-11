@@ -63,6 +63,10 @@
       <Project>{9dc7eb33-db60-409f-8fdd-bf0eeee0c7ef}</Project>
       <Name>BsonBenchService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EmailConsumer\EmailConsumer.csproj">
+      <Project>{5dba37c6-47d8-4d74-a34b-4fc55c2cf350}</Project>
+      <Name>EmailConsumer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MongoQueue\MongoQueue.csproj">
       <Project>{C250A799-20AF-494D-BA51-32AD41A376BB}</Project>
       <Name>MongoQueue</Name>

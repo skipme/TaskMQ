@@ -81,7 +81,7 @@ namespace TaskQueue.Providers
 
         public string QueueDescription
         {
-            get { return "Non persistant in-memory queue"; }
+            get { return "Non persistent in-memory queue"; }
         }
 
         public void UpdateItem(Providers.TaskMessage item)
@@ -130,7 +130,8 @@ namespace TaskQueue.Providers
 
         public void SetSelector(TQItemSelector selector = null)
         {
-            throw new NotImplementedException();
+           // throw new NotImplementedException();
+            //selector.parameters[""]
         }
 
         public QueueSpecificParameters GetParametersModel()

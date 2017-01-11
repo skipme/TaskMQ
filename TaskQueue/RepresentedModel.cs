@@ -177,5 +177,125 @@ namespace TaskQueue
  
             return b.ToArray();
         }
+        public static object Convert(object src, Type toType)
+        {
+            Type srcType = src.GetType();
+            if (srcType == toType)
+                return src;
+            //object returnObj = null;
+            bool nullable;
+            FieldType FT = RepresentedModel.GetRType(srcType, out nullable);
+            FieldType TT = RepresentedModel.GetRType(toType, out nullable);
+            switch (TT)
+            {
+                case FieldType.text:
+                    return src.ToString();
+                case FieldType.num_int:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            int tmpint;
+                            int.TryParse(src as string, out tmpint);
+                            return tmpint;
+                        case FieldType.num_long:
+                            unchecked
+                            {
+                                return (int)(/*(long)*/src);
+                            }
+                        case FieldType.num_double:
+                            unchecked
+                            {
+                                return (int)(/*(long)*/src);
+                            }
+                        case FieldType.boolean:
+                            return ((bool)src) ? 1 : 0;
+                        //case FieldType.datetime:
+                        //    break;
+                        default:
+                            return null;
+                    }
+                //break;
+                case FieldType.num_long:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            long tmp;
+                            long.TryParse(src as string, out tmp);
+                            return tmp;
+                        case FieldType.num_int:
+                            unchecked
+                            {
+                                return (long)((int)src);
+                            }
+                        case FieldType.num_double:
+                            unchecked
+                            {
+                                return (long)((double)src);
+                            }
+                        case FieldType.boolean:
+                            return ((bool)src) ? 1L : 0L;
+                        case FieldType.datetime:
+                            return ((DateTime)src).Ticks;
+                            break;
+                        default:
+                            return null;
+                    }
+                //break;
+                case FieldType.num_double:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            double tmp;
+                            double.TryParse(src as string, System.Globalization.NumberStyles.None,
+                                System.Globalization.CultureInfo.InvariantCulture, out tmp);
+                            return tmp;
+                        case FieldType.num_long:
+                            unchecked
+                            {
+                                return (double)(/*(long)*/src);
+                            }
+                        case FieldType.num_int:
+                            unchecked
+                            {
+                                return (int)(/*(long)*/src);
+                            }
+                        case FieldType.boolean:
+                            return ((bool)src) ? 1.0 : 0.0;
+                        default:
+                            return null;
+                    }
+                //break;
+                case FieldType.boolean:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            return !string.IsNullOrWhiteSpace(src as string);
+                        case FieldType.num_long:
+                            return ((long)src) != 0L;
+                        case FieldType.num_int:
+                            return ((int)src) != 0;
+                        case FieldType.num_double:
+                            return ((double)src) != 0.0;
+                        default:
+                            return null;
+                    }
+                //break;
+                case FieldType.datetime:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            DateTime tmpint;
+                            DateTime.TryParse(src as string, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out tmpint);
+                            return tmpint;
+                        case FieldType.num_long:
+                            return DateTime.FromBinary((long)src);
+                        default:
+                            return null;
+                    }
+                //break;
+                default:
+                    return null;
+            }
+        }
     }
 }

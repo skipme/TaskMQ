@@ -31,8 +31,8 @@ namespace BulkMails
                 i++;
                 EMail mail = new EMail
                 {
-                    To = "example@localhost",
-                    Body = "hello#" + (i + 1)
+                    //To = "example@localhost",
+                    //Body = "hello#" + (i + 1)
                 };
                 
                 //try

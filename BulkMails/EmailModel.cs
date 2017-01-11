@@ -10,14 +10,14 @@
 */
 namespace BulkMails
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    
     public class EMail : TaskQueue.Providers.TaskMessage
     {
-		const string MType = "EMail";
+        const string MType = "EMail";
         public EMail()
             : base(MType)
         {
@@ -33,40 +33,40 @@ namespace BulkMails
         {
             this.SetHolder(holder);
         }
-		/// <summary>
-		/// 	
-		/// 
+        /// <summary>
+        /// 	
+        /// 
         /// </summary>	
-		public string From { get; set; }
-		/// <summary>
-		/// 	
-		/// 
+        public string From { get; set; }
+        /// <summary>
+        /// 	
+        /// 
         /// </summary>	
-		public string FromAlias { get; set; }
-		/// <summary>
-		/// send to @	
-		/// REQUIRED !
+        public string FromAlias { get; set; }
+        /// <summary>
+        /// send to @	
+        /// REQUIRED !
         /// </summary>	
-		public string To { get; set; }
-		/// <summary>
-		/// some text to send	
-		/// REQUIRED !
+        public string To { get; set; }
+        /// <summary>
+        /// some text to send	
+        /// REQUIRED !
         /// </summary>	
-		public string Body { get; set; }
-		/// <summary>
-		/// 	
-		/// 
+        public string Body { get; set; }
+        /// <summary>
+        /// 	
+        /// 
         /// </summary>	
-		public string Subject { get; set; }
-		/// <summary>
-		/// 	
-		/// 
+        public string Subject { get; set; }
+        /// <summary>
+        /// 	
+        /// 
         /// </summary>	
-		public int SendErrors { get; set; }
-		/// <summary>
-		/// 	
-		/// 
+        public int SendErrors { get; set; }
+        /// <summary>
+        /// 	
+        /// 
         /// </summary>	
-		public string LastSError { get; set; }
-	}
+        public string LastSError { get; set; }
+    }
 }

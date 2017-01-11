@@ -45,9 +45,25 @@ namespace QueueService
         public string MType { get; set; }
         public string ChannelName { get; set; }
     }
+    public class ValidationRepresentedModelValue
+    {
+        public ValidationRepresentedModelValue(TaskQueue.RepresentedModelValue refmod)
+        {
+            this.VType = refmod.VType;
+            this.Description = refmod.Description;
+            this.Required = refmod.Required;
+            this.Inherited = refmod.Inherited;
+            this.DefaultValue = refmod.DefaultValue;
+        }
+        public TaskQueue.FieldType VType { get; set; }
+        public string Description { get; set; }
+        public bool Required { get; set; }
+        public bool Inherited { get; set; }
+        public object DefaultValue { get; set; }
+    }
     public class ValidationResponse
     {
-        public Dictionary<string, TaskQueue.RepresentedModelValue> ModelScheme { get; set; }
+        public Dictionary<string, ValidationRepresentedModelValue> ModelScheme { get; set; }
         public string ModelHashSum { get; set; }
     }
 
@@ -370,9 +386,14 @@ namespace QueueService
                 {
                     StatusCode = HttpStatusCode.NotAcceptable
                 };
+            Dictionary<string, ValidationRepresentedModelValue> conv = new Dictionary<string, ValidationRepresentedModelValue>();
+            foreach (KeyValuePair<string, TaskQueue.RepresentedModelValue> item in model.schema.ToDictionary())
+            {
+                conv.Add(item.Key, new ValidationRepresentedModelValue(item.Value));
+            }
             return new ValidationResponse()
             {
-                ModelScheme = model.schema.ToDictionary(),
+                ModelScheme = conv,
                 ModelHashSum = model.CalculateSchemeHash()
             };
         }

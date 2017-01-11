@@ -6,12 +6,12 @@
 <#@ assembly name="$(ProjectDir)..\TaskQueue\bin\Debug\TaskQueue.dll" #>
 <#@ assembly name="$(ProjectDir)..\TaskClient\bin\Debug\TaskClient.dll" #>
 <#
-	// 1. Check for TaskClient, TaskQueue, ServiceStack dependencies contains in bin\debug directory
-	// 2. Check parameters below and make sure taskmq daemon with restservice is ready and well configured
+    // 1. Check for TaskClient, TaskQueue, ServiceStack dependencies contains in bin\debug directory
+    // 2. Check parameters below and make sure taskmq daemon with restservice is ready and well configured
 
-	// PARAMETERS
-	string MessageType = "EMail";
-	string RestApiBaseUri = "http://127.0.0.1:82/";
+    // PARAMETERS
+    string MessageType = "EMail";
+    string RestApiBaseUri = "http://127.0.0.1:82/";
 #>
 /*
 *	Important ! 
@@ -24,14 +24,14 @@
 */
 namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint") #>
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    
     public class EMail : TaskQueue.Providers.TaskMessage
     {
-		const string MType = "<#= MessageType #>";
+        const string MType = "<#= MessageType #>";
         public EMail()
             : base(MType)
         {
@@ -48,24 +48,37 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
             this.SetHolder(holder);
         }
 <# 
-	System.IO.Directory.SetCurrentDirectory(this.Host.ResolvePath("bin\\debug"));
-
-	TaskQueue.RepresentedModel result = null;
-	TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest(RestApiBaseUri);
-	result = restService.GetValidationInfo(MessageType);
+    System.IO.Directory.SetCurrentDirectory(this.Host.ResolvePath("bin\\debug"));
+    
+    TaskQueue.RepresentedModel result = null;
+    try
+    {
+        TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest(RestApiBaseUri);
+        result = restService.GetValidationInfo(MessageType);
+    }catch(Exception exc)
+    {
+        #>
+        /*
+        <#= exc.Message + " " + exc.StackTrace #>
+        */
+        <#
+    }
 #><#
+    if(result != null)
+    {
 for (int i = 0; i < result.schema.val1.Count; i++)
 {
-	if(result.schema.val2[i].Inherited)
+    if(result.schema.val2[i].Inherited)
     {
-		continue;
+        continue;
     }
 #>
-		/// <summary>
-		/// <#= result.schema.val2[i].Description!=null ? result.schema.val2[i].Description : "" #>	
-		/// <#= result.schema.val2[i].Required ?"REQUIRED !":"" #>
-        	/// </summary>	
-		public <#=TaskQueue.RepresentedModel.GetLTypeString(result.schema.val2[i].VType)#> <#= result.schema.val1[i] #> { get; set; }
-<#}#>
-	}
+        /// <summary>
+        /// <#= result.schema.val2[i].Description!=null ? result.schema.val2[i].Description : "" #>	
+        /// <#= result.schema.val2[i].Required ?"REQUIRED !":"" #>
+        /// </summary>	
+        public <#=TaskQueue.RepresentedModel.GetLTypeString(result.schema.val2[i].VType)#> <#= result.schema.val1[i] #> { get; set; }
+<#}
+}#>
+    }
 }
