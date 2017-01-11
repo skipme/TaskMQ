@@ -68,7 +68,7 @@ namespace EmailConsumer
 
         public TaskQueue.TQItemSelector ConfigureSelector()
         {
-            return new TaskQueue.TQItemSelector("Processed", false)
+            return new TaskQueue.TQItemSelector("Processed", false, true)
                 .Rule("SendErrors", TaskQueue.TQItemSelectorSet.Ascending);
         }
     }

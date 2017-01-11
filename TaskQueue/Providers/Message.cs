@@ -90,6 +90,7 @@ namespace TaskQueue.Providers
             MethodInfo internalCMP = typeof(IComparable).GetMethod("CompareTo");
 
             LabelTarget returnTarget = Expression.Label(typeof(int));
+            ParameterExpression varCmp = Expression.Variable(typeof(int), "cmpInt");
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
                 if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
@@ -105,17 +106,19 @@ namespace TaskQueue.Providers
                 }
                 else
                 {
-                    Expression castedB = Expression.Convert(fieldA, typeof(IComparable));
-                    Expression castedA = Expression.Convert(fieldB, typeof(object));
-                    internalComparator = Expression.Call(castedB, internalCMP, castedA);
+                    Expression castedA = Expression.Convert(fieldB, typeof(IComparable));
+                    Expression castedB = Expression.Convert(fieldA, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
                 }
-                Expression isNEq = Expression.NotEqual(internalComparator, Expression.Constant(0));
-                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, internalComparator));
+                Expression setexp = Expression.Assign(varCmp, internalComparator);
+                body.Add(setexp);
+                Expression isNEq = Expression.NotEqual(varCmp, Expression.Constant(0));
+                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, varCmp));
                 body.Add(cond);
             }
             LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(0));
             body.Add(returnDef);
-            Expression expression_body = Expression.Block(body);
+            Expression expression_body = Expression.Block(new[] { varCmp }, body);
 
             return Expression.Lambda(delegateType, expression_body, one, other).Compile();
         }

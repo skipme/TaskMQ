@@ -56,6 +56,32 @@ namespace Tests
                 field2 = 18
             };
 
+            Assert.AreEqual(cmp(inst, inst_CE), 1);
+            Assert.AreEqual(cmp(inst, inst_CL), 1);
+            Assert.AreEqual(cmp(inst_CL, inst_CE), -1);
+        }
+        [Test]
+        public void Compare2()
+        {
+            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector("field1", TaskQueue.TQItemSelectorSet.Descending)
+                .Rule("field2", TaskQueue.TQItemSelectorSet.Descending);
+            SomeExtMessage inst = new SomeExtMessage()
+            {
+                field1 = 7,
+                field2 = 15
+            };
+            InternalComparable cmp = (InternalComparable)inst.MakeComparator(sel, typeof(InternalComparable)/*, typeof(SomeExtMessage)*/);
+            SomeExtMessage inst_CE = new SomeExtMessage()
+            {
+                field1 = 5,
+                field2 = 18
+            };
+            SomeExtMessage inst_CL = new SomeExtMessage()
+            {
+                field1 = 8,
+                field2 = 18
+            };
+
             Assert.AreEqual(cmp(inst, inst_CE), -1);
             Assert.AreEqual(cmp(inst, inst_CL), 1);
             Assert.AreEqual(cmp(inst_CL, inst_CE), -1);
@@ -83,7 +109,7 @@ namespace Tests
                 field2 = 18
             };
 
-            Assert.AreEqual(cmp(inst.GetHolder(), inst_CE.GetHolder()), -1);
+            Assert.AreEqual(cmp(inst.GetHolder(), inst_CE.GetHolder()), 1);
             Assert.AreEqual(cmp(inst.GetHolder(), inst_CL.GetHolder()), 1);
             Assert.AreEqual(cmp(inst_CL.GetHolder(), inst_CE.GetHolder()), -1);
         }
