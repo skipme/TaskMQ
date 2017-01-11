@@ -67,28 +67,28 @@ namespace MongoQueue
             if (!result.Ok)
                 throw new Exception("error in push to mongo queue: " + result.ToJson());
         }
-        public T GetItemFifo<T>()
-            where T : TaskMessage
-        {
-            TaskMessage tmr = GetItemFifo();
-            T tmo = Activator.CreateInstance<T>();
-            tmo.SetHolder(tmr.Holder);
-            return tmo;
-        }
-        public TaskMessage GetItemFifo()
-        {
-            CheckConnection();
+        //public T GetItemFifo<T>()
+        //    where T : TaskMessage
+        //{
+        //    TaskMessage tmr = GetItemFifo();
+        //    T tmo = Activator.CreateInstance<T>();
+        //    tmo.SetHolder(tmr.Holder);
+        //    return tmo;
+        //}
+        //public TaskMessage GetItemFifo()
+        //{
+        //    CheckConnection();
 
-            TaskQueue.TQItemSelector selector = TaskQueue.TQItemSelector.DefaultFifoSelector;
-            var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder();
-            cursor.Limit = 1;
-            MongoMessage mms = cursor.FirstOrDefault();
-            if (mms == null)//empty
-                return null;
-            TaskMessage msg = new TaskMessage(mms.ExtraElements);
-            msg.Holder.Add("_id", mms.id.Value);
-            return msg;
-        }
+        //    TaskQueue.TQItemSelector selector = TaskQueue.TQItemSelector.DefaultFifoSelector;
+        //    var cursor = Collection.Find(MongoSelector.GetQuery(selector)).SetSortOrder();
+        //    cursor.Limit = 1;
+        //    MongoMessage mms = cursor.FirstOrDefault();
+        //    if (mms == null)//empty
+        //        return null;
+        //    TaskMessage msg = new TaskMessage(mms.ExtraElements);
+        //    msg.Holder.Add("__id", mms.id.Value);
+        //    return msg;
+        //}
 
         public TaskMessage GetItem()
         {
@@ -100,18 +100,18 @@ namespace MongoQueue
             if (mms == null)//empty
                 return null;
             TaskMessage msg = new TaskMessage(mms.ExtraElements);
-            msg.Holder.Add("_id", mms.id.Value);
+            msg.Holder.Add("__id", mms.id.Value);
             return msg;
         }
         public void UpdateItem(TaskMessage item)
         {
             Dictionary<string, object> holder = item.GetHolder();
-            object id = holder["_id"];
+            object id = holder["__id"];
             if (id == null || !(id is ObjectId))
-                throw new Exception("_id of queue element is missing");
+                throw new Exception("__id of queue element is missing");
 
             BsonObjectId objid = new BsonObjectId((ObjectId)id);
-            holder.Remove("_id");
+            holder.Remove("__id");
 
             MongoMessage msg = new MongoMessage
             {
@@ -179,7 +179,7 @@ namespace MongoQueue
             foreach (var mms in cursor)
             {
                 TaskMessage msg = new TaskMessage(mms.ExtraElements);
-                msg.Holder.Add("_id", mms.id.Value);
+                msg.Holder.Add("__id", mms.id.Value);
                 tma.Add(msg);
             }
 

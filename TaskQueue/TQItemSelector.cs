@@ -26,7 +26,7 @@ namespace TaskQueue
         {
             get
             {
-                TQItemSelector selector = new TQItemSelector("Processed", false)
+                TQItemSelector selector = new TQItemSelector("Processed", false, true)
                     .Rule("AddedTime", TQItemSelectorSet.Ascending);
                 return selector;
             }
@@ -44,9 +44,9 @@ namespace TaskQueue
             }
         }
 
-        public TQItemSelector(string key, object value)
+        public TQItemSelector(string key, object value, bool equal)
         {
-            this.Rule(key, value);
+            this.Rule(key, value, equal);
         }
         /// <summary>
         /// SORT messages by field values and set manner(asc or desc)

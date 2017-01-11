@@ -81,7 +81,7 @@ namespace TaskClient.Clients
             if (result == null)
                 throw new Exception(string.Format("Message type '{0}' not routed to worker module {1}",
                     MType, channelName == null ? "" : string.Format("or '{1}' channel absent", channelName)));
-            return TaskQueue.RepresentedModel.FromSchema(result.NativeScheme);
+            return TaskQueue.RepresentedModel.FromSchema(result.ModelScheme);
         }
     }
 }

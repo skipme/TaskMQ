@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InMemQueue.cs" />
     <Compile Include="CustomMessagesCompare.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="TeamCity.cs" />

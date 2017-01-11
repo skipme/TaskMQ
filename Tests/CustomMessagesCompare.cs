@@ -88,6 +88,38 @@ namespace Tests
             Assert.AreEqual(cmp(inst_CL.GetHolder(), inst_CE.GetHolder()), -1);
         }
         [Test]
+        public void CompareDict2()
+        {
+            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector("field1", TaskQueue.TQItemSelectorSet.Descending)
+                .Rule("field2", TaskQueue.TQItemSelectorSet.Ascending);
+            SomeExtMessage inst = new SomeExtMessage()
+            {
+                field1 = 5,
+                field2 = 15
+            };
+            TaskQueue.Providers.TaskMessage.InternalComparableDictionary cmp = (TaskQueue.Providers.TaskMessage.InternalComparableDictionary)
+                TaskQueue.Providers.TaskMessage.MakeComparatorDictionary(sel);
+            SomeExtMessage inst_CE = new SomeExtMessage()
+            {
+                field1 = 6,
+                field2 = 15
+            };
+            SomeExtMessage inst_CL = new SomeExtMessage()
+            {
+                field1 = 4,
+                field2 = 18
+            };
+
+            Assert.AreEqual(cmp(inst.GetHolder(), inst_CE.GetHolder()), 
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst.GetHolder(), inst_CE.GetHolder(), sel));
+
+            Assert.AreEqual(cmp(inst.GetHolder(), inst_CL.GetHolder()), 
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst.GetHolder(), inst_CL.GetHolder(), sel));
+
+            Assert.AreEqual(cmp(inst_CL.GetHolder(), inst_CE.GetHolder()), 
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst_CL.GetHolder(), inst_CE.GetHolder(), sel));
+        }
+        [Test]
         public void CheckDict()
         {
             TaskQueue.TQItemSelector sel = new
@@ -110,7 +142,7 @@ namespace Tests
             Assert.AreEqual(chk(inst_CE.GetHolder()), false);
 
             Assert.AreEqual(chk(new Dictionary<string, object>() { { "field1", 5 }, { "field2", 15 } }), true);
-            Assert.AreEqual(chk(new Dictionary<string, object>() { { "field1", 5 }}), false);
+            Assert.AreEqual(chk(new Dictionary<string, object>() { { "field1", 5 } }), false);
         }
     }
 }

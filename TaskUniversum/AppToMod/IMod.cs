@@ -24,6 +24,7 @@ namespace TaskUniversum
     {
         /// <summary>
         /// Main consumer job entry
+        /// !important! message.GetHolder or message.Holder can contain keys maintained by queue, it starts with '__' prefix
         /// </summary>
         /// <param name="optionalParameters">Represent worker parameters, for example -- smtp server connection string</param>
         /// <param name="message">Message taken from queue, sent by client</param>

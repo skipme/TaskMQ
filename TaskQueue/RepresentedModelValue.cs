@@ -41,17 +41,26 @@ namespace TaskQueue
             this.Required = required;
         }
     }
+
     public class RepresentedModelValue
     {
         public RepresentedModelValue(FieldType VType)
         {
             this.VType = VType;
         }
+  
         public FieldType VType;
         public string Description;
         public bool Required;
         public bool Inherited;
         public object DefaultValue;
+
+        public FieldType TypeOfField { get { return VType; } set { VType = value; } }
+        public string FieldDescription { get { return Description; } set { Description = value; } }
+        public bool FieldRequired { get { return Required; } set { Required = value; } }
+        public bool FieldInherited { get { return Inherited; } set { Inherited = value; } }
+        public object FieldDefaultValue { get { return DefaultValue; } set { DefaultValue = value; } }
+
         public PropertyInfo propertyDescriptor;
     }
 }

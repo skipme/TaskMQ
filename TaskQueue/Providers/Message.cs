@@ -92,7 +92,7 @@ namespace TaskQueue.Providers
             LabelTarget returnTarget = Expression.Label(typeof(int));
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
-                if (rule.Value.ValueSet == TQItemSelectorSet.Equals) { continue; }
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
 
                 Expression fieldA = Expression.PropertyOrField(one, rule.Key);
                 Expression fieldB = Expression.PropertyOrField(other, rule.Key);
@@ -132,9 +132,10 @@ namespace TaskQueue.Providers
             PropertyInfo indexer = KeyType.GetProperty("Item");// Dictionary<string, object>[key]
 
             LabelTarget returnTarget = Expression.Label(typeof(int));
+            ParameterExpression varCmp = Expression.Variable(typeof(int), "cmpInt");
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
-                if (rule.Value.ValueSet == TQItemSelectorSet.Equals) { continue; }
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
 
                 Expression fieldA = Expression.Property(one, indexer, Expression.Constant(rule.Key));
                 Expression fieldB = Expression.Property(other, indexer, Expression.Constant(rule.Key));
@@ -147,17 +148,19 @@ namespace TaskQueue.Providers
                 }
                 else
                 {
-                    Expression castedB = Expression.Convert(fieldA, typeof(IComparable));
-                    Expression castedA = Expression.Convert(fieldB, typeof(object));
-                    internalComparator = Expression.Call(castedB, internalCMP, castedA);
+                    Expression castedA = Expression.Convert(fieldB, typeof(IComparable));
+                    Expression castedB = Expression.Convert(fieldA, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
                 }
-                Expression isNEq = Expression.NotEqual(internalComparator, Expression.Constant(0));
-                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, internalComparator));
+                Expression setexp = Expression.Assign(varCmp, internalComparator);
+                body.Add(setexp);
+                Expression isNEq = Expression.NotEqual(varCmp, Expression.Constant(0));
+                Expression cond = Expression.IfThen(isNEq, Expression.Return(returnTarget, varCmp));
                 body.Add(cond);
             }
             LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(0));
             body.Add(returnDef);
-            Expression expression_body = Expression.Block(body);
+            Expression expression_body = Expression.Block(new[] { varCmp }, body);
 
             return (InternalComparableDictionary)Expression.Lambda(typeof(InternalComparableDictionary), expression_body, one, other).Compile();
         }
@@ -247,7 +250,7 @@ namespace TaskQueue.Providers
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
                 object obja = one[rule.Key];
-                object objb = one[rule.Key];
+                object objb = other[rule.Key];
                 int rslt;
                 if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
                 {
@@ -262,9 +265,32 @@ namespace TaskQueue.Providers
             }
             return 0;
         }
+
         public int CompareTo(object obj)
         {
             return object.ReferenceEquals(this, obj) ? 0 : 1;
+        }
+    }
+    /// <summary>
+    /// Message Dictionary Comparer/Checker
+    /// Maker sure Holder updated before use
+    /// </summary>
+    public class MessageComparer : IComparer<TaskMessage>
+    {
+        TaskMessage.InternalComparableDictionary Comparator;
+        TaskMessage.InternalCheckDictionary Checker;
+        public MessageComparer(TQItemSelector selector)
+        {
+            Comparator = TaskMessage.MakeComparatorDictionary(selector);
+            Checker = TaskMessage.MakeCheckerDictionary(selector);
+        }
+        public bool Check(TaskMessage msg)
+        {
+            return Checker(msg.Holder);
+        }
+        public int Compare(TaskMessage x, TaskMessage y)
+        {
+            return Comparator(x.Holder, y.Holder);
         }
     }
 }

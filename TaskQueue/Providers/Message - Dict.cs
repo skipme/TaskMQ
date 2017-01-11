@@ -115,7 +115,11 @@ namespace TaskQueue.Providers
         //    SetProps();
         //    return Holder;
         //}
-
+        /// <summary>
+        /// Rewrite internal dictionary values with fields available in model
+        /// and return reference to it
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, object> GetHolder()
         {
             SetProps();

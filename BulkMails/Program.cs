@@ -10,6 +10,7 @@ namespace BulkMails
     {
         static void Main(string[] args)
         {
+            //TestGetValidationInfo();
             Console.WriteLine((new EMail()).GetModel().CalculateSchemeHash());
             // have some ldap catalog with 1000 persons and organisations
             // now we need to send them unique email
@@ -31,10 +32,10 @@ namespace BulkMails
                 i++;
                 EMail mail = new EMail
                 {
-                    //To = "example@localhost",
-                    //Body = "hello#" + (i + 1)
+                    To = "example@localhost",
+                    Body = "hello#" + (i + 1)
                 };
-                
+
                 //try
                 {
                     rest.Enqueue(mail);
@@ -43,11 +44,18 @@ namespace BulkMails
                 {
                     //Console.WriteLine("E: {0}", e.Message);
                 }
-                
+
             }
             w.Stop();
             Console.WriteLine("total {0}ms for 1000 items", w.ElapsedMilliseconds);
             Console.ReadLine();
+        }
+        static void TestGetValidationInfo()
+        {
+
+            TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest();
+            var result = restService.GetValidationInfo("EMail").schema.ToDictionary();
+
         }
     }
 }

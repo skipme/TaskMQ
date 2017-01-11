@@ -9,7 +9,7 @@ namespace TaskQueue
     public interface ITQueue
     {
         void Push(Providers.TaskMessage item);
-        Providers.TaskMessage GetItemFifo();
+        //Providers.TaskMessage GetItemFifo();
         Providers.TaskMessage GetItem();
         Providers.TaskMessage[] GetItemTuple();
         long GetQueueLength();

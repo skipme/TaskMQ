@@ -3,6 +3,7 @@
 
 <#@ import namespace="System" #>
 <#@ import namespace="System.IO" #>
+<#@ import namespace="System.Collections.Generic" #>
 <#@ assembly name="$(ProjectDir)..\TaskQueue\bin\Debug\TaskQueue.dll" #>
 <#@ assembly name="$(ProjectDir)..\TaskClient\bin\Debug\TaskClient.dll" #>
 <#
@@ -50,11 +51,11 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
 <# 
     System.IO.Directory.SetCurrentDirectory(this.Host.ResolvePath("bin\\debug"));
     
-    TaskQueue.RepresentedModel result = null;
+    Dictionary<string, TaskQueue.RepresentedModelValue> result = null;
     try
     {
         TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest(RestApiBaseUri);
-        result = restService.GetValidationInfo(MessageType);
+        result = restService.GetValidationInfo(MessageType).schema.ToDictionary();
     }catch(Exception exc)
     {
         #>
@@ -66,18 +67,18 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
 #><#
     if(result != null)
     {
-for (int i = 0; i < result.schema.val1.Count; i++)
+foreach(KeyValuePair<string, TaskQueue.RepresentedModelValue> item in result)
 {
-    if(result.schema.val2[i].Inherited)
+    if(item.Value.Inherited)
     {
         continue;
     }
 #>
         /// <summary>
-        /// <#= result.schema.val2[i].Description!=null ? result.schema.val2[i].Description : "" #>	
-        /// <#= result.schema.val2[i].Required ?"REQUIRED !":"" #>
+        /// <#= item.Value.Description!=null ? item.Value.Description : "" #>	
+        /// <#= item.Value.Required ?"REQUIRED !":"" #>
         /// </summary>	
-        public <#=TaskQueue.RepresentedModel.GetLTypeString(result.schema.val2[i].VType)#> <#= result.schema.val1[i] #> { get; set; }
+        public <#=TaskQueue.RepresentedModel.GetLTypeString(item.Value.VType)#> <#= item.Key #> { get; set; }
 <#}
 }#>
     }
