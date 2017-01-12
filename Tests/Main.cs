@@ -11,7 +11,8 @@ namespace Tests
         static int Main(string[] args)
         {
             //PerfCheck();
-            PerfCompare();
+            //PerfCompare();
+            PerfQueue();
             return 1;
         }
         static void PerfCheck()
@@ -85,7 +86,7 @@ namespace Tests
 
             Tests.CustomMessagesCompare.InternalComparable cmp2 = (Tests.CustomMessagesCompare.InternalComparable)
                 msg.MakeComparator(sel, typeof(Tests.CustomMessagesCompare.InternalComparable));
-            
+
 
             watch.Restart();
             for (int i = 0; i < 1000000; i++)
@@ -94,6 +95,43 @@ namespace Tests
             }
             watch.Stop();
             Console.WriteLine("compiled native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+        }
+        static void PerfQueue()
+        {
+            CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
+            {
+                field1 = 111,
+                field2 = 15
+            };
+            CustomMessagesCompare.SomeExtMessage msg2 = new CustomMessagesCompare.SomeExtMessage()
+            {
+                field1 = 111,
+                field2 = 77
+            };
+            Dictionary<string, object> a = msg.GetHolder();
+            Dictionary<string, object> b = msg2.GetHolder();
+            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector
+                ("field1", TaskQueue.TQItemSelectorSet.Ascending)
+                .Rule("field2", TaskQueue.TQItemSelectorSet.Descending)
+                .Rule("Processed", false, true);
+
+            TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
+            mq.SetSelector(sel);
+
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            for (int i = 0; i < 1000000; i++)
+            {
+                mq.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                if (i % 2 == 0)
+                {
+                    var itm = mq.GetItem();
+                    itm.Processed = true;
+                    mq.UpdateItem(itm);
+                }
+            }
+            watch.Stop();
+            Console.WriteLine("compiled {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength());
         }
     }
 }

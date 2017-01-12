@@ -195,25 +195,23 @@ namespace TaskQueue.Providers
 
                 Expression cond = Expression.IfThen(Expression.Not(callOut), Expression.Return(returnTarget, Expression.Constant(false)));
                 body.Add(cond);
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending || rule.Value.ValueSet == TQItemSelectorSet.Descending) { continue; }
+
+                Expression cmpVal = Expression.Constant(rule.Value.Value);
+                MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
+                Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
                 Expression isEq = null;
+
                 if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
                 {
-                    Expression cmpVal = Expression.Constant(rule.Value.Value);
-                    MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
-                    Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
-                    isEq = Expression.NotEqual(ICMP, Expression.Constant(0));
-                    Expression cond2 = Expression.IfThen(isEq, Expression.Return(returnTarget, Expression.Constant(false)));
-                    body.Add(cond2);
+                    isEq = Expression.NotEqual(ICMP, Expression.Constant(0));            
                 }
                 else if (rule.Value.ValueSet == TQItemSelectorSet.NotEquals)
                 {
-                    Expression cmpVal = Expression.Constant(rule.Value.Value);
-                    MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
-                    Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
                     isEq = Expression.Equal(ICMP, Expression.Constant(0));
-                    Expression cond2 = Expression.IfThen(isEq, Expression.Return(returnTarget, Expression.Constant(false)));
-                    body.Add(cond2);
                 }
+                Expression cond2 = Expression.IfThen(isEq, Expression.Return(returnTarget, Expression.Constant(false)));
+                body.Add(cond2);
             }
             LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(true));
             body.Add(returnDef);

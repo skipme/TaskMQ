@@ -93,7 +93,7 @@ namespace TCPBsonBase
                     //System.Threading.Thread.Sleep(10);// if we need to wait for only one client
                 }
                 else break;
-                ccread -= cread; // if we need to wait for only one client
+                //ccread -= cread; // if we need to wait for only one client
             }
             return true;
         }
