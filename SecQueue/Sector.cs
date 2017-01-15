@@ -72,7 +72,7 @@ namespace SecQueue
         // 
         public IndexSector RootGradient;// this gradient contains all records
         public IndexSector initialSector;// first index sector
-        public List<int> FreeSectors;
+        public Queue<int> FreeSectors;
 
         const int ROOTGRADIENT = 0xFFEFE;
         const int MINSECTORCOUNT = 2;
@@ -107,6 +107,8 @@ namespace SecQueue
             // TODO: REREAD ROOT GRADIENT
             RootGradient.IndexElements = new List<IndexElement>();
             initialSector.IndexElements = new List<IndexElement>();
+
+            FreeSectors = new Queue<int>();
             // ~~~~
             SetSector(initialSector);
             SetSector(RootGradient);
@@ -114,16 +116,23 @@ namespace SecQueue
             TaskMessage zinst = new TaskMessage("__GRAD_INITIAL"); zinst.GetHolder();
             RootGradient.IndexElements.Add(new IndexElement(zinst) { Reference = initialSector.Location });
 
-            //IOPersistentFile = new AppendFile(preAllocSize: 1);
-            FreeSectors = new List<int>();
+            
         }
 
         private void SetSector(IndexSector sector)
         {
             if (sector.Location < 0)
             {
-                // FreeSectors allocation///
-                sector.Location = AllSectors.Count;
+                if (FreeSectors.Count > 0)
+                {
+                    int freesec = FreeSectors.Dequeue();
+                    sector.Location = freesec;
+                    AllSectors[freesec] = sector;
+                }
+                else
+                {
+                    sector.Location = AllSectors.Count;
+                }
             }
             else return;
             AllSectors.Add(sector);
@@ -388,7 +397,8 @@ namespace SecQueue
                                         }
                                         if (grad.IndexElements.Count == 0 && grad.TopGradientReference != ROOTGRADIENT)
                                         {
-                                            FreeSectors.Add((int)grad.Location);
+                                            FreeSectors.Enqueue(grad.Location);
+                                            AllSectors[grad.Location] = null;
                                             removeElement = true;
                                             refSector = grad;
                                             grad = GetSector(grad.TopGradientReference);
