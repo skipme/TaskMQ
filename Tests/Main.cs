@@ -8,11 +8,13 @@ namespace Tests
 {
     public class Program
     {
+
         static int Main(string[] args)
         {
             //PerfCheck();
             //PerfCompare();
             PerfQueue();
+
             return 1;
         }
         static void PerfCheck()
@@ -118,9 +120,12 @@ namespace Tests
             TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
             mq.SetSelector(sel);
 
+            SecQueue.SecQueue mq2 = new SecQueue.SecQueue();
+            mq2.SetSelector(sel);
+            const int counting = 10000;
             Stopwatch watch = new Stopwatch();
             watch.Start();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < counting; i++)
             {
                 mq.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
                 if (i % 2 == 0)
@@ -130,8 +135,47 @@ namespace Tests
                     mq.UpdateItem(itm);
                 }
             }
+
             watch.Stop();
-            Console.WriteLine("compiled {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength());
+            Console.WriteLine("sortedset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength());
+            watch.Restart();
+            for (int i = 0; i < counting; i++)
+            {
+                mq2.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                if (i % 2 == 0)
+                {
+                    var itm = mq2.GetItem();
+                    itm.Processed = true;
+                    mq2.UpdateItem(itm);
+                }
+            }
+            watch.Stop();
+            Console.WriteLine("secset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength());
+            MongoQueue.MongoDbQueue mq3 = new MongoQueue.MongoDbQueue();
+            mq3.InitialiseFromModel(null, new TaskQueue.Providers.QueueConnectionParameters("")
+            {
+                specParams = (new MongoQueue.MongoQueueParams()
+                    {
+                        Collection = "test",
+                        Database = "test",
+                        ConnectionString = "mongodb://localhost:27017/Messages?safe=true"
+                    })
+            });
+            mq3.SetSelector(sel);
+
+            watch.Restart();
+            for (int i = 0; i < counting; i++)
+            {
+                mq3.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                if (i % 2 == 0)
+                {
+                    var itm = mq3.GetItem();
+                    itm.Processed = true;
+                    mq3.UpdateItem(itm);
+                }
+            }
+            watch.Stop();
+            Console.WriteLine("secset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength());
         }
     }
 }

@@ -135,7 +135,7 @@ namespace Tests
                 field1 = 4,
                 field2 = 18
             };
-
+            TaskQueue.Providers.TaskMessage defmsg = new TaskQueue.Providers.TaskMessage("X");
             Assert.AreEqual(cmp(inst.GetHolder(), inst_CE.GetHolder()), 
                 TaskQueue.Providers.TaskMessage.CompareWithSelector(inst.GetHolder(), inst_CE.GetHolder(), sel));
 
@@ -144,6 +144,9 @@ namespace Tests
 
             Assert.AreEqual(cmp(inst_CL.GetHolder(), inst_CE.GetHolder()), 
                 TaskQueue.Providers.TaskMessage.CompareWithSelector(inst_CL.GetHolder(), inst_CE.GetHolder(), sel));
+            
+            Assert.AreEqual(cmp(defmsg.GetHolder(), inst_CE.GetHolder()),
+               TaskQueue.Providers.TaskMessage.CompareWithSelector(defmsg.GetHolder(), inst_CE.GetHolder(), sel));
         }
         [Test]
         public void CheckDict()

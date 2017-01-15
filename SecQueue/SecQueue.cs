@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using System.Text;
+using TaskQueue;
+using TaskQueue.Providers;
 
-namespace TaskQueue.Providers
+namespace SecQueue
 {
     /// <summary>
-    /// In-memory queue based on SortedSet
+    /// In-memory queue based on SecSortedSet
     /// </summary>
-    public class MemQueue : ITQueue
+    public class SecQueue : ITQueue
     {
-
         public class EncapsulatedMessageComparer : IComparer<TaskMessage>
         {
             public MessageComparer internalComparer;
@@ -32,36 +33,23 @@ namespace TaskQueue.Providers
         const int maxTuple = 100;
         RepresentedModel m { get; set; }
         EncapsulatedMessageComparer comparer;
-        //Queue<Providers.TaskMessage> baseQueue;
 
         int Counter = 0;
-        SortedSet<TaskMessage> MessageQueue;
+        SecSortedSet MessageQueue;
 
         public string Name;
 
-        public MemQueue()
+        public SecQueue()
         {
-            //baseQueue = new Queue<Providers.TaskMessage>();
-            //DateTime dt = DateTime.UtcNow;
-            //Providers.TaskMessage[] tarrtp = new Providers.TaskMessage[2000000];
-            //for (int i = 0; i < tarrtp.Length; i++)
-            //{
-            //    tarrtp[i] = new TaskMessage("benchMessage")
-            //    {
-            //        AddedTime = dt
-            //    };
-            //    dt = dt.AddSeconds(1);
-            //}
-            //baseQueue = new Queue<Providers.TaskMessage>(tarrtp);
 
         }
-        public MemQueue(RepresentedModel model, QueueConnectionParameters connection)
+        public SecQueue(RepresentedModel model, QueueConnectionParameters connection)
         {
             this.InitialiseFromModel(model, connection);
             Name = connection.Name;
         }
 
-        public void Push(Providers.TaskMessage item)
+        public void Push(TaskMessage item)
         {
             try
             {
@@ -75,8 +63,6 @@ namespace TaskQueue.Providers
                         Counter++;
                     }
                 }
-                //lock (baseQueue)
-                //    baseQueue.Enqueue(item);
 
             }
             catch (OutOfMemoryException excOverfl)
@@ -85,27 +71,15 @@ namespace TaskQueue.Providers
             }
         }
 
-        //public Providers.TaskMessage GetItemFifo()
-        //{
-        //    if (baseQueue.Count == 0)
-        //        return null;
-        //    lock (baseQueue)
-        //        return baseQueue.Dequeue();
-        //}
-
-        public Providers.TaskMessage GetItem()
+        public TaskMessage GetItem()
         {
-            //if (baseQueue.Count == 0)
-            //    return null;
-            //lock (baseQueue)
-            //    return baseQueue.Dequeue();
             if (MessageQueue.Count == 0)
                 return null;
             lock (MessageQueue)
             {
                 TaskMessage result;
 
-                result = MessageQueue.Min;
+                result = MessageQueue.GetMinKey();
                 TaskMessage msg = new TaskMessage(result.Holder);
                 msg.Holder.Add("__original", result);
                 return msg;
@@ -128,7 +102,7 @@ namespace TaskQueue.Providers
             get { return "Non persistent in-memory queue"; }
         }
 
-        public void UpdateItem(Providers.TaskMessage item)
+        public void UpdateItem(TaskMessage item)
         {
             Dictionary<string, object> holder = item.GetHolder();
             object id = holder["__original"];
@@ -150,24 +124,28 @@ namespace TaskQueue.Providers
             //throw new NotImplementedException();
         }
 
-        public Providers.TaskMessage[] GetItemTuple()
+        public TaskMessage[] GetItemTuple()
         {
-            //lock (baseQueue)
-            //    if (baseQueue.Count > 0)
+            //lock (MessageQueue)
+            //    if (MessageQueue.Count > 0)
             //    {
-            //        TaskMessage[] tuple;
-            //        if (maxTuple < baseQueue.Count)
+            //        TaskMessage[] tuple = null;
+            //        if (maxTuple < MessageQueue.Count)
             //        {
             //            tuple = new TaskMessage[maxTuple];
-            //            for (int i = 0; i < maxTuple; i++)
-            //            {
-            //                tuple[i] = baseQueue.Dequeue();
-            //            }
+            //            MessageQueue.CopyTo(tuple, 0, tuple.Length);
             //        }
             //        else
             //        {
-            //            tuple = baseQueue.ToArray();
-            //            baseQueue.Clear();
+            //            tuple = new TaskMessage[MessageQueue.Count];
+            //            MessageQueue.CopyTo(tuple);
+            //        }
+            //        for (int i = 0; i < tuple.Length; i++)
+            //        {
+            //            TaskMessage em = tuple[i];
+            //            TaskMessage msg = new TaskMessage(em.Holder);
+            //            msg.Holder.Add("__original", em);
+            //            tuple[i] = msg;
             //        }
             //        return tuple;
 
@@ -176,34 +154,7 @@ namespace TaskQueue.Providers
             //    {
             //        return null;
             //    }
-            lock (MessageQueue)
-                if (MessageQueue.Count > 0)
-                {
-                    TaskMessage[] tuple = null;
-                    if (maxTuple < MessageQueue.Count)
-                    {
-                        tuple = new TaskMessage[maxTuple];
-                        MessageQueue.CopyTo(tuple, 0, tuple.Length);
-                    }
-                    else
-                    {
-                        tuple = new TaskMessage[MessageQueue.Count];
-                        MessageQueue.CopyTo(tuple);
-                    }
-                    for (int i = 0; i < tuple.Length; i++)
-                    {
-                        TaskMessage em = tuple[i];
-                        TaskMessage msg = new TaskMessage(em.Holder);
-                        msg.Holder.Add("__original", em);
-                        tuple[i] = msg;
-                    }
-                    return tuple;
-
-                }
-                else
-                {
-                    return null;
-                }
+            return null;
 
         }
 
@@ -218,7 +169,7 @@ namespace TaskQueue.Providers
             if (selector == null)
                 selector = TQItemSelector.DefaultFifoSelector;
             comparer = new EncapsulatedMessageComparer(new MessageComparer(selector));
-            MessageQueue = new SortedSet<TaskMessage>(comparer);
+            MessageQueue = new SecSortedSet(comparer/*, 1000, 1000*/);
         }
 
         public QueueSpecificParameters GetParametersModel()
@@ -226,7 +177,7 @@ namespace TaskQueue.Providers
             return new MemQueueParams();
         }
     }
-    public class MemQueueParams : QueueSpecificParameters
+    public class SecQueueParams : QueueSpecificParameters
     {
         //[TaskQueue.FieldDescription("Flush/restore queue to disk", Required = true, DefaultValue = true)]
         //public bool Persistant { get; set; }

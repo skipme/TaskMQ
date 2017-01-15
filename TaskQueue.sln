@@ -64,6 +64,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BBQ", "BBQ\BBQ.csproj", "{9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsonBenchService", "BsonBenchService\BsonBenchService.csproj", "{9DC7EB33-DB60-409F-8FDD-BF0EEEE0C7EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecQueue", "SecQueue\SecQueue.csproj", "{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,6 +156,10 @@ Global
 		{9DC7EB33-DB60-409F-8FDD-BF0EEEE0C7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DC7EB33-DB60-409F-8FDD-BF0EEEE0C7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DC7EB33-DB60-409F-8FDD-BF0EEEE0C7EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -177,6 +183,7 @@ Global
 		{9DC7EB33-DB60-409F-8FDD-BF0EEEE0C7EF} = {0CCF363C-3890-4B89-928D-B50C4E43FFFE}
 		{C250A799-20AF-494D-BA51-32AD41A376BB} = {15132F1F-E8B6-4F26-9A9A-61FC52B1714C}
 		{DAB980A3-A5E0-4FFB-B591-99CC4DA68FA5} = {15132F1F-E8B6-4F26-9A9A-61FC52B1714C}
+		{846584B1-6AD8-4B9F-AC63-BD7C48ECC4BA} = {15132F1F-E8B6-4F26-9A9A-61FC52B1714C}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
