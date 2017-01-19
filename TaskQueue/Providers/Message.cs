@@ -236,24 +236,37 @@ namespace TaskQueue.Providers
             MethodInfo internalCMP = typeof(IComparable).GetMethod("CompareTo");
 
             PropertyInfo indexer = PropType.GetProperty("Item");// List<object>[key]
-
+//			PropertyInfo countchk = PropType.GetProperty("Count");
+			
             LabelTarget returnTarget = Expression.Label(typeof(int));
             ParameterExpression varCmp = Expression.Variable(typeof(int), "cmpInt");
 
             int counter = -1;
+            Expression oneval2 = Expression.PropertyOrField(one, "val2");
+            Expression otherval2 = Expression.PropertyOrField(other, "val2");
+//            Expression greater1 = Expression.GreaterThan(Expression.Constant(selector.parameters.Count), Expression.Property(oneval2, countchk));
+//            Expression greater2 = Expression.GreaterThan(Expression.Constant(selector.parameters.Count), Expression.Property(otherval2, countchk));
+//            Expression condGreater1 = Expression.IfThen(greater1, Expression.Return(returnTarget, Expression.Constant(1)));
+//            Expression condGreater2 = Expression.IfThen(greater2, Expression.Return(returnTarget, Expression.Constant(1)));
+//    
+//            MethodInfo writeline = typeof(Console).GetMethod("WriteLine", new[]{typeof(string), typeof(string), typeof(string), typeof(string)});
+//            body.Add(Expression.Call(
+//            	null, writeline,
+//            	Expression.Constant("count params {0}, onevalcount {1}, othercountval {2}"),
+//            	Expression.Convert(Expression.Constant(selector.parameters.Count),typeof(object)),
+//            	Expression.Convert(Expression.Property(oneval2, countchk),typeof(object)), 
+//            	Expression.Convert(Expression.Property(otherval2, countchk),typeof(object)))
+//            );
+//            body.Add(condGreater1);
+//            body.Add(condGreater2);
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
                 counter++;
                 if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
-
-
-                Expression callOut = Expression.Property(Expression.PropertyOrField(one, "val2"), indexer, Expression.Constant(counter));
-                //Expression cond = Expression.IfThen(Expression.Not(callOut), Expression.Return(returnTarget, Expression.Constant(1)));
-                //body.Add(cond);
-
-                Expression callOut2 = Expression.Property(Expression.PropertyOrField(other, "val2"), indexer, Expression.Constant(counter));
-                //Expression cond2 = Expression.IfThen(Expression.Not(callOut2), Expression.Return(returnTarget, Expression.Constant(1)));
-                //body.Add(cond2);
+                
+				
+                Expression callOut = Expression.Property(oneval2, indexer, Expression.Constant(counter));
+                Expression callOut2 = Expression.Property(otherval2, indexer, Expression.Constant(counter));
 
                 Expression internalComparator;
                 if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)

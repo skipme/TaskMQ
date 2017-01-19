@@ -204,16 +204,16 @@ namespace TaskQueue.Providers
             if (Holder == null) SetProps();
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in order.parameters)
             {
-                //object valobj;
-                //if (Holder.TryGetValue(rule.Key, out valobj))
-                //{
-                //    result.Add(rule.Key, valobj);
-                //}
-                //else
-                //{
-                //    result.Add(rule.Key, null);
-                //}
-                result.Add(rule.Key, Holder[rule.Key]);
+                object valobj;
+                if (Holder.TryGetValue(rule.Key, out valobj))
+                {
+                    result.Add(rule.Key, valobj);
+                }
+                else
+                {
+                    result.Add(rule.Key, null);
+                }
+//                result.Add(rule.Key, Holder[rule.Key]);
             }
 
             // extra data - without any order

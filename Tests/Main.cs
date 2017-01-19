@@ -226,7 +226,7 @@ namespace Tests
             watch.Stop();
             Console.WriteLine("secset {0:.00}ms {1} avg [{2:.0}] msg per second", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength(), (1000.0 / watch.Elapsed.TotalMilliseconds) * counting);
 
-            //return;
+            return;
             MongoQueue.MongoDbQueue mq3 = new MongoQueue.MongoDbQueue();
             mq3.InitialiseFromModel(null, new TaskQueue.Providers.QueueConnectionParameters("")
             {
