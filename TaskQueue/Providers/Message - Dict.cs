@@ -32,15 +32,44 @@ namespace TaskQueue.Providers
             Type t = this.GetType();
             //ValueMap<string, RepresentedModelValue> model = new RepresentedModel(t).schema;
             ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
-            foreach (KeyValuePair<string, object> v in msgDict)
+            //foreach (KeyValuePair<string, object> v in msgDict)
+            //{
+            //    int descIndex = model.IndexOf(v.Key);
+            //    if (descIndex >= 0)
+            //    {
+            //        //PropertyInfo pi = t.GetProperty(v.Key);
+            //        //if (pi == null)
+            //        //    continue;
+            //        PropertyInfo pi = model.val2[descIndex].propertyDescriptor;
+            //        Type pt = pi.PropertyType;
+
+            //        bool nullable = false;
+            //        Type ptn = Nullable.GetUnderlyingType(pt);
+            //        if (nullable = ptn != null)
+            //            pt = ptn;
+
+            //        if (v.Value == null && !nullable)
+            //        {
+            //            if (pt.BaseType != typeof(object))
+            //                throw new Exception("value does not accept nullable types, key: " + v.Key);
+            //            else continue;
+            //        }
+            //        else if (!nullable && pt != v.Value.GetType())
+            //            throw new Exception("unknown type for key: " + v.Key);
+
+            //        pi.SetValue(this, v.Value, null);
+            //    }
+            //}
+            for (int idx = 0; idx < model.val1.Count; idx++)
             {
-                int descIndex = model.IndexOf(v.Key);
-                if (descIndex >= 0)
+                string key = model.val1[idx];
+                object val;
+                if (msgDict.TryGetValue(key, out val))
                 {
                     //PropertyInfo pi = t.GetProperty(v.Key);
                     //if (pi == null)
                     //    continue;
-                    PropertyInfo pi = model.val2[descIndex].propertyDescriptor;
+                    PropertyInfo pi = model.val2[idx].propertyDescriptor;
                     Type pt = pi.PropertyType;
 
                     bool nullable = false;
@@ -48,39 +77,39 @@ namespace TaskQueue.Providers
                     if (nullable = ptn != null)
                         pt = ptn;
 
-                    if (v.Value == null && !nullable)
+                    if (val == null && !nullable)
                     {
                         if (pt.BaseType != typeof(object))
-                            throw new Exception("value does not accept nullable types, key: " + v.Key);
+                            throw new Exception("value does not accept nullable types, key: " + key);
                         else continue;
                     }
-                    else if (!nullable && pt != v.Value.GetType())
-                        throw new Exception("unknown type for key: " + v.Key);
+                    else if (!nullable && pt != val.GetType())
+                        throw new Exception("unknown type for key: " + key);
 
-                    pi.SetValue(this, v.Value, null);
+                    pi.SetValue(this, val, null);
                 }
             }
             Holder = new Dictionary<string, object>(msgDict);
         }
-        void ReverseSetProps()
-        {
-            if (Holder == null)
-                return;
-            Type t = this.GetType();
-            ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
-            foreach (KeyValuePair<string, object> v in Holder)
-            {
-                //PropertyInfo pi = t.GetProperty(v.Key);
-                //if (pi == null)
-                //    continue;
-                int propDescIndex = model.IndexOf(v.Key);
-                if (propDescIndex >= 0)
-                {
-                    PropertyInfo pi = model.val2[propDescIndex].propertyDescriptor;
-                    pi.SetValue(this, v.Value, null);
-                }
-            }
-        }
+        //void ReverseSetProps()
+        //{
+        //    if (Holder == null)
+        //        return;
+        //    Type t = this.GetType();
+        //    ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
+        //    foreach (KeyValuePair<string, object> v in Holder)
+        //    {
+        //        //PropertyInfo pi = t.GetProperty(v.Key);
+        //        //if (pi == null)
+        //        //    continue;
+        //        int propDescIndex = model.IndexOf(v.Key);
+        //        if (propDescIndex >= 0)
+        //        {
+        //            PropertyInfo pi = model.val2[propDescIndex].propertyDescriptor;
+        //            pi.SetValue(this, v.Value, null);
+        //        }
+        //    }
+        //}
 
         void SetProps()
         {
@@ -91,17 +120,18 @@ namespace TaskQueue.Providers
             ValueMap<string, RepresentedModelValue> model = RepresentedModel.FindScheme(t);
             for (int i = 0; i < model.val1.Count; i++)
             {
-                string k = model.val1[i];
+                /*string k = model.val1[i];
                 PropertyInfo pi = model.val2[i].propertyDescriptor; //t.GetProperty(k);
                 object val = pi.GetValue(this, null);
 
                 if (Holder.ContainsKey(k))
                     Holder[k] = val;
                 else
-                    Holder.Add(k, val);
+                    Holder.Add(k, val);*/
+                Holder[model.val1[i]] = model.val2[i].PropValue(this);
             }
         }
-        
+
         public dynamic ToExpando()
         {
             SetProps();
@@ -124,6 +154,34 @@ namespace TaskQueue.Providers
         {
             SetProps();
             return Holder;
+        }
+        public ValueMap<string, object> GetValueMap(TQItemSelector order)
+        {
+            ValueMap<string, object> result = new ValueMap<string, object>();
+            if (Holder == null) SetProps();
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in order.parameters)
+            {
+                object valobj;
+             
+                if (Holder.TryGetValue(rule.Key, out valobj))
+                {
+                    result.Add(rule.Key, valobj);
+                }
+                else
+                {
+                    result.Add(rule.Key, null);
+                }
+            }
+
+            // extra data - without any order
+            foreach (KeyValuePair<string, object> hdpair in Holder)
+            {
+                if (!order.parameters.ContainsKey(hdpair.Key))
+                {
+                    result.Add(hdpair.Key, hdpair.Value);
+                }
+            }
+            return result;
         }
     }
 }

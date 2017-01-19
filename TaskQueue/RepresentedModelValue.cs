@@ -62,5 +62,7 @@ namespace TaskQueue
         public object FieldDefaultValue { get { return DefaultValue; } set { DefaultValue = value; } }
 
         public PropertyInfo propertyDescriptor;
+        public delegate object getProp(object instance);
+        public getProp PropValue;
     }
 }

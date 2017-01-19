@@ -12,19 +12,20 @@ namespace SecQueue
     /// </summary>
     public class SecQueue : ITQueue
     {
-        public class EncapsulatedMessageComparer : IComparer<TaskMessage>
+        public class EncapsulatedMessageComparer : IComparer<ValueMap<string, object>>
         {
-            public MessageComparer internalComparer;
-            public EncapsulatedMessageComparer(MessageComparer msgComparer)
+            public MessageComparerVMap internalComparer;
+            public EncapsulatedMessageComparer(MessageComparerVMap msgComparer)
             {
                 internalComparer = msgComparer;
             }
 
-            public int Compare(TaskMessage x, TaskMessage y)
+            public int Compare(ValueMap<string, object> x, ValueMap<string, object> y)
             {
                 int r = internalComparer.Compare(x, y);
                 if (r == 0)
-                    return ((int)x.Holder["__idx"]).CompareTo((int)y.Holder["__idx"]);
+                    return ((int)x.val2[x.val2.Count - 1]).CompareTo((int)y.val2[y.val2.Count - 1]);
+                //return ((int)x.Holder["__idx"]).CompareTo((int)y.Holder["__idx"]);
                 return r;
             }
         }
@@ -36,7 +37,7 @@ namespace SecQueue
 
         int Counter = 0;
         SecSortedSet MessageQueue;
-
+        TQItemSelector selector;
         public string Name;
 
         public SecQueue()
@@ -53,13 +54,13 @@ namespace SecQueue
         {
             try
             {
-                if (item.Holder == null) item.GetHolder();
-                if (comparer.internalComparer.Check(item))
+                ValueMap<string, object> vmap = item.GetValueMap(this.selector);
+                if (comparer.internalComparer.Check(item.Holder))
                 {
                     lock (MessageQueue)
                     {
-                        item.Holder["__idx"] = Counter;
-                        MessageQueue.Add(item);
+                        vmap.Add("__idx", Counter);
+                        MessageQueue.Add(vmap);
                         Counter++;
                     }
                 }
@@ -77,10 +78,11 @@ namespace SecQueue
                 return null;
             lock (MessageQueue)
             {
-                TaskMessage result;
+                ValueMap<string, object> result;
 
                 result = MessageQueue.GetMinKey();
-                TaskMessage msg = new TaskMessage(result.Holder);
+                TaskMessage msg = new TaskMessage(result.ToDictionary());
+                msg.Holder.Remove("__idx");
                 msg.Holder.Add("__original", result);
                 return msg;
             }
@@ -106,9 +108,9 @@ namespace SecQueue
         {
             Dictionary<string, object> holder = item.GetHolder();
             object id = holder["__original"];
-            if (id == null || !(id is TaskMessage))
+            if (id == null || !(id is ValueMap<string, object>))
                 throw new Exception("__original of queue element is missing");
-            TaskMessage orig = (TaskMessage)id;
+            ValueMap<string, object> orig = (ValueMap<string, object>)id;
             holder.Remove("__original");
             lock (MessageQueue)
             {
@@ -168,8 +170,9 @@ namespace SecQueue
         {
             if (selector == null)
                 selector = TQItemSelector.DefaultFifoSelector;
-            comparer = new EncapsulatedMessageComparer(new MessageComparer(selector));
-            MessageQueue = new SecSortedSet(comparer/*, 1000, 1000*/);
+            this.selector = selector;
+            comparer = new EncapsulatedMessageComparer(new MessageComparerVMap(selector));
+            MessageQueue = new SecSortedSet(comparer, 64, 64);
         }
 
         public QueueSpecificParameters GetParametersModel()

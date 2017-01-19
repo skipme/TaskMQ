@@ -123,6 +123,7 @@ namespace TaskQueue.Providers
             return Expression.Lambda(delegateType, expression_body, one, other).Compile();
         }
         public delegate int InternalComparableDictionary(Dictionary<string, object> one, Dictionary<string, object> other);
+        public delegate int InternalComparableValueMap(ValueMap<string, object> one, ValueMap<string, object> other);
         //public static InternalComparableDictionary MakeComparatorDictionary(TQItemSelector selector)
         //{
         //    Type KeyType = typeof(Dictionary<string, object>);
@@ -219,6 +220,61 @@ namespace TaskQueue.Providers
 
             return (InternalComparableDictionary)Expression.Lambda(typeof(InternalComparableDictionary), expression_body, one, other).Compile();
         }
+        public static InternalComparableValueMap MakeComparatorValueMap(TQItemSelector selector)
+        {
+            Type KeyType = typeof(ValueMap<string, object>);
+            Type PropType = typeof(List<object>);
+
+            ParameterExpression one = Expression.Parameter(KeyType);
+            ParameterExpression other = Expression.Parameter(KeyType);
+            List<Expression> body = new List<Expression>();
+            MethodInfo internalCMP = typeof(IComparable).GetMethod("CompareTo");
+
+            PropertyInfo indexer = PropType.GetProperty("Item");// List<object>[key]
+
+            LabelTarget returnTarget = Expression.Label(typeof(int));
+            ParameterExpression varCmp = Expression.Variable(typeof(int), "cmpInt");
+
+            int counter = -1;
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                counter++;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
+
+
+                Expression callOut = Expression.Property(Expression.PropertyOrField(one, "val2"), indexer, Expression.Constant(counter));
+                //Expression cond = Expression.IfThen(Expression.Not(callOut), Expression.Return(returnTarget, Expression.Constant(1)));
+                //body.Add(cond);
+
+                Expression callOut2 = Expression.Property(Expression.PropertyOrField(other, "val2"), indexer, Expression.Constant(counter));
+                //Expression cond2 = Expression.IfThen(Expression.Not(callOut2), Expression.Return(returnTarget, Expression.Constant(1)));
+                //body.Add(cond2);
+
+                Expression internalComparator;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    Expression castedA = Expression.Convert(callOut, typeof(IComparable));
+                    Expression castedB = Expression.Convert(callOut2, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
+                }
+                else
+                {
+                    Expression castedA = Expression.Convert(callOut2, typeof(IComparable));
+                    Expression castedB = Expression.Convert(callOut, typeof(object));
+                    internalComparator = Expression.Call(castedA, internalCMP, castedB);
+                }
+                Expression setexp = Expression.Assign(varCmp, internalComparator);
+                body.Add(setexp);
+                Expression isNEq = Expression.NotEqual(varCmp, Expression.Constant(0));
+                Expression cond3 = Expression.IfThen(isNEq, Expression.Return(returnTarget, varCmp));
+                body.Add(cond3);
+            }
+            LabelExpression returnDef = Expression.Label(returnTarget, Expression.Constant(0));
+            body.Add(returnDef);
+            Expression expression_body = Expression.Block(new[] { varCmp }, body);
+
+            return (InternalComparableValueMap)Expression.Lambda(typeof(InternalComparableValueMap), expression_body, one, other).Compile();
+        }
         public delegate bool InternalCheckDictionary(Dictionary<string, object> one);
 
         /// <summary>
@@ -240,7 +296,7 @@ namespace TaskQueue.Providers
 
             LabelTarget returnTarget = Expression.Label(typeof(bool));
             ParameterExpression varOut = Expression.Variable(typeof(object), "outObject");
-
+            bool nullable;
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
                 Expression callOut = Expression.Call(one, tryGetValue, Expression.Constant(rule.Key), varOut);
@@ -251,7 +307,7 @@ namespace TaskQueue.Providers
 
                 Expression cmpVal = Expression.Constant(rule.Value.Value);
                 MethodInfo internalCMP = rule.Value.Value.GetType().GetMethod("CompareTo", new Type[] { typeof(object) });
-                Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(rule.Value.Value.GetType())));
+                Expression ICMP = Expression.Call(cmpVal, internalCMP, Expression.Call(null, conv, varOut, Expression.Constant(RepresentedModel.GetRType(rule.Value.Value.GetType(), out nullable))));
                 Expression isEq = null;
 
                 if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
@@ -274,6 +330,7 @@ namespace TaskQueue.Providers
         public static bool CheckWithSelector(Dictionary<string, object> other, TQItemSelector selector)
         {
             object DVAL;
+            bool nullable;
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
             {
                 if (other.TryGetValue(rule.Key, out DVAL))
@@ -281,13 +338,13 @@ namespace TaskQueue.Providers
                     if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
                     {
                         if (((IComparable)rule.Value.Value)
-                            .CompareTo(RepresentedModel.Convert(DVAL, rule.Value.Value.GetType())) != 0)
+                            .CompareTo(RepresentedModel.Convert(DVAL, RepresentedModel.GetRType(rule.Value.Value.GetType(), out nullable))) != 0)
                             return false;
                     }
                     else if (rule.Value.ValueSet == TQItemSelectorSet.NotEquals)
                     {
                         if (((IComparable)rule.Value.Value)
-                               .CompareTo(RepresentedModel.Convert(DVAL, rule.Value.Value.GetType())) == 0)
+                               .CompareTo(RepresentedModel.Convert(DVAL, RepresentedModel.GetRType(rule.Value.Value.GetType(), out nullable))) == 0)
                             return false;
                     }
                 }
@@ -322,7 +379,28 @@ namespace TaskQueue.Providers
             }
             return 0;
         }
+        public static int CompareWithSelector(ValueMap<string, object> one, ValueMap<string, object> other, TQItemSelector selector)
+        {
+            int counter = -1;
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                counter++;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
 
+                int rslt;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    rslt = ((IComparable)one.val2[counter]).CompareTo(other.val2[counter]);
+                }
+                else
+                {
+                    rslt = ((IComparable)other.val2[counter]).CompareTo(one.val2[counter]);
+                }
+                if (rslt != 0)
+                    return rslt;
+            }
+            return 0;
+        }
         public int CompareTo(object obj)
         {
             return object.ReferenceEquals(this, obj) ? 0 : 1;
@@ -353,5 +431,24 @@ namespace TaskQueue.Providers
             //    y.GetHolder();
             return Comparator(x.Holder, y.Holder);
         }
+    }
+    public class MessageComparerVMap : IComparer<ValueMap<string, object>>
+    {
+        TaskMessage.InternalComparableValueMap Comparator;
+        TaskMessage.InternalCheckDictionary Checker;
+        public MessageComparerVMap(TQItemSelector selector)
+        {
+            Comparator = TaskMessage.MakeComparatorValueMap(selector);
+            Checker = TaskMessage.MakeCheckerDictionary(selector);
+        }
+        public bool Check(Dictionary<string, object> holder)
+        {
+            return Checker(holder);
+        }
+        public int Compare(ValueMap<string, object> x, ValueMap<string, object> y)
+        {
+            return Comparator(x, y);
+        }
+
     }
 }

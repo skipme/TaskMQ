@@ -149,6 +149,41 @@ namespace Tests
                TaskQueue.Providers.TaskMessage.CompareWithSelector(defmsg.GetHolder(), inst_CE.GetHolder(), sel));
         }
         [Test]
+        public void CompareVMap()
+        {
+            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector("field1", TaskQueue.TQItemSelectorSet.Descending)
+                .Rule("field2", TaskQueue.TQItemSelectorSet.Ascending);
+            SomeExtMessage inst = new SomeExtMessage()
+            {
+                field1 = 5,
+                field2 = 15
+            };
+            TaskQueue.Providers.TaskMessage.InternalComparableValueMap cmp = 
+                TaskQueue.Providers.TaskMessage.MakeComparatorValueMap(sel);
+            SomeExtMessage inst_CE = new SomeExtMessage()
+            {
+                field1 = 6,
+                field2 = 15
+            };
+            SomeExtMessage inst_CL = new SomeExtMessage()
+            {
+                field1 = 4,
+                field2 = 18
+            };
+            TaskQueue.Providers.TaskMessage defmsg = new TaskQueue.Providers.TaskMessage("X");
+            Assert.AreEqual(cmp(inst.GetValueMap(sel), inst_CE.GetValueMap(sel)),
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst.GetHolder(), inst_CE.GetHolder(), sel));
+
+            Assert.AreEqual(cmp(inst.GetValueMap(sel), inst_CL.GetValueMap(sel)),
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst.GetHolder(), inst_CL.GetHolder(), sel));
+
+            Assert.AreEqual(cmp(inst_CL.GetValueMap(sel), inst_CE.GetValueMap(sel)),
+                TaskQueue.Providers.TaskMessage.CompareWithSelector(inst_CL.GetHolder(), inst_CE.GetHolder(), sel));
+
+            Assert.AreEqual(cmp(defmsg.GetValueMap(sel), inst_CE.GetValueMap(sel)),
+               TaskQueue.Providers.TaskMessage.CompareWithSelector(defmsg.GetHolder(), inst_CE.GetHolder(), sel));
+        }
+        [Test]
         public void CheckDict()
         {
             TaskQueue.TQItemSelector sel = new

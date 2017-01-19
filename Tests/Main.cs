@@ -13,9 +13,50 @@ namespace Tests
         {
             //PerfCheck();
             //PerfCompare();
-            PerfQueue();
+            //PerfQueue();
+
+            PerfDic();
 
             return 1;
+        }
+        static void PerfDic()
+        {
+            int maxcnt = 15;
+            Dictionary<string, int> ex = new Dictionary<string, int>();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            for (int i = 0; i < maxcnt; i++)
+            {
+                ex.Add("left" + i.ToString(), 1);
+            }
+            watch.Stop();
+            Console.WriteLine("dic add {0:.000}ms", watch.Elapsed.TotalMilliseconds);
+            watch.Restart();
+            for (int i = 0; i < maxcnt; i++)
+            {
+                int x = ex["left" + i.ToString()];
+            }
+            watch.Stop();
+            Console.WriteLine("dic lookup {0:.000}ms", watch.Elapsed.TotalMilliseconds);
+
+            System.Collections.Hashtable sht = new System.Collections.Hashtable();
+
+            watch.Restart();
+            for (int i = 0; i < maxcnt; i++)
+            {
+                sht.Add("left" + i.ToString(), 1);
+            }
+            watch.Stop();
+            Console.WriteLine("hsht add {0:.000}ms", watch.Elapsed.TotalMilliseconds);
+
+            watch.Restart();
+            for (int i = 0; i < maxcnt; i++)
+            {
+                object x = sht["left" + i.ToString()];
+            }
+            watch.Stop();
+            Console.WriteLine("hsht lookup {0:.000}ms", watch.Elapsed.TotalMilliseconds);
+
         }
         static void PerfCheck()
         {
@@ -122,12 +163,26 @@ namespace Tests
 
             SecQueue.SecQueue mq2 = new SecQueue.SecQueue();
             mq2.SetSelector(sel);
-            const int counting = 10000;
+            const int counting = 50000;
+
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            Dictionary<string, object> baseData = msg.GetHolder();
+            Random rnd = new Random();
+            List<TaskQueue.Providers.TaskMessage> data = new List<TaskQueue.Providers.TaskMessage>();
             for (int i = 0; i < counting; i++)
             {
-                mq.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                baseData["field1"] = rnd.Next();
+                baseData["field2"] = rnd.Next();
+                data.Add(new TaskQueue.Providers.TaskMessage(baseData));
+            }
+            watch.Stop();
+            Console.WriteLine("populate {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, counting);
+
+            watch.Restart();
+            for (int i = 0; i < counting; i++)
+            {
+                mq.Push(data[i]);
                 if (i % 2 == 0)
                 {
                     var itm = mq.GetItem();
@@ -139,9 +194,10 @@ namespace Tests
             watch.Stop();
             Console.WriteLine("sortedset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength());
             watch.Restart();
+
             for (int i = 0; i < counting; i++)
             {
-                mq2.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                mq2.Push(data[i]);
                 if (i % 2 == 0)
                 {
                     var itm = mq2.GetItem();
@@ -151,6 +207,25 @@ namespace Tests
             }
             watch.Stop();
             Console.WriteLine("secset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength());
+            //List<TaskQueue.Providers.TaskMessage> l1 = new List<TaskQueue.Providers.TaskMessage>();
+            //List<TaskQueue.Providers.TaskMessage> l2 = new List<TaskQueue.Providers.TaskMessage>();
+            //while (true)
+            //{
+            //    TaskQueue.Providers.TaskMessage lo = mq.GetItem();
+            //    if (lo == null) break;
+            //    lo.Processed = true;
+            //    mq.UpdateItem(lo);
+            //    l1.Add(lo);
+            //}
+            //while (true)
+            //{
+            //    TaskQueue.Providers.TaskMessage lo = mq2.GetItem();
+            //    if (lo == null) break;
+            //    lo.Processed = true;
+            //    mq2.UpdateItem(lo);
+            //    l2.Add(lo);
+            //}
+            return;
             MongoQueue.MongoDbQueue mq3 = new MongoQueue.MongoDbQueue();
             mq3.InitialiseFromModel(null, new TaskQueue.Providers.QueueConnectionParameters("")
             {
@@ -166,7 +241,7 @@ namespace Tests
             watch.Restart();
             for (int i = 0; i < counting; i++)
             {
-                mq3.Push(new TaskQueue.Providers.TaskMessage(msg.GetHolder()));
+                mq3.Push(data[i]);
                 if (i % 2 == 0)
                 {
                     var itm = mq3.GetItem();
@@ -175,7 +250,7 @@ namespace Tests
                 }
             }
             watch.Stop();
-            Console.WriteLine("secset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength());
+            Console.WriteLine("mongo {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq3.GetQueueLength());
         }
     }
 }

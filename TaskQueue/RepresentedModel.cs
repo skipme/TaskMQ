@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Text;
+using System.Linq.Expressions;
 
 namespace TaskQueue
 {
@@ -17,6 +18,7 @@ namespace TaskQueue
                 if (!SchemeCache.TryGetValue(classWithProps, out lookupModel))
                 {
                     lookupModel = new RepresentedModel(classWithProps);
+                    lookupModel.CompileLambdas();
                     SchemeCache.Add(classWithProps, lookupModel);
                 }
 
@@ -24,7 +26,7 @@ namespace TaskQueue
         }
 
         public ValueMap<string, RepresentedModelValue> schema;
-
+        public Type referencedType;
         public static RepresentedModel FromSchema(Dictionary<string, RepresentedModelValue> schema)
         {
             return new RepresentedModel
@@ -42,14 +44,12 @@ namespace TaskQueue
                 };
             }
         }
-        //public Dictionary<string, string> ToDeclareDictionary()
-        //{
-        //    return schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => valueItem.Value2.VType.ToString());
-        //}
+      
         private RepresentedModel() { }
         public RepresentedModel(Type classWithProps)
         {
             schema = new ValueMap<string, RepresentedModelValue>();
+            referencedType = classWithProps;
             PropertyInfo[] props = classWithProps.GetProperties();
 
             foreach (PropertyInfo prop in props)
@@ -177,15 +177,16 @@ namespace TaskQueue
  
             return b.ToArray();
         }
-        public static object Convert(object src, Type toType)
+        public static object Convert(object src, FieldType TT)
         {
             Type srcType = src.GetType();
-            if (srcType == toType)
-                return src;
+            //if (srcType == toType)
+            //    return src;
             //object returnObj = null;
             bool nullable;
             FieldType FT = RepresentedModel.GetRType(srcType, out nullable);
-            FieldType TT = RepresentedModel.GetRType(toType, out nullable);
+            //FieldType TT = RepresentedModel.GetRType(toType, out nullable);
+            if (FT == TT) return src;
             switch (TT)
             {
                 case FieldType.text:
@@ -295,6 +296,20 @@ namespace TaskQueue
                 //break;
                 default:
                     return null;
+            }
+        }
+
+        public void CompileLambdas()
+        {
+            //if (referencedType == null) return;
+            
+            for (int i = 0; i < schema.val2.Count; i++)
+            {
+                ParameterExpression instance = Expression.Parameter(typeof(object));
+                Expression castedInstance = Expression.Convert(instance, referencedType);
+                Expression expget = Expression.PropertyOrField(castedInstance, schema.val1[i]);
+                Expression castedOut = Expression.Convert(expget, typeof(object));
+                schema.val2[i].PropValue = (TaskQueue.RepresentedModelValue.getProp)Expression.Lambda(typeof(TaskQueue.RepresentedModelValue.getProp), castedOut, instance).Compile();
             }
         }
     }

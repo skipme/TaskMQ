@@ -9,10 +9,10 @@ namespace SecQueue
 {
     public class IndexElement
     {
-        public TaskMessage IndexKey;
+        public TaskQueue.ValueMap<string, object> IndexKey;
         public int Reference;
 
-        public IndexElement(TaskMessage ikey)
+        public IndexElement(TaskQueue.ValueMap<string, object> ikey)
         {
             IndexKey = ikey;
         }
@@ -21,12 +21,12 @@ namespace SecQueue
     {
         public int Location;
         public List<IndexElement> IndexElements;
-        IComparer<TaskMessage> comparator;
+        IComparer<TaskQueue.ValueMap<string, object>> comparator;
 
         public int TopGradientReference;
         public bool IsSerial;
 
-        public IndexSector(IComparer<TaskMessage> comparator, bool isSerial = true)
+        public IndexSector(IComparer<TaskQueue.ValueMap<string, object>> comparator, bool isSerial = true)
         {
             Location = -1;
             IsSerial = isSerial;
@@ -34,7 +34,7 @@ namespace SecQueue
         }
 
         // perform a binary search on array
-        public int BinarySearch(TaskMessage searchElement, out int cmp)
+        public int BinarySearch(TaskQueue.ValueMap<string, object> searchElement, out int cmp)
         {
             if (IndexElements.Count == 0) { cmp = 0; return 0; }
 
@@ -78,7 +78,7 @@ namespace SecQueue
         const int MINSECTORCOUNT = 2;
 
         const int MAXGRADIENTLEVEL = 1000;// total elements = n^MAXGRADIENTLEVEL
-        IComparer<TaskMessage> comparator;
+        IComparer<TaskQueue.ValueMap<string, object>> comparator;
 
         private int keysCount = 0;
         public int Count
@@ -88,7 +88,7 @@ namespace SecQueue
                 return keysCount;
             }
         }
-        public SecSortedSet(IComparer<TaskMessage> comparator, int sectorCountSeria = 24, int sectorCountGradient = 24)
+        public SecSortedSet(IComparer<TaskQueue.ValueMap<string, object>> comparator, int sectorCountSeria = 24, int sectorCountGradient = 24)
         {
             //if (MINSECTORCOUNT < 2)
             //    throw new Exception("!!!!!!!!!!!!");
@@ -113,10 +113,6 @@ namespace SecQueue
             SetSector(initialSector);
             SetSector(RootGradient);
             initialSector.TopGradientReference = RootGradient.Location;
-            TaskMessage zinst = new TaskMessage("__GRAD_INITIAL"); zinst.GetHolder();
-            RootGradient.IndexElements.Add(new IndexElement(zinst) { Reference = initialSector.Location });
-
-            
         }
 
         private void SetSector(IndexSector sector)
@@ -141,7 +137,7 @@ namespace SecQueue
         {
             return AllSectors[Reference];
         }
-        public int Search(TaskMessage key)
+        public int Search(TaskQueue.ValueMap<string, object> key)
         {
             int outCmp = 0, idx;
             IndexSector currentSector = RootGradient;
@@ -170,20 +166,25 @@ namespace SecQueue
         {
             public QOperationType OpType;
             public IndexSector Reference;
-            public TaskMessage Key;
+            public TaskQueue.ValueMap<string, object> Key;
             public int index = -1;
             public int location;
         }
 
-        public void Add(TaskMessage key)
+        public void Add(TaskQueue.ValueMap<string, object> key)
         {
             int outCmp = 0, idx;
-
+            if (RootGradient.IndexElements.Count == 0)
+            {
+                initialSector.IndexElements.Add(new IndexElement(key));
+                RootGradient.IndexElements.Add(new IndexElement(key) { Reference = initialSector.Location });
+                keysCount++;
+                return;
+            }
             IndexSector currentSector = RootGradient;
             for (int i = 0; i < MAXGRADIENTLEVEL; i++)
             {
                 idx = currentSector.BinarySearch(key, out outCmp);
-
                 if (currentSector.IsSerial)
                 {
                     if (outCmp == 0 && currentSector.IndexElements.Count > 0)
@@ -242,10 +243,10 @@ namespace SecQueue
                                     // split....
                                     if (op.index != op.Reference.IndexElements.Count)
                                     {
-                                        for (int j = op.index; j < op.Reference.IndexElements.Count; j++)
-                                        {
-                                            if (op.Key.CompareTo(op.Reference.IndexElements[j].IndexKey) == 0) op.index++;
-                                        }
+                                        //for (int j = op.index; j < op.Reference.IndexElements.Count; j++)
+                                        //{
+                                        //    if (comparator.Compare(op.Key, op.Reference.IndexElements[j].IndexKey) == 0) op.index++;
+                                        //}
                                         op.Reference.IndexElements.Insert(op.index, new_element);
                                         int cutindex = op.Reference.IndexElements.Count / 2;
                                         new_sector.IndexElements = op.Reference.IndexElements.GetRange(cutindex, op.Reference.IndexElements.Count - cutindex);
@@ -294,10 +295,11 @@ namespace SecQueue
                                 else
                                 {
                                     // just add element
-                                    for (int j = op.index; j < op.Reference.IndexElements.Count; j++)
-                                    {
-                                        if (op.Key.CompareTo(op.Reference.IndexElements[j].IndexKey) == 0) op.index++;
-                                    }
+                                    //if (op.index == 0)
+                                    //    for (int j = op.index; j < op.Reference.IndexElements.Count; j++)
+                                    //    {
+                                    //        if (comparator.Compare(op.Key, op.Reference.IndexElements[j].IndexKey) == 0) op.index++;
+                                    //    }
                                     op.Reference.IndexElements.Insert(op.index, new_element);
                                     if ((op.index == 0 || op.Reference.IndexElements.Count == 1) && op.Reference.TopGradientReference != ROOTGRADIENT)
                                     {
@@ -353,7 +355,7 @@ namespace SecQueue
             }
             keysCount++;
         }
-        public bool Remove(TaskMessage key)
+        public bool Remove(TaskQueue.ValueMap<string, object> key)
         {
             int outCmp = 0, idx;
 
@@ -373,7 +375,7 @@ namespace SecQueue
                             // nothing to do with it, sector remains with references on it in gradients
 
                             // or we can remove it if storage in-memory...
-                            TaskMessage newKey = null;
+                            TaskQueue.ValueMap<string, object> newKey = null;
                             IndexSector refSector = currentSector;
                             IndexSector grad = GetSector(currentSector.TopGradientReference);
                             bool elementFound = true, nextElement = false, removeElement = true;
@@ -432,7 +434,7 @@ namespace SecQueue
                             if (idx == 0)
                             {
                                 // update ranges
-                                TaskMessage newKey = currentSector.IndexElements[0].IndexKey;
+                                TaskQueue.ValueMap<string, object> newKey = currentSector.IndexElements[0].IndexKey;
                                 IndexSector refSector = currentSector;
                                 IndexSector grad = GetSector(currentSector.TopGradientReference);
                                 bool elementFound = true, nextElement = false;
@@ -525,7 +527,7 @@ namespace SecQueue
                 }
             }
         }
-        public TaskMessage GetMinKey()
+        public TaskQueue.ValueMap<string, object> GetMinKey()
         {
             IndexElement il = GetMinWithoutLeftBehindSectors();
             return il == null ? null : il.IndexKey;

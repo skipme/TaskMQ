@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using System.Text;
 
 namespace TaskQueue
@@ -14,10 +14,15 @@ namespace TaskQueue
     {
         public List<T> val1;
         public List<LT> val2;
-        public ValueMap() { val1 = new List<T>(); val2 = new List<LT>(); }
-        public ValueMap(Dictionary<T, LT> bdict)
-            : this()
+        public ValueMap()
         {
+            val1 = new List<T>();
+            val2 = new List<LT>();
+        }
+        public ValueMap(Dictionary<T, LT> bdict)
+        {
+            val1 = new List<T>();
+            val2 = new List<LT>();
             foreach (KeyValuePair<T, LT> bdictItem in bdict)
             {
                 val1.Add(bdictItem.Key);

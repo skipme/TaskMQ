@@ -65,13 +65,13 @@ namespace TaskQueue.Providers
         {
             try
             {
-                if (item.Holder == null) item.GetHolder();
-                if (comparer.internalComparer.Check(item))
+                Providers.TaskMessage msg = new TaskMessage(item.GetHolder());
+                if (comparer.internalComparer.Check(msg))
                 {
                     lock (MessageQueue)
                     {
-                        item.Holder["__idx"] = Counter;
-                        MessageQueue.Add(item);
+                        msg.Holder["__idx"] = Counter;
+                        MessageQueue.Add(msg);
                         Counter++;
                     }
                 }
@@ -107,6 +107,7 @@ namespace TaskQueue.Providers
 
                 result = MessageQueue.Min;
                 TaskMessage msg = new TaskMessage(result.Holder);
+                msg.Holder.Remove("__idx");
                 msg.Holder.Add("__original", result);
                 return msg;
             }
