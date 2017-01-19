@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 //using System.Linq;
 using System.Text;
@@ -59,6 +60,15 @@ namespace TaskQueue
         public Dictionary<T, LT> ToDictionary()
         {
             Dictionary<T, LT> result = new Dictionary<T, LT>();
+            for (int i = 0; i < val1.Count; i++)
+            {
+                result.Add(val1[i], val2[i]);
+            }
+            return result;
+        }
+        public Hashtable ToHashtable()
+        {
+            Hashtable result = new Hashtable();
             for (int i = 0; i < val1.Count; i++)
             {
                 result.Add(val1[i], val2[i]);

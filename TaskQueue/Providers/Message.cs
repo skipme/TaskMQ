@@ -22,6 +22,11 @@ namespace TaskQueue.Providers
         [FieldDescription(Ignore = false, Inherited = true, Required = false)]
         public DateTime? ProcessedTime { get; set; }
 
+        //public TaskMessage(Dictionary<string, object> holder)
+        //{
+        //    SetHolder(holder);
+        //}
+        //public TaskMessage(System.Collections.Hashtable holder)
         public TaskMessage(Dictionary<string, object> holder)
             : base(holder)
         {
@@ -355,6 +360,35 @@ namespace TaskQueue.Providers
             }
             return true;
         }
+        public static bool CheckWithSelector(System.Collections.Hashtable other, TQItemSelector selector)
+        {
+            object DVAL;
+            bool nullable;
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                if (other.ContainsKey(rule.Key))
+                {
+                    DVAL = other[rule.Key];
+                    if (rule.Value.ValueSet == TQItemSelectorSet.Equals)
+                    {
+                        if (((IComparable)rule.Value.Value)
+                            .CompareTo(RepresentedModel.Convert(DVAL, RepresentedModel.GetRType(rule.Value.Value.GetType(), out nullable))) != 0)
+                            return false;
+                    }
+                    else if (rule.Value.ValueSet == TQItemSelectorSet.NotEquals)
+                    {
+                        if (((IComparable)rule.Value.Value)
+                               .CompareTo(RepresentedModel.Convert(DVAL, RepresentedModel.GetRType(rule.Value.Value.GetType(), out nullable))) == 0)
+                            return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
         public static int CompareWithSelector(Dictionary<string, object> one, Dictionary<string, object> other, TQItemSelector selector)
         {
             foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
@@ -365,6 +399,29 @@ namespace TaskQueue.Providers
                     return 1;
                 if (!other.TryGetValue(rule.Key, out objb))
                     return 1;
+                int rslt;
+                if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
+                {
+                    rslt = ((IComparable)obja).CompareTo(objb);
+                }
+                else
+                {
+                    rslt = ((IComparable)objb).CompareTo(obja);
+                }
+                if (rslt != 0)
+                    return rslt;
+            }
+            return 0;
+        }
+        public static int CompareWithSelector(System.Collections.Hashtable one, System.Collections.Hashtable other, TQItemSelector selector)
+        {
+            foreach (KeyValuePair<string, TQItemSelectorParam> rule in selector.parameters)
+            {
+                if (rule.Value.ValueSet == TQItemSelectorSet.Equals || rule.Value.ValueSet == TQItemSelectorSet.NotEquals) { continue; }
+                object obja = one[rule.Key], objb = other[rule.Key];
+                if (obja == null || objb == null)
+                    return 1;
+
                 int rslt;
                 if (rule.Value.ValueSet == TQItemSelectorSet.Ascending)
                 {
@@ -414,14 +471,17 @@ namespace TaskQueue.Providers
     {
         TaskMessage.InternalComparableDictionary Comparator;
         TaskMessage.InternalCheckDictionary Checker;
+        TQItemSelector selector;
         public MessageComparer(TQItemSelector selector)
         {
             Comparator = TaskMessage.MakeComparatorDictionary(selector);
             Checker = TaskMessage.MakeCheckerDictionary(selector);
+            this.selector = selector;
         }
         public bool Check(TaskMessage msg)
         {
-            return Checker(msg.Holder);
+            //return Checker(msg.Holder);
+            return TaskMessage.CheckWithSelector(msg.Holder, selector);
         }
         public int Compare(TaskMessage x, TaskMessage y)
         {
@@ -429,21 +489,28 @@ namespace TaskQueue.Providers
             //    x.GetHolder();
             //if (y.Holder == null)
             //    y.GetHolder();
-            return Comparator(x.Holder, y.Holder);
+            //return Comparator(x.Holder, y.Holder);
+            return TaskMessage.CompareWithSelector(x.Holder, y.Holder, selector);
         }
     }
     public class MessageComparerVMap : IComparer<ValueMap<string, object>>
     {
         TaskMessage.InternalComparableValueMap Comparator;
         TaskMessage.InternalCheckDictionary Checker;
+        TQItemSelector selector;
         public MessageComparerVMap(TQItemSelector selector)
         {
             Comparator = TaskMessage.MakeComparatorValueMap(selector);
             Checker = TaskMessage.MakeCheckerDictionary(selector);
+            this.selector = selector;
         }
         public bool Check(Dictionary<string, object> holder)
         {
             return Checker(holder);
+        }
+        public bool Check(System.Collections.Hashtable holder)
+        {
+            return TaskMessage.CheckWithSelector(holder, selector);
         }
         public int Compare(ValueMap<string, object> x, ValueMap<string, object> y)
         {

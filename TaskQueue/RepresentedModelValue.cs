@@ -48,7 +48,7 @@ namespace TaskQueue
         {
             this.VType = VType;
         }
-  
+
         public FieldType VType;
         public string Description;
         public bool Required;
@@ -63,6 +63,8 @@ namespace TaskQueue
 
         public PropertyInfo propertyDescriptor;
         public delegate object getProp(object instance);
+        public delegate void setProp(object instance, object val);
         public getProp PropValue;
+        public setProp PropValueSet;
     }
 }

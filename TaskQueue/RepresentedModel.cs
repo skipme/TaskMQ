@@ -44,7 +44,7 @@ namespace TaskQueue
                 };
             }
         }
-      
+
         private RepresentedModel() { }
         public RepresentedModel(Type classWithProps)
         {
@@ -174,7 +174,7 @@ namespace TaskQueue
                 b.Add((byte)(rv.VType));
                 //}
             }
- 
+
             return b.ToArray();
         }
         public static object Convert(object src, FieldType TT)
@@ -302,14 +302,28 @@ namespace TaskQueue
         public void CompileLambdas()
         {
             //if (referencedType == null) return;
-            
+
             for (int i = 0; i < schema.val2.Count; i++)
             {
-                ParameterExpression instance = Expression.Parameter(typeof(object));
-                Expression castedInstance = Expression.Convert(instance, referencedType);
-                Expression expget = Expression.PropertyOrField(castedInstance, schema.val1[i]);
-                Expression castedOut = Expression.Convert(expget, typeof(object));
-                schema.val2[i].PropValue = (TaskQueue.RepresentedModelValue.getProp)Expression.Lambda(typeof(TaskQueue.RepresentedModelValue.getProp), castedOut, instance).Compile();
+                {
+                    ParameterExpression instance = Expression.Parameter(typeof(object));
+                    Expression castedInstance = Expression.Convert(instance, referencedType);
+                    Expression expget = Expression.PropertyOrField(castedInstance, schema.val1[i]);
+                    Expression castedOut = Expression.Convert(expget, typeof(object));
+                    schema.val2[i].PropValue = (TaskQueue.RepresentedModelValue.getProp)Expression.Lambda(
+                        typeof(TaskQueue.RepresentedModelValue.getProp), castedOut, instance).Compile();
+                }
+                {
+                    ParameterExpression instance = Expression.Parameter(typeof(object));
+                    ParameterExpression val = Expression.Parameter(typeof(object));
+                    Expression castedInstance = Expression.Convert(instance, referencedType);
+                    MemberExpression prop = Expression.PropertyOrField(castedInstance, schema.val1[i]);
+                    Expression castedIn = Expression.Convert(val, schema.val2[i].propertyDescriptor.PropertyType);
+                    Expression ass = Expression.Assign(prop, castedIn);
+
+                    schema.val2[i].PropValueSet = (TaskQueue.RepresentedModelValue.setProp)Expression.Lambda(
+                        typeof(TaskQueue.RepresentedModelValue.setProp), ass, new[] { instance, val }).Compile();
+                }
             }
         }
     }

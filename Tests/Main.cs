@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,15 +14,15 @@ namespace Tests
         {
             //PerfCheck();
             //PerfCompare();
-            //PerfQueue();
+            PerfQueue();
 
-            PerfDic();
+            //PerfDic();
 
             return 1;
         }
         static void PerfDic()
         {
-            int maxcnt = 15;
+            int maxcnt = 100;
             Dictionary<string, int> ex = new Dictionary<string, int>();
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -47,7 +48,7 @@ namespace Tests
                 sht.Add("left" + i.ToString(), 1);
             }
             watch.Stop();
-            Console.WriteLine("hsht add {0:.000}ms", watch.Elapsed.TotalMilliseconds);
+            Console.WriteLine("\nhsht add {0:.000}ms", watch.Elapsed.TotalMilliseconds);
 
             watch.Restart();
             for (int i = 0; i < maxcnt; i++)
@@ -57,88 +58,105 @@ namespace Tests
             watch.Stop();
             Console.WriteLine("hsht lookup {0:.000}ms", watch.Elapsed.TotalMilliseconds);
 
-        }
-        static void PerfCheck()
-        {
-            CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
-            {
-                field1 = 111,
-                field2 = 15
-            };
-
-            Dictionary<string, object> a = msg.GetHolder();
-
-            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector
-                ("field1", TaskQueue.TQItemSelectorSet.Ascending)
-                .Rule("field2", 15L, true);
-
-            Stopwatch watch = new Stopwatch();
-            TaskQueue.Providers.TaskMessage.InternalCheckDictionary chk =
-                (TaskQueue.Providers.TaskMessage.InternalCheckDictionary)
-                TaskQueue.Providers.TaskMessage.MakeCheckerDictionary(sel);
-            watch.Start();
-            for (int i = 0; i < 1000000; i++)
-            {
-                chk(a);
-            }
-            watch.Stop();
-            Console.WriteLine("compiled {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+            int maxinstances = 100000;
             watch.Restart();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < maxinstances; i++)
             {
-                TaskQueue.Providers.TaskMessage.CheckWithSelector(a, sel);
+                ex = new Dictionary<string, int>();
             }
             watch.Stop();
-            Console.WriteLine("native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
-        }
-        static void PerfCompare()
-        {
-            CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
-            {
-                field1 = 111,
-                field2 = 15
-            };
-            CustomMessagesCompare.SomeExtMessage msg2 = new CustomMessagesCompare.SomeExtMessage()
-            {
-                field1 = 111,
-                field2 = 77
-            };
-            Dictionary<string, object> a = msg.GetHolder();
-            Dictionary<string, object> b = msg2.GetHolder();
-            TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector
-                ("field1", TaskQueue.TQItemSelectorSet.Ascending)
-                .Rule("field2", TaskQueue.TQItemSelectorSet.Descending);
-
-            Stopwatch watch = new Stopwatch();
-            TaskQueue.Providers.TaskMessage.InternalComparableDictionary cmp = (TaskQueue.Providers.TaskMessage.InternalComparableDictionary)
-                 TaskQueue.Providers.TaskMessage.MakeComparatorDictionary(sel);
-            watch.Start();
-            for (int i = 0; i < 1000000; i++)
-            {
-                cmp(a, b);
-            }
-            watch.Stop();
-            Console.WriteLine("compiled {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+            Console.WriteLine("\ndic instances {0:.000}ms", watch.Elapsed.TotalMilliseconds);
             watch.Restart();
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < maxinstances; i++)
             {
-                TaskQueue.Providers.TaskMessage.CompareWithSelector(a, b, sel);
+                sht = new System.Collections.Hashtable();
             }
             watch.Stop();
-            Console.WriteLine("native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
-
-            Tests.CustomMessagesCompare.InternalComparable cmp2 = (Tests.CustomMessagesCompare.InternalComparable)
-                msg.MakeComparator(sel, typeof(Tests.CustomMessagesCompare.InternalComparable));
+            Console.WriteLine("hsht instances {0:.000}ms", watch.Elapsed.TotalMilliseconds);
 
 
-            watch.Restart();
-            for (int i = 0; i < 1000000; i++)
-            {
-                cmp2(msg, msg2);
-            }
-            watch.Stop();
-            Console.WriteLine("compiled native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
         }
+        //static void PerfCheck()
+        //{
+        //    CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
+        //    {
+        //        field1 = 111,
+        //        field2 = 15
+        //    };
+
+        //    Dictionary<string, object> a = msg.GetHolder();
+
+        //    TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector
+        //        ("field1", TaskQueue.TQItemSelectorSet.Ascending)
+        //        .Rule("field2", 15L, true);
+
+        //    Stopwatch watch = new Stopwatch();
+        //    TaskQueue.Providers.TaskMessage.InternalCheckDictionary chk =
+        //        (TaskQueue.Providers.TaskMessage.InternalCheckDictionary)
+        //        TaskQueue.Providers.TaskMessage.MakeCheckerDictionary(sel);
+        //    watch.Start();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        chk(a);
+        //    }
+        //    watch.Stop();
+        //    Console.WriteLine("compiled {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+        //    watch.Restart();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        TaskQueue.Providers.TaskMessage.CheckWithSelector(a, sel);
+        //    }
+        //    watch.Stop();
+        //    Console.WriteLine("native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+        //}
+        //static void PerfCompare()
+        //{
+        //    CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
+        //    {
+        //        field1 = 111,
+        //        field2 = 15
+        //    };
+        //    CustomMessagesCompare.SomeExtMessage msg2 = new CustomMessagesCompare.SomeExtMessage()
+        //    {
+        //        field1 = 111,
+        //        field2 = 77
+        //    };
+        //    Dictionary<string, object> a = msg.GetHolder();
+        //    Dictionary<string, object> b = msg2.GetHolder();
+        //    TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector
+        //        ("field1", TaskQueue.TQItemSelectorSet.Ascending)
+        //        .Rule("field2", TaskQueue.TQItemSelectorSet.Descending);
+
+        //    Stopwatch watch = new Stopwatch();
+        //    TaskQueue.Providers.TaskMessage.InternalComparableDictionary cmp = (TaskQueue.Providers.TaskMessage.InternalComparableDictionary)
+        //         TaskQueue.Providers.TaskMessage.MakeComparatorDictionary(sel);
+        //    watch.Start();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        cmp(a, b);
+        //    }
+        //    watch.Stop();
+        //    Console.WriteLine("compiled {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+        //    watch.Restart();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        TaskQueue.Providers.TaskMessage.CompareWithSelector(a, b, sel);
+        //    }
+        //    watch.Stop();
+        //    Console.WriteLine("native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+
+        //    Tests.CustomMessagesCompare.InternalComparable cmp2 = (Tests.CustomMessagesCompare.InternalComparable)
+        //        msg.MakeComparator(sel, typeof(Tests.CustomMessagesCompare.InternalComparable));
+
+
+        //    watch.Restart();
+        //    for (int i = 0; i < 1000000; i++)
+        //    {
+        //        cmp2(msg, msg2);
+        //    }
+        //    watch.Stop();
+        //    Console.WriteLine("compiled native {0:.00}ms", watch.Elapsed.TotalMilliseconds);
+        //}
         static void PerfQueue()
         {
             CustomMessagesCompare.SomeExtMessage msg = new CustomMessagesCompare.SomeExtMessage()
@@ -177,7 +195,7 @@ namespace Tests
                 data.Add(new TaskQueue.Providers.TaskMessage(baseData));
             }
             watch.Stop();
-            Console.WriteLine("populate {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, counting);
+            Console.WriteLine("populate {0:.00}ms {1} avg [{2:.0}] msg per second", watch.Elapsed.TotalMilliseconds, counting, (1000.0 / watch.Elapsed.TotalMilliseconds) * counting);
 
             watch.Restart();
             for (int i = 0; i < counting; i++)
@@ -192,7 +210,7 @@ namespace Tests
             }
 
             watch.Stop();
-            Console.WriteLine("sortedset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength());
+            Console.WriteLine("sortedset {0:.00}ms {1} avg [{2:.0}] msg per second", watch.Elapsed.TotalMilliseconds, mq.GetQueueLength(), (1000.0 / watch.Elapsed.TotalMilliseconds) * counting);
             watch.Restart();
 
             for (int i = 0; i < counting; i++)
@@ -206,26 +224,9 @@ namespace Tests
                 }
             }
             watch.Stop();
-            Console.WriteLine("secset {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength());
-            //List<TaskQueue.Providers.TaskMessage> l1 = new List<TaskQueue.Providers.TaskMessage>();
-            //List<TaskQueue.Providers.TaskMessage> l2 = new List<TaskQueue.Providers.TaskMessage>();
-            //while (true)
-            //{
-            //    TaskQueue.Providers.TaskMessage lo = mq.GetItem();
-            //    if (lo == null) break;
-            //    lo.Processed = true;
-            //    mq.UpdateItem(lo);
-            //    l1.Add(lo);
-            //}
-            //while (true)
-            //{
-            //    TaskQueue.Providers.TaskMessage lo = mq2.GetItem();
-            //    if (lo == null) break;
-            //    lo.Processed = true;
-            //    mq2.UpdateItem(lo);
-            //    l2.Add(lo);
-            //}
-            return;
+            Console.WriteLine("secset {0:.00}ms {1} avg [{2:.0}] msg per second", watch.Elapsed.TotalMilliseconds, mq2.GetQueueLength(), (1000.0 / watch.Elapsed.TotalMilliseconds) * counting);
+
+            //return;
             MongoQueue.MongoDbQueue mq3 = new MongoQueue.MongoDbQueue();
             mq3.InitialiseFromModel(null, new TaskQueue.Providers.QueueConnectionParameters("")
             {
@@ -250,7 +251,7 @@ namespace Tests
                 }
             }
             watch.Stop();
-            Console.WriteLine("mongo {0:.00}ms {1}", watch.Elapsed.TotalMilliseconds, mq3.GetQueueLength());
+            Console.WriteLine("mongo {0:.00}ms {1} avg [{2:.0}] msg per second", watch.Elapsed.TotalMilliseconds, mq3.GetQueueLength(), (1000.0 / watch.Elapsed.TotalMilliseconds) * counting);
         }
     }
 }
