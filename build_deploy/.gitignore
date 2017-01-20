@@ -1,2 +1,3 @@
 BBQ_static/*
 !bin/
+!BBQ_static/servePy.bat
