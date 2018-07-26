@@ -37,6 +37,7 @@ namespace TaskScheduler
                 {
                     Dequeued = CurrentPlanQueue[CPQueueCursor];
                     CPQueueCursor++;
+                    Dequeued.SetStartExecution();
                 }
                 else
                 {
@@ -68,11 +69,13 @@ namespace TaskScheduler
                         if (newcmpnts.Length > 1)
                         {
                             // populate queue
-                            PopulateQueue(newcmpnts);// let wait handled thread do that with race for job
+                            PopulateQueue(newcmpnts);// let wait handled thread do that with race for job **
+                            // exit from losck 
                         }
                         else
                         {
                             Dequeued = newcmpnts[0];// this thread has exclusive access without race for job
+                            Dequeued.SetStartExecution();
                         }
                     }
                     else
@@ -82,14 +85,15 @@ namespace TaskScheduler
 
                 }
             }
-            if (Dequeued != null)
-            {
-                lock (PlanComponents)
-                {
-                    Dequeued.SetStartExecution();
-                }
-            }
-            else if (wait)
+            //if (Dequeued != null)
+            //{
+            //    lock (PlanComponents)
+            //    {
+            //        Dequeued.SetStartExecution();
+            //    }
+            //}
+            //else if (wait)
+            if (wait && Dequeued == null)
             {
                 // check if we have a job to wait
                 int waitms = this.BeforeNextMs();

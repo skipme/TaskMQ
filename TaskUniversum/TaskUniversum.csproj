@@ -41,14 +41,14 @@
     <Compile Include="AppToMod\IBroker.cs" />
     <Compile Include="AppToMod\IBrokerModule.cs" />
     <Compile Include="AppToMod\IMod.cs" />
-    <Compile Include="Common\IntervalType.cs" />
+    <Compile Include="Scheduler\IntervalType.cs" />
     <Compile Include="Common\ISCMRevision.cs" />
     <Compile Include="Common\IScopeLogger.cs" />
     <Compile Include="AppToMod\ISourceManager.cs" />
     <Compile Include="Common\Runtime.cs" />
     <Compile Include="Common\StatisticContainer.cs" />
     <Compile Include="Common\StatisticModel.cs" />
-    <Compile Include="Common\TaskMeta.cs" />
+    <Compile Include="Scheduler\TaskMeta.cs" />
     <Compile Include="ModApi\ScopeLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueConnectionException.cs" />
