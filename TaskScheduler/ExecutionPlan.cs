@@ -97,7 +97,8 @@ namespace TaskScheduler
             {
                 // check if we have a job to wait
                 int waitms = this.BeforeNextMs();
-                if (waitms > 0)
+                //Console.WriteLine("waitms: {0}", waitms);
+                if (waitms > 100)
                 {
                     refilled.WaitOne(waitms);
                 }
@@ -141,7 +142,7 @@ namespace TaskScheduler
 
                 PlanItem Next = n.FirstOrDefault();
                 if (Next == null)
-                    return 1000;// default wait 1 sec
+                    return 100;// default wait 1 sec
                 else
                 {
                     return (int)Next.LAMS;
