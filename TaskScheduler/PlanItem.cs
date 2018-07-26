@@ -25,9 +25,9 @@ namespace TaskScheduler
 
             switch (intervalType)
             {
-                case IntervalType.intervalMilliseconds:
-                    NextExecutionTime = LastExecutionTime.AddMilliseconds(intervalValue);
-                    break;
+                //case IntervalType.intervalMilliseconds:
+                //    NextExecutionTime = LastExecutionTime.AddMilliseconds(intervalValue);
+                //    break;
                 case IntervalType.intervalSeconds:
                     NextExecutionTime = LastExecutionTime.AddSeconds(intervalValue);
                     break;
@@ -48,11 +48,19 @@ namespace TaskScheduler
         /// We can suspend this job for maintenance
         /// </summary>
         public bool Suspended;
-        public double LAMS;
+        public sbyte LAMS;
 
-        public double MillisecondsBeforeExecute()
+        public long SecondsBeforeExecute()
         {
-            return LAMS = (NextExecutionTime - DateTime.UtcNow).TotalMilliseconds;
+        	double LAMSd = (NextExecutionTime - DateTime.UtcNow).TotalSeconds;
+        	if(LAMSd>127)
+        		LAMS = 127;
+        	else if(LAMSd< -128)
+        		LAMS = -128;
+        	else 
+        		LAMS = (sbyte)LAMSd;
+        	//Console.WriteLine(LAMS);
+        	return LAMS;
         }
 
         public void SetActualTimePosition(DateTime startedAt, TimeSpan executionTime)

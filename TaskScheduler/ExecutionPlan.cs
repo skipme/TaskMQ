@@ -32,10 +32,10 @@ namespace TaskScheduler
             PlanItem Dequeued = null;
             lock (CurrentPlanQueue)
             {
-                bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
+            	bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
                 if (planNotEmpty)
                 {
-                    Dequeued = CurrentPlanQueue[CPQueueCursor];
+                	Dequeued = CurrentPlanQueue[CPQueueCursor];
                     CPQueueCursor++;
                     Dequeued.SetStartExecution();
                 }
@@ -96,11 +96,11 @@ namespace TaskScheduler
             if (wait && Dequeued == null)
             {
                 // check if we have a job to wait
-                int waitms = this.BeforeNextMs();
+                int waitsec = this.BeforeNextSec();
                 //Console.WriteLine("waitms: {0}", waitms);
-                if (waitms > 100)
+                if (waitsec > 0)
                 {
-                    refilled.WaitOne(waitms);
+                    refilled.WaitOne(waitsec * 1000);
                 }
                 Dequeued = this.Next(false);
             }
@@ -121,31 +121,30 @@ namespace TaskScheduler
 
         private PlanItem[] OrderComponents()
         {
-            var p = from i in PlanComponents
-                    where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
-                    !i.ExucutingNow && i.MillisecondsBeforeExecute() <= 0
-                    orderby i.LAMS descending
-                    select i;
-
-
-            return p.ToArray();
+             var p = from i in PlanComponents
+                     where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
+                     !i.ExucutingNow && i.SecondsBeforeExecute() <= 0
+                     orderby i.LAMS descending
+                     select i;
+            return p.ToArray();    
         }
-        private int BeforeNextMs()
+       
+        private int BeforeNextSec()
         {
             lock (PlanComponents)
             {
                 var n = from i in PlanComponents
                         where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
-                        !i.ExucutingNow && i.MillisecondsBeforeExecute() > 0
+                        !i.ExucutingNow && i.SecondsBeforeExecute() > 0
                         orderby i.LAMS
                         select i;
 
-                PlanItem Next = n.FirstOrDefault();
-                if (Next == null)
-                    return 100;// default wait 1 sec
+                PlanItem NextJob = n.FirstOrDefault();
+                if (NextJob == null)
+                    return 1;// default wait 1 sec
                 else
                 {
-                    return (int)Next.LAMS;
+                    return (int)NextJob.LAMS;
                 }
             }
         }

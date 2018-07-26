@@ -13,9 +13,14 @@ namespace Tests
 
 		static int Main(string[] args)
 		{
+			double x =-128;
 			//PerfCheck();
 			//PerfCompare();
-
+//			Console.WriteLine((x));
+//			Console.WriteLine((byte)(x));
+//			Console.WriteLine(((long)x));
+//			Console.WriteLine((sbyte)((long)x));
+//			Console.WriteLine((sbyte)(x));
 			Scheduler_PayloadToOverallTime();
 			//PerfQueue();
 
@@ -31,11 +36,13 @@ namespace Tests
 			TimeSpan cspan = new TimeSpan();
 
 
-			uint localVar = 0, incVal = 10, maxVal = 10000000;
+			uint localVar = 0, incVal = 10, maxVal = 10000;
 
 			Stopwatch sw = Stopwatch.StartNew();
 			for (int i = 0; i < maxVal; i++) {
 				localVar++;
+				if(localVar % incVal == 0)
+					System.Threading.Thread.Sleep(1);
 			}
 			cspan = sw.Elapsed;
 			Console.WriteLine(cspan.TotalMilliseconds);
@@ -51,10 +58,12 @@ namespace Tests
 
 			bool notSucceeded = true;
 			PlanItemEntryPoint job = (ThreadContext ti, PlanItem pi) => {
-				//Console.WriteLine("ex started");
+				//Console.WriteLine("ex started {0} {1}", ti.hThread.Name, localVar);
 				for (int i = 0; i < incVal; i++) {
 					localVar++;
+					
 				}
+				System.Threading.Thread.Sleep(1);
 				if (localVar >= maxVal)
 					notSucceeded = false;
 				//Console.WriteLine("succ executed");
@@ -69,10 +78,10 @@ namespace Tests
 			};
 
 			
-			Scheduler.SetPlan(TaskList);
-			Stopwatch swx = Stopwatch.StartNew();
 			Scheduler.Revoke();
-
+			Stopwatch swx = Stopwatch.StartNew();
+			Scheduler.SetPlan(TaskList);
+			
 			while (notSucceeded) {
 				System.Threading.Thread.Sleep(0);
 			}
