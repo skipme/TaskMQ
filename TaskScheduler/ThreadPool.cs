@@ -10,7 +10,7 @@ namespace TaskScheduler
     public class ThreadContext
     {
         public bool Isolated { get; set; }
-        public Thread hThread { get; set; }
+        public Thread hThread;
 
         public bool StopThread { get; set; }
         public bool StoppedThread { get; set; }
@@ -24,14 +24,22 @@ namespace TaskScheduler
     public class ThreadPool
     {
         const int minThrads = 4;
-        const int maxThreads = 8;// TODO: replace it with some max value, if jobs executed too long allocate new threads according to this value
+        //const int maxThreads = 8;// TODO: replace it with some max value, if jobs executed too long allocate new threads according to this value
+        private int maxThreads;
 
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
-        public ThreadPool()
+        public ThreadPool(uint MaxThreadsNum = 0)
         {
             this.ProcessorCount = Environment.ProcessorCount;
-            Revoke();
+
+            maxThreads = MaxThreadsNum == 0 || MaxThreadsNum > 128
+                ? this.ProcessorCount
+                : (int)MaxThreadsNum;
+            //
+
+
+            //ReWake();
         }
         // Throughput tune
         public int ProcessorCount { get; set; }
@@ -59,7 +67,7 @@ namespace TaskScheduler
             }
         }
         //public void Allocate()
-        public void Revoke()
+        public void ReWake()
         {
             if (threads.Count > 0)
             {
@@ -132,7 +140,7 @@ namespace TaskScheduler
             if (pi.intervalType == IntervalType.isolatedThread)
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(IsolatedThreadEntry));
-                thread.Name = "TaskScheduler IsolatedThread#"+threads.Count.ToString() + " ("+pi.NameAndDescription+")";
+                thread.Name = "TaskScheduler IsolatedThread#" + threads.Count.ToString() + " (" + pi.NameAndDescription + ")";
                 ThreadContext ti = new ThreadContext()
                 {
                     hThread = thread,
@@ -160,11 +168,6 @@ namespace TaskScheduler
         {
             PlanItem nextJob;
 
-            if (ti.Job != null)
-            {
-                ti.Job.ExucutingNow = false;
-            }
-
             nextJob = ti.rootPlan.Next(true);
 
             ti.Job = nextJob;
@@ -190,6 +193,7 @@ namespace TaskScheduler
             threadContext.ManagedID = threadContext.hThread.ManagedThreadId;
             while (!threadContext.StopThread)
             {
+                IntermediateThread(threadContext);
                 if (threadContext.Job != null)
                 {
                     PlanItem planned = threadContext.Job;
@@ -200,15 +204,17 @@ namespace TaskScheduler
                     }
                     else
                     {
-                        Thread.Yield();
+                        //if (planned.intervalType != IntervalType.withoutInterval)
+                        //    Thread.Yield();
                         //Thread.Sleep(0000);
                     }
+                    planned.ExucutingNow = false;
                 }
                 else
                 {
+                    Console.WriteLine("sleep due job absent");
                     Thread.Sleep(maxSuspend);
                 }
-                IntermediateThread(threadContext);
             }
             ExitThread(threadContext);
         }

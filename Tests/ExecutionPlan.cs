@@ -24,7 +24,7 @@ namespace Tests
             PlanItemEntryPoint job = (ThreadContext ti, PlanItem pi) =>
                      {
                          //Console.WriteLine("ExecutionPlan_CheckForExecution er {0}", System.Threading.Thread.CurrentThread.Name);
-                         
+
                          for (int i = 0; i < 1000; i++)
                          {
                              localVar++;
@@ -32,9 +32,9 @@ namespace Tests
                          System.Threading.Thread.Sleep(400);
                          localVar = 0;
                          System.Threading.Thread.Sleep(100);
-                         if (localVar != 0) 
+                         if (localVar != 0)
                              notSucceeded = true;
-  
+
                          for (int i = 0; i < 1000; i++)
                          {
                              localVar++;
@@ -52,7 +52,7 @@ namespace Tests
             };
 
             Scheduler.SetPlan(TaskList);
-            Scheduler.Revoke();
+            Scheduler.ReWake();
 
             System.Threading.Thread.Sleep(1500);
 

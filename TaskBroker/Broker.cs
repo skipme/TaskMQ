@@ -553,7 +553,7 @@ namespace TaskBroker
                 else
                     LoadLatestConfiguration(reconfigureOnlyTasks);
             }
-            Scheduler.Revoke();
+            Scheduler.ReWake();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks
                                   where t.intervalType == IntervalType.isolatedThread

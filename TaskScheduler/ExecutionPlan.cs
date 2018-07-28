@@ -15,7 +15,13 @@ namespace TaskScheduler
         private PlanItem[] CurrentPlanQueue = new PlanItem[0];
         private int CPQueueCursor;
 
+        private PlanItem[] InstantPlanQueue = new PlanItem[0];
+        private int InstantPQueueCursor;
+
         private List<PlanItem> OnceJobs = new List<PlanItem>();// not prioritized
+
+        private object planSync = new object();
+
         /// <summary>
         /// Enqueue unprioritized backround job, maintenance job maybe
         /// </summary>
@@ -30,12 +36,59 @@ namespace TaskScheduler
         public PlanItem Next(bool wait)
         {
             PlanItem Dequeued = null;
-            lock (CurrentPlanQueue)
+            lock (InstantPlanQueue)
             {
-            	bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
+                if (InstantPlanQueue.Length > InstantPQueueCursor)
+                {
+                    Dequeued = InstantPlanQueue[InstantPQueueCursor];
+                    if (!Dequeued.ExucutingNow)
+                    {
+                        InstantPQueueCursor++;
+                        //Dequeued.SetStartExecution();
+                        Dequeued.ExucutingNow = true;
+                        return Dequeued;
+                    }
+                }
+                //else 
+                if (InstantPlanQueue.Length > 0)
+                {
+                    bool next = false;
+                    //lock (planSync)
+                    //{
+                    next = CurrentPlanQueue.Length > CPQueueCursor;
+                    //}
+                    if (!next)
+                    {
+                        while (true)
+                        {
+                            if (InstantPQueueCursor >= InstantPlanQueue.Length)
+                            {
+                                InstantPQueueCursor = 0;
+                                //Thread.Sleep(0);
+                                Thread.Yield();
+                            }
+                            Dequeued = InstantPlanQueue[InstantPQueueCursor];  
+                            InstantPQueueCursor++;
+                           
+                            if (Dequeued.ExucutingNow)
+                                continue;
+                            //Dequeued.SetStartExecution();
+                            Dequeued.ExucutingNow = true;
+                            break;
+                        }             
+                        return Dequeued;
+                    }
+                    InstantPQueueCursor = 0;
+                }
+            }
+            lock (planSync)
+            {
+                bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
+                //int qq = CPQueueCursor;
                 if (planNotEmpty)
                 {
-                	Dequeued = CurrentPlanQueue[CPQueueCursor];
+                    //if (CPQueueCursor != qq) throw new Exception();
+                    Dequeued = CurrentPlanQueue[CPQueueCursor];
                     CPQueueCursor++;
                     Dequeued.SetStartExecution();
                 }
@@ -71,6 +124,10 @@ namespace TaskScheduler
                             // populate queue
                             PopulateQueue(newcmpnts);// let wait handled thread do that with race for job **
                             // exit from losck 
+                            //**
+                            Dequeued = CurrentPlanQueue[CPQueueCursor];
+                            CPQueueCursor++;// this thread has exclusive access without race for job
+                            Dequeued.SetStartExecution();
                         }
                         else
                         {
@@ -93,6 +150,7 @@ namespace TaskScheduler
             //    }
             //}
             //else if (wait)
+
             if (wait && Dequeued == null)
             {
                 // check if we have a job to wait
@@ -100,41 +158,60 @@ namespace TaskScheduler
                 //Console.WriteLine("waitms: {0}", waitms);
                 if (waitsec > 0)
                 {
-                    refilled.WaitOne(waitsec * 1000);
+                    Console.WriteLine("wait {0}", Thread.CurrentThread.Name);
+                    refilled.WaitOne(waitsec * 1000);// - System.DateTime.UtcNow.Millisecond);
                 }
                 Dequeued = this.Next(false);
             }
-            
+
+            //if (Dequeued == null && InstantPlanQueue.Length > 0)
+            //{
+            //    Dequeued = InstantPlanQueue[InstantPQueueCursor];
+            //    InstantPQueueCursor++;
+            //    //Dequeued.SetStartExecution();
+            //}
+            //Console.WriteLine("deq {0} {1}", Dequeued == null, InstantPlanQueue.Length);
             return Dequeued;
         }
         public void SetComponents(List<PlanItem> newComponents)
         {
             lock (PlanComponents)
             {
-                lock (CurrentPlanQueue)
+                lock (planSync)
                 {
                     PlanComponents = newComponents;
-                    PopulateQueue(OrderComponents());
+                    PopulateQueue(OrderComponents(), OrderInstantComponents());
                 }
             }
         }
 
         private PlanItem[] OrderComponents()
         {
-             var p = from i in PlanComponents
-                     where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
-                     !i.ExucutingNow && i.SecondsBeforeExecute() <= 0
-                     orderby i.LAMS descending
-                     select i;
-            return p.ToArray();    
+            var p = from i in PlanComponents
+                    //where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
+                    //!i.ExucutingNow && i.SecondsBeforeExecute() <= 0
+                    where !i.Suspended && i.intervalType > IntervalType.withoutInterval &&
+                    !i.ExucutingNow && i.SecondsBeforeExecute() <= 0
+                    orderby i.LAMS descending
+                    select i;
+            return p.ToArray();
         }
-       
+        private PlanItem[] OrderInstantComponents()
+        {
+            var p = from i in PlanComponents
+                    where !i.Suspended && i.intervalType == IntervalType.withoutInterval
+                    // orderby i.LAMS descending // TODO: Add some priority
+                    select i;
+            return p.ToArray();
+        }
         private int BeforeNextSec()
         {
             lock (PlanComponents)
             {
                 var n = from i in PlanComponents
-                        where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
+                        //where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
+                        //!i.ExucutingNow && i.SecondsBeforeExecute() > 0
+                        where !i.Suspended && i.intervalType > IntervalType.withoutInterval &&
                         !i.ExucutingNow && i.SecondsBeforeExecute() > 0
                         orderby i.LAMS
                         select i;
@@ -148,12 +225,26 @@ namespace TaskScheduler
                 }
             }
         }
-        private void PopulateQueue(PlanItem[] p)
+        private void PopulateQueue(PlanItem[] Q)
         {
-            CurrentPlanQueue = p;
-            CPQueueCursor = 0;
+            //lock (planSync)
+            {
+                CurrentPlanQueue = Q;
+                CPQueueCursor = 0;
 
-            refilled.Set();
+                refilled.Set();
+            }
+        }
+        private void PopulateQueue(PlanItem[] Q, PlanItem[] instantQ)
+        {
+            //lock (planSync)
+            {
+                CurrentPlanQueue = Q;
+                InstantPlanQueue = instantQ;
+                CPQueueCursor = InstantPQueueCursor = 0;
+
+                refilled.Set();
+            }
         }
     }
 }

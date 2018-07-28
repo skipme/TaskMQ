@@ -7,12 +7,13 @@ namespace TaskUniversum.Task
 {
     public enum IntervalType
     {
-        withoutInterval = 0x11,
+        isolatedThread = 0x21,
+        withoutInterval,
         
         intervalMilliseconds,
         intervalSeconds,
         DayTime,
 
-        isolatedThread
+        
     }
 }
