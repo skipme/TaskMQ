@@ -142,18 +142,30 @@ namespace TaskBroker
             QueueSpecificParameters parameters = new MemQueueParams();
             RegisterConnection("benchQ", qinterface, parameters, true);
             RegisterChannel("benchQ", "benchCH#" + 1, true);
+            RegisterChannel("benchQ", "benchCH#" + 2, true);
             Random rnd = new Random(DateTime.UtcNow.Millisecond);
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 5; i++)
             {
                 RegisterTempTask(new MetaTask
                 {
-                    ChannelName = "benchCH#1",
-                    intervalType = IntervalType.intervalMilliseconds,
+                    ChannelName = "benchCH#" + (i % 2 == 0 ? 1 : 2),
+                    intervalType = IntervalType.withoutInterval,
                     intervalValue = rnd.Next(0, 1000),
                     ModuleName = BenchModules.ModConsumer.ModuleName,
                     NameAndDescription = "bench task #" + (i + 1)
                 }, null);
             }
+            //for (int i = 0; i < 10000; i++)
+            //{
+            //    RegisterTempTask(new MetaTask
+            //    {
+            //        ChannelName = "benchCH#1",
+            //        intervalType = IntervalType.intervalMilliseconds,
+            //        intervalValue = rnd.Next(0, 1000),
+            //        ModuleName = BenchModules.ModConsumer.ModuleName,
+            //        NameAndDescription = "bench task #" + (i + 1)
+            //    }, null);
+            //}
         }
         public ConfigurationDepot Configurations;
         public MessageTypeClassificator MessageChannels;
@@ -303,6 +315,10 @@ namespace TaskBroker
                 t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", mst.ChannelName));
                 //t.Anteroom.ChannelStatistic = Statistics.InitialiseModel(new BrokerStat("channel", mst.ChannelName));
             }
+            if (module.Role == ExecutionType.Consumer)
+            {
+                MessageChannels.AssignMessageTypeToChannel(t.ChannelName, ((IModConsumer)module.MI).AcceptsModel, t.ModuleName);
+            }
             //ModMod module = Modules.GetByName(t.ModuleName);
             //if (module == null)
             //    throw new Exception("required qmodule not found.");
@@ -315,6 +331,33 @@ namespace TaskBroker
 
             t.Module = module;
             t.Temporary = true;
+
+            //if (module.Role == ExecutionType.Consumer)
+            //{
+            //    if (!typeof(IModConsumer).IsAssignableFrom(module.MI.GetType()))
+            //    {
+            //        throw new Exception("Consumer module required a consumer interface");
+            //    }
+            //    if (t.ChannelName == null)
+            //    {
+            //        throw new Exception("Consumer module required a channel");
+            //    }
+            //    else
+            //    {
+            //        if (t.Anteroom.ChannelStatsIn == null && t.Anteroom.ChannelStatsIn == null)// first task for this channel?
+            //        {
+            //            // monitoring put operation
+            //            t.Anteroom.ChannelStatsIn = Statistics.InitialiseModel(new BrokerStat("chan_in", t.ChannelName));
+            //            t.Anteroom.ChannelStatsOut = Statistics.InitialiseModel(new BrokerStat("chan_out", t.ChannelName));
+            //            // set selector
+            //            TaskQueue.TQItemSelector selector = ((IModConsumer)module.MI).ConfigureSelector();
+            //            // channel -> model(MType)
+            //            MessageChannels.AssignMessageTypeToChannel(t.ChannelName, ((IModConsumer)module.MI).AcceptsModel, t.ModuleName);
+            //            MessageChannel channel = MessageChannels.GetInstanceByName(t.ChannelName);
+            //            channel.consumerSelector = selector;
+            //        }
+            //    }
+            //}
 
             Tasks.Add(t);
             UpdatePlan();

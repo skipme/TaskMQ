@@ -15,6 +15,7 @@ namespace TaskBroker
 
         public string ChannelName { get; set; }
 
+        private object anteroomSync = new object();
 
         public ChannelAnteroom()
         {
@@ -84,7 +85,7 @@ namespace TaskBroker
         }
         public TaskQueue.Providers.TaskMessage Next()
         {
-            lock (anteroom)
+            lock (anteroomSync)
             {
                 // the internal tuple is empty
                 if (anteroom.Count == 0)

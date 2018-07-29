@@ -12,6 +12,14 @@ namespace TaskBroker
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
+        public Dictionary<string, ChannelAnteroom> Anterooms;
+
+        public List<MessageChannel> MChannelsList;
+        public Dictionary<string, int> MessageChannels;
+        public Dictionary<string, int> MessageTypes;
+
+        public Dictionary<string, QueueConnectionParameters> Connections;
+
         public MessageTypeClassificator()
         {
             MChannelsList = new List<MessageChannel>();
@@ -141,12 +149,5 @@ namespace TaskBroker
                 yield return input ? sca.Value.ChannelStatsIn : sca.Value.ChannelStatsOut;
             }
         }
-        public Dictionary<string, ChannelAnteroom> Anterooms;
-
-        public List<MessageChannel> MChannelsList;
-        public Dictionary<string, int> MessageChannels;
-        public Dictionary<string, int> MessageTypes;
-
-        public Dictionary<string, QueueConnectionParameters> Connections;
     }
 }

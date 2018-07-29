@@ -29,7 +29,7 @@ namespace TaskQueue.Providers
         }
         public const string queueTypeName = "InMemoryQueue";
 
-        const int maxTuple = 100;
+        const int maxTuple = 1000;
         RepresentedModel m { get; set; }
         EncapsulatedMessageComparer comparer;
         //Queue<Providers.TaskMessage> baseQueue;
@@ -68,7 +68,7 @@ namespace TaskQueue.Providers
                 Providers.TaskMessage msg = new TaskMessage(item.GetHolder());
                 if (comparer.internalComparer.Check(msg))
                 {
-                    lock (MessageQueue)
+                    lock (this)
                     {
                         msg.Holder["__idx"] = Counter;
                         MessageQueue.Add(msg);
@@ -89,7 +89,7 @@ namespace TaskQueue.Providers
         //{
         //    if (baseQueue.Count == 0)
         //        return null;
-        //    lock (baseQueue)
+        //    lock (this)
         //        return baseQueue.Dequeue();
         //}
 
@@ -97,11 +97,11 @@ namespace TaskQueue.Providers
         {
             //if (baseQueue.Count == 0)
             //    return null;
-            //lock (baseQueue)
+            //lock (this)
             //    return baseQueue.Dequeue();
             if (MessageQueue.Count == 0)
                 return null;
-            lock (MessageQueue)
+            lock (this)
             {
                 TaskMessage result;
 
@@ -109,6 +109,7 @@ namespace TaskQueue.Providers
                 TaskMessage msg = new TaskMessage(result.Holder);
                 msg.Holder.Remove("__idx");
                 msg.Holder.Add("__original", result);
+                MessageQueue.Remove(result);// DEQUEUE BY DEFAULT REMOVES (IN MEMORY NOT PERSISTENT)
                 return msg;
             }
         }
@@ -137,10 +138,10 @@ namespace TaskQueue.Providers
                 throw new Exception("__original of queue element is missing");
             TaskMessage orig = (TaskMessage)id;
             holder.Remove("__original");
-            lock (MessageQueue)
+            lock (this)
             {
-                if (!MessageQueue.Remove(orig))
-                    throw new Exception("can't update element in queue");
+                //if (!MessageQueue.Remove(orig))
+                //    throw new Exception("can't update element in queue");
                 this.Push(item);
             }
         }
@@ -153,7 +154,7 @@ namespace TaskQueue.Providers
 
         public Providers.TaskMessage[] GetItemTuple()
         {
-            //lock (baseQueue)
+            //lock (this)
             //    if (baseQueue.Count > 0)
             //    {
             //        TaskMessage[] tuple;
@@ -177,7 +178,8 @@ namespace TaskQueue.Providers
             //    {
             //        return null;
             //    }
-            lock (MessageQueue)
+            lock (this)
+            {
                 if (MessageQueue.Count > 0)
                 {
                     TaskMessage[] tuple = null;
@@ -185,19 +187,30 @@ namespace TaskQueue.Providers
                     {
                         tuple = new TaskMessage[maxTuple];
                         MessageQueue.CopyTo(tuple, 0, tuple.Length);
+                        for (int i = 0; i < tuple.Length; i++)
+                        {
+                            TaskMessage em = tuple[i];
+                            TaskMessage msg = new TaskMessage(em.Holder);
+                            msg.Holder.Add("__original", em);
+                            tuple[i] = msg;
+                            MessageQueue.Remove(em);
+                        }
                     }
                     else
                     {
                         tuple = new TaskMessage[MessageQueue.Count];
                         MessageQueue.CopyTo(tuple);
+                        
+                        for (int i = 0; i < tuple.Length; i++)
+                        {
+                            TaskMessage em = tuple[i];
+                            TaskMessage msg = new TaskMessage(em.Holder);
+                            msg.Holder.Add("__original", em);
+                            tuple[i] = msg;
+                        }
+                        MessageQueue.Clear();
                     }
-                    for (int i = 0; i < tuple.Length; i++)
-                    {
-                        TaskMessage em = tuple[i];
-                        TaskMessage msg = new TaskMessage(em.Holder);
-                        msg.Holder.Add("__original", em);
-                        tuple[i] = msg;
-                    }
+                    
                     return tuple;
 
                 }
@@ -205,6 +218,7 @@ namespace TaskQueue.Providers
                 {
                     return null;
                 }
+            }
 
         }
 

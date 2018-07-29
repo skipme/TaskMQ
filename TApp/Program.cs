@@ -23,7 +23,7 @@ namespace TApp
                 });
 
             TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
-            bool benchConfiguration = false;// Array.IndexOf(args, "benchTasks") >= 0;// for plan or other params depends on tasks calculation
+            bool benchConfiguration = true;// Array.IndexOf(args, "benchTasks") >= 0;// for plan or other params depends on tasks calculation
 
             if (Array.IndexOf(args, "inline") >= 0 || System.Diagnostics.Debugger.IsAttached)
             {

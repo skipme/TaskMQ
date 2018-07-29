@@ -35,6 +35,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ChannelType.cs" />
     <Compile Include="Common\Configuration.cs" />
     <Compile Include="Common\ExecutionType.cs" />
     <Compile Include="Common\IAssemblyStatus.cs" />

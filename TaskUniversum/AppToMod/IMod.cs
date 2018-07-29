@@ -28,7 +28,7 @@ namespace TaskUniversum
         /// </summary>
         /// <param name="optionalParameters">Represent worker parameters, for example -- smtp server connection string</param>
         /// <param name="message">Message taken from queue, sent by client</param>
-        /// <returns></returns>
+        /// <returns>TRUE : if message processed(it stores in queue) also if ref changed also will be saved anyway</returns>
         bool Push(Dictionary<string, object> optionalParameters, ref TaskQueue.Providers.TaskMessage message);
         /// <summary>
         /// Set selector for queue

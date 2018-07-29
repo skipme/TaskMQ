@@ -14,7 +14,9 @@ namespace Tests
 
         static int Main(string[] args)
         {
-            double x = -128;
+            new InMemoryQueue().MemQueue_Duplications();
+            return 1;
+            //double x = -128;
             //PerfCheck();
             //PerfCompare();
             //			Console.WriteLine((x));
