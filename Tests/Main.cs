@@ -14,7 +14,8 @@ namespace Tests
 
         static int Main(string[] args)
         {
-            new InMemoryQueue().MemQueue_Duplications();
+            //new InMemoryQueue().MemQueue_Duplications();
+            new Scaling().Scaling_Id();
             return 1;
             //double x = -128;
             //PerfCheck();

@@ -42,6 +42,7 @@
     <Compile Include="AppToMod\IBroker.cs" />
     <Compile Include="AppToMod\IBrokerModule.cs" />
     <Compile Include="AppToMod\IMod.cs" />
+    <Compile Include="Scale\ClientAuthKey.cs" />
     <Compile Include="Scheduler\IntervalType.cs" />
     <Compile Include="Common\ISCMRevision.cs" />
     <Compile Include="Common\IScopeLogger.cs" />

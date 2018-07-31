@@ -54,6 +54,7 @@
     <Compile Include="InMemQueue.cs" />
     <Compile Include="CustomMessagesCompare.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Scaling.cs" />
     <Compile Include="TeamCity.cs" />
     <Compile Include="ZipStream.cs" />
     <Compile Include="RestClient.cs" />
