@@ -14,6 +14,26 @@
     string MessageType = "EMail";
     string RestApiBaseUri = "http://127.0.0.1:82/";
 #>
+<# 
+    System.IO.Directory.SetCurrentDirectory(this.Host.ResolvePath("bin\\debug"));
+    
+    Dictionary<string, TaskQueue.RepresentedModelValue> result = null;
+    TaskQueue.RepresentedModel model = null;
+    try
+    {
+        TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest(RestApiBaseUri);
+        model = restService.GetValidationInfo(MessageType);
+        
+        result = model.schema.ToDictionary();
+    }catch(Exception exc)
+    {
+        #>
+        /*
+        <#= exc.Message + " " + exc.StackTrace #>
+        */
+        <#
+    }
+#>
 /*
 *	Important ! 
 *     this file preprocessed with t4 template - TextTemplatingFileGenerator
@@ -22,7 +42,12 @@
 *       MessageType			'<#= MessageType #>'
 *       RestApiBaseUri		'<#= RestApiBaseUri #>'
 *
+*   Request:
+*       DateTime            '<#= DateTime.Now.ToString() #>'
+*       SchemeModelHash     '<#= model == null ? "" : model.CalculateSchemeHash() #>'
+*
 */
+
 namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("NamespaceHint") #>
 {
     using System;
@@ -48,23 +73,8 @@ namespace <#= System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Name
         {
             this.SetHolder(holder);
         }
-<# 
-    System.IO.Directory.SetCurrentDirectory(this.Host.ResolvePath("bin\\debug"));
-    
-    Dictionary<string, TaskQueue.RepresentedModelValue> result = null;
-    try
-    {
-        TaskClient.Clients.HttpRest restService = new TaskClient.Clients.HttpRest(RestApiBaseUri);
-        result = restService.GetValidationInfo(MessageType).schema.ToDictionary();
-    }catch(Exception exc)
-    {
-        #>
-        /*
-        <#= exc.Message + " " + exc.StackTrace #>
-        */
-        <#
-    }
-#><#
+
+<#
     if(result != null)
     {
 foreach(KeyValuePair<string, TaskQueue.RepresentedModelValue> item in result)

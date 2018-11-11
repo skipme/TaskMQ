@@ -117,12 +117,13 @@ namespace TaskQueue
         }
         static readonly Dictionary<FieldType, string> ftMapSimlinkType = new Dictionary<FieldType, string>()
          {
-             {FieldType.text,       "string"},
-             {FieldType.num_int,    "int"},
-             {FieldType.num_long,   "long"},
-             {FieldType.num_double, "double"},
-             {FieldType.boolean,    "bool"},
-             {FieldType.datetime,   "DateTime"}
+             {FieldType.text,        "string"},
+             {FieldType.num_int,     "int"},
+             {FieldType.num_long,    "long"},
+             {FieldType.num_double,  "double"},
+             {FieldType.num_decimal, "decimal"},
+             {FieldType.boolean,     "bool"},
+             {FieldType.datetime,    "DateTime"}
          };
         public static string GetLTypeString(FieldType ft)
         {
@@ -208,6 +209,11 @@ namespace TaskQueue
                             {
                                 return (int)(/*(long)*/src);
                             }
+                        case FieldType.num_decimal:
+                            unchecked
+                            {
+                                return (decimal)(/*(long)*/src);
+                            }
                         case FieldType.boolean:
                             return ((bool)src) ? 1 : 0;
                         //case FieldType.datetime:
@@ -233,6 +239,8 @@ namespace TaskQueue
                             {
                                 return (long)((double)src);
                             }
+                        case FieldType.num_decimal:
+                            return (long)((decimal)src);
                         case FieldType.boolean:
                             return ((bool)src) ? 1L : 0L;
                         case FieldType.datetime:
@@ -260,8 +268,29 @@ namespace TaskQueue
                             {
                                 return (int)(/*(long)*/src);
                             }
+                        case FieldType.num_decimal:
+                            return (double)((decimal)src);
                         case FieldType.boolean:
                             return ((bool)src) ? 1.0 : 0.0;
+                        default:
+                            return null;
+                    }
+                case FieldType.num_decimal:
+                    switch (FT)
+                    {
+                        case FieldType.text:
+                            decimal tmp;
+                            decimal.TryParse(src as string, System.Globalization.NumberStyles.None,
+                                System.Globalization.CultureInfo.InvariantCulture, out tmp);
+                            return tmp;
+                        case FieldType.num_long:
+                            return (decimal)((long)src);
+                        case FieldType.num_int:
+                            return (decimal)((int)src);
+                        case FieldType.num_decimal:
+                            return (decimal)((double)src);
+                        case FieldType.boolean:
+                            return ((bool)src) ? 1.0m : 0.0m;
                         default:
                             return null;
                     }
@@ -277,6 +306,8 @@ namespace TaskQueue
                             return ((int)src) != 0;
                         case FieldType.num_double:
                             return ((double)src) != 0.0;
+                        case FieldType.num_decimal:
+                            return ((decimal)src) != 0.0m;
                         default:
                             return null;
                     }

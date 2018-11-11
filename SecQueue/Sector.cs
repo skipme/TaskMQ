@@ -147,6 +147,10 @@ namespace SecQueue
                 IndexElement el = currentSector.IndexElements[idx];
                 if (currentSector.IsSerial)
                 {
+		    if(outCmp != 0)
+		    {
+			return -1; // not found
+	            }
                     return idx;
                 }
                 else
@@ -154,7 +158,7 @@ namespace SecQueue
                     currentSector = GetSector(el.Reference);
                 }
             }
-            return -1;
+            return -1; // not found
         }
 
         private enum QOperationType

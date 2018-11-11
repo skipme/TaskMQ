@@ -7,7 +7,12 @@
 *       MessageType			'EMail'
 *       RestApiBaseUri		'http://127.0.0.1:82/'
 *
+*   Request:
+*       DateTime            '11.11.2018 18:36:57'
+*       SchemeModelHash     '81089bf5b694f9bd06156972a925ae0b8119e882'
+*
 */
+
 namespace BulkMails
 {
     using System;
@@ -33,6 +38,7 @@ namespace BulkMails
         {
             this.SetHolder(holder);
         }
+
         /// <summary>
         /// 	
         /// 
