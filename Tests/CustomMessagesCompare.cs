@@ -188,7 +188,7 @@ namespace Tests
         {
             TaskQueue.TQItemSelector sel = new
                 TaskQueue.TQItemSelector("field1", TaskQueue.TQItemSelectorSet.Ascending)
-                .Rule("field2", 15L, true);
+                .Rule("field2", 15L);
             SomeExtMessage inst = new SomeExtMessage()
             {
                 field1 = 5,

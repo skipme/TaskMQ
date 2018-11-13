@@ -462,7 +462,7 @@ namespace Tests
             Dictionary<string, object> b = msg2.GetHolder();
             TaskQueue.TQItemSelector sel = new TaskQueue.TQItemSelector("field1", TaskQueue.TQItemSelectorSet.Ascending)
                 .Rule("field2", TaskQueue.TQItemSelectorSet.Descending)
-                .Rule("Processed", false, true);
+                .Rule("Processed", false);
 
             TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
             mq.SetSelector(sel);

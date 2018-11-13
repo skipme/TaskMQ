@@ -26,7 +26,7 @@ namespace TaskQueue
         {
             get
             {
-                TQItemSelector selector = new TQItemSelector("Processed", false, true)
+                TQItemSelector selector = new TQItemSelector("Processed", false)
                     .Rule("AddedTime", TQItemSelectorSet.Ascending);
                 return selector;
             }
@@ -34,19 +34,12 @@ namespace TaskQueue
 
         public TQItemSelector(string key, TQItemSelectorSet set)
         {
-            if (set == TQItemSelectorSet.Ascending || set == TQItemSelectorSet.Descending)
-            {
-                this.Rule(key, set);
-            }
-            else
-            {
-                throw new Exception("this constructor only for sort manner spec");
-            }
+            this.Rule(key, set);
         }
 
-        public TQItemSelector(string key, object value, bool equal)
+        public TQItemSelector(string key, object value, TQItemSelectorSet set = TQItemSelectorSet.Equals)
         {
-            this.Rule(key, value, equal);
+            this.Rule(key, value, set);
         }
         /// <summary>
         /// SORT messages by field values and set manner(asc or desc)
@@ -56,6 +49,10 @@ namespace TaskQueue
         /// <returns></returns>
         public TQItemSelector Rule(string key, TQItemSelectorSet set)
         {
+            if (set == TQItemSelectorSet.Equals
+                || set == TQItemSelectorSet.NotEquals)
+                throw new Exception("This Rule build function for sort manner only");
+
             this.parameters.Add(key,
                 new TQItemSelectorParam()
                 {
@@ -71,14 +68,18 @@ namespace TaskQueue
         /// <param name="key">field name</param>
         /// <param name="value">value for equality test</param>
         /// <returns></returns>
-        public TQItemSelector Rule(string key, object value, bool equal = true)
+        public TQItemSelector Rule(string key, object value, TQItemSelectorSet set = TQItemSelectorSet.Equals)
         {
+            if (set == TQItemSelectorSet.Ascending
+                || set == TQItemSelectorSet.Descending)
+                throw new Exception("This Rule build function for comparing manner only");
+
             this.parameters.Add(key,
                 new TQItemSelectorParam()
                 {
                     Key = key,
                     Value = value,
-                    ValueSet = equal ? TQItemSelectorSet.Equals : TQItemSelectorSet.NotEquals
+                    ValueSet = set
                 });
             return this;
         }

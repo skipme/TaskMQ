@@ -62,7 +62,7 @@ namespace Tests
         {
             TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
             mq.SetSelector(
-                new TaskQueue.TQItemSelector("Processed", true, false)
+                new TaskQueue.TQItemSelector("Processed", false)
                 .Rule("field1", TaskQueue.TQItemSelectorSet.Descending)
                 );
             mq.Push(new SomeExtMessage() { field1 = 1 });
@@ -88,7 +88,7 @@ namespace Tests
         {
             TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
             mq.SetSelector(
-                new TaskQueue.TQItemSelector("Processed", true, false)
+                new TaskQueue.TQItemSelector("Processed", false)
                 .Rule("field1", TaskQueue.TQItemSelectorSet.Descending)
                 );
             mq.Push(new SomeExtMessage() { field1 = 1 });
