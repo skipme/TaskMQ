@@ -112,7 +112,7 @@ namespace QueueService
     [ClientCanSwapTemplates]
     public class ngService : Service
     {
-        static string _lock = "lock";
+        static readonly object _lock = new object();
         static TaskUniversum.ILogger logger;
 
         public ngService()

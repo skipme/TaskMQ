@@ -15,12 +15,14 @@ namespace TaskScheduler
         private PlanItem[] CurrentPlanQueue = new PlanItem[0];
         private int CPQueueCursor;
 
+        private readonly object instantPlanQueueSync = new object();
         private PlanItem[] InstantPlanQueue = new PlanItem[0];
         private int InstantPQueueCursor;
 
+        private readonly object onceJobsSync = new object();
         private List<PlanItem> OnceJobs = new List<PlanItem>();// not prioritized
 
-        private object planSync = new object();
+        private readonly object planSync = new object();
 
         /// <summary>
         /// Enqueue unprioritized backround job, maintenance job maybe
@@ -28,7 +30,7 @@ namespace TaskScheduler
         /// <param name="job"></param>
         public void DoNonpiorityJob(PlanItem job)
         {
-            lock (OnceJobs)
+            lock (onceJobsSync)
             {
                 OnceJobs.Add(job);
             }
@@ -36,7 +38,7 @@ namespace TaskScheduler
         public PlanItem Next(bool wait)
         {
             PlanItem Dequeued = null;
-            lock (InstantPlanQueue)
+            lock (instantPlanQueueSync)
             {
                 if (InstantPlanQueue.Length > InstantPQueueCursor)
                 {
@@ -67,15 +69,15 @@ namespace TaskScheduler
                                 //Thread.Sleep(0);
                                 Thread.Yield();
                             }
-                            Dequeued = InstantPlanQueue[InstantPQueueCursor];  
+                            Dequeued = InstantPlanQueue[InstantPQueueCursor];
                             InstantPQueueCursor++;
-                           
+
                             if (Dequeued.ExucutingNow)
                                 continue;
                             //Dequeued.SetStartExecution();
                             Dequeued.ExucutingNow = true;
                             break;
-                        }             
+                        }
                         return Dequeued;
                     }
                     InstantPQueueCursor = 0;
@@ -96,7 +98,7 @@ namespace TaskScheduler
                 {
                     PlanItem[] jnewcmpnts = null;
                     PlanItem[] newcmpnts = null;
-                    lock (OnceJobs)
+                    lock (onceJobsSync)
                     {
                         if (OnceJobs.Count > 0)
                         {
@@ -175,13 +177,10 @@ namespace TaskScheduler
         }
         public void SetComponents(List<PlanItem> newComponents)
         {
-            lock (PlanComponents)
+            lock (planSync)
             {
-                lock (planSync)
-                {
-                    PlanComponents = newComponents;
-                    PopulateQueue(OrderComponents(), OrderInstantComponents());
-                }
+                PlanComponents = newComponents;
+                PopulateQueue(OrderComponents(), OrderInstantComponents());
             }
         }
 
@@ -206,7 +205,7 @@ namespace TaskScheduler
         }
         private int BeforeNextSec()
         {
-            lock (PlanComponents)
+            lock (planSync)
             {
                 var n = from i in PlanComponents
                         //where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
@@ -239,10 +238,13 @@ namespace TaskScheduler
         {
             //lock (planSync)
             {
-                CurrentPlanQueue = Q;
-                InstantPlanQueue = instantQ;
-                CPQueueCursor = InstantPQueueCursor = 0;
+                lock (instantPlanQueueSync)
+                {
+                    CurrentPlanQueue = Q;
+                    InstantPlanQueue = instantQ;
 
+                    CPQueueCursor = InstantPQueueCursor = 0;
+                }
                 refilled.Set();
             }
         }

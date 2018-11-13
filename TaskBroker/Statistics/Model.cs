@@ -7,6 +7,7 @@ namespace TaskBroker.Statistics
 {
     public class StatMatchModel
     {
+        readonly object rangesSync = new object();
         StatRange[] currentRanges;
         StatRange[] lastRanges;
 
@@ -51,7 +52,7 @@ namespace TaskBroker.Statistics
 
         public void checkExpired()
         {
-            lock (currentRanges)
+            lock (rangesSync)
                 for (int i = 0; i < currentRanges.Length; i++)
                 {
                     StatRange r = currentRanges[i];
@@ -60,7 +61,7 @@ namespace TaskBroker.Statistics
         }
         public void inc()
         {
-            lock (currentRanges)
+            lock (rangesSync)
                 for (int i = 0; i < currentRanges.Length; i++)
                 {
                     StatRange r = currentRanges[i];

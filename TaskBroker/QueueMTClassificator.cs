@@ -14,11 +14,13 @@ namespace TaskBroker
 
         public Dictionary<string, ChannelAnteroom> Anterooms;
 
-        public List<MessageChannel> MChannelsList;
-        public Dictionary<string, int> MessageChannels;
-        public Dictionary<string, int> MessageTypes;
+        readonly object channelSync = new object();
 
-        public Dictionary<string, QueueConnectionParameters> Connections;
+        public readonly List<MessageChannel> MChannelsList;
+        public readonly Dictionary<string, int> MessageChannels;
+        public readonly Dictionary<string, int> MessageTypes;
+
+        public readonly Dictionary<string, QueueConnectionParameters> Connections;
 
         public MessageTypeClassificator()
         {
@@ -62,7 +64,7 @@ namespace TaskBroker
 
         public void AddMessageChannel(MessageChannel mc)
         {
-            lock (MChannelsList)
+            lock (channelSync)
             {
                 MessageChannels.Add(mc.UniqueName, MChannelsList.Count);
                 //MessageChannelsModels.Add(mc.MessageType, MChannelsList.Count);

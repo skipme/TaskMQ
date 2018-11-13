@@ -8,6 +8,7 @@ namespace TaskUniversum.Scale
     public class ClientAuthKey
     {
         static int CurrentConnectionIndex = 0;
+        static readonly object entropySync = new object();
         static Random rnd = new Random();
 
         private int AuthKey;
@@ -19,7 +20,7 @@ namespace TaskUniversum.Scale
         }
         public ClientAuthKey()
         {
-            lock (rnd)
+            lock (entropySync)
             {
                 AuthKey = rnd.Next();
                 CI = CurrentConnectionIndex;

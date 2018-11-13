@@ -10,7 +10,7 @@ namespace TaskQueue.Providers
     /// </summary>
     public class MemQueue : ITQueue
     {
-
+        readonly object sync = new object();
         public class EncapsulatedMessageComparer : IComparer<TaskMessage>
         {
             public MessageComparer internalComparer;
@@ -68,7 +68,7 @@ namespace TaskQueue.Providers
                 Providers.TaskMessage msg = new TaskMessage(item.GetHolder());
                 if (comparer.internalComparer.Check(msg))
                 {
-                    lock (this)
+                    lock (sync)
                     {
                         msg.Holder["__idx"] = Counter;
                         MessageQueue.Add(msg);
@@ -89,7 +89,7 @@ namespace TaskQueue.Providers
         //{
         //    if (baseQueue.Count == 0)
         //        return null;
-        //    lock (this)
+        //    lock (sync)
         //        return baseQueue.Dequeue();
         //}
 
@@ -97,11 +97,11 @@ namespace TaskQueue.Providers
         {
             //if (baseQueue.Count == 0)
             //    return null;
-            //lock (this)
+            //lock (sync)
             //    return baseQueue.Dequeue();
             if (MessageQueue.Count == 0)
                 return null;
-            lock (this)
+            lock (sync)
             {
                 TaskMessage result;
 
@@ -138,7 +138,7 @@ namespace TaskQueue.Providers
                 throw new Exception("__original of queue element is missing");
             TaskMessage orig = (TaskMessage)id;
             holder.Remove("__original");
-            lock (this)
+            lock (sync)
             {
                 //if (!MessageQueue.Remove(orig))
                 //    throw new Exception("can't update element in queue");
@@ -154,7 +154,7 @@ namespace TaskQueue.Providers
 
         public Providers.TaskMessage[] GetItemTuple()
         {
-            //lock (this)
+            //lock (sync)
             //    if (baseQueue.Count > 0)
             //    {
             //        TaskMessage[] tuple;
@@ -178,7 +178,7 @@ namespace TaskQueue.Providers
             //    {
             //        return null;
             //    }
-            lock (this)
+            lock (sync)
             {
                 if (MessageQueue.Count > 0)
                 {

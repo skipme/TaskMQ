@@ -15,7 +15,7 @@ namespace TaskBroker
 
         public string ChannelName { get; set; }
 
-        private object anteroomSync = new object();
+        private readonly object anteroomSync = new object();
 
         public ChannelAnteroom()
         {

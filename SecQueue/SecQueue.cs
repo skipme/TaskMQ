@@ -36,6 +36,7 @@ namespace SecQueue
         EncapsulatedMessageComparer comparer;
 
         int Counter = 0;
+        readonly object queueSync = new object();
         SecSortedSet MessageQueue;
         TQItemSelector selector;
         public string Name;
@@ -57,7 +58,7 @@ namespace SecQueue
                 ValueMap<string, object> vmap = item.GetValueMap(this.selector);
                 if (comparer.internalComparer.Check(item.Holder))
                 {
-                    lock (MessageQueue)
+                    lock (queueSync)
                     {
                         vmap.Add("__idx", Counter);
                         MessageQueue.Add(vmap);
@@ -76,7 +77,7 @@ namespace SecQueue
         {
             if (MessageQueue.Count == 0)
                 return null;
-            lock (MessageQueue)
+            lock (queueSync)
             {
                 ValueMap<string, object> result;
 
@@ -112,7 +113,7 @@ namespace SecQueue
                 throw new Exception("__original of queue element is missing");
             ValueMap<string, object> orig = (ValueMap<string, object>)id;
             holder.Remove("__original");
-            lock (MessageQueue)
+            lock (queueSync)
             {
                 if (!MessageQueue.Remove(orig))
                     throw new Exception("can't update element in queue");
@@ -128,7 +129,7 @@ namespace SecQueue
 
         public TaskMessage[] GetItemTuple()
         {
-            //lock (MessageQueue)
+            //lock (queueSync)
             //    if (MessageQueue.Count > 0)
             //    {
             //        TaskMessage[] tuple = null;

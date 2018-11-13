@@ -15,7 +15,7 @@ namespace SourceControl.Git
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
-        object thread_safe_rep = "";// used only where Repository object activated, working with repository allowed only with one thread at time
+        readonly object thread_safe_rep = new object();// used only where Repository object activated, working with repository allowed only with one thread at time
 
         public git_scm(string localRepositoryPath, string cloneUri) :
             base(localRepositoryPath, cloneUri)

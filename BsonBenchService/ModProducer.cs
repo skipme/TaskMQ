@@ -91,7 +91,8 @@ namespace BsonBenchService
                 return true;
             }
         }
-        public List<BsonClient> activeClients = new List<BsonClient>();
+        readonly object syncClients = new object();
+        public readonly List<BsonClient> activeClients = new List<BsonClient>();
 
         public void Initialise(IBroker context, IBrokerModule thisModule)
         {
@@ -145,7 +146,7 @@ namespace BsonBenchService
                 if (activeClients.Count > 0)
                 {
                     BsonClient cli = null;
-                    lock (activeClients)
+                    lock (syncClients)
                         cli = activeClients[ringIndex];
 
                     if (cli.ns.DataAvailable)
@@ -156,7 +157,7 @@ namespace BsonBenchService
                     {
                         if (!cli.isAlive)
                         {
-                            lock (activeClients)
+                            lock (syncClients)
                                 activeClients.RemoveAt(ringIndex);
                             ringIndex--;
                             logger.Debug("Disconnected: {0}", cli.client.Client.RemoteEndPoint);
@@ -187,7 +188,7 @@ namespace BsonBenchService
             };
             cli.ns.ReadTimeout = 10;
             cli.ctx.PutCallback = pushMessage;
-            lock (activeClients)
+            lock (syncClients)
                 activeClients.Add(cli);
             logger.Debug("Connected: {0}", tc.Client.RemoteEndPoint);
 

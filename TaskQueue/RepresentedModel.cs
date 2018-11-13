@@ -9,12 +9,13 @@ namespace TaskQueue
 {
     public class RepresentedModel
     {
-        internal static Dictionary<Type, RepresentedModel> SchemeCache = new Dictionary<Type, RepresentedModel>();
+        static readonly object cacheSync = new object();
+        internal static readonly Dictionary<Type, RepresentedModel> SchemeCache = new Dictionary<Type, RepresentedModel>();
 
         public static ValueMap<string, RepresentedModelValue> FindScheme(Type classWithProps)
         {
             RepresentedModel lookupModel;
-            lock (SchemeCache)
+            lock (cacheSync)
                 if (!SchemeCache.TryGetValue(classWithProps, out lookupModel))
                 {
                     lookupModel = new RepresentedModel(classWithProps);

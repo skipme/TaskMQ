@@ -15,6 +15,7 @@ namespace TaskBroker.Statistics
         public static int[] useRanges = new int[] { StatRange.seconds30, StatRange.min, StatRange.min30, StatRange.hour2 };
         //private const int aliveCount = 20160;// 1week for 30 sec interval, 2week's for minute, 420day's for 30 min interval...
         private const int aliveCount = 2880;// 1day for 30 sec interval
+        readonly object modelsSync = new object();
         public List<StatMatchModel> RetrievedModels = new List<StatMatchModel>();
 
         private MongoDBPersistence PersistenceChunks;
@@ -31,7 +32,7 @@ namespace TaskBroker.Statistics
         }
         public void Clear()
         {
-            lock (RetrievedModels)
+            lock (modelsSync)
                 RetrievedModels.Clear();
         }
         private void OptimisePerformance(BrokerStat matchData)
@@ -51,7 +52,7 @@ namespace TaskBroker.Statistics
         }
         public void FlushRetairedChunks()
         {
-            lock (RetrievedModels)
+            lock (modelsSync)
                 foreach (StatMatchModel m in RetrievedModels)
                 {
                     m.checkExpired();
@@ -121,7 +122,7 @@ namespace TaskBroker.Statistics
                 logger.Warning("for stat chunk undeclared match data, not persistent");
             }
             //
-            lock (RetrievedModels)
+            lock (modelsSync)
                 RetrievedModels.Add(match);
             return match;
         }
