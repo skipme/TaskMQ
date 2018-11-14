@@ -22,12 +22,23 @@ namespace TaskBroker
                 // create appdomain
                 logger.Debug("domain starting.");
 
-                AppDomainSetup setup = AppDomain.CurrentDomain.SetupInformation;
+                AppDomainSetup setup = new AppDomainSetup();
+                setup.ApplicationName = "TaskMQ";
+                setup.DisallowBindingRedirects = true;
+                setup.DisallowCodeDownload = true;
+                setup.LoaderOptimization = LoaderOptimization.SingleDomain;
+                setup.DisallowApplicationBaseProbing = true;
+
                 AppDomain Domain = AppDomain.CreateDomain("ApplicationKeeper", null, setup);
                 //
-                BrokerApplication app = (BrokerApplication)Domain.CreateInstanceAndUnwrap(
-                    typeof(BrokerApplication).Assembly.FullName,
-                    typeof(BrokerApplication).FullName);
+                //BrokerApplication app = (BrokerApplication)Domain.CreateInstanceAndUnwrap(
+                //    typeof(BrokerApplication).Assembly.FullName,
+                //    typeof(BrokerApplication).FullName);
+
+                BrokerApplication app = (BrokerApplication)Domain.CreateInstanceFromAndUnwrap(
+                       typeof(BrokerApplication).Assembly.Location,
+                       typeof(BrokerApplication).FullName);
+
                 //RunAppInSeparateThread(app);
                 app.Run(sync, benchConfiguration, true);
                 // waitfor sync

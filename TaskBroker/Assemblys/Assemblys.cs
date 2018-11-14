@@ -91,10 +91,17 @@ namespace TaskBroker.Assemblys
             //list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             SharedManagedLibraries = new ArtefactsDepot();
+            
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-
+            AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+            
             // build, update packages: 
             assemblySources = new SourceControl.BuildServers.AssemblyProjects(Directory.GetCurrentDirectory());
+        }
+
+        void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            logger.Debug("Assembly loaded: \n {0},\n located:\n {1}", args.LoadedAssembly.FullName, args.LoadedAssembly.Location);
         }
         public IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses()
         {
@@ -193,10 +200,17 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            string[] Parts = args.Name.Split(',');
+            string[][] Parts = (from x in args.Name.Split(',')
+                                select x.Trim().Split('=')).ToArray();
+
+            string assemblyVersion = (from x in Parts
+                                      where x[0] == "Version"
+                                      select x[1]).First();
+
             BuildResultFile asset;
             BuildResultFile assetsym;
-            if (SharedManagedLibraries.ResolveLibrary(Parts[0], out asset, out assetsym))
+
+            if (SharedManagedLibraries.ResolveLibrary(Parts[0][0], out asset, out assetsym))
             {
                 if (assetsym != null)
                 {
