@@ -131,12 +131,14 @@ namespace TaskBroker
 
         private void AddInterfacesFromCurrentDomain(Broker b)
         {
-            //TaskBroker.Assemblys.Assemblys.ForceReferencedLoad();// locals...
+            Type IModType = typeof(IMod);
+            var types = AppDomain.CurrentDomain.GetAssemblies()//.ToList()
+                .SelectMany(assembly => assembly.GetExportedTypes())
+                .Where(assemblyType =>
+                    !assemblyType.IsInterface
+                    && IModType.IsAssignableFrom(assemblyType) 
+                    );
 
-            var type = typeof(IMod);
-            var types = AppDomain.CurrentDomain.GetAssemblies().ToList()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
             foreach (Type item in types)
             {
                 ModLocalInterfaces.Add(item.FullName, item);

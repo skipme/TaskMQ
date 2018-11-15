@@ -47,7 +47,14 @@ namespace TaskBroker.Assemblys
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         public SourceControl.BuildServers.AssemblyProjects assemblySources;
+        /// <summary>
+        /// list of assemblys loaded by taskmq /debug info/
+        /// </summary>
         public Dictionary<string, AssemblyCard> loadedAssemblys;
+        /// <summary>
+        /// list of assemblys loaded by taskmq
+        /// for resolving / reloading / fetching ...
+        /// </summary>
         private ArtefactsDepot SharedManagedLibraries;
 
         public IRepresentedConfiguration GetJsonBuildServersConfiguration()
@@ -66,7 +73,7 @@ namespace TaskBroker.Assemblys
                 {
                     Name = bs.Value.Name,
                     Description = bs.Value.Description,
-                    ParametersModel = rm.schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => new Configuration.SchemeValueSpec( valueItem.Value2))
+                    ParametersModel = rm.schema.ToList().ToDictionary((keyItem) => keyItem.Value1, (valueItem) => new Configuration.SchemeValueSpec(valueItem.Value2))
                     //rm.ToDeclareDictionary()
                 });
             }
@@ -91,18 +98,14 @@ namespace TaskBroker.Assemblys
             //list = new List<AssemblyModule>();
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             SharedManagedLibraries = new ArtefactsDepot();
-            
+
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
-            
+
             // build, update packages: 
             assemblySources = new SourceControl.BuildServers.AssemblyProjects(Directory.GetCurrentDirectory());
         }
 
-        void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
-        {
-            logger.Debug("Assembly loaded: \n {0},\n located:\n {1}", args.LoadedAssembly.FullName, args.LoadedAssembly.Location);
-        }
         public IEnumerable<KeyValuePair<string, IAssemblyStatus>> GetSourceStatuses()
         {
             foreach (SourceControl.BuildServers.SourceController proj in assemblySources.hostedProjects)
@@ -144,6 +147,22 @@ namespace TaskBroker.Assemblys
         public void LoadAssemblys(Broker b)
         {
             loadedAssemblys.Clear();
+            // load local dep assemblys
+
+            //SortedSet<string> loadedAssemblyList = new SortedSet<string>(from lasm in AppDomain.CurrentDomain.GetAssemblies()
+            //                                                             select lasm.FullName);
+            //IEnumerable<AssemblyName> notLoadedReferences = from assembly in AppDomain.CurrentDomain.GetAssemblies()
+            //                                                from refAssembly in assembly.GetReferencedAssemblies()
+            //                                                group refAssembly by refAssembly.FullName into fullname
+            //                                                where !loadedAssemblyList.Contains(fullname.Key)
+            //                                                select fullname.First();
+            ////SourceControl.Assemblys.AssemblyHelper.GetAssemblyReferences()
+            //foreach (AssemblyName assemblyName in notLoadedReferences)
+            //{
+            //    AppDomain.CurrentDomain.Load(assemblyName);
+            //}
+
+
             // in order to reject only new modules -if depconflict persist-
             IEnumerable<SourceControl.BuildServers.SourceController> mods = assemblySources.TakeLoadTime();
             foreach (SourceControl.BuildServers.SourceController a in mods)
@@ -160,8 +179,8 @@ namespace TaskBroker.Assemblys
             remarks = string.Empty;
             try
             {
-                SharedManagedLibraries.RegisterAssets(a);
-                AddAssemblyUnsafe(b, a);
+                Assembly assembly = TryRegisterAssembly(b, a);
+                SharedManagedLibraries.RegisterAssets(a, assembly);
             }
             catch (Exception e)
             {
@@ -172,7 +191,7 @@ namespace TaskBroker.Assemblys
             return true;
         }
 
-        private void AddAssemblyUnsafe(Broker b, AssemblyVersionPackage a)
+        private Assembly TryRegisterAssembly(Broker b, AssemblyVersionPackage a)
         {
             Assembly assembly = null;
             if (a.Version.FileSymbols != null)
@@ -185,8 +204,10 @@ namespace TaskBroker.Assemblys
                 assembly = assembly,
                 AssemblyName = assemblyName
             };
-            var type = typeof(IMod);
-            var types = assembly.GetTypes().Where(p => type.IsAssignableFrom(p) && !p.IsInterface);
+            var IModType = typeof(IMod);
+            var types = assembly.GetExportedTypes().Where(assemblyType =>
+                !assemblyType.IsInterface
+                && IModType.IsAssignableFrom(assemblyType));
 
             foreach (Type item in types)
             {
@@ -197,9 +218,28 @@ namespace TaskBroker.Assemblys
                                select t.FullName).ToArray();
 
             loadedAssemblys.Add(assemblyName, card);
+
+            return assembly;
+        }
+        void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
+        {
+            SharedManagedLibraries.RegisterAssemblyLibrary(args.LoadedAssembly);
+            logger.Debug("Assembly loaded: \n {0},\n located:\n {1}", args.LoadedAssembly.FullName, args.LoadedAssembly.Location);
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            Assembly lib;
+            if (SharedManagedLibraries.ResolveLibraryAssembly(args.Name, out lib))
+            {
+                return lib;
+            }
+            else
+            {
+                // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+                logger.Error("loading shared library failed: not found {0}", args.Name);
+            }
+            return null;
+
             string[][] Parts = (from x in args.Name.Split(',')
                                 select x.Trim().Split('=')).ToArray();
 
@@ -207,26 +247,26 @@ namespace TaskBroker.Assemblys
                                       where x[0] == "Version"
                                       select x[1]).First();
 
-            BuildResultFile asset;
-            BuildResultFile assetsym;
+            //BuildResultFile asset;
+            //BuildResultFile assetsym;
 
-            if (SharedManagedLibraries.ResolveLibrary(Parts[0][0], out asset, out assetsym))
-            {
-                if (assetsym != null)
-                {
-                    return Assembly.Load(asset.Data, assetsym.Data);
-                }
-                else
-                {
-                    return Assembly.Load(asset.Data);
-                }
-            }
-            else
-            {
-                // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
-                logger.Error("loading shared library failed: not found {0}", Parts[0]);
-            }
-            return null;
+            //if (SharedManagedLibraries.ResolveLibrary(Parts[0][0], out asset, out assetsym))
+            //{
+            //    if (assetsym != null)
+            //    {
+            //        return Assembly.Load(asset.Data, assetsym.Data);
+            //    }
+            //    else
+            //    {
+            //        return Assembly.Load(asset.Data);
+            //    }
+            //}
+            //else
+            //{
+            //    // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
+            //    logger.Error("loading shared library failed: not found {0}", Parts[0]);
+            //}
+            //return null;
         }
 
 

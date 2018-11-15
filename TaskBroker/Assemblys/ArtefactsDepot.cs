@@ -21,6 +21,8 @@ namespace TaskBroker.Assemblys
             public AssemblyVersionPackage pckg;
             public AssemblyArtifact art;
 
+            public System.Reflection.Assembly loadedAssembly;
+
             public bool IsLocalDependency { get; set; }
             public string LocalDependencyPath { get; set; }
 
@@ -55,86 +57,113 @@ namespace TaskBroker.Assemblys
                 return pathDll.Remove(pathDll.Length - 3, 3);
             }
         }
+        //private Dictionary<string, PackageAndArtefactLibLinked> AssetControlList;
         private Dictionary<string, PackageAndArtefactLibLinked> AssemblyControlList;
         public ArtefactsDepot()
         {
+            //AssetControlList = new Dictionary<string, PackageAndArtefactLibLinked>();
             AssemblyControlList = new Dictionary<string, PackageAndArtefactLibLinked>();
             // TODO: loading common dependecies from calling assembly
             RegisterWorkingDirAssemblys();
         }
         private void RegisterWorkingDirAssemblys()
         {
-            string[] files = Directory.GetFiles(Environment.CurrentDirectory);
-            foreach (string fpath in files)
-            {
-                AssemblyArtifact art = AssemblyArtifact.Get(fpath);
-                if (art.IsAssembly)
-                {
-                    if (AssemblyControlList.ContainsKey(art.Name))
-                    {
-                        if (AssemblyControlList[art.Name].art.Version != art.Version)// this can't be happen
-                            throw new Exception();
-                    }
-                    else
-                    {
-                        PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
-                        {
-                            IsLocalDependency = true,
-                            art = art,
-                            LocalDependencyPath = fpath
-                        };
+            //string[] files = Directory.GetFiles(Environment.CurrentDirectory);
+            //foreach (string fpath in files)
+            //{
+            //    AssemblyArtifact art = AssemblyArtifact.Get(fpath);
+            //    if (art.IsAssembly)
+            //    {
+            //        if (AssetControlList.ContainsKey(art.Name))
+            //        {
+            //            if (AssetControlList[art.Name].art.Version != art.Version)// this can't be happen
+            //                throw new Exception();
+            //        }
+            //        else
+            //        {
+            //            PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
+            //            {
+            //                IsLocalDependency = true,
+            //                art = art,
+            //                LocalDependencyPath = fpath
+            //            };
 
-                        AssemblyControlList.Add(art.Name, l);
-                    }
-                }
-            }
+            //            AssetControlList.Add(art.Name, l);
+            //        }
+            //    }
+            //}
         }
 
-        /// <summary>
-        /// This check for conflicts between all modules references <br/>
-        ///     this thing about that you don't have isolation to make sure all modules are up to date
-        /// </summary>
-        /// <param name="binPackage"></param>
-        public void RegisterAssets(AssemblyVersionPackage binPackage)
+        public void RegisterAssets(AssemblyVersionPackage binPackage, System.Reflection.Assembly loadedAssembly = null)
         {
             for (int i = 0; i < binPackage.Version.Artefacts.Count; i++)
             {
                 AssemblyArtifact art = binPackage.Version.Artefacts[i];
                 if (art.IsAssembly)
                 {
-                    if (AssemblyControlList.ContainsKey(art.Name))
+                    if (loadedAssembly == null)
+                        throw new Exception();
+
+                    if (AssemblyControlList.ContainsKey(loadedAssembly.FullName))
                     {
-                        if (AssemblyControlList[art.Name].art.Version != art.Version)
-                            throw new Exception(string.Format("The module {0} has incosistent dependency '{1}'({2}) with other modules - '{3}'({4}): {5}",
-                                binPackage.ContainerName, art.Name, art.Version,
-                                AssemblyControlList[art.Name].art.Name, AssemblyControlList[art.Name].art.Version,
-                                AssemblyControlList[art.Name].IsLocalDependency ? "WorkingDir Dependency" : "Module dependency"));
+                        //if (AssetControlList[art.Name].art.Version != art.Version)
+                        //    throw new Exception(string.Format("The module {0} has incosistent dependency '{1}'({2}) with other modules - '{3}'({4}): {5}",
+                        //        binPackage.ContainerName, art.Name, art.Version,
+                        //        AssetControlList[art.Name].art.Name, AssetControlList[art.Name].art.Version,
+                        //        AssetControlList[art.Name].IsLocalDependency ? "WorkingDir Dependency" : "Module dependency"));
                     }
                     else
                     {
                         PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
                         {
                             art = art,
-                            pckg = binPackage
+                            pckg = binPackage,
+                            loadedAssembly = loadedAssembly
                         };
 
-                        AssemblyControlList.Add(art.Name, l);
+                        AssemblyControlList.Add(loadedAssembly.FullName, l);
                     }
                 }
+            }
+        }
+        public void RegisterAssemblyLibrary(System.Reflection.Assembly loadedAssembly)
+        {
+            if (!AssemblyControlList.ContainsKey(loadedAssembly.FullName))
+            {
+                PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
+                {
+                    IsLocalDependency = true,
+                    LocalDependencyPath = loadedAssembly.Location,
+                    loadedAssembly = loadedAssembly
+                };
+
+                AssemblyControlList.Add(loadedAssembly.FullName, l);
             }
         }
         public SourceControl.Build.BuildResultFile ResolveAsset(string FileName)
         {
             return null;
         }
-        public bool ResolveLibrary(string LibraryName, out BuildResultFile library, out BuildResultFile symbols)
+        public bool ResolveLibraryAsset(string LibraryFullName, out BuildResultFile library, out BuildResultFile symbols)
         {
             library = symbols = null;
             PackageAndArtefactLibLinked l = null;
-            if (AssemblyControlList.TryGetValue(LibraryName, out l))
+            if (AssemblyControlList.TryGetValue(LibraryFullName, out l))
             {
                 library = l.ExtractLibraryFile();
                 symbols = l.ExtractSymbolsFile();
+                return true;
+            }
+
+            return false;
+        }
+        public bool ResolveLibraryAssembly(string LibraryFullName, out System.Reflection.Assembly AssemblyLibrary)
+        {
+            AssemblyLibrary = null;
+            PackageAndArtefactLibLinked l = null;
+            if (AssemblyControlList.TryGetValue(LibraryFullName, out l))
+            {
+                AssemblyLibrary = l.loadedAssembly;
                 return true;
             }
 
