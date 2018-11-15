@@ -26,9 +26,17 @@ namespace SourceControl.BuildServers
             return Versions.GetVersions();
         }
 
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public SourceController(string workingDirectory, string moduleName, BuildServers.IBuildServer buildServer)
         {
             Versions = new AssemblyBinVersions(workingDirectory, moduleName);
+            if (Versions.PackageInfo == null)
+            {
+                logger.Warning("packageInfo not found in assembly package container '{0}', trying to populate accesible version", moduleName);
+                BuildArtifacts artifacts = buildServer.GetArtifacts();
+                Versions.AddVersion(buildServer.GetVersion(), artifacts);
+            }
             this.BuildServer = buildServer;
 
             this.PackageName = moduleName;
@@ -69,12 +77,13 @@ namespace SourceControl.BuildServers
         {
             List<SourceControllerJobs> result = new List<SourceControllerJobs>();
             List<BuildServerJobs> bsjobs = BuildServer.GetAllowedJobs();
-
-            HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.fetch, SourceControllerJobs.fetchBS,
-                bsjobs, result);
-            HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.build, SourceControllerJobs.buildBS,
-               bsjobs, result);
-
+            if (bsjobs != null)
+            {
+                HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.fetch, SourceControllerJobs.fetchBS,
+                    bsjobs, result);
+                HasAdd<BuildServerJobs, SourceControllerJobs>(BuildServerJobs.build, SourceControllerJobs.buildBS,
+                   bsjobs, result);
+            }
             SCMRevision buildVersion = BuildServer.GetVersion();
             if (buildVersion != null && Versions.LatestVersion.VersionTag != buildVersion.Revision)
                 result.Add(SourceControllerJobs.updatePackageFromBuild);

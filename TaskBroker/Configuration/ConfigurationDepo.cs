@@ -139,10 +139,20 @@ namespace TaskBroker.Configuration
                 {
                     versions.AddVersion(key_assemblys, json);
                 }
+                catch (System.IO.IOException fex)
+                {                
+                    string errstr = string.Format("{0}: can't update: {1}, check file locks...", fex.Message, conf_archive);
+                    logger.Error(errstr);
+                    logger.Exception(fex, "configuration update");
+
+                    errors = errstr;
+                    return false;
+                }
                 catch (Exception e)
                 {
                     // archive errors // opened in another app
                     errors = e.Message;
+                    logger.Exception(e, "configuration update");
                     return false;
                 }
             }

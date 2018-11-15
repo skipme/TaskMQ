@@ -2,29 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
     public class AssemblyProjects
     {
-        public string DiretoryContainer { get; set; }
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
+        public string DirectoryBase { get; set; }
         public List<SourceController> hostedProjects;
-        public Register artifacts;
+        public BSDepot BuildServersProvider;
 
         public AssemblyProjects(string path)
         {
-            DiretoryContainer = path;
+            DirectoryBase = path;
             CheckDirectory();
 
             hostedProjects = new List<SourceController>();
-            artifacts = new Register();
+            BuildServersProvider = new BSDepot();
         }
         public void Add(string name, string buildServerType, Dictionary<string, object> parameters)
         {
-            BuildServers.IBuildServer bs = artifacts.GetNewInstance(buildServerType);
+            BuildServers.IBuildServer bs = BuildServersProvider.GetNewInstance(buildServerType);
+            if (bs == null)
+            {
+                logger.Error("Build server type not found: \"{0}\" for assembly spec: \"{1}\" ", buildServerType, name);
+                return;
+            }
             bs.SetParameters(parameters);
 
-            hostedProjects.Add(new SourceController(DiretoryContainer, name, bs));
+            hostedProjects.Add(new SourceController(DirectoryBase, name, bs));
         }
         public IEnumerable<SourceController> TakeLoadTime()
         {
@@ -35,9 +43,9 @@ namespace SourceControl.BuildServers
         }
         private void CheckDirectory()
         {
-            if (!System.IO.Directory.Exists(DiretoryContainer))
+            if (!System.IO.Directory.Exists(DirectoryBase))
             {
-                System.IO.Directory.CreateDirectory(DiretoryContainer);
+                System.IO.Directory.CreateDirectory(DirectoryBase);
             }
         }
     }

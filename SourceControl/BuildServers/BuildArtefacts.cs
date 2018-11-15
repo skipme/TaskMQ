@@ -136,7 +136,7 @@ namespace SourceControl.BuildServers
 
             return result;
         }
-        public static BuildArtifacts FromDirectory(string AssemblyArtefactAbsPath, string versionTag)
+        public static BuildArtifacts FromDirectory(string AssemblyArtefactAbsPath, string versionTag, bool onlyLibrary = false)
         {
             BuildArtifacts result = new BuildArtifacts();
             string Dir = System.IO.Path.GetDirectoryName(AssemblyArtefactAbsPath);
@@ -161,17 +161,32 @@ namespace SourceControl.BuildServers
                 {
                     AssemblyArtefactAbsPath = Files[i]; // save original case
                     artefactAssemblyFound = true;
+                    if (onlyLibrary)
+                    {
+                        result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));
+                    }
                 }
                 else if (fl == assemblyAbsSym)
                 {
                     AssemblySymFound = Files[i];
+                    if (onlyLibrary)
+                    {
+                        result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));
+                    }
                 }
                 else if (fl == assemblyAbsSymL)
                 {
                     AssemblySymFound = Files[i];
+                    if (onlyLibrary)
+                    {
+                        result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));
+                    }
                 }
 
-                result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));// add file to artifacts list
+                if (!onlyLibrary)
+                {
+                    result.AddArtefact(System.IO.Path.GetFileName(Files[i]), File.ReadAllBytes(Files[i]));// add file to artifacts list
+                }
             }
 
             result.AssemblyArtefactName = System.IO.Path.GetFileName(AssemblyArtefactAbsPath);

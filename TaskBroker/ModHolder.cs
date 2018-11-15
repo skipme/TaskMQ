@@ -61,7 +61,7 @@ namespace TaskBroker
         public Dictionary<string, Type> ModLocalInterfaces;
         public Dictionary<string, string> loadedInterfaces;
 
-        public void RegisterInterface(Type interfaceMod, string assembly)
+        public void RegisterInterface(Type interfaceMod, string assemblyFullName)
         {
             var type = typeof(IMod);
             if (type.IsAssignableFrom(interfaceMod))
@@ -73,7 +73,7 @@ namespace TaskBroker
                 else
                 {
                     ModInterfaces.Add(interfaceMod.FullName, interfaceMod);
-                    loadedInterfaces.Add(interfaceMod.FullName, assembly);
+                    loadedInterfaces.Add(interfaceMod.FullName, assemblyFullName);
                 }
             }
             else

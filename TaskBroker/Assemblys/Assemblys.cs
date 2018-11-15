@@ -66,7 +66,7 @@ namespace TaskBroker.Assemblys
         {
             TaskBroker.Configuration.ExtraParameters p = new Configuration.ExtraParameters();
             p.BuildServerTypes = new List<Configuration.ExtraParametersBS>();
-            foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.artifacts.BuildServersRegister)
+            foreach (KeyValuePair<string, SourceControl.BuildServers.IBuildServer> bs in assemblySources.BuildServersProvider.BuildServersRegister)
             {
                 TaskQueue.RepresentedModel rm = bs.Value.GetParametersModel().GetModel();
                 p.BuildServerTypes.Add(new TaskBroker.Configuration.ExtraParametersBS
@@ -82,7 +82,7 @@ namespace TaskBroker.Assemblys
         public bool CheckBuildServerParameters(string BSTypeName, Dictionary<string, object> bsParameters, out string explain)
         {
             SourceControl.BuildServers.IBuildServer bs;
-            if ((bs = assemblySources.artifacts.GetNewInstance(BSTypeName)) != null)
+            if ((bs = assemblySources.BuildServersProvider.GetNewInstance(BSTypeName)) != null)
             {
                 bs.SetParameters(bsParameters);
 
@@ -198,7 +198,7 @@ namespace TaskBroker.Assemblys
                 assembly = Assembly.Load(a.ExtractLibrary(), a.ExtractLibrarySymbols());
             else assembly = Assembly.Load(a.ExtractLibrary());
 
-            string assemblyName = assembly.GetName().Name;
+            string assemblyName = assembly.GetName().FullName;
             AssemblyCard card = new AssemblyCard()
             {
                 assembly = assembly,
@@ -228,6 +228,13 @@ namespace TaskBroker.Assemblys
         }
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            string[][] Parts = (from x in args.Name.Split(',')
+                                select x.Trim().Split('=')).ToArray();
+
+            string assemblyReqVersion = (from x in Parts
+                                      where x[0] == "Version"
+                                      select x[1]).First();
+
             Assembly lib;
             if (SharedManagedLibraries.ResolveLibraryAssembly(args.Name, out lib))
             {
@@ -235,17 +242,20 @@ namespace TaskBroker.Assemblys
             }
             else
             {
+                if (File.Exists(Parts[0][0] + ".dll"))
+                {
+                    string filever = SourceControl.Assemblys.AssemblyHelper.GetAssemblyVersion(Parts[0][0] + ".dll").Version.ToString();
+                    if (filever == assemblyReqVersion)
+                    {
+                        logger.Warning("local dll resolving: {0}; ver: {1} for: {2}", Parts[0][0] + ".dll", filever, args.RequestingAssembly.FullName);
+                        return Assembly.LoadFrom(Parts[0][0] + ".dll");
+                    }
+                }
                 // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
-                logger.Error("loading shared library failed: not found {0}", args.Name);
+                logger.Error("loading shared library failed: not found: {0}; requested by: {1}; ", args.Name, args.RequestingAssembly.FullName);
             }
             return null;
 
-            string[][] Parts = (from x in args.Name.Split(',')
-                                select x.Trim().Split('=')).ToArray();
-
-            string assemblyVersion = (from x in Parts
-                                      where x[0] == "Version"
-                                      select x[1]).First();
 
             //BuildResultFile asset;
             //BuildResultFile assetsym;

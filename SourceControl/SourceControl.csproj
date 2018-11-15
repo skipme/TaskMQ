@@ -82,9 +82,11 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildServers\Register.cs" />
+    <Compile Include="Assemblys\AssemblyHelper.cs" />
+    <Compile Include="BuildServers\BSDepot.cs" />
     <Compile Include="BuildServers\BuildArtefacts.cs" />
     <Compile Include="BuildServers\BuildServer.cs" />
+    <Compile Include="BuildServers\LocalDirectory.cs" />
     <Compile Include="BuildServers\NaiveMs.cs" />
     <Compile Include="BuildServers\TeamCityBS.cs" />
     <Compile Include="BuildServers\TeamCity\artifacts.cs" />

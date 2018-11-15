@@ -2,8 +2,10 @@
 using SourceControl.Ref;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using TaskUniversum;
 
 namespace SourceControl.Containers
 {
@@ -13,6 +15,8 @@ namespace SourceControl.Containers
         public ContentVersionStorage versionContainer;
         public string Path { get; private set; }
         public string name { get; private set; }
+
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
         public DateTime LastPackagedDate
         {
@@ -27,6 +31,10 @@ namespace SourceControl.Containers
         {
             this.Path = System.IO.Path.Combine(directoryScope, name + ".zip");
             this.name = name;
+
+            if (!File.Exists(Path))
+                logger.Error("Assembly package not found, will be recreated.");
+
             versionContainer = new FileContentArchive.ContentVersionStorage(new FileContentArchive.ZipStorage(Path));
 
             PackageInfo = getPackageInfo();
@@ -71,7 +79,8 @@ namespace SourceControl.Containers
             Ref.AssemblyPackage pinfo = PackageInfo;
             if (pinfo == null)
             {
-                Console.WriteLine("packageInfo absent in package {0}", this.Path);
+                //Console.WriteLine("packageInfo absent in package {0}", this.Path);
+                logger.Error("packageInfo absent in package {0}", this.Path);
                 return null;
             }
 

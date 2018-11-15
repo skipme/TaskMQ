@@ -15,17 +15,19 @@ namespace TApp
 {
     class Program
     {
+        const string logFileProg = "tapp-log.txt";
         static void Main(string[] args)
         {
             TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
                     new TaskBroker.Logger.ConsoleEndpoint(),
-                    new TaskBroker.Logger.FileEndpoint("log.txt")
+                    new TaskBroker.Logger.FileEndpoint(logFileProg)
                 });
 
             TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
             bool benchConfiguration = true;// Array.IndexOf(args, "benchTasks") >= 0;// for plan or other params depends on tasks calculation
 
-            if (Array.IndexOf(args, "inline") >= 0 || System.Diagnostics.Debugger.IsAttached)
+            if (false)
+            //if (Array.IndexOf(args, "inline") >= 0 || System.Diagnostics.Debugger.IsAttached)
             {
                 ManualResetEvent mre = new ManualResetEvent(false);
                 BrokerApplication ba = new BrokerApplication();

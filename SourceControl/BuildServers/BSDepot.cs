@@ -5,16 +5,18 @@ using System.Text;
 
 namespace SourceControl.BuildServers
 {
-    public class Register
+    public class BSDepot
     {
         public Dictionary<string, BuildServers.IBuildServer> BuildServersRegister;
-        public Register()
+        public BSDepot()
         {
             BuildServersRegister = new Dictionary<string, BuildServers.IBuildServer>();
 
+            //
             SourceControl.BuildServers.TeamCityBS tc = new BuildServers.TeamCityBS();
             BuildServersRegister.Add(tc.Name, tc);
 
+            //
             if (TaskUniversum.Common.Runtime.IsRunningOnMono())
             {
                 SourceControl.BuildServers.NaiveXBuildfromGit monogit = new BuildServers.NaiveXBuildfromGit();
@@ -25,9 +27,11 @@ namespace SourceControl.BuildServers
                 SourceControl.BuildServers.NaiveMSfromGit netgit = new BuildServers.NaiveMSfromGit();
                 BuildServersRegister.Add(netgit.Name, netgit);
             }
-        }
 
-      
+            //
+            SourceControl.BuildServers.LocalDirectory localDir = new BuildServers.LocalDirectory();
+            BuildServersRegister.Add(localDir.Name, localDir);
+        }
 
         public TaskQueue.Providers.TItemModel GetParametersModel(string buildServerType)
         {

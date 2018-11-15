@@ -70,9 +70,9 @@ namespace TaskBroker
             //}
             broker = new Broker(Restart, Reset);
 
-            BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
-            QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
-            BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
+            //BsonBenchService.ModProducer amqm = new BsonBenchService.ModProducer();
+            //QueueService.ModProducer m = new QueueService.ModProducer();// todo: force loading local dep's
+            //BenchModules.ModConsumer cons = new BenchModules.ModConsumer();
             //EmailConsumer.ModConsumer mc = new EmailConsumer.ModConsumer();
 
             //m.Description = "";
