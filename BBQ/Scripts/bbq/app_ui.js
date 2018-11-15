@@ -7,7 +7,6 @@
 
     bbqmvc.run(function () {
         // Do post-load initialization stuff here
-        $("select.customselect").selectpicker({ style: 'btn-primary', menuStyle: 'dropdown-inverse' });
     });
     bbqmvc.controller('bbqCtrl', function bbqCtrl($scope, $location) {
 
@@ -151,10 +150,10 @@
                             $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="status"]').text(asm.state);
 
                             $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="desc"] a i').attr("class",
-                                asm.revisionTag == asm.revisionSourceTag ? "icon-ok" : "icon-chevron-up");
+                                asm.revisionTag == asm.revisionSourceTag ? "fas fa-check-circle" : "fas fa-level-up-alt");
 
                             $('div#assemblys tr[assembly_sel="' + asm.Name + '"] span[app_role="desc-loaded"] a i').attr("class",
-                               asm.loaded ? "icon-ok" : "icon-warning-sign");
+                               asm.loaded ? "fas fa-check-circle" : "fas fa-exclamation-triangle");
 
                             $('div#assemblys tr[assembly_sel="' + asm.Name + '"] td[app_role="fetch"] a').css("display",
                                 asm.allowedFetch ? "block" : "none");
@@ -211,6 +210,13 @@
                    function () { bbq_tmq.toastr_warning("cant get assembly info"); }
                    );
         }
+        function soft_copy(src, dst)
+        {
+            for (var x in src)
+            {
+                dst[x] = src[x];
+            }
+        }
         $scope.assembly_edit = function (asm) {
             if (!bbq_tmq.check_synced()) {
                 alert('the state is not synced...');
@@ -219,10 +225,9 @@
             $scope.ref_assembly = asm;
 
             $scope.newtask.parametersStr = angular.toJson(asm.BSParameters, true);
-
-            angular.copy(asm, $scope.edit_assembly);
-
-            //$scope.edit_task_index = r_index;
+            //$scope.edit_assembly = angular.copy(asm);
+            soft_copy(asm, $scope.edit_assembly);
+            
             $('div#checkBSresults').text('');
             $('div#modal-edit-assembly').modal('show');
         }
@@ -277,7 +282,7 @@
                 bbq_tmq.toastr_warning(" check json syntax! " + e.message);
                 return;
             }
-            $('div#checkBSresults').html('<i class="icon-refresh"></i>')
+            $('div#checkBSresults').html('<i class="fas fa-sync-alt"></i>')
             bbq_tmq.assemblies.CheckBS(bsName, params, function (msg) {
                 $('div#checkBSresults').text(msg);
             }, function (msg) {

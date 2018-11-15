@@ -117,13 +117,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\flatui\bootstrap-docs.css" />
-    <Content Include="Content\flatui\bootstrap-responsive.css" />
-    <Content Include="Content\flatui\bootstrap.css" />
+    <Content Include="Content\flatui\all.css" />
     <Content Include="Content\flatui\cf.css" />
     <Content Include="Content\flatui\flat-ui.css" />
-    <Content Include="Content\fonts\Flat-UI-Icons.dev.svg" />
-    <Content Include="Content\fonts\Flat-UI-Icons.svg" />
     <Content Include="Content\flatui\images\demo\browser-2x.png" />
     <Content Include="Content\flatui\images\demo\browser-author.jpg" />
     <Content Include="Content\flatui\images\demo\browser-pic-1.jpg" />
@@ -192,8 +188,6 @@
     <Content Include="Content\toastr.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\application.js" />
-    <Content Include="Scripts\bbq\angular-1.2.17.min.js" />
-    <Content Include="Scripts\bbq\angular-animate-1.2.17.min.js" />
     <Content Include="Scripts\bbq\application-info.js" />
     <Content Include="Scripts\bbq\application.js" />
     <Content Include="Scripts\bbq\app_ui.js" />
@@ -203,17 +197,15 @@
     <Content Include="Scripts\bootstrap-select.js" />
     <Content Include="Scripts\bootstrap-switch.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\flatui-checkbox.js" />
-    <Content Include="Scripts\flatui-radio.js" />
     <Content Include="Scripts\html5shiv.js" />
     <Content Include="Scripts\icon-font-ie7.js" />
-    <Content Include="Scripts\jquery-1.8.3.min.js" />
     <Content Include="Scripts\jquery-ui-1.10.3.custom.min.js" />
     <Content Include="Scripts\jquery.placeholder.js" />
     <Content Include="Scripts\jquery.sparkline.min.js" />
     <Content Include="Scripts\jquery.stacktable.js" />
     <Content Include="Scripts\jquery.tagsinput.js" />
     <Content Include="Scripts\jquery.ui.touch-punch.min.js" />
+    <Content Include="Scripts\popper.min.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -233,12 +225,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Content\fonts\Flat-UI-Icons.eot" />
-    <Content Include="Content\fonts\Flat-UI-Icons.ttf" />
-    <Content Include="Content\fonts\Flat-UI-Icons.woff" />
-    <Content Include="Content\fonts\icomoon-session.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\bbq\Index.cshtml" />
@@ -265,6 +251,11 @@
     <Content Include="Content\fonts\lato\lato-regular.eot" />
     <Content Include="Content\fonts\lato\lato-regular.ttf" />
     <Content Include="Content\fonts\lato\lato-regular.woff" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\webfonts\fa-solid-900.eot" />
+    <Content Include="Content\webfonts\fa-solid-900.ttf" />
+    <Content Include="Content\webfonts\fa-solid-900.woff" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
