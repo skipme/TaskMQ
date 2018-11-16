@@ -61,88 +61,89 @@ namespace TaskScheduler
                     //}
                     if (!next)
                     {
-                        while (true)
+                        //while (true)
+                        //{
+                        if (InstantPQueueCursor >= InstantPlanQueue.Length)
                         {
-                            if (InstantPQueueCursor >= InstantPlanQueue.Length)
-                            {
-                                InstantPQueueCursor = 0;
-                                //Thread.Sleep(0);
-                                Thread.Yield();
-                            }
-                            Dequeued = InstantPlanQueue[InstantPQueueCursor];
-                            InstantPQueueCursor++;
-
-                            if (Dequeued.ExucutingNow)
-                                continue;
-                            //Dequeued.SetStartExecution();
-                            Dequeued.ExucutingNow = true;
-                            break;
+                            InstantPQueueCursor = 0;
+                            //Thread.Sleep(0);
+                            Thread.Yield();
                         }
-                        return Dequeued;
+                        //Dequeued = InstantPlanQueue[InstantPQueueCursor];
+                        //InstantPQueueCursor++;
+
+                        //if (Dequeued.ExucutingNow)
+                        //    continue;
+                        ////Dequeued.SetStartExecution();
+                        //Dequeued.ExucutingNow = true;
+
+                        //break;
+                        //}
+                        //return Dequeued;
                     }
                     InstantPQueueCursor = 0;
                 }
             }
             lock (planSync)
             {
-                bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
-                //int qq = CPQueueCursor;
+                //bool planNotEmpty = CurrentPlanQueue.Length > CPQueueCursor;
+                ////int qq = CPQueueCursor;
+                //if (planNotEmpty)
+                //{
+                //    //if (CPQueueCursor != qq) throw new Exception();
+                //    Dequeued = CurrentPlanQueue[CPQueueCursor];
+                //    CPQueueCursor++;
+                //    Dequeued.SetStartExecution();
+                //}
+                //else
+                //{
+                PlanItem[] jnewcmpnts = null;
+                PlanItem[] newcmpnts = null;
+                lock (onceJobsSync)
+                {
+                    if (OnceJobs.Count > 0)
+                    {
+                        jnewcmpnts = OnceJobs.ToArray();
+                        OnceJobs.Clear();
+                    }
+                }
+                if (jnewcmpnts != null)// deferred jobs found, refill with plan
+                {
+                    PlanItem[] Pnewcmpnts = OrderComponents();
+
+                    newcmpnts = new PlanItem[jnewcmpnts.Length + Pnewcmpnts.Length];
+                    Array.Copy(jnewcmpnts, newcmpnts, jnewcmpnts.Length);
+                    Array.Copy(Pnewcmpnts, 0, newcmpnts, jnewcmpnts.Length, Pnewcmpnts.Length);
+                }
+                else// deferred jobs not found, try to refill plan
+                {
+                    newcmpnts = OrderComponents();
+                }
+                bool planNotEmpty = newcmpnts.Length > 0;
                 if (planNotEmpty)
                 {
-                    //if (CPQueueCursor != qq) throw new Exception();
-                    Dequeued = CurrentPlanQueue[CPQueueCursor];
-                    CPQueueCursor++;
-                    Dequeued.SetStartExecution();
-                }
-                else
-                {
-                    PlanItem[] jnewcmpnts = null;
-                    PlanItem[] newcmpnts = null;
-                    lock (onceJobsSync)
+                    if (newcmpnts.Length > 1)
                     {
-                        if (OnceJobs.Count > 0)
-                        {
-                            jnewcmpnts = OnceJobs.ToArray();
-                            OnceJobs.Clear();
-                        }
-                    }
-                    if (jnewcmpnts != null)// deferred jobs found, refill with plan
-                    {
-                        PlanItem[] Pnewcmpnts = OrderComponents();
-
-                        newcmpnts = new PlanItem[jnewcmpnts.Length + Pnewcmpnts.Length];
-                        Array.Copy(jnewcmpnts, newcmpnts, jnewcmpnts.Length);
-                        Array.Copy(Pnewcmpnts, 0, newcmpnts, jnewcmpnts.Length, Pnewcmpnts.Length);
-                    }
-                    else// deferred jobs not found, try to refill plan
-                    {
-                        newcmpnts = OrderComponents();
-                    }
-                    planNotEmpty = newcmpnts.Length > 0;
-                    if (planNotEmpty)
-                    {
-                        if (newcmpnts.Length > 1)
-                        {
-                            // populate queue
-                            PopulateQueue(newcmpnts);// let wait handled thread do that with race for job **
-                            // exit from losck 
-                            //**
-                            Dequeued = CurrentPlanQueue[CPQueueCursor];
-                            CPQueueCursor++;// this thread has exclusive access without race for job
-                            Dequeued.SetStartExecution();
-                        }
-                        else
-                        {
-                            Dequeued = newcmpnts[0];// this thread has exclusive access without race for job
-                            Dequeued.SetStartExecution();
-                        }
+                        // populate queue
+                        PopulateQueue(newcmpnts);// let wait handled thread do that with race for job **
+                        // exit from losck 
+                        //**
+                        Dequeued = CurrentPlanQueue[CPQueueCursor];
+                        CPQueueCursor++;// this thread has exclusive access without race for job
+                        Dequeued.SetStartExecution();
                     }
                     else
                     {
-                        Dequeued = null;// plan is empty
+                        Dequeued = newcmpnts[0];// this thread has exclusive access without race for job
+                        Dequeued.SetStartExecution();
                     }
-
                 }
+                else
+                {
+                    Dequeued = null;// plan is empty
+                }
+
+                //}
             }
             //if (Dequeued != null)
             //{

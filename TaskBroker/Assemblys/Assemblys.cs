@@ -179,8 +179,9 @@ namespace TaskBroker.Assemblys
             remarks = string.Empty;
             try
             {
-                Assembly assembly = TryRegisterAssembly(b, a);
+                Assembly assembly = TryLoadAssembly(a);
                 SharedManagedLibraries.RegisterAssets(a, assembly);
+                TryRegisterAssembly(b, assembly);
             }
             catch (Exception e)
             {
@@ -191,13 +192,8 @@ namespace TaskBroker.Assemblys
             return true;
         }
 
-        private Assembly TryRegisterAssembly(Broker b, AssemblyVersionPackage a)
+        private void TryRegisterAssembly(Broker b, Assembly assembly)
         {
-            Assembly assembly = null;
-            if (a.Version.FileSymbols != null)
-                assembly = Assembly.Load(a.ExtractLibrary(), a.ExtractLibrarySymbols());
-            else assembly = Assembly.Load(a.ExtractLibrary());
-
             string assemblyName = assembly.GetName().FullName;
             AssemblyCard card = new AssemblyCard()
             {
@@ -218,25 +214,41 @@ namespace TaskBroker.Assemblys
                                select t.FullName).ToArray();
 
             loadedAssemblys.Add(assemblyName, card);
+        }
 
+        private static Assembly TryLoadAssembly(AssemblyVersionPackage a)
+        {
+            Assembly assembly = null;
+            if (a.Version.FileSymbols != null)
+                assembly = Assembly.Load(a.ExtractLibrary(), a.ExtractLibrarySymbols());
+            else assembly = Assembly.Load(a.ExtractLibrary());
             return assembly;
         }
+
         void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args)
         {
             SharedManagedLibraries.RegisterAssemblyLibrary(args.LoadedAssembly);
             logger.Debug("Assembly loaded: \n {0},\n located:\n {1}", args.LoadedAssembly.FullName, args.LoadedAssembly.Location);
         }
+
         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             string[][] Parts = (from x in args.Name.Split(',')
                                 select x.Trim().Split('=')).ToArray();
 
             string assemblyReqVersion = (from x in Parts
-                                      where x[0] == "Version"
-                                      select x[1]).First();
+                                         where x[0] == "Version"
+                                         select x[1]).First();
+
+            string assemblyPublicKeyToken = (from x in Parts
+                                             where x[0] == "PublicKeyToken"
+                                             select x[1]).First();
 
             Assembly lib;
-            if (SharedManagedLibraries.ResolveLibraryAssembly(args.Name, out lib))
+            if (SharedManagedLibraries.ResolveLibraryAssembly(Parts[0][0],
+                assemblyReqVersion,
+                args.Name,
+                args.RequestingAssembly.FullName, out lib))
             {
                 return lib;
             }
@@ -254,31 +266,105 @@ namespace TaskBroker.Assemblys
                 // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
                 logger.Error("loading shared library failed: not found: {0}; requested by: {1}; ", args.Name, args.RequestingAssembly.FullName);
             }
+            string gaclib = GetAssemblyInGac(Parts[0][0], assemblyReqVersion, assemblyPublicKeyToken);
+            if (gaclib != null)
+            {
+                return Assembly.LoadFrom(gaclib);
+            }
             return null;
 
+        }
+        private class GacDirVersion
+        {
+            public readonly bool isInvalidName = false;
+            public readonly string dirPath;
+            public GacDirVersion(string dirPath)
+            {
+                this.dirPath = dirPath;
+                string dirName = Path.GetFileName(dirPath);
+                string[] dirNameParts = dirName.Split('_');
+                if (dirNameParts.Length != 4)
+                {
+                    isInvalidName = true;
+                    return;
+                }
+                runtimeV = dirNameParts[0];
+                assemblyVString = dirNameParts[1];
+                publicKeyString = dirNameParts[3];
+            }
+            public readonly string runtimeV;
+            public readonly string assemblyVString;
+            public readonly string publicKeyString;
+            public Version assemblyV
+            {
+                get
+                {
+                    return Version.Parse(assemblyVString);
+                }
+            }
+        }
+        // from mono proj
+        private static string GetAssemblyInGac(string name, string version, string pkt)
+        {
+            if (!name.StartsWith("System"))
+                return null;
+            Version requiredVersion = Version.Parse(version);
+            //if (reference.PublicKeyToken == null || reference.PublicKeyToken.Length == 0)
+            //    return null;
 
-            //BuildResultFile asset;
-            //BuildResultFile assetsym;
-
-            //if (SharedManagedLibraries.ResolveLibrary(Parts[0][0], out asset, out assetsym))
+            //if (OnMono())
             //{
-            //    if (assetsym != null)
+            //    foreach (string gacpath in MonoGacPaths)
             //    {
-            //        return Assembly.Load(asset.Data, assetsym.Data);
-            //    }
-            //    else
-            //    {
-            //        return Assembly.Load(asset.Data);
+            //        string s = GetAssemblyFile(reference, gacpath);
+            //        if (File.Exists(s))
+            //            return AssemblyFactory.GetAssembly(s);
             //    }
             //}
             //else
-            //{
-            //    // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
-            //    logger.Error("loading shared library failed: not found {0}", Parts[0]);
-            //}
-            //return null;
+            {
+                string currentGac = GetCurrentGacPath();
+                if (currentGac == null)
+                    return null;
+
+                string[] gacs = new string[] { "GAC_MSIL", "GAC_32", "GAC" };
+                for (int i = 0; i < gacs.Length; i++)
+                {
+                    string gac = Path.Combine(Directory.GetParent(currentGac).FullName, gacs[i]);
+                    string assemblyDir = Directory.GetDirectories(gac, name).FirstOrDefault();
+                    if (assemblyDir != null)
+                    {
+                        GacDirVersion betterver = (from y in
+                                                       (from x in Directory.GetDirectories(assemblyDir)
+                                                        select new GacDirVersion(x))
+                                                   where y.assemblyV >= requiredVersion
+                                                   orderby y.assemblyV ascending
+                                                   select y).FirstOrDefault();
+                        if (betterver != null)
+                        {
+                            string file = Directory.GetFiles(betterver.dirPath, "*.dll").FirstOrDefault();
+                            return file;
+                        }
+                    }
+
+                }
+            }
+
+            return null;
         }
+        // from mono proj
+        private static string GetCurrentGacPath()
+        {
+            string file = typeof(Uri).Module.FullyQualifiedName;
+            if (!File.Exists(file))
+                return null;
 
-
+            return Directory.GetParent(
+                Directory.GetParent(
+                    Path.GetDirectoryName(
+                        file)
+                    ).FullName
+                ).FullName;
+        }
     }
 }

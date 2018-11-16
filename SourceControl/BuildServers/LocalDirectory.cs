@@ -25,7 +25,7 @@ namespace SourceControl.BuildServers
 
         public string Description
         {
-            get { return "For self referenced assemblys"; }
+            get { return "For artefacts located in file system"; }
         }
 
         public TaskQueue.Providers.TItemModel GetParametersModel()
@@ -45,7 +45,7 @@ namespace SourceControl.BuildServers
 
             System.Reflection.AssemblyName ver = Assemblys.AssemblyHelper.GetAssemblyVersion(this.AssemblyFileName);
 
-            return BuildArtifacts.FromDirectory(this.AssemblyFileName, ver.ToString(), true);
+            return BuildArtifacts.FromDirectory(this.AssemblyFileName, ver.ToString());
         }
 
         public bool CheckParameters(out string explanation)

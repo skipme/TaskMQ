@@ -57,7 +57,7 @@ namespace TaskBroker
                 TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(
                     new TaskBroker.Logger.LoggerEndpoint[]{
                     new TaskBroker.Logger.ConsoleEndpoint(),
-                    new TaskBroker.Logger.FileEndpoint("log.txt", true)
+                    new TaskBroker.Logger.FileEndpoint("log.txt")
                 });
 
                 TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);

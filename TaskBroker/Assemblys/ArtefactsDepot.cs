@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using TaskUniversum;
+using System.Reflection;
 
 namespace TaskBroker.Assemblys
 {
@@ -16,9 +18,11 @@ namespace TaskBroker.Assemblys
     /// </summary>
     public class ArtefactsDepot
     {
+        ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         internal class PackageAndArtefactLibLinked
         {
-            public AssemblyVersionPackage pckg;
+            public AssemblyVersionPackage versionsPackage;
             public AssemblyArtifact art;
 
             public System.Reflection.Assembly loadedAssembly;
@@ -32,7 +36,7 @@ namespace TaskBroker.Assemblys
                 {
                     return new BuildResultFile { Name = art.FileName, Data = File.ReadAllBytes(LocalDependencyPath) };
                 }
-                return new BuildResultFile { Name = art.FileName, Data = pckg.ExtractArtefact(art) };
+                return new BuildResultFile { Name = art.FileName, Data = versionsPackage.ExtractArtefact(art) };
             }
             public BuildResultFile ExtractSymbolsFile()
             {
@@ -42,87 +46,56 @@ namespace TaskBroker.Assemblys
                     return new BuildResultFile { Name = Path.GetFileName(LocalDependencyPathSym), Data = File.ReadAllBytes(LocalDependencyPathSym) };
                 }
                 string prefile = ToSymbolsPathFromLibraryPath(art.FileName);
-                AssemblyArtifact symart = pckg.FindArtefactByName(prefile);
+                AssemblyArtifact symart = versionsPackage.FindArtefactByName(prefile);
                 if (symart == null)
                 {
                     prefile = ToSymbolsPathFromLibraryPath(art.FileName, "mdb");
-                    symart = pckg.FindArtefactByName(prefile);
+                    symart = versionsPackage.FindArtefactByName(prefile);
                     if (symart == null)
                         return null;
                 }
-                return new BuildResultFile { Name = prefile, Data = pckg.ExtractArtefact(symart) };
+                return new BuildResultFile { Name = prefile, Data = versionsPackage.ExtractArtefact(symart) };
             }
             private string ToSymbolsPathFromLibraryPath(string pathDll, string ext = "pdb")
             {
                 return pathDll.Remove(pathDll.Length - 3, 3);
             }
         }
-        //private Dictionary<string, PackageAndArtefactLibLinked> AssetControlList;
+        private Dictionary<string, PackageAndArtefactLibLinked> AssetControlList;
         private Dictionary<string, PackageAndArtefactLibLinked> AssemblyControlList;
         public ArtefactsDepot()
         {
-            //AssetControlList = new Dictionary<string, PackageAndArtefactLibLinked>();
+            AssetControlList = new Dictionary<string, PackageAndArtefactLibLinked>();
             AssemblyControlList = new Dictionary<string, PackageAndArtefactLibLinked>();
-            // TODO: loading common dependecies from calling assembly
-            RegisterWorkingDirAssemblys();
-        }
-        private void RegisterWorkingDirAssemblys()
-        {
-            //string[] files = Directory.GetFiles(Environment.CurrentDirectory);
-            //foreach (string fpath in files)
-            //{
-            //    AssemblyArtifact art = AssemblyArtifact.Get(fpath);
-            //    if (art.IsAssembly)
-            //    {
-            //        if (AssetControlList.ContainsKey(art.Name))
-            //        {
-            //            if (AssetControlList[art.Name].art.Version != art.Version)// this can't be happen
-            //                throw new Exception();
-            //        }
-            //        else
-            //        {
-            //            PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
-            //            {
-            //                IsLocalDependency = true,
-            //                art = art,
-            //                LocalDependencyPath = fpath
-            //            };
-
-            //            AssetControlList.Add(art.Name, l);
-            //        }
-            //    }
-            //}
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                RegisterAssemblyLibrary(a);
+            }
         }
 
-        public void RegisterAssets(AssemblyVersionPackage binPackage, System.Reflection.Assembly loadedAssembly = null)
+        public void RegisterAssets(AssemblyVersionPackage binPackage, System.Reflection.Assembly loadedAssembly)
         {
             for (int i = 0; i < binPackage.Version.Artefacts.Count; i++)
             {
                 AssemblyArtifact art = binPackage.Version.Artefacts[i];
                 if (art.IsAssembly)
                 {
-                    if (loadedAssembly == null)
-                        throw new Exception();
-
-                    if (AssemblyControlList.ContainsKey(loadedAssembly.FullName))
+                    PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
                     {
-                        //if (AssetControlList[art.Name].art.Version != art.Version)
-                        //    throw new Exception(string.Format("The module {0} has incosistent dependency '{1}'({2}) with other modules - '{3}'({4}): {5}",
-                        //        binPackage.ContainerName, art.Name, art.Version,
-                        //        AssetControlList[art.Name].art.Name, AssetControlList[art.Name].art.Version,
-                        //        AssetControlList[art.Name].IsLocalDependency ? "WorkingDir Dependency" : "Module dependency"));
+                        art = art,
+                        versionsPackage = binPackage,
+                        loadedAssembly = loadedAssembly
+                    };
+                    AssetControlList.Add(binPackage.ContainerName, l);
+                    if (!AssemblyControlList.ContainsKey(loadedAssembly.FullName))
+                    {
+                        AssemblyControlList.Add(loadedAssembly.FullName, l);
                     }
                     else
                     {
-                        PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
-                        {
-                            art = art,
-                            pckg = binPackage,
-                            loadedAssembly = loadedAssembly
-                        };
-
-                        AssemblyControlList.Add(loadedAssembly.FullName, l);
+                        AssemblyControlList[loadedAssembly.FullName] = l;
                     }
+                    break;
                 }
             }
         }
@@ -157,7 +130,12 @@ namespace TaskBroker.Assemblys
 
             return false;
         }
-        public bool ResolveLibraryAssembly(string LibraryFullName, out System.Reflection.Assembly AssemblyLibrary)
+        public bool ResolveLibraryAssembly(
+            string LibraryName,
+            string LibraryVersion,
+            string LibraryFullName,
+            string RequestingLibraryFullName,
+            out System.Reflection.Assembly AssemblyLibrary)
         {
             AssemblyLibrary = null;
             PackageAndArtefactLibLinked l = null;
@@ -165,6 +143,41 @@ namespace TaskBroker.Assemblys
             {
                 AssemblyLibrary = l.loadedAssembly;
                 return true;
+            }
+            if (LibraryName.StartsWith("System."))
+            {
+                var libScopeFallback = (from z in AssemblyControlList
+                                        where z.Key.StartsWith(LibraryName + " ")
+                                        select new { z.Key, z.Value }).FirstOrDefault();
+                if (libScopeFallback != null)
+                {
+                    AssemblyLibrary = libScopeFallback.Value.loadedAssembly;
+                    return true;
+                }
+            }
+            if (AssemblyControlList.TryGetValue(RequestingLibraryFullName, out l))
+            {
+                if (l.IsLocalDependency)
+                    return false;
+
+                AssemblyArtifact dllart = l.versionsPackage.FindArtefactByName(LibraryName + ".dll");
+                if (dllart != null)
+                {
+                    AssemblyArtifact dllpdbart = l.versionsPackage.FindArtefactByName(LibraryName + ".pdb");
+                    if (dllpdbart == null)
+                        dllpdbart = l.versionsPackage.FindArtefactByName(LibraryName + ".mdb");
+
+                    Assembly assembly = null;
+                    if (dllpdbart != null)
+                        assembly = Assembly.Load(l.versionsPackage.ExtractArtefact(dllart),
+                            l.versionsPackage.ExtractArtefact(dllpdbart));
+                    else
+                        assembly = Assembly.Load(l.versionsPackage.ExtractArtefact(dllart));
+
+                    AssemblyControlList[assembly.FullName] = l;
+                    AssemblyLibrary = assembly;
+                    return true;
+                }
             }
 
             return false;
