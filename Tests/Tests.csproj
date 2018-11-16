@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assembly.cs" />
     <Compile Include="ExecutionPlan.cs" />
     <Compile Include="InMemQueue.cs" />
     <Compile Include="CustomMessagesCompare.cs" />
@@ -73,6 +74,10 @@
     <ProjectReference Include="..\SourceControl\SourceControl.csproj">
       <Project>{B0AFEE79-B1AF-48C4-9FFD-638F638C2C00}</Project>
       <Name>SourceControl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TaskBroker\TaskBroker.csproj">
+      <Project>{68afd08f-6cec-463c-83ad-737f30c2f40b}</Project>
+      <Name>TaskBroker</Name>
     </ProjectReference>
     <ProjectReference Include="..\TaskClient\TaskClient.csproj">
       <Project>{A2A2559D-7309-417D-964B-7E3E65554791}</Project>

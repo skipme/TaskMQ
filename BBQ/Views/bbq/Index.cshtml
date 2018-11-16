@@ -443,7 +443,7 @@
                     <div class="controls">
                         @*<select name="mod" class="customselect" ng-model="edit_task.ModuleName" ng-options="c.Name as c.Name for c in m_mods.Modules | filter:c.Role=17">
                         </select>*@
-                        <select name="mod" class="customselect" ng-change="edit_task.ModuleName=newtask.mpxyz.Name" ng-model="newtask.mpxyz" ng-options="c.Name for c in m_mods.Modules | filter:c.Role='Consumer'">
+                        <select name="mod" class="form-control" ng-change="edit_task.ModuleName=newtask.mpxyz.Name" ng-model="newtask.mpxyz" ng-options="c.Name for c in m_mods.Modules | filter:c.Role='Consumer'">
                         </select>
                     </div>
                 </div>
@@ -459,7 +459,7 @@
                 <div class="form-group">
                     <label class="control-label" for="chan">Channel</label>
                     <div class="controls">
-                        <select class="customselect" name="chan" ng-options="c.Name as c.Name for c in m_main.Channels" ng-model="edit_task.ChannelName">
+                        <select class="form-control" name="chan" ng-options="c.Name as c.Name for c in m_main.Channels" ng-model="edit_task.ChannelName">
                         </select>
                     </div>
                 </div>

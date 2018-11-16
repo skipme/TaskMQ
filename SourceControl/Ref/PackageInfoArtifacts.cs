@@ -8,7 +8,11 @@ using System.Text;
 
 namespace SourceControl.Ref
 {
-    public class AssemblyArtifact
+    /// <summary>
+    /// PackageInfo construct
+    /// Artifact notation
+    /// </summary>
+    public class PackageInfoArtifact
     {
         public string Name { get; set; }
         public string FileName { get; set; }
@@ -16,37 +20,14 @@ namespace SourceControl.Ref
         public string Version { get; set; }
         public string HashCode { get; set; }
 
-        //public static AssemblyArtifact Get(byte[] data)
-        //{
-        //    AssemblyArtifact art = new AssemblyArtifact();
-        //    using (MemoryStream ms = new MemoryStream(data))
-        //    {
-        //        try
-        //        {
-        //            Mono.Cecil.AssemblyDefinition def = Mono.Cecil.AssemblyDefinition.ReadAssembly(ms);
-        //            Mono.Cecil.AssemblyNameReference defn = Mono.Cecil.AssemblyNameDefinition.Parse(def.FullName);
-
-        //            art.Version = defn.Version.ToString();
-        //            art.Name = defn.Name;
-        //            art.IsAssembly = true;
-        //        }
-        //        catch
-        //        {
-
-        //        }
-        //    }
-
-        //    return art;
-        //}
-
-        public static AssemblyArtifact Get(string file)
+        public static PackageInfoArtifact Get(string file)
         {
-            AssemblyArtifact art = new AssemblyArtifact();
+            PackageInfoArtifact art = new PackageInfoArtifact();
             if (file.EndsWith(".dll"))
             {
                 try
                 {
-                    AssemblyName an = AssemblyName.GetAssemblyName(file);
+                    AssemblyName an = Assemblys.AssemblyHelper.GetAssemblyVersion(file);
 
                     art.Version = an.Version.ToString();
                     art.Name = an.Name;
@@ -61,22 +42,23 @@ namespace SourceControl.Ref
         }
     }
     /// <summary>
+    /// PackageInfo construct
     /// Assembly executable with meta information and with artifacts and dependencies
     /// </summary>
-    public class AssemblyArtifacts
+    public class PackageInfoArtifacts
     {
-        public AssemblyArtifacts() { Artefacts = new List<AssemblyArtifact>(); }
+        public PackageInfoArtifacts() { Artefacts = new List<PackageInfoArtifact>(); }
         public string VersionTag { get; set; }
         public string FileLibarary { get; set; }
         public string FileSymbols { get; set; }
         public string AssemblyVersion { get; set; }
         public DateTime AddedAt { get; set; }
 
-        public List<AssemblyArtifact> Artefacts;
+        public List<PackageInfoArtifact> Artefacts;
 
         public void AddArtefact(string path, BuildServers.BuildArtifact ba)
         {
-            AssemblyArtifact dllInfo = new AssemblyArtifact
+            PackageInfoArtifact dllInfo = new PackageInfoArtifact
             {
                 FileName = path,
                 IsAssembly = ba.IsAssembly,
@@ -87,7 +69,7 @@ namespace SourceControl.Ref
         }
         public void AddArtefact(string name, string relatedFile)
         {
-            AssemblyArtifact dllInfo = AssemblyArtifact.Get(relatedFile);
+            PackageInfoArtifact dllInfo = PackageInfoArtifact.Get(relatedFile);
             dllInfo.FileName = name;
             Artefacts.Add(dllInfo);
         }

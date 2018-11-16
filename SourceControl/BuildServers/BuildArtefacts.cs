@@ -11,6 +11,8 @@ namespace SourceControl.BuildServers
 {
     public class BuildArtifact
     {
+        static ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
+
         public byte[] Data;
 
         public string Name { get; set; }
@@ -19,27 +21,30 @@ namespace SourceControl.BuildServers
         public string Version { get; set; }
         public string HashCode { get; set; }
 
-        public static BuildArtifact Get(byte[] data)
+        public static BuildArtifact Get(string FileName, byte[] data)
         {
             BuildArtifact art = new BuildArtifact();
-            using (MemoryStream ms = new MemoryStream(data))
+            if (FileName.EndsWith(".dll"))
             {
-                try
+                using (MemoryStream ms = new MemoryStream(data))
                 {
-                    Mono.Cecil.AssemblyDefinition def = Mono.Cecil.AssemblyDefinition.ReadAssembly(ms);
-                    Mono.Cecil.AssemblyNameReference defn = Mono.Cecil.AssemblyNameDefinition.Parse(def.FullName);
+                    try
+                    {
+                        Mono.Cecil.AssemblyDefinition def = Mono.Cecil.AssemblyDefinition.ReadAssembly(ms);
+                        Mono.Cecil.AssemblyNameReference defn = Mono.Cecil.AssemblyNameDefinition.Parse(def.FullName);
 
-                    art.Version = defn.Version.ToString();
-                    art.Name = defn.Name;
-                    art.IsAssembly = true;
-                }
-                catch
-                {
-
+                        art.Version = defn.Version.ToString();
+                        art.Name = defn.Name;
+                        art.IsAssembly = true;                      
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Exception(ex, "assembly meta info error retrieve  TODO: change flow with this method");
+                    }
                 }
             }
-
             art.Data = data;
+            art.FileName = FileName;
 
             return art;
         }
@@ -86,10 +91,10 @@ namespace SourceControl.BuildServers
 
         public void AddArtefact(string name, byte[] relatedFile)
         {
-            BuildArtifact dllInfo = BuildArtifact.Get(relatedFile);
-            dllInfo.FileName = name;
+            BuildArtifact dllInfo = BuildArtifact.Get(name, relatedFile);
             if (!dllInfo.IsAssembly)
                 dllInfo.Name = name;
+
             Artefacts.Add(dllInfo);
         }
 
@@ -141,9 +146,9 @@ namespace SourceControl.BuildServers
             BuildArtifacts result = new BuildArtifacts();
             string Dir = System.IO.Path.GetDirectoryName(AssemblyArtefactAbsPath);
             string assemblyAbsSym = pathWithoutExtension(AssemblyArtefactAbsPath);
-
-            assemblyAbsSym = assemblyAbsSym + ".pdb";
+          
             string assemblyAbsSymL = assemblyAbsSym + ".mdb";
+            assemblyAbsSym = assemblyAbsSym + ".pdb";
 
             string[] Files = System.IO.Directory.GetFiles(Dir);
 

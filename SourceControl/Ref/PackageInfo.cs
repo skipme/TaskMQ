@@ -5,17 +5,17 @@ using System.Text;
 
 namespace SourceControl.Ref
 {
-    public class AssemblyPackage
+    public class PackageInfo
     {
-        public AssemblyPackage() { Versions = new List<AssemblyArtifacts>(); }
+        public PackageInfo() { Versions = new List<PackageInfoArtifacts>(); }
         public string Name { get; set; }
-        public List<AssemblyArtifacts> Versions;
+        public List<PackageInfoArtifacts> Versions;
 
         // TODO: add scm revision to package version
-        public AssemblyArtifacts AddRevision(string tag, string dllName, string pdbName, string dllPath)
+        public PackageInfoArtifacts NewRevision(string tag, string dllName, string pdbName, string dllPath)
         {
-            AssemblyArtifact dllInfo = AssemblyArtifact.Get(dllPath);
-            AssemblyArtifacts v = new AssemblyArtifacts()
+            PackageInfoArtifact dllInfo = PackageInfoArtifact.Get(dllPath);
+            PackageInfoArtifacts v = new PackageInfoArtifacts()
             {
                 VersionTag = tag,
                 FileLibarary = dllName,
@@ -27,10 +27,10 @@ namespace SourceControl.Ref
             Versions.Add(v);
             return v;
         }
-        public AssemblyArtifacts AddRevision(BuildServers.BuildArtifacts artRef)
+        public PackageInfoArtifacts NewRevision(BuildServers.BuildArtifacts artRef)
         {
             BuildServers.BuildArtifact assemart = artRef.GetArtifact(artRef.AssemblyArtefactName);
-            AssemblyArtifacts v = new AssemblyArtifacts()
+            PackageInfoArtifacts v = new PackageInfoArtifacts()
             {
                 VersionTag = artRef.VersionTag,
                 FileLibarary = artRef.AssemblyArtefactName,
@@ -42,9 +42,9 @@ namespace SourceControl.Ref
             Versions.Add(v);
             return v;
         }
-        public AssemblyArtifacts FindLatestVersion()
+        public PackageInfoArtifacts FindLatestVersion()
         {
-            AssemblyArtifacts pv = (from v in Versions
+            PackageInfoArtifacts pv = (from v in Versions
                                     orderby v.AddedAt descending
                                     select v).FirstOrDefault();
             return pv;
@@ -54,9 +54,9 @@ namespace SourceControl.Ref
             string v = Newtonsoft.Json.JsonConvert.SerializeObject(this, Newtonsoft.Json.Formatting.Indented);
             return Encoding.Unicode.GetBytes(v);
         }
-        public static AssemblyPackage DeSerialise(byte[] data)
+        public static PackageInfo DeSerialise(byte[] data)
         {
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<AssemblyPackage>(Encoding.Unicode.GetString(data));
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<PackageInfo>(Encoding.Unicode.GetString(data));
         }
     }
 }

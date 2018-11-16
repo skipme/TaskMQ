@@ -11,6 +11,7 @@ namespace SourceControl.Build
     /// </summary>
     public class AssemblyBinaryBuildResult
     {
+        static TaskUniversum.ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
         public static AssemblyBinaryBuildResult FromFile(string locationLib, string locationSymbols = null, string[] assets = null)
         {
             if (!System.IO.File.Exists(locationLib))
@@ -25,7 +26,9 @@ namespace SourceControl.Build
                 if (locationSymbols != null)
                 {
                     if (!System.IO.File.Exists(locationSymbols))
-                        Console.WriteLine("symbols file not found: {0}", locationSymbols);
+                    {
+                        logger.Error("symbols file not found: {0}", locationSymbols);
+                    }
                     else
                     {
                         bin.symbols = System.IO.File.ReadAllBytes(locationSymbols);
@@ -40,7 +43,7 @@ namespace SourceControl.Build
             }
             catch (Exception e)
             {
-                Console.WriteLine("unhandled exception while gathering build result: lib:'{0}'; msg: {1}", locationLib, e.Message);
+                logger.Exception(e, "", "unhandled exception while gathering build result: lib:'{0}'; msg: {1}", locationLib, e.Message);
                 return null;
             }
             return bin;

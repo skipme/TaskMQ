@@ -22,7 +22,7 @@ namespace SourceControl.BuildServers
             hostedProjects = new List<SourceController>();
             BuildServersProvider = new BSDepot();
         }
-        public void Add(string name, string buildServerType, Dictionary<string, object> parameters)
+        public void AddPackage(string name, string buildServerType, Dictionary<string, object> parameters)
         {
             BuildServers.IBuildServer bs = BuildServersProvider.GetNewInstance(buildServerType);
             if (bs == null)

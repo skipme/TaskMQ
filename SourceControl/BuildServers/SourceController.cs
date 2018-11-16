@@ -11,9 +11,12 @@ using TaskUniversum;
 
 namespace SourceControl.BuildServers
 {
+    /// <summary>
+    /// Package holder and BS controller
+    /// </summary>
     public class SourceController
     {
-        public AssemblyBinVersions Versions;
+        public AssemblyPackage Versions;
         public string PackageName { get; private set; }
         public BuildServers.IBuildServer BuildServer;
 
@@ -30,10 +33,10 @@ namespace SourceControl.BuildServers
 
         public SourceController(string workingDirectory, string moduleName, BuildServers.IBuildServer buildServer)
         {
-            Versions = new AssemblyBinVersions(workingDirectory, moduleName);
+            Versions = new AssemblyPackage(workingDirectory, moduleName);
             if (Versions.PackageInfo == null)
             {
-                logger.Warning("packageInfo not found in assembly package container '{0}', trying to populate accesible version", moduleName);
+                logger.Warning("packageInfo not found in assembly package container '{0}', trying to populate with accessible version", moduleName);
                 BuildArtifacts artifacts = buildServer.GetArtifacts();
                 Versions.AddVersion(buildServer.GetVersion(), artifacts);
             }

@@ -22,8 +22,8 @@ namespace TaskBroker.Assemblys
 
         internal class PackageAndArtefactLibLinked
         {
-            public AssemblyVersionPackage versionsPackage;
-            public AssemblyArtifact art;
+            public AssemblyPackageVersionHelper versionsPackage;
+            public PackageInfoArtifact art;
 
             public System.Reflection.Assembly loadedAssembly;
 
@@ -46,7 +46,7 @@ namespace TaskBroker.Assemblys
                     return new BuildResultFile { Name = Path.GetFileName(LocalDependencyPathSym), Data = File.ReadAllBytes(LocalDependencyPathSym) };
                 }
                 string prefile = ToSymbolsPathFromLibraryPath(art.FileName);
-                AssemblyArtifact symart = versionsPackage.FindArtefactByName(prefile);
+                PackageInfoArtifact symart = versionsPackage.FindArtefactByName(prefile);
                 if (symart == null)
                 {
                     prefile = ToSymbolsPathFromLibraryPath(art.FileName, "mdb");
@@ -73,11 +73,11 @@ namespace TaskBroker.Assemblys
             }
         }
 
-        public void RegisterAssets(AssemblyVersionPackage binPackage, System.Reflection.Assembly loadedAssembly)
+        public void RegisterAssets(AssemblyPackageVersionHelper binPackage, System.Reflection.Assembly loadedAssembly)
         {
             for (int i = 0; i < binPackage.Version.Artefacts.Count; i++)
             {
-                AssemblyArtifact art = binPackage.Version.Artefacts[i];
+                PackageInfoArtifact art = binPackage.Version.Artefacts[i];
                 if (art.IsAssembly)
                 {
                     PackageAndArtefactLibLinked l = new PackageAndArtefactLibLinked
@@ -113,8 +113,17 @@ namespace TaskBroker.Assemblys
                 AssemblyControlList.Add(loadedAssembly.FullName, l);
             }
         }
-        public SourceControl.Build.BuildResultFile ResolveAsset(string FileName)
+        public SourceControl.Build.BuildResultFile ResolveAsset(string LibraryFullName, string AssetName)
         {
+            return null;
+        }
+        public AssemblyPackageVersionHelper ResolvePackage(string LibraryFullName)
+        {
+            PackageAndArtefactLibLinked l = null;
+            if (AssemblyControlList.TryGetValue(LibraryFullName, out l))
+            {
+                return l.versionsPackage;
+            }
             return null;
         }
         public bool ResolveLibraryAsset(string LibraryFullName, out BuildResultFile library, out BuildResultFile symbols)
@@ -160,10 +169,10 @@ namespace TaskBroker.Assemblys
                 if (l.IsLocalDependency)
                     return false;
 
-                AssemblyArtifact dllart = l.versionsPackage.FindArtefactByName(LibraryName + ".dll");
+                PackageInfoArtifact dllart = l.versionsPackage.FindArtefactByName(LibraryName + ".dll");
                 if (dllart != null)
                 {
-                    AssemblyArtifact dllpdbart = l.versionsPackage.FindArtefactByName(LibraryName + ".pdb");
+                    PackageInfoArtifact dllpdbart = l.versionsPackage.FindArtefactByName(LibraryName + ".pdb");
                     if (dllpdbart == null)
                         dllpdbart = l.versionsPackage.FindArtefactByName(LibraryName + ".mdb");
 

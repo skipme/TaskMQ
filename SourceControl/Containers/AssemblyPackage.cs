@@ -9,7 +9,10 @@ using TaskUniversum;
 
 namespace SourceControl.Containers
 {
-    public class AssemblyBinVersions
+    /// <summary>
+    /// Assembly package container
+    /// </summary>
+    public class AssemblyPackage
     {
         const string packageInfo = "package.json";
         public ContentVersionStorage versionContainer;
@@ -25,9 +28,9 @@ namespace SourceControl.Containers
                 return GetLatestVersion().Version.AddedAt;
             }
         }
-        public AssemblyPackage PackageInfo { get; private set; }
+        public PackageInfo PackageInfo { get; private set; }
 
-        public AssemblyBinVersions(string directoryScope, string name)
+        public AssemblyPackage(string directoryScope, string name)
         {
             this.Path = System.IO.Path.Combine(directoryScope, name + ".zip");
             this.name = name;
@@ -40,14 +43,14 @@ namespace SourceControl.Containers
             PackageInfo = getPackageInfo();
         }
 
-        private AssemblyPackage getPackageInfo()
+        private PackageInfo getPackageInfo()
         {
             byte[] p = versionContainer.GetRootFileData(packageInfo);
             if (p == null)
                 return null;
-            return AssemblyPackage.DeSerialise(p);
+            return PackageInfo.DeSerialise(p);
         }
-        private void setPackageInfo(AssemblyPackage p)
+        private void setPackageInfo(PackageInfo p)
         {
             byte[] data = p.Serialise();
             versionContainer.SetRootFileData(packageInfo, data);
@@ -57,11 +60,11 @@ namespace SourceControl.Containers
         {
             PackageInfo = getPackageInfo(); // make sure we have actual version
             if (PackageInfo == null)
-                PackageInfo = new AssemblyPackage();
+                PackageInfo = new PackageInfo();
 
             string revision = assemblyRev.Revision;
 
-            AssemblyArtifacts pv = PackageInfo.AddRevision(files);
+            PackageInfoArtifacts declaredRevision = PackageInfo.NewRevision(files);
 
             assemblyRev.CreateAt = DateTime.Now;
             byte[] revdata = assemblyRev.Serialise();
@@ -69,14 +72,14 @@ namespace SourceControl.Containers
             foreach (var artF in files.Artefacts)
             {
                 versionContainer.AddVersionData(revision + "/" + artF.FileName, artF.Data);
-                pv.AddArtefact(artF.FileName, artF);
+                declaredRevision.AddArtefact(artF.FileName, artF);
             }
             setPackageInfo(PackageInfo);// write to container
         }
 
-        public AssemblyVersionPackage GetLatestVersion()
+        public AssemblyPackageVersionHelper GetLatestVersion()
         {
-            Ref.AssemblyPackage pinfo = PackageInfo;
+            Ref.PackageInfo pinfo = PackageInfo;
             if (pinfo == null)
             {
                 //Console.WriteLine("packageInfo absent in package {0}", this.Path);
@@ -84,8 +87,8 @@ namespace SourceControl.Containers
                 return null;
             }
 
-            Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
-            AssemblyVersionPackage pckg = new AssemblyVersionPackage(pv, this);
+            Ref.PackageInfoArtifacts pv = pinfo.FindLatestVersion();
+            AssemblyPackageVersionHelper pckg = new AssemblyPackageVersionHelper(pv, this);
             return pckg;
         }
 
@@ -102,15 +105,15 @@ namespace SourceControl.Containers
                           select f.data).First();
             return true;
         }
-        public Ref.AssemblyArtifacts LatestVersion
+        public Ref.PackageInfoArtifacts LatestVersion
         {
             get
             {
                 //return versionContainer.key_most_fresh;
-                Ref.AssemblyPackage pinfo = PackageInfo;
+                Ref.PackageInfo pinfo = PackageInfo;
                 if (pinfo == null)
                     return null;
-                Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
+                Ref.PackageInfoArtifacts pv = pinfo.FindLatestVersion();
                 return pv;
             }
         }
@@ -118,10 +121,10 @@ namespace SourceControl.Containers
         {
             get
             {
-                Ref.AssemblyPackage pinfo = PackageInfo;
+                Ref.PackageInfo pinfo = PackageInfo;
                 if (pinfo == null)
                     return null;
-                Ref.AssemblyArtifacts pv = pinfo.FindLatestVersion();
+                Ref.PackageInfoArtifacts pv = pinfo.FindLatestVersion();
                 VersionData vd = versionContainer.GetSpecificVersionData(pv.VersionTag + "/.revision");
                 SCMRevision vr = SCMRevision.DeSerialise(vd.data);
                 return vr;

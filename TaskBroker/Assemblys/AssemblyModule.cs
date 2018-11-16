@@ -16,7 +16,7 @@ namespace TaskBroker.Assemblys
     /// </summary>
     public class AssemblyModule
     {
-        public AssemblyModule(AssemblyVersionPackage package)
+        public AssemblyModule(AssemblyPackageVersionHelper package)
         {
             this.package = package;
         }
@@ -34,7 +34,7 @@ namespace TaskBroker.Assemblys
                 return package.Version.FileLibarary;
             }
         }
-        public readonly AssemblyVersionPackage package;
+        public readonly AssemblyPackageVersionHelper package;
 
         public bool RuntimeLoaded { get; set; }
         public string RutimeLoadException { get; set; }

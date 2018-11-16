@@ -50,12 +50,12 @@ namespace TaskBroker.Assemblys
         /// <summary>
         /// list of assemblys loaded by taskmq /debug info/
         /// </summary>
-        public Dictionary<string, AssemblyCard> loadedAssemblys;
+        public readonly Dictionary<string, AssemblyCard> loadedAssemblys;
         /// <summary>
         /// list of assemblys loaded by taskmq
         /// for resolving / reloading / fetching ...
         /// </summary>
-        private ArtefactsDepot SharedManagedLibraries;
+        public readonly ArtefactsDepot SharedManagedLibraries;
 
         public IRepresentedConfiguration GetJsonBuildServersConfiguration()
         {
@@ -141,7 +141,7 @@ namespace TaskBroker.Assemblys
         }
         public void AddAssemblySource(string name, string buildServerType, Dictionary<string, object> parameters)
         {
-            assemblySources.Add(name, buildServerType, parameters);
+            assemblySources.AddPackage(name, buildServerType, parameters);
         }
 
         public void LoadAssemblys(Broker b)
@@ -167,14 +167,14 @@ namespace TaskBroker.Assemblys
             IEnumerable<SourceControl.BuildServers.SourceController> mods = assemblySources.TakeLoadTime();
             foreach (SourceControl.BuildServers.SourceController a in mods)
             {
-                AssemblyVersionPackage pckg = a.Versions.GetLatestVersion();
+                AssemblyPackageVersionHelper pckg = a.Versions.GetLatestVersion();
                 string remarks;
                 bool loaded = a.RuntimeLoaded = LoadAssembly(b, pckg, out remarks);
                 a.RuntimeLoadedRevision = pckg.Version.VersionTag;
                 a.RuntimeLoadedRemark = remarks;
             }
         }
-        private bool LoadAssembly(Broker b, AssemblyVersionPackage a, out string remarks)
+        private bool LoadAssembly(Broker b, AssemblyPackageVersionHelper a, out string remarks)
         {
             remarks = string.Empty;
             try
@@ -216,7 +216,7 @@ namespace TaskBroker.Assemblys
             loadedAssemblys.Add(assemblyName, card);
         }
 
-        private static Assembly TryLoadAssembly(AssemblyVersionPackage a)
+        private static Assembly TryLoadAssembly(AssemblyPackageVersionHelper a)
         {
             Assembly assembly = null;
             if (a.Version.FileSymbols != null)
@@ -269,6 +269,7 @@ namespace TaskBroker.Assemblys
             string gaclib = GetAssemblyInGac(Parts[0][0], assemblyReqVersion, assemblyPublicKeyToken);
             if (gaclib != null)
             {
+                logger.Warning("loading system library from GAC: {0}, requested: {1} requestedBy: {2}", gaclib, args.Name, args.RequestingAssembly.FullName);
                 return Assembly.LoadFrom(gaclib);
             }
             return null;
@@ -308,6 +309,7 @@ namespace TaskBroker.Assemblys
         {
             if (!name.StartsWith("System"))
                 return null;
+
             Version requiredVersion = Version.Parse(version);
             //if (reference.PublicKeyToken == null || reference.PublicKeyToken.Length == 0)
             //    return null;
@@ -337,6 +339,8 @@ namespace TaskBroker.Assemblys
                         GacDirVersion betterver = (from y in
                                                        (from x in Directory.GetDirectories(assemblyDir)
                                                         select new GacDirVersion(x))
+                                                   // .net framework libraries have "backward compatibility"
+                                                   // https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/version-compatibility
                                                    where y.assemblyV >= requiredVersion
                                                    orderby y.assemblyV ascending
                                                    select y).FirstOrDefault();

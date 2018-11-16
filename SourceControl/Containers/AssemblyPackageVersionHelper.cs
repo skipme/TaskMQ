@@ -9,17 +9,17 @@ namespace SourceControl.Containers
     /// <summary>
     /// PackageInfo ref meta+ Container
     /// </summary>
-    public class AssemblyVersionPackage
+    public class AssemblyPackageVersionHelper
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
-        public AssemblyVersionPackage(Ref.AssemblyArtifacts meta, Containers.AssemblyBinVersions archive)
+        public AssemblyPackageVersionHelper(Ref.PackageInfoArtifacts meta, Containers.AssemblyPackage archive)
         {
             Version = meta;
             Container = archive;
         }
-        public readonly Ref.AssemblyArtifacts Version;
-        private readonly Containers.AssemblyBinVersions Container;
+        public readonly Ref.PackageInfoArtifacts Version;
+        private readonly Containers.AssemblyPackage Container;
         public string ContainerName
         {
             get
@@ -27,14 +27,14 @@ namespace SourceControl.Containers
                 return Container.name;
             }
         }
-        public Ref.AssemblyArtifact FindArtefactByName(string fileName)
+        public Ref.PackageInfoArtifact FindArtefactByName(string fileName)
         {
             var art = (from a in Version.Artefacts
                        where a.FileName == fileName
                        select a).FirstOrDefault();
             return art;
         }
-        public byte[] ExtractArtefact(Ref.AssemblyArtifact art)
+        public byte[] ExtractArtefact(Ref.PackageInfoArtifact art)
         {
             int i;
             Build.BuildResultFile res;
