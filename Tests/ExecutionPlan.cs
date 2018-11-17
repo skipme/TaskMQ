@@ -13,13 +13,14 @@ namespace Tests
 
     [TestFixture]
     public class ExecutionPlan
-    {
-        TaskScheduler.ThreadPool Scheduler = new TaskScheduler.ThreadPool();
+    {       
         [Test]
         public void ExecutionPlan_CheckForExecution()
         {
+            TaskScheduler.ThreadPool Scheduler = new TaskScheduler.ThreadPool();
             // check for job executed in same time
             uint localVar = 0;
+            uint deferred_LocalVar = 0;
             bool notSucceeded = false;
             PlanItemEntryPoint job = (ThreadContext ti, PlanItem pi) =>
                      {
@@ -54,6 +55,8 @@ namespace Tests
             Scheduler.SetPlan(TaskList);
             Scheduler.ReWake();
 
+            Scheduler.DeferJob((thread_, job_) => { deferred_LocalVar = 555; return 1; });
+
             System.Threading.Thread.Sleep(1500);
 
             Scheduler.SuspendAll();
@@ -66,6 +69,8 @@ namespace Tests
 
             Assert.AreNotEqual(localVar, 0);
             Assert.AreEqual(localVar, 1000);
+
+            Assert.AreEqual(deferred_LocalVar, 555);
         }
 
     }
