@@ -45,7 +45,9 @@ namespace TaskBroker
             Thread th = new Thread((object o) =>
             {
                 broker.StopBroker(); // ! stop scheduler and other isolated threads
-                broker.RevokeBroker(false, true, true);
+
+                broker.PrepareBroker(false, true, true);
+                broker.StartBroker();
             });
             th.Start();
         }
@@ -78,7 +80,9 @@ namespace TaskBroker
             //m.Description = "";
             //cons.Description = "";
 
-            broker.RevokeBroker(benchConf, true, false);
+            broker.PrepareBroker(benchConf, true, false);
+            broker.StartBroker();
+
             this.Signal = signal;
             exportConfiguration();
         }

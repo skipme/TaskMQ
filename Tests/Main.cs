@@ -14,6 +14,15 @@ namespace Tests
 
         static int Main(string[] args)
         {
+            TaskBroker.Logger.CommonTape tape = new TaskBroker.Logger.CommonTape(new TaskBroker.Logger.LoggerEndpoint[]{
+                    new TaskBroker.Logger.ConsoleEndpoint(),
+                    new TaskBroker.Logger.FileEndpoint("log.txt")
+                });
+            TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
+
+            //new AssemblyTests().JustAssemblyImport();
+            new AssemblyTests().RestrictionsByPlatfromInterfaces();
+            return 1;
             //new InMemoryQueue().MemQueue_Duplications();
             new Scaling().Scaling_Id();
             return 1;
@@ -87,13 +96,13 @@ namespace Tests
             , uint stepSyncFactor)// interlock granulation actually
         {
             TaskScheduler.ThreadPool Scheduler = new TaskScheduler.ThreadPool(ThreadsCount);
-            
+
 
             TimeSpan cspan = new TimeSpan();
 
 
             //uint localVar = 0, incVal = 10, maxVal = 10000000;
-            int localVar = 0, incVal = (int)step, maxVal = (int)(step * steps), syncStep = (int)(step/stepSyncFactor);
+            int localVar = 0, incVal = (int)step, maxVal = (int)(step * steps), syncStep = (int)(step / stepSyncFactor);
 
             Stopwatch sw = Stopwatch.StartNew();
             for (int i = 0; i < maxVal; i++)
@@ -146,13 +155,13 @@ namespace Tests
                 {
                     System.Threading.Thread.Sleep(0);
                 }
-                swx_parallel.Stop(); 
+                swx_parallel.Stop();
             }
             TimeSpan payloadspan_parallel = swx_parallel.Elapsed;
 
             localVar = 0;
             notSucceeded = true;
-            
+
             PlanItemEntryPoint job = (ThreadContext ti, PlanItem pi) =>
             {
                 //Console.WriteLine("ex started {0} {1}", ti.hThread.Name, localVar);

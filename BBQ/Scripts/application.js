@@ -23,7 +23,7 @@ String.prototype.repeat = function(num) {
     });
 
     // Custom Select
-    $("select[name='herolist']").selectpicker({style: 'btn-primary', menuStyle: 'dropdown-inverse'});
+    //$("select[name='herolist']").selectpicker({style: 'btn-primary', menuStyle: 'dropdown-inverse'});
 
     // Tooltips
     $("[data-toggle=tooltip]").tooltip("show");

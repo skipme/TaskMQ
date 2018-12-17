@@ -40,10 +40,10 @@ namespace TaskQueue
             val1.Clear();
             val2.Clear();
         }
-        public int IndexOf(T key)
-        {
-            return val1.IndexOf(key);
-        }
+        //public int IndexOf(T key)
+        //{
+        //    return val1.IndexOf(key);
+        //}
         public List<ValueMapItem<T, LT>> ToList()
         {
             List<ValueMapItem<T, LT>> result = new List<ValueMapItem<T, LT>>();

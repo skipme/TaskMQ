@@ -124,8 +124,12 @@ namespace TaskBroker
             if (casm != null)
             {
                 casm.Apply(this);
-                LoadAssemblys();
             }
+            else
+            {
+                logger.Warning("can't find assembly sources configuration");
+            }
+            LoadAssemblys();
         }
         private void CreateRandomBenchConfiguration(bool tasksOnly = false)
         {
@@ -142,13 +146,14 @@ namespace TaskBroker
             QueueSpecificParameters parameters = new MemQueueParams();
             RegisterConnection("benchQ", qinterface, parameters, true);
             RegisterChannel("benchQ", "benchCH#" + 1, true);
-            RegisterChannel("benchQ", "benchCH#" + 2, true);
+            //RegisterChannel("benchQ", "benchCH#" + 2, true);
+
             Random rnd = new Random(DateTime.UtcNow.Millisecond);
             for (int i = 0; i < 5; i++)
             {
                 RegisterTempTask(new MetaTask
                 {
-                    ChannelName = "benchCH#" + (i % 2 == 0 ? 1 : 2),
+                    ChannelName = "benchCH#1",// + (i % 2 == 0 ? 1 : 2),
                     intervalType = IntervalType.withoutInterval,
                     intervalValue = rnd.Next(0, 1000),
                     ModuleName = BenchModules.ModConsumer.ModuleName,
@@ -583,11 +588,19 @@ namespace TaskBroker
             //Tasks.RemoveAll(x => x.Temp);
             logger.Info("Broker has been stopped...");
         }
-        public void LoadAssemblys()
+        //System.Reflection.Assembly executionAssembly;
+        //public void SetExecutionAssembly(System.Reflection.Assembly executionAssembly)
+        //{
+        //    this.executionAssembly = executionAssembly;
+        //}
+        private void LoadAssemblys()
         {
+            //if (executionAssembly == null)
+            //    executionAssembly = System.Reflection.Assembly.GetEntryAssembly();
+
             AssemblyHolder.LoadAssemblys(this);
         }
-        public void RevokeBroker(bool BenchConfiguration, bool reconfigureFromStorage, bool reconfigureOnlyTasks)
+        public void PrepareBroker(bool BenchConfiguration, bool reconfigureFromStorage, bool reconfigureOnlyTasks)
         {
             if (reconfigureFromStorage)
             {
@@ -596,6 +609,9 @@ namespace TaskBroker
                 else
                     LoadLatestConfiguration(reconfigureOnlyTasks);
             }
+        }
+        public void StartBroker()
+        {
             Scheduler.ReWake();
             // start isolated tasks:
             foreach (var tiso in (from t in Tasks

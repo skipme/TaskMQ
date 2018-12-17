@@ -46,6 +46,8 @@ namespace TaskBroker.Assemblys
     {
         ILogger logger = TaskUniversum.ModApi.ScopeLogger.GetClassLogger();
 
+        public readonly Dictionary<string, Assembly> ContractAssemblies;
+
         public SourceControl.BuildServers.AssemblyProjects assemblySources;
         /// <summary>
         /// list of assemblys loaded by taskmq /debug info/
@@ -95,7 +97,11 @@ namespace TaskBroker.Assemblys
         public AssemblyPackages()
         {
             // host packages, modules
-            //list = new List<AssemblyModule>();
+
+            ContractAssemblies = new Dictionary<string, Assembly>() {
+                {typeof(TaskUniversum.IBrokerModule).Assembly.GetName().Name, typeof(TaskUniversum.IBrokerModule).Assembly},
+                {typeof(TaskQueue.ITItem).Assembly.GetName().Name, typeof(TaskQueue.ITItem).Assembly}
+            };
             loadedAssemblys = new Dictionary<string, AssemblyCard>();
             SharedManagedLibraries = new ArtefactsDepot();
 
@@ -149,19 +155,7 @@ namespace TaskBroker.Assemblys
             loadedAssemblys.Clear();
             // load local dep assemblys
 
-            //SortedSet<string> loadedAssemblyList = new SortedSet<string>(from lasm in AppDomain.CurrentDomain.GetAssemblies()
-            //                                                             select lasm.FullName);
-            //IEnumerable<AssemblyName> notLoadedReferences = from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            //                                                from refAssembly in assembly.GetReferencedAssemblies()
-            //                                                group refAssembly by refAssembly.FullName into fullname
-            //                                                where !loadedAssemblyList.Contains(fullname.Key)
-            //                                                select fullname.First();
-            ////SourceControl.Assemblys.AssemblyHelper.GetAssemblyReferences()
-            //foreach (AssemblyName assemblyName in notLoadedReferences)
-            //{
-            //    AppDomain.CurrentDomain.Load(assemblyName);
-            //}
-
+            //List<SourceControl.Assemblys.AssemblyHelper.ReferencedAssembly> refs_d0 = SourceControl.Assemblys.AssemblyHelper.GetAllReferencedAssemblys(executionAssembly);
 
             // in order to reject only new modules -if depconflict persist-
             IEnumerable<SourceControl.BuildServers.SourceController> mods = assemblySources.TakeLoadTime();
@@ -201,7 +195,17 @@ namespace TaskBroker.Assemblys
                 AssemblyName = assemblyName
             };
             var IModType = typeof(IMod);
-            var types = assembly.GetExportedTypes().Where(assemblyType =>
+            Type[] exp_types = null;
+            try
+            {
+                exp_types = assembly.GetExportedTypes();
+            }
+            catch (Exception exc)
+            {
+                logger.Exception(exc, "Assembly registration failed: {0}", assembly.FullName);
+                return;
+            }
+            var types = exp_types.Where(assemblyType =>
                 !assemblyType.IsInterface
                 && IModType.IsAssignableFrom(assemblyType));
 
@@ -222,6 +226,7 @@ namespace TaskBroker.Assemblys
             if (a.Version.FileSymbols != null)
                 assembly = Assembly.Load(a.ExtractLibrary(), a.ExtractLibrarySymbols());
             else assembly = Assembly.Load(a.ExtractLibrary());
+
             return assembly;
         }
 
@@ -236,6 +241,17 @@ namespace TaskBroker.Assemblys
             string[][] Parts = (from x in args.Name.Split(',')
                                 select x.Trim().Split('=')).ToArray();
 
+            string assemblyName = Parts[0][0];
+
+            // preserve restricted, platform interfaces hold assemblies
+            if (ContractAssemblies.ContainsKey(assemblyName))
+            {
+                if (string.CompareOrdinal(args.Name, ContractAssemblies[assemblyName].FullName) != 0)
+                    logger.Warning("contract assembly override: {0}; With: {1}", args.Name, ContractAssemblies[assemblyName].FullName);
+
+                return ContractAssemblies[assemblyName];
+            }
+
             string assemblyReqVersion = (from x in Parts
                                          where x[0] == "Version"
                                          select x[1]).First();
@@ -243,9 +259,9 @@ namespace TaskBroker.Assemblys
             string assemblyPublicKeyToken = (from x in Parts
                                              where x[0] == "PublicKeyToken"
                                              select x[1]).First();
-
             Assembly lib;
-            if (SharedManagedLibraries.ResolveLibraryAssembly(Parts[0][0],
+
+            if (SharedManagedLibraries.ResolveLibraryAssembly(assemblyName,
                 assemblyReqVersion,
                 args.Name,
                 args.RequestingAssembly.FullName, out lib))
@@ -254,19 +270,19 @@ namespace TaskBroker.Assemblys
             }
             else
             {
-                if (File.Exists(Parts[0][0] + ".dll"))
+                if (File.Exists(assemblyName + ".dll"))
                 {
-                    string filever = SourceControl.Assemblys.AssemblyHelper.GetAssemblyVersion(Parts[0][0] + ".dll").Version.ToString();
+                    string filever = SourceControl.Assemblys.AssemblyHelper.GetAssemblyVersion(assemblyName + ".dll").Version.ToString();
                     if (filever == assemblyReqVersion)
                     {
-                        logger.Warning("local dll resolving: {0}; ver: {1} for: {2}", Parts[0][0] + ".dll", filever, args.RequestingAssembly.FullName);
-                        return Assembly.LoadFrom(Parts[0][0] + ".dll");
+                        logger.Warning("local dll resolving: {0}; ver: {1} for: {2}", assemblyName + ".dll", filever, args.RequestingAssembly.FullName);
+                        return Assembly.LoadFrom(assemblyName + ".dll");
                     }
                 }
                 // Console.WriteLine("loading shared library failed: not found {0}", Parts[0]);
                 logger.Error("loading shared library failed: not found: {0}; requested by: {1}; ", args.Name, args.RequestingAssembly.FullName);
             }
-            string gaclib = GetAssemblyInGac(Parts[0][0], assemblyReqVersion, assemblyPublicKeyToken);
+            string gaclib = GetAssemblyInGac(assemblyName, assemblyReqVersion, assemblyPublicKeyToken);
             if (gaclib != null)
             {
                 logger.Warning("loading system library from GAC: {0}, requested: {1} requestedBy: {2}", gaclib, args.Name, args.RequestingAssembly.FullName);

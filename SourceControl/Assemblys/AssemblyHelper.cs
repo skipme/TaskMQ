@@ -38,6 +38,7 @@ namespace SourceControl.Assemblys
                 //CultureInfo = defn.Culture,
                 Version = defn.Version
             };
+            // TODO: add pk and culture
             //StringBuilder sb = new StringBuilder();
             //for (int i = 0; i < defn.PublicKeyToken.Length; i++)
             //    sb.Append(defn.PublicKeyToken[i].ToString("x2"));
@@ -48,5 +49,42 @@ namespace SourceControl.Assemblys
             return n;
         }
 
+        public class ReferencedAssembly
+        {
+            public string parentAssemblyFullName;
+            public AssemblyName SelfName;
+            public override string ToString()
+            {
+                return string.Format("{0}\n {1}", parentAssemblyFullName, SelfName.FullName);
+            }
+        }
+        //public static List<ReferencedAssembly> GetAllReferencedAssemblys(Assembly src_assembly)
+        //{
+        //    List<ReferencedAssembly> result = new List<ReferencedAssembly>();
+        //    List<string> queued = new List<string>();
+        //    Queue<Assembly> assemblys = new Queue<Assembly>();
+            
+        //    queued.Add(src_assembly.FullName);
+        //    assemblys.Enqueue(src_assembly);
+
+        //    while (assemblys.Count > 0)
+        //    {
+        //        Assembly c_asm = assemblys.Dequeue();
+
+        //        AssemblyName[] refs_ = c_asm.GetReferencedAssemblies();
+        //        for (int i = 0; i < refs_.Length; i++)
+        //        {           
+        //            if (!queued.Contains(refs_[i].FullName))
+        //            {
+        //                Assembly asm_loaded_ = Assembly.Load(refs_[i]);
+        //                assemblys.Enqueue(asm_loaded_);
+        //                queued.Add(refs_[i].FullName);
+        //            }
+
+        //            result.Add(new ReferencedAssembly { parentAssemblyFullName = c_asm.FullName, SelfName = refs_[i] });
+        //        }
+        //    }
+        //    return result;
+        //}
     }
 }

@@ -15,16 +15,23 @@ namespace Tests
 
 
     [TestFixture]
-    public class Assembly
+    public class AssemblyTests
     {
         const string dir_with_libs = "test_libs";
-        public Assembly()
+        public AssemblyTests()
         {
             if (!Directory.Exists(dir_with_libs))
                 Directory.CreateDirectory(dir_with_libs);
+            ClearWorkDir();
         }
-
-        static string CreateLib(string source, string location)
+        static void ClearWorkDir()
+        {
+            foreach (string fl in Directory.EnumerateFiles(dir_with_libs))
+            {
+                File.Delete(fl);
+            }
+        }
+        static string CreateLib(string source, string location, string[] dll_references = null)
         {
             location = Path.Combine(dir_with_libs, location);
 
@@ -34,8 +41,16 @@ namespace Tests
             CSharpCodeProvider codeProvider = new CSharpCodeProvider();
 
             System.CodeDom.Compiler.CompilerParameters parameters = new CompilerParameters();
-            parameters.ReferencedAssemblies.Add(typeof(TaskQueue.ITItem).Assembly.Location);
-            parameters.ReferencedAssemblies.Add(typeof(TaskUniversum.IModConsumer).Assembly.Location);
+
+            if (dll_references != null)
+            {
+                parameters.ReferencedAssemblies.AddRange(dll_references);
+            }
+            else
+            {
+                parameters.ReferencedAssemblies.Add(typeof(TaskQueue.ITItem).Assembly.Location);
+                parameters.ReferencedAssemblies.Add(typeof(TaskUniversum.IModConsumer).Assembly.Location);
+            }
             parameters.GenerateExecutable = false;
             parameters.OutputAssembly = location;
 
@@ -55,6 +70,7 @@ namespace Tests
         [Test]
         public void JustAssemblyImport()
         {
+            ClearWorkDir();
             const string lib_source = @"
 using System;
 using System.Reflection;
@@ -84,7 +100,7 @@ return x * (int)System.DateTime.Now.Millisecond * 0 + 55741;
             string asset_content = "hello there";
 
             lib_location = CreateLib(lib_source.Replace("%libname%", lib_name), lib_location);
-            asset_location = CreateAsset(asset_location, asset_content);
+            asset_location = CreateAsset(asset_location, asset_content);// asset created in same dir as lib, it will appear in package
 
             TaskBroker.Broker br = new TaskBroker.Broker();
 
@@ -98,7 +114,7 @@ return x * (int)System.DateTime.Now.Millisecond * 0 + 55741;
                 File.Delete(lib_name + ".zip");
 
             br.AddAssembly(lib_name, lds.Name, lds_p.GetHolder());
-            br.LoadAssemblys();
+            br.PrepareBroker(false, true, false);
 
             Assert.True(br.AssemblyHolder.loadedAssemblys.Count == 1);
             Assert.True(br.AssemblyHolder.loadedAssemblys[br.AssemblyHolder.loadedAssemblys.Keys.First()].AssemblyName.StartsWith(lib_name));
@@ -124,5 +140,87 @@ return x * (int)System.DateTime.Now.Millisecond * 0 + 55741;
             Assert.True(string.Equals(asset_check_content, asset_content, StringComparison.Ordinal));
         }
 
+        [Test]
+        public void RestrictionsByPlatfromInterfaces()
+        {
+            ClearWorkDir();
+            const string lib_source = @"
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using TaskUniversum.Task;
+
+[assembly: AssemblyTitle(""%libname%"")]
+
+namespace lib_a
+{
+public class type_class_a :ExtraTask
+{
+public void Enter(){MetaTask mt = new MetaTask();mt.Exit();}
+}
+}
+
+";
+            const string restr_lib_source = @"
+using System;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyTitle(""%libname%"")]
+[assembly: AssemblyVersion(""99.8.8"")]
+[assembly: AssemblyFileVersion(""99.8.8"")]
+[assembly: AssemblyKeyFileAttribute(""testkeypair.snk"")]
+
+namespace TaskUniversum.Task
+{  
+public class ExtraTask
+    {
+       public void Exit(){xxx.some_proc();}
+    }
+  public class MetaTask
+    {
+       public void Exit(){xxx.some_proc();}
+    }
+public class xxx
+{
+public static void some_proc(){Console.WriteLine(""xxx"");}
+}
+}
+
+";
+            const string lib_name = "lib_a_1";
+            string lib_location = lib_name + ".dll";
+
+            string restr_lib_name = typeof(TaskUniversum.IModConsumer).Assembly.GetName().Name;
+            string restr_lib_location = restr_lib_name + ".dll";
+
+            restr_lib_location = CreateLib(restr_lib_source.Replace("%libname%", restr_lib_name), restr_lib_location);
+
+            lib_location = CreateLib(lib_source.Replace("%libname%", lib_name), lib_location, new string[] { 
+                restr_lib_location,
+                //typeof(TaskQueue.ITItem).Assembly.Location,
+                //typeof(TaskUniversum.IModConsumer).Assembly.Location
+            });
+
+            TaskBroker.Broker br = new TaskBroker.Broker();
+
+            SourceControl.BuildServers.LocalDirectory lds = new SourceControl.BuildServers.LocalDirectory();
+            SourceControl.BuildServers.LocalDirParams lds_p = new SourceControl.BuildServers.LocalDirParams()
+            {
+                AssemblyFileName = lib_location
+            };
+
+            if (File.Exists(lib_name + ".zip"))
+                File.Delete(lib_name + ".zip");
+
+            br.AddAssembly(lib_name, lds.Name, lds_p.GetHolder());
+            br.PrepareBroker(false, true, false);
+
+            Assert.True(br.AssemblyHolder.loadedAssemblys.Count == 0);
+                     
+        }
     }
 }
