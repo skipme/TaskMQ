@@ -20,12 +20,13 @@ namespace Tests
                 });
             TaskUniversum.ModApi.ScopeLogger.RegisterCommonTape(tape);
 
-            //new AssemblyTests().JustAssemblyImport();
-            new AssemblyTests().RestrictionsByPlatfromInterfaces();
-            return 1;
-            //new InMemoryQueue().MemQueue_Duplications();
-            new Scaling().Scaling_Id();
-            return 1;
+            ////new AssemblyTests().JustAssemblyImport();
+            //new AssemblyTests().RestrictionsByPlatfromInterfaces();
+            //return 1;
+            ////new InMemoryQueue().MemQueue_Duplications();
+            //new Scaling().Scaling_Id();
+            //return 1;
+
             //double x = -128;
             //PerfCheck();
             //PerfCompare();
@@ -35,16 +36,21 @@ namespace Tests
             //			Console.WriteLine((sbyte)((long)x));
             //			Console.WriteLine((sbyte)(x));
 
-            //Scheduler_PayloadToOverallTime();
+            new ExecutionPlan().ExecutionPlan_CheckForExecution();
+            return -1;
 
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 1, 1);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 4, 1);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 1, 100);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 2, 100);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 3, 100);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 4, 100);
-            //Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 8, 100);
-            //return 1;
+            //Scheduler_PayloadToOverallTime();
+            //return -1;
+
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 1, 1);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 4, 1);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 1, 100);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 2, 100);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 3, 100);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 4, 100);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 5, 8, 100);
+            Scheduler_PayloadToOverallTime_VScale(100000, 1000, 8, 8, 100);
+            return 1;
 
             //for (uint xstep = 1; xstep < 5; xstep++)
             //{
@@ -229,7 +235,8 @@ namespace Tests
             //     step, steps, jobsCount, ThreadsCount,
             //     payloadspan.TotalMilliseconds / payloadspan_parallel.TotalMilliseconds,
             //     payloadspan_parallel.TotalMilliseconds);
-
+            
+            // native schedule nativeThreads
             Console.WriteLine("{0:0.00} {1:0.00} {2:0.00} {3:0.00} {4:0.00} {5} {6} {7}"
                 , cspan.TotalMilliseconds
                 , payloadspan.TotalMilliseconds
@@ -293,10 +300,9 @@ namespace Tests
 				},
 			};
 
-
-            Scheduler.ReWake();
-            Stopwatch swx = Stopwatch.StartNew();
             Scheduler.SetPlan(TaskList);
+            Stopwatch swx = Stopwatch.StartNew();
+            Scheduler.ReWake();
 
             while (notSucceeded)
             {
@@ -305,17 +311,16 @@ namespace Tests
             TimeSpan payloadspan = swx.Elapsed;
             Scheduler.SuspendAll();
             Console.WriteLine("e act");
-            //while (Scheduler.Activity)
-            //{
-            //}
+            while (Scheduler.Activity)
+            {
+            }
 
             //
 
-            Console.WriteLine("{0}({1}) by {2} --- {3:.00}",
-                cspan.TotalMilliseconds, cspan.TotalMilliseconds,// * (maxVal / incVal),
+            Console.WriteLine("{0} by {1} --- {2:.00}",
+                cspan.TotalMilliseconds, 
                 payloadspan.TotalMilliseconds,
-                //(payloadspan.TotalMilliseconds * (maxVal / incVal)) / cspan.TotalMilliseconds);
-                payloadspan.TotalMilliseconds / cspan.TotalMilliseconds);
+               payloadspan.TotalMilliseconds / cspan.TotalMilliseconds);
 
         }
         static void PerfDic()

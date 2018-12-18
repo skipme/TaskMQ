@@ -169,10 +169,10 @@ namespace TaskScheduler
             PlanItem nextJob;
 
             nextJob = ti.rootPlan.Next(true);
-            //if (nextJob == null) // second try
-            //{
-            //   nextJob = ti.rootPlan.Next(true);
-            //}
+            if (nextJob == null) // second try
+            {
+                nextJob = ti.rootPlan.Next(true);
+            }
 
             ti.Job = nextJob;
         }
@@ -204,7 +204,7 @@ namespace TaskScheduler
 
                     int waitafter = planned.JobEntry(threadContext, planned);
                     planned.ExucutingNow = false;
-                    if (waitafter == 1)
+                    if (waitafter == 1)// TODO: disable this in cases queue growing, due perfromance
                     {
                         Thread.Sleep(maxSuspend);
                     }  

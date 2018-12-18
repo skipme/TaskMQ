@@ -90,48 +90,53 @@ namespace TaskBroker
                 // the internal tuple is empty
                 if (anteroom.Count == 0)
                 {
-                    TaskQueue.Providers.TaskMessage result = Queue.GetItem();
-                    if (result != null)
+                    TaskQueue.Providers.TaskMessage result = null;// Queue.GetItem();
+                    //if (result != null)
+                    //{
+                    long qlen = Queue.GetQueueLength();
+                    if (qlen >= 100)
                     {
-                        long qlen = Queue.GetQueueLength();
-                        if (qlen >= 100)
+                        TaskQueue.Providers.TaskMessage[] items = null;
+                        try
                         {
-                            TaskQueue.Providers.TaskMessage[] items = null;
-                            try
-                            {
-                                items = Queue.GetItemTuple();
-                            }
-                            catch (Exception e)
-                            {
-                                logger.Exception(e, "Message Take", "anteroom take error");
-                                return null;
-                            }
-
-                            if (items != null && items.Length > 0)
-                            {
-                                anteroom = new Queue<TaskMessage>(items);
-                                //anteroom = new ConcurrentQueue<TaskMessage>(items);
-                                return result;
-                            }
-                            // the channel queue is empty
-                            InternalEmptyFlag = true;
+                            items = Queue.GetItemTuple();
+                        }
+                        catch (Exception e)
+                        {
+                            logger.Exception(e, "Message Take", "anteroom take error");
                             return null;
                         }
-                        InternalEmptyFlag = result == null;
-                        return result;
-                    }
-                    else
-                    {
+
+                        if (items != null && items.Length > 0)
+                        {
+                            anteroom = new Queue<TaskMessage>(items);
+                            //anteroom = new ConcurrentQueue<TaskMessage>(items);
+                            return anteroom.Dequeue();
+                        }
+                        // the channel queue is empty
                         InternalEmptyFlag = true;
                         return null;
                     }
+                    else if (qlen > 0)
+                    {
+                        result = Queue.GetItem();
+                    }
+                    InternalEmptyFlag = result == null;
+
+                    return result;
+                    //}
+                    //else
+                    //{
+                    //    InternalEmptyFlag = true;
+                    //    return null;
+                    //}
                 }
                 else
                 {
                     TaskQueue.Providers.TaskMessage result = anteroom.Dequeue();
                     //TaskQueue.Providers.TaskMessage result;
                     //anteroom.TryDequeue(out result);
-                    InternalEmptyFlag = result == null;
+                    //InternalEmptyFlag = result == null;
                     return result;
                 }
             }
