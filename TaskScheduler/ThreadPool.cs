@@ -169,6 +169,10 @@ namespace TaskScheduler
             PlanItem nextJob;
 
             nextJob = ti.rootPlan.Next(true);
+            //if (nextJob == null) // second try
+            //{
+            //   nextJob = ti.rootPlan.Next(true);
+            //}
 
             ti.Job = nextJob;
         }
@@ -198,21 +202,16 @@ namespace TaskScheduler
                 {
                     PlanItem planned = threadContext.Job;
 
-                    if (planned.JobEntry(threadContext, planned) == 1)
+                    int waitafter = planned.JobEntry(threadContext, planned);
+                    planned.ExucutingNow = false;
+                    if (waitafter == 1)
                     {
                         Thread.Sleep(maxSuspend);
-                    }
-                    else
-                    {
-                        //if (planned.intervalType != IntervalType.withoutInterval)
-                        //    Thread.Yield();
-                        //Thread.Sleep(0000);
-                    }
-                    planned.ExucutingNow = false;
+                    }  
                 }
                 else
                 {
-                    Console.WriteLine("sleep due job absent");
+                    //Console.WriteLine("sleep due job absent");
                     Thread.Sleep(maxSuspend);
                 }
             }

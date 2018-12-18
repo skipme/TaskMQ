@@ -10,10 +10,8 @@ namespace TaskUniversum.Task
         isolatedThread = 0x21,
         withoutInterval,
         
-        intervalMilliseconds,
+        //intervalMilliseconds,
         intervalSeconds,
-        DayTime,
-
-        
+        DayTime
     }
 }

@@ -50,17 +50,17 @@ namespace TaskScheduler
         public bool Suspended;
         public sbyte LAMS;
 
-        public long SecondsBeforeExecute()
+        public double SecondsBeforeExecute()
         {
-        	double LAMSd = (NextExecutionTime - DateTime.UtcNow).TotalSeconds;
-        	if(LAMSd>127)
-        		LAMS = 127;
-        	else if(LAMSd< -128)
-        		LAMS = -128;
-        	else 
-        		LAMS = (sbyte)LAMSd;
-        	//Console.WriteLine(LAMS);
-        	return LAMS;
+            double LAMSd = (NextExecutionTime - DateTime.UtcNow).TotalSeconds;
+            if (LAMSd > 127)
+                LAMS = 127;
+            else if (LAMSd < -128)
+                LAMS = -128;
+            else
+                LAMS = (sbyte)LAMSd;
+            //Console.WriteLine(LAMS);
+            return LAMSd;
         }
 
         public void SetActualTimePosition(DateTime startedAt, TimeSpan executionTime)
@@ -68,7 +68,7 @@ namespace TaskScheduler
             // TODO: push args data to prediction constructions
         }
         /// <summary>
-        /// Mode time required for job execution (in milliseconds) on this configuration(s&h)
+        /// Mode time required for job execution (in milliseconds) on this configuration(s&amp;h)
         /// </summary>
         public ulong MillisecondsRequired
         {

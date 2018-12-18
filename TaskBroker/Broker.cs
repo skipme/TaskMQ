@@ -228,8 +228,8 @@ namespace TaskBroker
         // bunch [channel~[message model], module[message model], +executionContext]
         // note: this is configure which channel is selected for custom module
         public void RegisterTask(string ChannelName, string moduleName,
-            IntervalType it = IntervalType.intervalMilliseconds,
-            long intervalValue = 100,
+            IntervalType it = IntervalType.intervalSeconds,
+            long intervalValue = 2,
             Dictionary<string, object> parameters = null, string Description = "-")
         {
             ModMod module = Modules.GetInstanceByName(moduleName);
