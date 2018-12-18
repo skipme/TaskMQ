@@ -13,7 +13,7 @@ namespace Tests
 
     [TestFixture]
     public class ExecutionPlan
-    {       
+    {
         [Test]
         public void ExecutionPlan_CheckForExecution()
         {
@@ -21,6 +21,8 @@ namespace Tests
             // check for job executed in same time
             uint localVar = 0;
             uint deferred_LocalVar = 0;
+            uint short_term_var = 0;
+            uint long_term_var = 0;
             bool notSucceeded = false;
             PlanItemEntryPoint job = (ThreadContext ti, PlanItem pi) =>
                      {
@@ -43,12 +45,25 @@ namespace Tests
                          //Console.WriteLine("ExecutionPlan_CheckForExecution ex {0}", System.Threading.Thread.CurrentThread.Name);
                          return 1;
                      };
+            //TaskScheduler.ExecutionPlan.LongTermBarrierSec = 3;
             List<PlanItem> TaskList = new List<PlanItem>()
             {
                 new PlanItem(){
                      intervalType = IntervalType.withoutInterval,
                      NameAndDescription = "",
                      JobEntry = job
+                },
+                 new PlanItem(){
+                     intervalType = IntervalType.intervalSeconds,
+                     intervalValue = 1,// 2sec
+                     NameAndDescription = "",
+                     JobEntry = (ThreadContext ti, PlanItem pi) =>{short_term_var++; return 1;}
+                },
+                new PlanItem(){
+                     intervalType = IntervalType.intervalSeconds,
+                     intervalValue = 4,// more than long term barrier value
+                     NameAndDescription = "",
+                     JobEntry = (ThreadContext ti, PlanItem pi) =>{long_term_var++; return 1;}
                 },
             };
 
@@ -58,7 +73,7 @@ namespace Tests
             Scheduler.DeferJob((thread_, job_) => { deferred_LocalVar = 555; return 1; });
 
             System.Threading.Thread.Sleep(1500);
-
+            
             Scheduler.SuspendAll();
             while (Scheduler.Activity)
             {
@@ -69,6 +84,8 @@ namespace Tests
 
             Assert.AreNotEqual(localVar, 0);
             Assert.AreEqual(localVar, 1000);
+
+            Assert.AreNotEqual(short_term_var, 0);
 
             Assert.AreEqual(deferred_LocalVar, 555);
         }

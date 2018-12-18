@@ -17,9 +17,12 @@ namespace TaskScheduler
         private int CounterIT;
 
         private List<PlanItem> ShortTermTasks;
+        private readonly object ShortTermLongTermTransferSync = new object();
         private int CounterST;
 
         private List<PlanItem> LongTermTasks;
+
+        public static readonly int LongTermBarrierSec = 120;
 
         /// <summary>
         /// Enqueue unprioritized backround job, maintenance job maybe
@@ -50,7 +53,7 @@ namespace TaskScheduler
                     ctidx = 0;
                     CounterIT = 0;
                 }
-               
+
             }
 
             if (ctidx >= 0)
@@ -66,22 +69,37 @@ namespace TaskScheduler
             {
                 while (true)
                 {
-                    int idxst = Interlocked.Increment(ref CounterST);
-                    if (idxst >= ShortTermTasks.Count)
+                    PlanItem cit = null;
+                    int idxst = -1;
+                    lock (ShortTermLongTermTransferSync)
                     {
-                        CounterST = 0;
-                        break;
+                        CounterST++;
+                        idxst = CounterST;
+                        if (idxst >= ShortTermTasks.Count)
+                        {
+                            CounterST = -1;
+                            break;
+                        }
+                        cit = ShortTermTasks[idxst];
                     }
 
-                    PlanItem cit = ShortTermTasks[idxst];
-                    if (!cit.Suspended && !cit.ExucutingNow && cit.SecondsBeforeExecute() <= 0)
+                    if (!cit.Suspended && !cit.ExucutingNow)
                     {
-                        cit.ExucutingNow = true;
-                    }
-                    else
-                    {
-                        resultedTask = cit;
-                        break;
+                        double sec_wait = cit.SecondsBeforeExecute();
+                        if (sec_wait < 0)
+                        {
+                            cit.SetStartExecution();
+                            resultedTask = cit;
+                            break;
+                        }
+                        else if (sec_wait > LongTermBarrierSec)// 2 min
+                        {
+                            lock (ShortTermLongTermTransferSync)
+                            {
+                                ShortTermTasks.RemoveAt(idxst);
+                                LongTermTasks.Add(cit);
+                            }
+                        }
                     }
                 }
             }
@@ -121,61 +139,32 @@ namespace TaskScheduler
                         break;
                 }
             }
-
             ImmediateTasks = imm_t;
             ShortTermTasks = shrt_cand_t;
+            LongTermTasks = lngt_cand_t;
+
+            ShortTermTasks.Add(new PlanItem
+            {
+                intervalType = IntervalType.intervalSeconds,
+                intervalValue = 75,
+                JobEntry = (ThreadContext ti, PlanItem pi) =>
+                {
+                    for (int i = 0; i < LongTermTasks.Count; i++)
+                    {
+                        PlanItem lti = LongTermTasks[i];
+                        if (!lti.Suspended && lti.SecondsBeforeExecute() < LongTermBarrierSec)
+                        {
+                            lock (ShortTermLongTermTransferSync)
+                            {
+                                LongTermTasks.RemoveAt(i);
+                                ShortTermTasks.Add(lti);
+                            }
+                            i--;   
+                        }
+                    }
+                    return 1;
+                }
+            });
         }
-
-        //private PlanItem[] OrderComponents()
-        //{
-        //    var p = from i in PlanComponents
-        //            //where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
-        //            //!i.ExucutingNow && i.SecondsBeforeExecute() <= 0
-        //            where !i.Suspended && i.intervalType > IntervalType.withoutInterval &&
-        //            !i.ExucutingNow && i.SecondsBeforeExecute() <= 0
-        //            orderby i.LAMS descending
-        //            select i;
-        //    return p.ToArray();
-        //}
-        //private PlanItem[] OrderInstantComponents()
-        //{
-        //    var p = from i in PlanComponents
-        //            where !i.Suspended && i.intervalType == IntervalType.withoutInterval
-        //            // orderby i.LAMS descending // TODO: Add some priority
-        //            select i;
-        //    return p.ToArray();
-        //}
-        //private int BeforeNextSec()
-        //{
-        //    lock (planSync)
-        //    {
-        //        var n = from i in PlanComponents
-        //                //where !i.Suspended && i.intervalType != IntervalType.isolatedThread &&
-        //                //!i.ExucutingNow && i.SecondsBeforeExecute() > 0
-        //                where !i.Suspended && i.intervalType > IntervalType.withoutInterval &&
-        //                !i.ExucutingNow && i.SecondsBeforeExecute() > 0
-        //                orderby i.LAMS
-        //                select i;
-
-        //        PlanItem NextJob = n.FirstOrDefault();
-        //        if (NextJob == null)
-        //            return 1;// default wait 1 sec
-        //        else
-        //        {
-        //            return (int)NextJob.LAMS;
-        //        }
-        //    }
-        //}
-        //private void PopulateQueue(PlanItem[] Q)
-        //{
-        //    //lock (planSync)
-        //    {
-        //        CurrentPlanQueue = Q;
-        //        CPQueueCursor = 0;
-
-        //        refilled.Set();
-        //    }
-        //}
-
     }
 }
