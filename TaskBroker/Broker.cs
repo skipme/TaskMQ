@@ -149,7 +149,7 @@ namespace TaskBroker
             //RegisterChannel("benchQ", "benchCH#" + 2, true);
 
             Random rnd = new Random(DateTime.UtcNow.Millisecond);
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 100; i++)
             {
                 RegisterTempTask(new MetaTask
                 {

@@ -149,25 +149,31 @@ namespace BsonBenchService
                     lock (syncClients)
                         cli = activeClients[ringIndex];
 
-                    if (cli.ns.DataAvailable)
+                    if (System.Threading.Monitor.TryEnter(cli, 10))
                     {
-                        cli.proc();
-                    }
-                    else
-                    {
-                        if (!cli.isAlive)
+                        //if (cli.ns.DataAvailable)
+                        //{
+                        //    cli.proc();
+                        //}
+                        //else
                         {
-                            lock (syncClients)
-                                activeClients.RemoveAt(ringIndex);
-                            ringIndex--;
-                            logger.Debug("Disconnected: {0}", cli.client.Client.RemoteEndPoint);
+                            if (!cli.isAlive)
+                            {
+                                lock (syncClients)
+                                    activeClients.RemoveAt(ringIndex);
+                                ringIndex--;
+                                logger.Debug("Disconnected: {0}", cli.client.Client.RemoteEndPoint);
+                            }
+                            System.Threading.Thread.Sleep(0);
                         }
-                        System.Threading.Thread.Sleep(0);
+                        System.Threading.Monitor.Exit(cli);
                     }
 
                     ringIndex++;
                     if (ringIndex >= activeClients.Count)
+                    {
                         ringIndex = 0;
+                    }
                 }
                 else
                 {
@@ -191,7 +197,34 @@ namespace BsonBenchService
             lock (syncClients)
                 activeClients.Add(cli);
             logger.Debug("Connected: {0}", tc.Client.RemoteEndPoint);
+            System.Threading.ThreadPool.QueueUserWorkItem((scli) =>
+            {
+                BsonClient bscli = (scli as BsonClient);
+                while (!stopSignal)
+                {
+                    bool proc = false;
+                    lock (scli)
+                    {
+                        if (bscli.ns.DataAvailable)
+                        {
+                            bscli.proc();
+                            proc = true;
+                        }
+                    }
+                    if (!proc)
+                    {
+                        if (!System.Threading.Thread.Yield())
+                        {
+                            System.Threading.Thread.Sleep(100);
+                        }
+                        if (!bscli.isAlive)
+                        {
+                            break;
+                        }
+                    }
+                }
 
+            }, cli);
             serv.BeginAcceptTcpClient(AcceptNewClient, null);
         }
         volatile bool stopSignal = false;

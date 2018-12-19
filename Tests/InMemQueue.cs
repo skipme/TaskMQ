@@ -102,5 +102,19 @@ namespace Tests
             mq.UpdateItem(first);
             Assert.AreEqual(mq.GetItem().Holder["field1"], 1);
         }
+        [Test]
+        public void MemQueue_Update()
+        {
+            TaskQueue.Providers.MemQueue mq = new TaskQueue.Providers.MemQueue();
+            mq.SetSelector(
+                new TaskQueue.TQItemSelector("Processed", false)
+                .Rule("field1", TaskQueue.TQItemSelectorSet.Descending)
+                );
+            SomeExtMessage msg = new SomeExtMessage { field1 = 1 };
+            mq.Push(msg);
+            Assert.AreEqual(mq.GetQueueLength(), 1);
+            mq.UpdateItem(mq.GetItem());
+            Assert.AreEqual(mq.GetQueueLength(), 1);
+        }
     }
 }

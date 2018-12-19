@@ -19,11 +19,11 @@ namespace TaskBroker
 
         public ChannelAnteroom()
         {
-            anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
-            //anteroom = new ConcurrentQueue<TaskMessage>();
+            //anteroom = new Queue<TaskQueue.Providers.TaskMessage>();
+            anteroom = new ConcurrentQueue<TaskMessage>();
         }
-        public Queue<TaskQueue.Providers.TaskMessage> anteroom;
-        //public ConcurrentQueue<TaskQueue.Providers.TaskMessage> anteroom;
+        //public Queue<TaskQueue.Providers.TaskMessage> anteroom;
+        public ConcurrentQueue<TaskQueue.Providers.TaskMessage> anteroom;
         public TaskQueue.ITQueue Queue;
         /// <summary>
         /// True: queue is empty
@@ -85,37 +85,51 @@ namespace TaskBroker
         }
         public TaskQueue.Providers.TaskMessage Next()
         {
-            lock (anteroomSync)
+            TaskQueue.Providers.TaskMessage result = null;
+            //lock (anteroomSync)
             {
                 // the internal tuple is empty
                 if (anteroom.Count == 0)
                 {
-                    TaskQueue.Providers.TaskMessage result = null;// Queue.GetItem();
+                    // Queue.GetItem();
                     //if (result != null)
                     //{
                     long qlen = Queue.GetQueueLength();
                     if (qlen >= 100)
                     {
-                        TaskQueue.Providers.TaskMessage[] items = null;
-                        try
+                        lock (anteroomSync)
                         {
-                            items = Queue.GetItemTuple();
-                        }
-                        catch (Exception e)
-                        {
-                            logger.Exception(e, "Message Take", "anteroom take error");
+                            if (anteroom.Count > 0)
+                            {
+                                if (anteroom.TryDequeue(out result))
+                                    return result;
+                                return null;
+                            }
+                            TaskQueue.Providers.TaskMessage[] items = null;
+                            try
+                            {
+                                items = Queue.GetItemTuple();
+                            }
+                            catch (Exception e)
+                            {
+                                logger.Exception(e, "Message Take", "anteroom take error");
+                                return null;
+                            }
+
+                            if (items != null && items.Length > 0)
+                            {
+                                //anteroom = new Queue<TaskMessage>(items);
+                                anteroom = new ConcurrentQueue<TaskMessage>(items);
+
+                                if (anteroom.TryDequeue(out result))
+                                    return result;
+                                return null;
+                                //return anteroom.Dequeue();
+                            }
+                            // the channel queue is empty
+                            InternalEmptyFlag = true;
                             return null;
                         }
-
-                        if (items != null && items.Length > 0)
-                        {
-                            anteroom = new Queue<TaskMessage>(items);
-                            //anteroom = new ConcurrentQueue<TaskMessage>(items);
-                            return anteroom.Dequeue();
-                        }
-                        // the channel queue is empty
-                        InternalEmptyFlag = true;
-                        return null;
                     }
                     else if (qlen > 0)
                     {
@@ -133,7 +147,10 @@ namespace TaskBroker
                 }
                 else
                 {
-                    TaskQueue.Providers.TaskMessage result = anteroom.Dequeue();
+                    //TaskQueue.Providers.TaskMessage result = anteroom.Dequeue();
+                    if (anteroom.TryDequeue(out result))
+                        return result;
+                    return null;
                     //TaskQueue.Providers.TaskMessage result;
                     //anteroom.TryDequeue(out result);
                     //InternalEmptyFlag = result == null;

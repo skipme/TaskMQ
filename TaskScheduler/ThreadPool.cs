@@ -29,7 +29,7 @@ namespace TaskScheduler
 
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
-        public ThreadPool(uint MaxThreadsNum = 0)
+        public ThreadPool(uint MaxThreadsNum = 16)
         {
             this.ProcessorCount = Environment.ProcessorCount;
 
@@ -204,10 +204,17 @@ namespace TaskScheduler
 
                     int waitafter = planned.JobEntry(threadContext, planned);
                     planned.ExucutingNow = false;
-                    if (waitafter == 1)// TODO: disable this in cases queue growing, due perfromance
+                    //if (waitafter == 1)// TODO: disable this in cases queue growing, due perfromance
+                    //{
+                    //    Thread.Sleep(maxSuspend);
+                    //} 
+                    if (waitafter == 1)
                     {
-                        Thread.Sleep(maxSuspend);
-                    }  
+                        if (!Thread.Yield())
+                        {
+                            Thread.Sleep(maxSuspend);
+                        }
+                    }
                 }
                 else
                 {

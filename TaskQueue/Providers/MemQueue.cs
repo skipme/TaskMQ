@@ -99,10 +99,11 @@ namespace TaskQueue.Providers
             //    return null;
             //lock (sync)
             //    return baseQueue.Dequeue();
-            if (MessageQueue.Count == 0)
-                return null;
+
             lock (sync)
             {
+                if (MessageQueue.Count == 0)
+                    return null;
                 TaskMessage result;
 
                 result = MessageQueue.Min;
@@ -138,12 +139,10 @@ namespace TaskQueue.Providers
                 throw new Exception("__original of queue element is missing");
             TaskMessage orig = (TaskMessage)id;
             holder.Remove("__original");
-            lock (sync)
-            {
-                //if (!MessageQueue.Remove(orig))
-                //    throw new Exception("can't update element in queue");
-                this.Push(item);
-            }
+
+            //if (!MessageQueue.Remove(orig))
+            //    throw new Exception("can't update element in queue");
+            this.Push(item);
         }
 
 
@@ -200,7 +199,7 @@ namespace TaskQueue.Providers
                     {
                         tuple = new TaskMessage[MessageQueue.Count];
                         MessageQueue.CopyTo(tuple);
-                        
+
                         for (int i = 0; i < tuple.Length; i++)
                         {
                             TaskMessage em = tuple[i];
@@ -210,7 +209,7 @@ namespace TaskQueue.Providers
                         }
                         MessageQueue.Clear();
                     }
-                    
+
                     return tuple;
 
                 }

@@ -36,6 +36,7 @@ namespace TaskScheduler
             }
             HasDelayedTasks = true;
         }
+        //private int throttle_cycles = 0;
         public PlanItem Next(bool wait)
         {
             PlanItem resultedTask = null;
@@ -43,17 +44,18 @@ namespace TaskScheduler
             int ctidx = Interlocked.Increment(ref CounterIT);
             if (ctidx > 0 && ctidx % ImmediateTasks.Count == 0)
             {
-                if (ShortTermTasks.Count > 0)
-                {
-                    ctidx = -1;
-                    CounterIT = -1;
-                }
-                else
-                {
-                    ctidx = 0;
-                    CounterIT = 0;
-                }
-
+                //int throttle_c_idx = Interlocked.Increment(ref throttle_cycles);
+                //if (throttle_c_idx >= 4)
+                //{
+                //    throttle_cycles = 0;
+                ctidx = -1;
+                CounterIT = -1;
+                //}
+                //else
+                //{
+                //    ctidx = 0;
+                //    CounterIT = 0;
+                //}
             }
 
             if (ctidx >= 0)
@@ -159,7 +161,7 @@ namespace TaskScheduler
                                 LongTermTasks.RemoveAt(i);
                                 ShortTermTasks.Add(lti);
                             }
-                            i--;   
+                            i--;
                         }
                     }
                     return 1;
