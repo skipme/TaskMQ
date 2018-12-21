@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -13,7 +14,8 @@ namespace TaskScheduler
         private readonly object SyncDelayedTasks = new object();
         private volatile bool HasDelayedTasks;
 
-        private List<PlanItem> ImmediateTasks;
+        private PlanItem[] ImmediateTasks;
+        private int ImmediateTasksCount;
         private int CounterIT;
 
         private List<PlanItem> ShortTermTasks;
@@ -36,38 +38,79 @@ namespace TaskScheduler
             }
             HasDelayedTasks = true;
         }
-        //private int throttle_cycles = 0;
+        private int throttle_cycles = 0;
+        private int ticks_throttle_cycle;
+        private long throttle_cycle_ticks;
         public PlanItem Next(bool wait)
         {
             PlanItem resultedTask = null;
+            int ctidx;
 
-            int ctidx = Interlocked.Increment(ref CounterIT);
-            if (ctidx > 0 && ctidx % ImmediateTasks.Count == 0)
+            while (true)
             {
-                //int throttle_c_idx = Interlocked.Increment(ref throttle_cycles);
-                //if (throttle_c_idx >= 4)
-                //{
-                //    throttle_cycles = 0;
-                ctidx = -1;
-                CounterIT = -1;
-                //}
-                //else
-                //{
-                //    ctidx = 0;
-                //    CounterIT = 0;
-                //}
-            }
+                ctidx = Interlocked.Increment(ref CounterIT);
 
-            if (ctidx >= 0)
-            {
-                PlanItem cit = ImmediateTasks[ctidx % ImmediateTasks.Count];
-                if (!cit.Suspended && !cit.ExucutingNow)
+                if (ctidx % ImmediateTasksCount == 0 && ctidx != 0)
                 {
-                    cit.ExucutingNow = true;
-                    resultedTask = cit;
+                    //int throttle_c_idx = Interlocked.Increment(ref throttle_cycles);
+                    
+                    //if (throttle_c_idx >= 10)
+                    //{
+                        //throttle_cycles = 0;
+                        long timer = Stopwatch.GetTimestamp();
+                        if ((timer - throttle_cycle_ticks) > ticks_throttle_cycle)
+                        {
+                            throttle_cycle_ticks = timer;
+                            ctidx = -1;
+                            CounterIT = -1;
+                            break;
+                        }
+                    //}
+                    else
+                    {
+                        ctidx = 0;
+                        CounterIT = 0;
+                    }
                 }
+
+                PlanItem cit = ImmediateTasks[ctidx % ImmediateTasksCount];
+                if (!cit.ExucutingNow && !cit.Suspended)
+                {
+                    cit.ExucutingNow = true;// right now, tasks without delays can be executed in parallel
+                    resultedTask = cit;
+                    break;
+                }
+
             }
-            else
+
+            //int ctidx = Interlocked.Increment(ref CounterIT);
+            //if (ctidx > 0 && ctidx % ImmediateTasks.Count == 0)
+            //{
+            //    //int throttle_c_idx = Interlocked.Increment(ref throttle_cycles);
+            //    //if (throttle_c_idx >= 4)
+            //    //{
+            //    //    throttle_cycles = 0;
+            //    ctidx = -1;
+            //    CounterIT = -1;
+            //    //}
+            //    //else
+            //    //{
+            //    //    ctidx = 0;
+            //    //    CounterIT = 0;
+            //    //}
+            //}
+
+            //if (ctidx >= 0)
+            //{
+            //    PlanItem cit = ImmediateTasks[ctidx % ImmediateTasks.Count];
+            //    if (!cit.Suspended && !cit.ExucutingNow)
+            //    {
+            //        cit.ExucutingNow = true;
+            //        resultedTask = cit;
+            //    }
+            //}
+            //else
+            if (ctidx < 0)
             {
                 while (true)
                 {
@@ -84,38 +127,43 @@ namespace TaskScheduler
                         }
                         cit = ShortTermTasks[idxst];
                     }
-
-                    if (!cit.Suspended && !cit.ExucutingNow)
+                    lock (cit)
                     {
-                        double sec_wait = cit.SecondsBeforeExecute();
-                        if (sec_wait < 0)
+                        if (!cit.Suspended && !cit.ExucutingNow)
                         {
-                            cit.SetStartExecution();
-                            resultedTask = cit;
-                            break;
-                        }
-                        else if (sec_wait > LongTermBarrierSec)// 2 min
-                        {
-                            lock (ShortTermLongTermTransferSync)
+                            double sec_wait = cit.SecondsBeforeExecute();
+                            if (sec_wait < 0)
                             {
-                                ShortTermTasks.RemoveAt(idxst);
-                                LongTermTasks.Add(cit);
+                                cit.SetStartExecution();
+                                resultedTask = cit;
+                                break;
+                            }
+                            else if (sec_wait > LongTermBarrierSec)// 2 min
+                            {
+                                lock (ShortTermLongTermTransferSync)
+                                {
+                                    ShortTermTasks.RemoveAt(idxst);
+                                    LongTermTasks.Add(cit);
+                                }
                             }
                         }
                     }
                 }
-            }
-            if (resultedTask == null && HasDelayedTasks)
-            {
-                lock (SyncDelayedTasks)
+
+                if (resultedTask == null && HasDelayedTasks)
                 {
-                    resultedTask = DelayedTasks.Dequeue();
-                    if (DelayedTasks.Count == 0)
+                    lock (SyncDelayedTasks)
                     {
-                        HasDelayedTasks = false;
+                        resultedTask = DelayedTasks.Dequeue();
+                        if (DelayedTasks.Count == 0)
+                        {
+                            HasDelayedTasks = false;
+                        }
                     }
                 }
             }
+
+
             return resultedTask;
         }
         public void SetComponents(List<PlanItem> newComponents)
@@ -141,7 +189,7 @@ namespace TaskScheduler
                         break;
                 }
             }
-            ImmediateTasks = imm_t;
+            ImmediateTasks = imm_t.ToArray();
             ShortTermTasks = shrt_cand_t;
             LongTermTasks = lngt_cand_t;
 
@@ -167,6 +215,9 @@ namespace TaskScheduler
                     return 1;
                 }
             });
+            // --- 
+            ticks_throttle_cycle = (int)(Stopwatch.Frequency * 0.3/*750ms*/);
+            ImmediateTasksCount = ImmediateTasks.Length;
         }
     }
 }

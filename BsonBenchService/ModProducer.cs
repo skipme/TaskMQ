@@ -32,7 +32,7 @@ namespace BsonBenchService
             public NetworkStream ns;
 
             private DateTime lastChecking;
-            public bool isAlive
+            public bool CheckIsAlive
             {
                 get
                 {
@@ -74,6 +74,7 @@ namespace BsonBenchService
                     return true;
                 }
             }
+            public volatile bool IsRemoved;
 
             public bool proc()
             {
@@ -157,17 +158,21 @@ namespace BsonBenchService
                         //}
                         //else
                         {
-                            if (!cli.isAlive)
+                            if (!cli.CheckIsAlive)
                             {
                                 lock (syncClients)
+                                {
                                     activeClients.RemoveAt(ringIndex);
+                                    cli.IsRemoved = true;
+                                }
                                 ringIndex--;
                                 logger.Debug("Disconnected: {0}", cli.client.Client.RemoteEndPoint);
                             }
-                            System.Threading.Thread.Sleep(0);
                         }
                         System.Threading.Monitor.Exit(cli);
                     }
+
+                    System.Threading.Thread.Sleep(100);
 
                     ringIndex++;
                     if (ringIndex >= activeClients.Count)
@@ -177,7 +182,7 @@ namespace BsonBenchService
                 }
                 else
                 {
-                    System.Threading.Thread.Sleep(500);
+                    System.Threading.Thread.Sleep(5000);
                 }
             }
 
@@ -217,11 +222,23 @@ namespace BsonBenchService
                         {
                             System.Threading.Thread.Sleep(100);
                         }
-                        if (!bscli.isAlive)
+                        //System.Threading.Thread.Sleep(0);
+                        if (bscli.IsRemoved)
                         {
                             break;
                         }
                     }
+                    else
+                    {
+                        System.Threading.Thread.Sleep(0);
+                    }
+                    //else
+                    //{
+                    //    if (!System.Threading.Thread.Yield())
+                    //    {
+                    //        System.Threading.Thread.Sleep(100);
+                    //    }
+                    //}
                 }
 
             }, cli);

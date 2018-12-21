@@ -29,7 +29,7 @@ namespace TaskScheduler
 
         List<ThreadContext> threads = new List<ThreadContext>();
         private ExecutionPlan plan = new ExecutionPlan();
-        public ThreadPool(uint MaxThreadsNum = 16)
+        public ThreadPool(uint MaxThreadsNum = 8)
         {
             this.ProcessorCount = Environment.ProcessorCount;
 
@@ -169,10 +169,10 @@ namespace TaskScheduler
             PlanItem nextJob;
 
             nextJob = ti.rootPlan.Next(true);
-            if (nextJob == null) // second try
-            {
-                nextJob = ti.rootPlan.Next(true);
-            }
+            //if (nextJob == null) // second try
+            //{
+            //    nextJob = ti.rootPlan.Next(true);
+            //}
 
             ti.Job = nextJob;
         }
@@ -210,16 +210,17 @@ namespace TaskScheduler
                     //} 
                     if (waitafter == 1)
                     {
-                        if (!Thread.Yield())
+                        //Thread.Sleep(0);
+                        if (!Thread.Yield())// TODO: make better approach
                         {
-                            Thread.Sleep(maxSuspend);
+                        Thread.Sleep(maxSuspend);
                         }
                     }
                 }
                 else
                 {
                     //Console.WriteLine("sleep due job absent");
-                    Thread.Sleep(maxSuspend);
+                    Thread.Sleep(maxSuspend*2);
                 }
             }
             ExitThread(threadContext);
