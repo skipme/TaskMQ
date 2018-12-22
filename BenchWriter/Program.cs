@@ -32,7 +32,9 @@ namespace BenchWriter
             {
                 //restcli.Enqueue(msg);
                 //tcpb.Enqueue(msg);
+
                 tcpb.ApiEnqueueBatch(batch);
+
                 System.Threading.Thread.Sleep(0);
                 //System.Threading.Thread.Sleep(1000*15);
             }

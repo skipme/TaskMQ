@@ -41,7 +41,7 @@ namespace TaskScheduler
         private int throttle_cycles = 0;
         private int ticks_throttle_cycle;
         private long throttle_cycle_ticks;
-        public PlanItem Next(bool wait)
+        public PlanItem Next()
         {
             PlanItem resultedTask = null;
             int ctidx;

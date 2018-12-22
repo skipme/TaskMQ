@@ -34,7 +34,7 @@ namespace TCPBsonBase
                 }
             }
         }
-        public void OnPutBatch(int id, int setid, Collection<Dictionary<string, object>> messages)
+        public void OnPutBatch(int id, int setid, IList<Dictionary<string, object>> messages)
         {
             if (setid >= 0)
             {

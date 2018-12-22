@@ -8,7 +8,7 @@ using System.Text;
 
 namespace TaskQueue.Providers
 {
-    public class TaskMessage : TItemModel, IComparable
+    public class TaskMessage : TItemModel, IComparable, IDisposable
     {
         [FieldDescription(Ignore = false, Inherited = true, Required = true)]
         public string MType { get; set; }
@@ -474,6 +474,11 @@ namespace TaskQueue.Providers
         public int CompareTo(object obj)
         {
             return object.ReferenceEquals(this, obj) ? 0 : 1;
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this); 
         }
     }
     /// <summary>

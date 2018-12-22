@@ -168,7 +168,7 @@ namespace TaskScheduler
         {
             PlanItem nextJob;
 
-            nextJob = ti.rootPlan.Next(true);
+            nextJob = ti.rootPlan.Next();
             //if (nextJob == null) // second try
             //{
             //    nextJob = ti.rootPlan.Next(true);
