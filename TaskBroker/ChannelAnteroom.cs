@@ -45,7 +45,8 @@ namespace TaskBroker
         {
             try
             {
-                Queue.Push(item);
+                anteroom.Enqueue(item);
+                //Queue.Push(item);
                 InternalEmptyFlag = false;
             }
 
@@ -86,6 +87,9 @@ namespace TaskBroker
         public TaskQueue.Providers.TaskMessage Next()
         {
             TaskQueue.Providers.TaskMessage result = null;
+            if (anteroom.TryDequeue(out result))
+                return result;
+            return null;
             //lock (anteroomSync)
             {
                 // the internal tuple is empty

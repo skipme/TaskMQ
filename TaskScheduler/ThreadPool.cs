@@ -23,7 +23,7 @@ namespace TaskScheduler
 
     public class ThreadPool
     {
-        const int minThrads = 4;
+        const int minThreads = 4;
         //const int maxThreads = 8;// TODO: replace it with some max value, if jobs executed too long allocate new threads according to this value
         private int maxThreads;
 
